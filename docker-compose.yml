@@ -11,6 +11,10 @@ services:
       - NODE_ENV=development
     ports:
       - 3001:3000
+      # Added to eliminate repeated console errors.
+      # I need to look into this more. Seems like only a dev environment problem.
+      # https://github.com/sveltejs/sapper-template/issues/175
+      - 10000:10000
     volumes:
       - ./ccm_web:/app:z
     container_name: ccm_web
