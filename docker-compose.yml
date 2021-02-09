@@ -1,0 +1,16 @@
+---
+version: '3.4'
+
+services:
+
+  web:
+    build:
+      context: ./ccm_web/
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+    ports:
+      - 3001:3000
+    volumes:
+      - ./ccm_web:/app:z
+    container_name: ccm_web
