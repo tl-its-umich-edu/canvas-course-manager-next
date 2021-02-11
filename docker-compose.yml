@@ -7,10 +7,10 @@ services:
     build:
       context: ./ccm_web/
     environment:
-      - PORT=3000
+      - PORT=3333
       - NODE_ENV=development
     ports:
-      - 3001:3000
+      - 3333:3333
       # Added to eliminate repeated console errors.
       # I need to look into this more. Seems like only a dev environment problem.
       # https://github.com/sveltejs/sapper-template/issues/175

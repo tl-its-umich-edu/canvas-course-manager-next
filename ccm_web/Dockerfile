@@ -2,7 +2,7 @@
 FROM node:14-slim AS node
 WORKDIR /app/
 
-EXPOSE 3000
+EXPOSE 3333
 
 COPY . /app/
 
