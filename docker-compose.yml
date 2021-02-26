@@ -2,21 +2,35 @@ version: '3.8'
 
 services:
 
-  web:
+  web_server:
     build:
       context: ./ccm_web/
       args:
-        - PORT=3333 # This is also the default.
+        - PORT=4000
       target: base
     working_dir: /base/
     environment:
-      - PORT=3333
+      - PORT=4000
       - NODE_ENV=development
-      - NEXT_TELEMETRY_DISABLED=1
     ports:
-      - 3333:3333
+      - 4000:4000
     volumes:
-      # Facilitates re-loading
-      - ./ccm_web/:/base/:z
-    command: npm run dev -- -p 3333
-    container_name: ccm_web
+      - ./ccm_web/server:/base/server/:z
+    command: npm run dev
+    container_name: ccm_web_server
+  web_client:
+    build:
+      context: ./ccm_web/client/
+      dockerfile: Dockerfile.dev
+      args:
+        - PORT=4001
+    environment:
+      - PORT=4001
+    ports:
+      - 4001:4001
+    volumes:
+      - ./ccm_web/client/src:/app/src/:z
+      - ./ccm_web/client/public:/app/public/:z
+    container_name: ccm_web_client
+    depends_on:
+      - web_server

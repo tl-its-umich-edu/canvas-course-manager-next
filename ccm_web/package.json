@@ -7,7 +7,7 @@
     "build-client": "cd client && npm run build",
     "compile-server": "tsc",
     "preprod": "npm run build-client && npm run compile-server",
-    "prod": "NODE_ENV=production node server/app.js"
+    "prod": "NODE_ENV=production node dist/app.js"
   },
   "author": "",
   "license": "ISC",
