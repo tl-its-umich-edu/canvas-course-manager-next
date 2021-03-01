@@ -18,5 +18,7 @@ services:
     volumes:
       # Facilitates re-loading
       - ./ccm_web/:/base/:z
+      # Prevents node_modules from being copied from repo into container
+      - /base/node_modules/
     command: npm run dev -- -p 3333
     container_name: ccm_web
