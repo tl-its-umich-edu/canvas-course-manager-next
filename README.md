@@ -13,6 +13,7 @@ Here are some basic set-up instructions.
     ```
     docker-compose up
     ```
+
 3. Access the client by visiting `http://localhost:4001` in your browser of choice.
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
@@ -28,11 +29,19 @@ You can build a production image, run a container, and use the application local
 the following steps, replacing `{PORT}` with the port you want the application to run on:
 
 1. Build one image with the server and static artifacts, including the bundled JavaScript frontend.
+
 ```
-docker build -t ccm --build-arg PORT={PORT}
+docker build -t ccm --build-arg PORT={PORT} ./ccm_web
 ```
 
 2. Run a container with the image, exposing the application to `localhost`.
+
 ```
-docker run --env PORT={PORT} -p {PORT}:{PORT} ccm
+docker run --name ccm_cont --env PORT={PORT} -p {PORT}:{PORT} ccm
+```
+
+To stop the container created by 2), issue the following command:
+
+```
+docker stop ccm_cont
 ```

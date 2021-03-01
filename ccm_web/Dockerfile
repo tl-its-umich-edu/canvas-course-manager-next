@@ -17,7 +17,7 @@ FROM base AS build
 WORKDIR /build/
 COPY --from=base /base ./
 # Install dependencies to enable bundling with npm run build
-RUN npm install ./client/
+RUN npm install ./client/ --production
 RUN npm run preprod
 
 # Prod stage
