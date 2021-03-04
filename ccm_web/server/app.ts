@@ -1,10 +1,18 @@
-import express from 'express'
 import path from 'path'
 
+import express from 'express'
+import webpack from 'webpack'
+import webpackDevMiddleware from 'webpack-dev-middleware'
+
+import devConfig from '../webpack/webpack.dev'
+
+
+const compiler = webpack(devConfig)
 const { NODE_ENV, PORT } = process.env
 
 const port = PORT || 4000
-const nodeEnv = NODE_ENV || 'development'
+const isDev = NODE_ENV !== 'production'
+
 
 // Initialize
 const app = express()
@@ -22,18 +30,29 @@ app.get(apiPathBase + 'hello', (req, res) => {
   res.json({ message: message })
 })
 
-// Serve client/build if in production
-if (nodeEnv === 'production') {
-  console.log('Loading client/build')
+// Handle client code
+if (isDev) {
+  console.log('Setting up webpack-dev-middleware...')
+  const publicPath = typeof devConfig.output?.publicPath === 'string'
+    ? devConfig.output.publicPath : undefined
 
-  const prodBuildPath = path.join(__dirname, '..', 'client', 'build')
+  app.use(
+    webpackDevMiddleware(compiler, {
+      publicPath: publicPath,
+      // Just copies what's used in memory to client/build (changing doesn't do anything)
+      writeToDisk: true
+    })
+  )
+
+} else {
+  console.log('Loading dist/client...')
+  const prodBuildPath = path.join(__dirname, '..', 'client')
+
   app.use(express.static(prodBuildPath))
 
   app.get('*', (req, res) => {
     res.sendFile(path.join(prodBuildPath, 'index.html'))
   })
-} else {
-  console.log('Development server will be run separately.')
 }
 
 // Start the server

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  web_server:
+  web:
     build:
       context: ./ccm_web/
       args:
@@ -16,21 +16,7 @@ services:
       - 4000:4000
     volumes:
       - ./ccm_web/server:/base/server/:z
+      - ./ccm_web/client/src:/base/client/src/:z
+      - ./ccm_web/client/public:/base/client/public/:z
     command: npm run dev
-    container_name: ccm_web_server
-  web_client:
-    build:
-      context: ./ccm_web/client/
-      dockerfile: Dockerfile.dev
-      args:
-        - PORT=4001
-    environment:
-      - PORT=4001
-    ports:
-      - 4001:4001
-    volumes:
-      - ./ccm_web/client/src:/app/src/:z
-      - ./ccm_web/client/public:/app/public/:z
-    container_name: ccm_web_client
-    depends_on:
-      - web_server
+    container_name: ccm_web

@@ -10,5 +10,5 @@
     "outDir": "./dist"
   },
   /* client is compiled separately. */
-  "exclude": ["node_modules", "client"]
+  "include": ["server"]
 }

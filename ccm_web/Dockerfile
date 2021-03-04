@@ -2,7 +2,7 @@
 # - https://docs.docker.com/develop/develop-images/multistage-build/
 # - https://dev.to/chrsgrrtt/dockerising-a-next-js-project-1ck5
 
-# Base stage (server)
+# Base stage
 FROM node:14-slim AS base
 WORKDIR /base/
 COPY package*.json ./
@@ -16,8 +16,6 @@ EXPOSE ${PORT}
 FROM base AS build
 WORKDIR /build/
 COPY --from=base /base ./
-# Install dependencies to enable bundling with npm run build
-RUN npm install ./client/ --production
 RUN npm run preprod
 
 # Prod stage
@@ -28,8 +26,7 @@ WORKDIR /app
 COPY --from=base /base/package.json ./
 RUN npm install --production
 
-COPY --from=build /build/dist/ ./server/
-COPY --from=build /build/client/build/ ./client/build/
+COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
