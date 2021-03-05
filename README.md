@@ -1,27 +1,27 @@
 ## Canvas Course Manager
 
-## Development
+### Development
 
 Here are some basic set-up instructions.
 
-1. Build two separate images for server and client.
+1. Build a development image for the web application.
     ```
     docker-compose build
     ```
 
-2. Start up the client and server applications in separate containers.
+2. Start up the server and webpack for development.
     ```
     docker-compose up
     ```
 
-3. Access the client by visiting `http://localhost:4001` in your browser of choice.
+3. Access the client by visiting `http://localhost:4000` in your browser of choice.
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
 
-Many JavaScript and template changes can be made without re-building the image,
+Many TypeScript and static file changes can be made without re-building the image,
 but as necessary, rebuild the image using Step 1.
 
-## Production
+### Production
 
 Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized image for production.
 
