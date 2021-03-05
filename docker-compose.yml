@@ -12,7 +12,6 @@ services:
     environment:
       - PORT=4000
       - NODE_ENV=development
-    env_file: .env
     ports:
       - 4000:4000
     volumes:
