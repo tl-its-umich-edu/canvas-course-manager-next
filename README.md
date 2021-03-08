@@ -45,3 +45,6 @@ To stop the container created by 2), issue the following command:
 ```
 docker stop ccm_cont
 ```
+
+Note: The `npm run prod` command in `ccm_web/package.json` allows you to run as in production without Docker.
+This exact command is not used in any Docker artifacts.
