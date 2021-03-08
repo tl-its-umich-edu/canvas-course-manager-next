@@ -7,10 +7,11 @@ import webpackDevMiddleware from 'webpack-dev-middleware'
 import devConfig from '../webpack/webpack.dev'
 
 const compiler = webpack(devConfig)
-const { NODE_ENV, PORT } = process.env
+const { NODE_ENV, PORT, HOST } = process.env
 
 const port = PORT ?? 4000
 const isDev = NODE_ENV !== 'production'
+const host = HOST ?? 'localhost'
 
 // Initialize
 const app = express()
@@ -56,6 +57,7 @@ if (isDev) {
 }
 
 // Start the server
+// TO DO: handle production host
 app.listen(port, () => {
-  console.log(`Server started at http://localhost:${port}`)
+  console.log(`Server started on ${host} and port ${port}`)
 })
