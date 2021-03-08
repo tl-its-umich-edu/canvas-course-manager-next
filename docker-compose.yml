@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  web:
+    build:
+      context: ./ccm_web/
+      args:
+        - PORT=4000
+      target: base
+    working_dir: /base/
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+    ports:
+      - 4000:4000
+    volumes:
+      - ./ccm_web/server:/base/server:z
+      - ./ccm_web/client:/base/client:z
+      # Allows for inspection/deletion of webpack bundles
+      - ./ccm_web/dist:/base/dist:z
+    command: npm run dev
+    container_name: ccm_web
