@@ -3,7 +3,7 @@ import './App.css'
 
 import ConsumerTest from './components/ConsumerTest'
 
-function App () {
+function App (): JSX.Element {
   return (
     <div className='App'>
       <header className='App-header'>

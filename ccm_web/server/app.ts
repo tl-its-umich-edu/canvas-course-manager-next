@@ -6,13 +6,11 @@ import webpackDevMiddleware from 'webpack-dev-middleware'
 
 import devConfig from '../webpack/webpack.dev'
 
-
 const compiler = webpack(devConfig)
 const { NODE_ENV, PORT } = process.env
 
-const port = PORT || 4000
+const port = PORT ?? 4000
 const isDev = NODE_ENV !== 'production'
-
 
 // Initialize
 const app = express()
@@ -34,7 +32,8 @@ app.get(apiPathBase + 'hello', (req, res) => {
 if (isDev) {
   console.log('Setting up webpack-dev-middleware...')
   const publicPath = typeof devConfig.output?.publicPath === 'string'
-    ? devConfig.output.publicPath : undefined
+    ? devConfig.output.publicPath
+    : undefined
 
   app.use(
     webpackDevMiddleware(compiler, {
@@ -43,7 +42,6 @@ if (isDev) {
       writeToDisk: true
     })
   )
-
 } else {
   console.log('Loading dist/client...')
   const prodBuildPath = path.join(__dirname, '..', 'client')
