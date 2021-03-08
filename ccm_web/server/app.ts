@@ -28,6 +28,8 @@ app.get(apiPathBase + 'hello', (req, res) => {
   res.json({ message: message })
 })
 
+console.log(`Environment: ${isDev ? 'Development' : 'Production'}`)
+
 // Handle client code
 if (isDev) {
   console.log('Setting up webpack-dev-middleware...')
@@ -55,5 +57,5 @@ if (isDev) {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`server started at http://localhost:${port}`)
+  console.log(`Server started at http://localhost:${port}`)
 })
