@@ -1,14 +1,19 @@
 {
+  /* Visit https://aka.ms/tsconfig.json to read more about this file */
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig.json to read more about this file */
     "target": "es6",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "strict": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "outDir": "./dist"
   },
-  /* client is compiled separately. */
-  "include": ["server"]
+  /* client is compiled separately through webpack. */
+  "include": ["server", "webpack"]
 }
