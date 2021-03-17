@@ -1,30 +1,30 @@
 import React, { useState } from 'react'
 
-interface MessageData {
-  message: string
-  something: number
-}
+import * as api from '../api'
+import { usePromise } from '../hooks/usePromise'
+import { HelloMessageData } from '../models'
 
 // Added for proof of concept
 function ConsumerTest (): JSX.Element {
   const [apiMessage, setApiMessage] = useState(undefined as string | undefined)
 
-  const handleClick = (): void => {
-    fetch('/api/hello')
-      .then(async res => await res.json())
-      .then(data => {
-        const messageData = data as MessageData
-        setApiMessage(messageData.message)
-      })
-      .catch(error => console.log(error))
+  const [doGetHelloData, getHelloLoading, getHelloError] = usePromise(
+    api.getHelloMessageData,
+    (value: HelloMessageData) => setApiMessage(value.message)
+  )
+  const isLoading = getHelloLoading
+
+  const errors = [getHelloError]
+  for (const e of errors) {
+    if (e !== undefined) console.error(e)
   }
 
   return (
     <div>
       <p>Hello API Message</p>
       <p>{ apiMessage !== undefined ? apiMessage : 'None' }</p>
-      <button onClick={handleClick}>Call API</button>
-      <button onClick={() => setApiMessage(undefined)}>Clear Message</button>
+      <button disabled={isLoading} onClick={doGetHelloData}>Call API</button>
+      <button disabled={isLoading} onClick={() => setApiMessage(undefined)}>Clear Message</button>
     </div>
   )
 }

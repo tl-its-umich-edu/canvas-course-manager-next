@@ -7,21 +7,13 @@ services:
       context: ./ccm_web/
       args:
         - PORT=4000
-      target: base
-    working_dir: /base/
     environment:
       - PORT=4000
-      - NODE_ENV=development
+      - NODE_ENV=production
     env_file: .env
     ports:
       - 4000:4000
-    volumes:
-      - ./ccm_web/server:/base/server:z
-      - ./ccm_web/client:/base/client:z
-      # Allows for inspection/deletion of webpack bundles
-      - ./ccm_web/dist:/base/dist:z
-    command: npm run dev
-    container_name: ccm_web
+    container_name: ccm_web_prod
     depends_on:
       - database
 
@@ -34,8 +26,8 @@ services:
     ports:
       - 5400:5432
     volumes:
-      - .postgres_data:/var/lib/postgresql/data
-    container_name: ccm_db
+      - .postgres_data_prod:/var/lib/postgresql/data
+    container_name: ccm_db_prod
 
 volumes:
   postgres_data:

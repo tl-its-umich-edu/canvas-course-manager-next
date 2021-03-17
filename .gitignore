@@ -3,6 +3,9 @@
 # distributables
 ccm_web/dist
 
+# database volume
+.postgres_data*
+
 # dependencies
 node_modules
 .pnp

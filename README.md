@@ -1,5 +1,19 @@
 ## Canvas Course Manager
 
+### Configuration
+
+Configuration for the project is currently managed using environment variables.
+Docker handles the setting of key-value pairs in `docker-compose.yml`,
+through the `environment` block and by consuming a `.env` file.
+
+This repository includes `.env.sample` tempalte file for `.env, with the expected keys listed out.
+Comments above each key describe what the value is used for, and in some cases,
+indicate that the key-value pair is optional.
+
+The `config.ts` module in the `ccm_web/server` directory validates this file,
+using fallbacks when available and throwing an error if required values are not present.
+The application will exit if any of the configuration fails.
+
 ### Development
 
 Here are some basic set-up instructions.
@@ -25,26 +39,12 @@ but as necessary, rebuild the image using Step 1.
 
 Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized image for production.
 
-You can build a production image, run a container, and use the application locally by performing
-the following steps, replacing `{PORT}` with the port you want the application to run on:
+You can test the Docker production image and other production code branches by using `docker-compose-prod.yml`.
+To do so, issue the same commands as above under **Development**
+with the `-f` flag specifying `docker-compose-prod.yml`.
+The file uses the same `.env` configuration file, so adjust any values there as desired
+(see **Configuration** above for more info).
 
-1. Build one image with the server and static artifacts, including the bundled JavaScript frontend.
-
-```
-docker build -t ccm --build-arg PORT={PORT} ./ccm_web
-```
-
-2. Run a container with the image, exposing the application to `localhost`.
-
-```
-docker run --name ccm_cont --env PORT={PORT} -p {PORT}:{PORT} ccm
-```
-
-To stop the container created by 2), issue the following command:
-
-```
-docker stop ccm_cont
-```
-
-Note: The `npm run prod` command in `ccm_web/package.json` allows you to run as in production without Docker.
+Note: The `npm run prod` command in `ccm_web/package.json` allows you to run the application
+in a similar (but not identical) way to how it would be in production within a container.
 This exact command is not used in any Docker artifacts.
