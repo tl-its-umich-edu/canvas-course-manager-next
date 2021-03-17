@@ -37,10 +37,10 @@ function Home (): JSX.Element {
     ordinalty: 2
   }
 
-  const addGroupsProps: FeatureCardProps = {
-    id: 'AddGroups',
-    title: 'Add Groups',
-    description: 'Add groups through csv files into your own course',
+  const createSectionsProps: FeatureCardProps = {
+    id: 'CreateSections',
+    title: 'Create Sections',
+    description: 'Create sections through csv files into your own course',
     icon: <AccountCircleOutlinedIcon fontSize='large' />,
     ordinalty: 3
   }
@@ -61,7 +61,7 @@ function Home (): JSX.Element {
     ordinalty: 5
   }
 
-  const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, addGroupsProps, addUMUsersProps, addNonUMUsersProps]
+  const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps]
 
   return (
     <div className={classes.root}>
