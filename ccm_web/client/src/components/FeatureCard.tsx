@@ -17,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: 14
   }
-
 }))
 
 function FeatureCard (props: FeatureCardProps): JSX.Element {
