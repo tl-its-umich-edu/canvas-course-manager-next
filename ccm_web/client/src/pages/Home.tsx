@@ -22,6 +22,7 @@ function Home (): JSX.Element {
   const classes = useStyles()
 
   const mergeSectionProps: FeatureCardProps = {
+    id: 'MergeSections',
     title: 'Merge Sections',
     description: 'Combine sections into one Canvas site for easier management',
     icon: <MergeTypeIcon fontSize='large'/>,
@@ -29,13 +30,15 @@ function Home (): JSX.Element {
   }
 
   const gradebookToolsProps: FeatureCardProps = {
+    id: 'GradebookTools',
     title: 'Gradebook Tools',
     description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
     icon: <LibraryBooksOutlinedIcon fontSize='large'/>,
     ordinalty: 2
   }
 
-  const addSectionsGroupsProps: FeatureCardProps = {
+  const addGroupsProps: FeatureCardProps = {
+    id: 'AddGroups',
     title: 'Add Groups',
     description: 'Add groups through csv files into your own course',
     icon: <AccountCircleOutlinedIcon fontSize='large'/>,
@@ -43,6 +46,7 @@ function Home (): JSX.Element {
   }
 
   const addUMUsersProps: FeatureCardProps = {
+    id: 'addUMUsers',
     title: 'Add UM Users',
     description: 'Add UM users to your available sections',
     icon: <PersonAddIcon fontSize='small'/>,
@@ -50,20 +54,21 @@ function Home (): JSX.Element {
   }
 
   const addNonUMUsersProps: FeatureCardProps = {
+    id: 'addNonUMUsers',
     title: 'Add Non-UM Users',
     description: 'Enroll non-UM users to your available sections',
     icon: <PersonAddOutlinedIcon fontSize='small'/>,
     ordinalty: 5
   }
 
-  const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, addSectionsGroupsProps, addUMUsersProps, addNonUMUsersProps]
+  const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, addGroupsProps, addUMUsersProps, addNonUMUsersProps]
 
   return (
         <div className={classes.root}>
             <Grid container spacing={3}>
                 {cards.sort((a, b) => (a.ordinalty < b.ordinalty) ? -1 : 1).map(p => {
                   return (
-                    <Grid key={p.title} item xs={12} sm={4}>
+                    <Grid key={p.id} item xs={12} sm={4}>
                         <FeatureCard {...p}/>
                     </Grid>
                   )

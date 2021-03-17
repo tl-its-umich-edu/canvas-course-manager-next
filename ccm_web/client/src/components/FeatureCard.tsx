@@ -47,6 +47,7 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
 }
 
 interface FeatureCardProps {
+  id: string
   title: string
   description: string
   icon: JSX.Element
