@@ -24,7 +24,7 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
   const classes = useStyles()
 
   return (
-    <Card className={`${classes.root}`} variant="outlined">
+    <Card className={`${classes.root}`} variant="outlined" tabIndex={props.ordinalty}>
       <CardContent>
         <Grid container>
           <Grid item xs={12}>
