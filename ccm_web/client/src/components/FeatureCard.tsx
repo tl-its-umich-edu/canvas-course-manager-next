@@ -25,23 +25,23 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
 
   return (
     <Card className={`${classes.root}`} variant="outlined">
-        <CardContent>
-            <Grid container>
-                <Grid item xs={12}>
-                    <div className={classes.centered}>
-                        {props.icon}
-                    </div>
-                    <div className={classes.centered}>
-                        <Typography className={classes.title} color="textPrimary" gutterBottom>
-                        {props.title}
-                        </Typography>
-                        <Typography variant="body2" component="p" color="textSecondary" >
-                        {props.description}
-                        </Typography>
-                    </div>
-                </Grid>
-            </Grid>
-        </CardContent>
+      <CardContent>
+        <Grid container>
+          <Grid item xs={12}>
+            <div className={classes.centered}>
+              {props.icon}
+            </div>
+            <div className={classes.centered}>
+              <Typography className={classes.title} color="textPrimary" gutterBottom>
+                {props.title}
+              </Typography>
+              <Typography variant="body2" component="p" color="textSecondary" >
+                {props.description}
+              </Typography>
+            </div>
+          </Grid>
+        </Grid>
+      </CardContent>
     </Card>
   )
 }
