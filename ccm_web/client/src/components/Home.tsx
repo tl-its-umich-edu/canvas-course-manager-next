@@ -35,8 +35,8 @@ function Home (): JSX.Element {
   }
 
   const addSectionsGroupsProps: FeatureCardProps = {
-    title: 'Add Sections / Groups',
-    description: 'Add sections, groups through csv viles into your own course',
+    title: 'Add Groups',
+    description: 'Add groups through csv files into your own course',
     icon: <AccountCircleOutlinedIcon fontSize='large'/>,
     size: 'tall'
   }
