@@ -13,7 +13,8 @@ import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    minWidth: 275
+    minWidth: 275,
+    padding: 25
   }
 }))
 
@@ -24,59 +25,49 @@ function Home (): JSX.Element {
     title: 'Merge Sections',
     description: 'Combine sections into one Canvas site for easier management',
     icon: <MergeTypeIcon fontSize='large'/>,
-    size: 'tall'
+    ordinalty: 1
   }
 
   const gradebookToolsProps: FeatureCardProps = {
     title: 'Gradebook Tools',
     description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
     icon: <LibraryBooksOutlinedIcon fontSize='large'/>,
-    size: 'short'
+    ordinalty: 2
   }
 
   const addSectionsGroupsProps: FeatureCardProps = {
     title: 'Add Groups',
     description: 'Add groups through csv files into your own course',
     icon: <AccountCircleOutlinedIcon fontSize='large'/>,
-    size: 'tall'
+    ordinalty: 3
   }
 
   const addUMUsersProps: FeatureCardProps = {
     title: 'Add UM Users',
     description: 'Add UM users to your available sections',
     icon: <PersonAddIcon fontSize='small'/>,
-    size: 'short'
+    ordinalty: 4
   }
 
   const addNonUMUsersProps: FeatureCardProps = {
     title: 'Add Non-UM Users',
     description: 'Enroll non-UM users to your available sections',
     icon: <PersonAddOutlinedIcon fontSize='small'/>,
-    size: 'short'
+    ordinalty: 5
   }
+
+  const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, addSectionsGroupsProps, addUMUsersProps, addNonUMUsersProps]
 
   return (
         <div className={classes.root}>
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={4}>
-                    <FeatureCard {...mergeSectionProps}/>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <FeatureCard {...gradebookToolsProps}/>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <FeatureCard {...addUMUsersProps}/>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                        <FeatureCard {...addNonUMUsersProps}/>
-                        </Grid>
+                {cards.sort((a, b) => (a.ordinalty < b.ordinalty) ? -1 : 1).map(p => {
+                  return (
+                    <Grid key={p.title} item xs={12} sm={4}>
+                        <FeatureCard {...p}/>
                     </Grid>
-                </Grid>
-                <Grid item xs={12} sm={2}>
-                    <FeatureCard {...addSectionsGroupsProps}/>
-                </Grid>
+                  )
+                })}
             </Grid>
         </div>
   )
