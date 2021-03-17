@@ -22,7 +22,7 @@ function Home (): JSX.Element {
 
   const mergeSectionProps: FeatureCardProps = {
     title: 'Merge Sections',
-    description: 'Combine sections taught by yourself or others into one Canvas site for easier management',
+    description: 'Combine sections into one Canvas site for easier management',
     icon: <MergeTypeIcon fontSize='large'/>,
     size: 'tall'
   }
