@@ -49,7 +49,7 @@ function Home (): JSX.Element {
     id: 'addUMUsers',
     title: 'Add UM Users',
     description: 'Add UM users to your available sections',
-    icon: <PersonAddIcon fontSize='small' />,
+    icon: <PersonAddIcon fontSize='large' />,
     ordinalty: 4
   }
 
@@ -57,7 +57,7 @@ function Home (): JSX.Element {
     id: 'addNonUMUsers',
     title: 'Add Non-UM Users',
     description: 'Enroll non-UM users to your available sections',
-    icon: <PersonAddOutlinedIcon fontSize='small' />,
+    icon: <PersonAddOutlinedIcon fontSize='large' />,
     ordinalty: 5
   }
 
