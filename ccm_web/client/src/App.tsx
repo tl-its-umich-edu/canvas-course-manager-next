@@ -1,7 +1,7 @@
 import React from 'react'
 
 import ConsumerTest from './components/ConsumerTest'
-import Home from './components/Home'
+import Home from './pages/Home'
 import './App.css'
 
 function App (): JSX.Element {

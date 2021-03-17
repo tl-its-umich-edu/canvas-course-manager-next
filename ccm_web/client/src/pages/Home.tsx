@@ -2,7 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
-import FeatureCard, { FeatureCardProps } from './FeatureCard'
+import FeatureCard, { FeatureCardProps } from '../components/FeatureCard'
 
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined'
 import LibraryBooksOutlinedIcon from '@material-ui/icons/LibraryBooksOutlined'
