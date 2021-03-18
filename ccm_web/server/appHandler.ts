@@ -9,7 +9,6 @@ import webpack from 'webpack'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import type { WebpackDevMiddleware } from 'webpack-dev-middleware'
 
-import apiRouter from './apiRouter'
 import { Config } from './config'
 import devWebpackConfig from '../webpack/webpack.dev'
 
@@ -111,7 +110,7 @@ class AppHandler {
       }
     )
 
-    provider.app.use('/api', apiRouter)
+    provider.app.use('/api', this.apiRouter)
 
     // Set lti launch callback
     // When receiving successful LTI launch redirects to app.
@@ -158,8 +157,7 @@ class AppHandler {
       }
 
       const { server } = this.config
-
-      app.listen(this.config.server.port, server.host, () => {
+      app.listen(server.port, server.host, () => {
         console.log(`Server started on ${server.host} and port ${server.port}`)
       })
     }
