@@ -26,7 +26,8 @@ function Home (): JSX.Element {
     title: 'Merge Sections',
     description: 'Combine sections into one Canvas site for easier management',
     icon: <MergeTypeIcon fontSize='large' />,
-    ordinalty: 1
+    ordinalty: 1,
+    route: '/merge'
   }
 
   const gradebookToolsProps: FeatureCardProps = {
@@ -34,7 +35,8 @@ function Home (): JSX.Element {
     title: 'Gradebook Tools',
     description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
     icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-    ordinalty: 2
+    ordinalty: 2,
+    route: '/gradebook'
   }
 
   const createSectionsProps: FeatureCardProps = {
@@ -42,7 +44,8 @@ function Home (): JSX.Element {
     title: 'Create Sections',
     description: 'Create sections through csv files into your own course',
     icon: <AccountCircleOutlinedIcon fontSize='large' />,
-    ordinalty: 3
+    ordinalty: 3,
+    route: '/createsections'
   }
 
   const addUMUsersProps: FeatureCardProps = {
@@ -50,7 +53,8 @@ function Home (): JSX.Element {
     title: 'Add UM Users',
     description: 'Add UM users to your available sections',
     icon: <PersonAddIcon fontSize='large' />,
-    ordinalty: 4
+    ordinalty: 4,
+    route: '/addumusers'
   }
 
   const addNonUMUsersProps: FeatureCardProps = {
@@ -58,7 +62,8 @@ function Home (): JSX.Element {
     title: 'Add Non-UM Users',
     description: 'Enroll non-UM users to your available sections',
     icon: <PersonAddOutlinedIcon fontSize='large' />,
-    ordinalty: 5
+    ordinalty: 5,
+    route: '/addnonumusers'
   }
 
   const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps]
