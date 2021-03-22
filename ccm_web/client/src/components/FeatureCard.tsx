@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontSize: 14
+  },
+  cardLink: {
+    textDecoration: 'none'
   }
 }))
 
@@ -20,7 +23,7 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
   const classes = useStyles()
 
   return (
-    <Link to={props.route} >
+    <Link className={classes.cardLink} to={props.route} >
       <Card className={`${classes.root}`} variant="outlined" tabIndex={props.ordinalty}>
         <CardContent>
           <Grid container>
