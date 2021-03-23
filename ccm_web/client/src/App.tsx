@@ -17,7 +17,6 @@ function App (): JSX.Element {
         </Switch>
       </Router>
 
-      {/* <Home/> */}
       <ConsumerTest/>
     </div>
   )
