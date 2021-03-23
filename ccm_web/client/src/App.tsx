@@ -13,11 +13,9 @@ function App (): JSX.Element {
         <Switch>
           <Route exact={true} path="/" component={Home} />
           <Route path={mergeSectionProps.route} component={MergeSections} />
-          <Route render={() => (<div><em>Under Construction</em></div>)}/>
+          <Route render={() => (<div><em>Under Construction</em></div>)} />
         </Switch>
       </Router>
-
-      {/* <Home/> */}
       <ConsumerTest/>
     </div>
   )

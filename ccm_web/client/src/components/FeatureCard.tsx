@@ -35,7 +35,7 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
                 <Typography className={classes.title} color="textPrimary" gutterBottom>
                   {props.title}
                 </Typography>
-                <Typography variant="body2" component="p" color="textSecondary" >
+                <Typography variant="body2" component="p" color="textSecondary">
                   {props.description}
                 </Typography>
               </div>
