@@ -13,7 +13,7 @@ function App (): JSX.Element {
         <Switch>
           <Route exact={true} path="/" component={Home} />
           <Route path='/merge' component={Merge} />
-          <Route render={() => (<div><em>Under Construction</em></div>)}/>
+          <Route render={() => (<div><em>Under Construction</em></div>)} />
         </Switch>
       </Router>
 
