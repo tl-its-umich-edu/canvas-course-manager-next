@@ -24,7 +24,7 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
 
   return (
     <Link className={classes.cardLink} to={props.route} >
-      <Card className={`${classes.root}`} variant="outlined" tabIndex={props.ordinalty}>
+      <Card className={`${classes.root}`} variant="outlined" tabIndex={props.ordinality}>
         <CardContent>
           <Grid container>
             <Grid item xs={12}>
@@ -52,7 +52,7 @@ interface FeatureCardProps {
   title: string
   description: string
   icon: JSX.Element
-  ordinalty: number
+  ordinality: number
   route: string
 }
 
