@@ -18,55 +18,59 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+const mergeSectionProps: FeatureCardProps = {
+  id: 'MergeSections',
+  title: 'Merge Sections',
+  description: 'Combine sections into one Canvas site for easier management',
+  icon: <MergeTypeIcon fontSize='large' />,
+  ordinality: 1,
+  route: '/merge-sections'
+}
+const gradebookToolsProps: FeatureCardProps = {
+  id: 'GradebookTools',
+  title: 'Gradebook Tools',
+  description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
+  icon: <LibraryBooksOutlinedIcon fontSize='large' />,
+  ordinality: 2,
+  route: '/gradebook'
+}
+
+const createSectionsProps: FeatureCardProps = {
+  id: 'CreateSections',
+  title: 'Create Sections',
+  description: 'Create sections through csv files into your own course',
+  icon: <AccountCircleOutlinedIcon fontSize='large' />,
+  ordinality: 3,
+  route: '/create-sections'
+}
+
+const addUMUsersProps: FeatureCardProps = {
+  id: 'addUMUsers',
+  title: 'Add UM Users',
+  description: 'Add UM users to your available sections',
+  icon: <PersonAddIcon fontSize='large' />,
+  ordinality: 4,
+  route: '/add-um-users'
+}
+
+const addNonUMUsersProps: FeatureCardProps = {
+  id: 'addNonUMUsers',
+  title: 'Add Non-UM Users',
+  description: 'Enroll non-UM users to your available sections',
+  icon: <PersonAddOutlinedIcon fontSize='large' />,
+  ordinality: 5,
+  route: '/add-non-um-users'
+}
+
 function Home (): JSX.Element {
   const classes = useStyles()
-
-  const mergeSectionProps: FeatureCardProps = {
-    id: 'MergeSections',
-    title: 'Merge Sections',
-    description: 'Combine sections into one Canvas site for easier management',
-    icon: <MergeTypeIcon fontSize='large' />,
-    ordinalty: 1
-  }
-
-  const gradebookToolsProps: FeatureCardProps = {
-    id: 'GradebookTools',
-    title: 'Gradebook Tools',
-    description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
-    icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-    ordinalty: 2
-  }
-
-  const createSectionsProps: FeatureCardProps = {
-    id: 'CreateSections',
-    title: 'Create Sections',
-    description: 'Create sections through csv files into your own course',
-    icon: <AccountCircleOutlinedIcon fontSize='large' />,
-    ordinalty: 3
-  }
-
-  const addUMUsersProps: FeatureCardProps = {
-    id: 'addUMUsers',
-    title: 'Add UM Users',
-    description: 'Add UM users to your available sections',
-    icon: <PersonAddIcon fontSize='large' />,
-    ordinalty: 4
-  }
-
-  const addNonUMUsersProps: FeatureCardProps = {
-    id: 'addNonUMUsers',
-    title: 'Add Non-UM Users',
-    description: 'Enroll non-UM users to your available sections',
-    icon: <PersonAddOutlinedIcon fontSize='large' />,
-    ordinalty: 5
-  }
 
   const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps]
 
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
-        {cards.sort((a, b) => (a.ordinalty < b.ordinalty) ? -1 : 1).map(p => {
+        {cards.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).map(p => {
           return (
             <Grid key={p.id} item xs={12} sm={4}>
               <FeatureCard {...p} />
@@ -78,4 +82,4 @@ function Home (): JSX.Element {
   )
 }
 
-export default Home
+export { Home as default, mergeSectionProps }
