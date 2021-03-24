@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ComponentType } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
@@ -54,6 +54,7 @@ interface FeatureCardProps {
   icon: JSX.Element
   ordinality: number
   route: string
+  component: ComponentType
 }
 
 export { FeatureCard as default }
