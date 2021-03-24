@@ -157,8 +157,8 @@ class AppHandler {
       }
 
       const { server } = this.config
-      app.listen(server.port, server.host, () => {
-        console.log(`Server started on ${server.host} and port ${server.port}`)
+      app.listen(server.port, () => {
+        console.log(`Server started on localhost and port ${server.port}`)
       })
     }
   }
