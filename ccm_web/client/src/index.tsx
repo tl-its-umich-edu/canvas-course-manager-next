@@ -1,11 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
+
 import App from './App'
+import './index.css'
+import getLTIKey from './utils/getLTIKey'
+
+const ltiKey = getLTIKey()
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App ltiKey={ltiKey} />
   </React.StrictMode>,
   document.getElementById('root')
 )

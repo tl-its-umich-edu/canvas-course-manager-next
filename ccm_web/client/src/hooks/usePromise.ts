@@ -4,7 +4,7 @@ https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/as
 */
 import { useState } from 'react'
 
-export const usePromise = <T, F extends (...args: any) => Promise<T>>(
+const usePromise = <T, F extends (...args: any) => Promise<T>>(
   task: F,
   set?: (value: T) => void
 ): [(...args: Parameters<F>) => Promise<void>, boolean, Error | undefined] => {
@@ -25,3 +25,5 @@ export const usePromise = <T, F extends (...args: any) => Promise<T>>(
   }
   return [doTask, isLoading, error]
 }
+
+export default usePromise

@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
 
 import * as api from '../api'
-import { usePromise } from '../hooks/usePromise'
+import usePromise from '../hooks/usePromise'
 import { HelloMessageData } from '../models'
 
+interface ConsumerTestProps {
+  ltiKey: string | undefined
+}
+
 // Added for proof of concept
-function ConsumerTest (): JSX.Element {
+function ConsumerTest (props: ConsumerTestProps): JSX.Element {
   const [apiMessage, setApiMessage] = useState(undefined as string | undefined)
 
   const [doGetHelloData, getHelloLoading, getHelloError] = usePromise(
-    api.getHelloMessageData,
+    async () => await api.getHelloMessageData(props.ltiKey),
     (value: HelloMessageData) => setApiMessage(value.message)
   )
   const isLoading = getHelloLoading

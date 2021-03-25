@@ -14,4 +14,12 @@ apiRouter.get('/hello', (req: Request, res: Response) => {
   res.json(data)
 })
 
+apiRouter.get('/globals', (req: Request, res: Response) => {
+  const globals = {
+    environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+    useLTI: process.env.LTI === 'True'
+  }
+  res.json(globals)
+})
+
 export default apiRouter

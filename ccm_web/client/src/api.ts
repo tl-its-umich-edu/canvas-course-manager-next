@@ -1,21 +1,32 @@
-import getLTIKey from './utils/getLTIKey'
+import { Globals, HelloMessageData } from './models'
+import handleErrors from './utils/handleErrors'
 
-import { HelloMessageData } from './models'
-
-const getDefaultHeaders = (): HeadersInit | undefined => {
-  const ltiKey = getLTIKey()
-  if (ltiKey !== undefined) {
-    return { Authorization: 'Bearer ' + ltiKey }
+const createAuthHeaders = (key: string | undefined): RequestInit => {
+  if (key !== undefined) {
+    return {
+      credentials: 'include',
+      headers: { Authorization: 'Bearer ' + key }
+    }
   }
-  return undefined
+  return {}
 }
 
-export const getHelloMessageData = async (): Promise<HelloMessageData> => {
+export const getHelloMessageData = async (key: string | undefined): Promise<HelloMessageData> => {
   const params: RequestInit = {
     method: 'GET',
-    credentials: 'include',
-    headers: getDefaultHeaders()
+    ...createAuthHeaders(key)
   }
   const resp = await fetch('/api/hello', params)
-  return await resp.json() as HelloMessageData
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const getGlobals = async (key: string | undefined): Promise<Globals> => {
+  const params: RequestInit = {
+    method: 'GET',
+    ...createAuthHeaders(key)
+  }
+  const resp = await fetch('/api/globals', params)
+  await handleErrors(resp)
+  return await resp.json()
 }
