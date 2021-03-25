@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Link as RouterLink, Route, Switch } from 'reac
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 
 import ConsumerTest from './components/ConsumerTest'
-import Home, { featureCardProps } from './pages/Home'
+import Home from './pages/Home'
+import { mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps } from './components/FeatureCard'
 import './App.css'
 
 const useStyles = makeStyles((theme) => ({
@@ -19,6 +20,7 @@ interface TitleTypographyProps {
 
 function App (): JSX.Element {
   const classes = useStyles()
+  const featureCardProps = [mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps]
   return (
     <div className='App'>
       <Router>
@@ -37,12 +39,11 @@ function App (): JSX.Element {
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
-
-                      const feature = featureCardProps.filter(feature => { return feature.route.substring(1) === value })[0]
+                      const feature = featureCardProps.filter(featureCard => { return featureCard.feature.route.substring(1) === value })[0]
                       const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
                       return <Typography color='textPrimary' key={to} {...titleTypographyProps}>
-                        {feature.title}
+                        {feature.feature.title}
                       </Typography>
                     })}
                   </Breadcrumbs>
@@ -52,8 +53,8 @@ function App (): JSX.Element {
           </div>
         <Switch>
           <Route exact={true} path="/" component={Home} />
-          {featureCardProps.map(feature => {
-            return <Route key={feature.id} path={feature.route} component={feature.component} />
+          {featureCardProps.map(featureCard => {
+            return <Route key={featureCard.feature.id} path={featureCard.feature.route} component={featureCard.component} />
           })}
           <Route render={() => (<div><em>Under Construction</em></div>)} />
         </Switch>
