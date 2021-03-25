@@ -13,6 +13,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+interface TitleTypographyProps {
+  to?: string
+}
+
 function App (): JSX.Element {
   const classes = useStyles()
   return (
@@ -34,17 +38,12 @@ function App (): JSX.Element {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
 
-                      return last
-                        ? (
-                            <Typography color="textPrimary" key={to}>
-                              {featureCardProps.filter(feature => { return feature.route.substring(1) === value })[0].title}
-                            </Typography>
-                          )
-                        : (
-                            <RouterLink color="textPrimary" to={to} key={to}>
-                              {featureCardProps.filter(feature => { return feature.route.substring(1) === value })[0].title}
-                            </RouterLink>
-                          )
+                      const feature = featureCardProps.filter(feature => { return feature.route.substring(1) === value })[0]
+                      const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
+
+                      return <Typography color='textPrimary' key={to} {...titleTypographyProps}>
+                        {feature.title}
+                      </Typography>
                     })}
                   </Breadcrumbs>
                 )
