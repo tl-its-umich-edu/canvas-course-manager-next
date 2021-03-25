@@ -24,16 +24,8 @@ function useGlobals (ltiKey: string | undefined): [
   }, [])
 
   let isAuthenticated
-  if (globals !== undefined) {
-    if (ltiKey !== undefined && globals.useLTI) {
-      isAuthenticated = true
-    } else if (
-      globals.environment === 'development' &&
-      ltiKey === undefined &&
-      !globals.useLTI
-    ) {
-      isAuthenticated = true
-    }
+  if (ltiKey !== undefined && globals !== undefined) {
+    isAuthenticated = true
   } else if (getGlobalsError !== undefined) {
     isAuthenticated = false
   }

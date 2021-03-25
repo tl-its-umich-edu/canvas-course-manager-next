@@ -30,17 +30,14 @@ interface WebpackDevOutput {
 class AppHandler {
   private readonly config: Config
   private readonly apiRouter: Router
-  private readonly useLTI: boolean
   private readonly envOptions: DevOptions | ProdOptions
 
   constructor (
     config: Config,
-    useLTI: boolean,
     envOptions: DevOptions | ProdOptions,
     apiRouter: Router
   ) {
     this.config = config
-    this.useLTI = useLTI
     this.envOptions = envOptions
     this.apiRouter = apiRouter
   }
@@ -136,31 +133,13 @@ class AppHandler {
     return provider.app
   }
 
-  // Configure and start LTI app or plain Express app instance
   startApp (): void {
-    if (this.useLTI) {
-      console.log('Starting LTIJS server...')
-      this.setupLTI()
-        .then(() => console.log('LTI application setup has completed.'))
-        .catch((r) => {
-          throw Error(`LTI code failed to initialize app: ${String(r)}`)
-        })
-    } else {
-      console.log('Starting plain Express server...')
-      const app = express()
-      app.use('/api', this.apiRouter)
-
-      if (this.envOptions.isDev) {
-        app.use(AppHandler.setupWebpackMiddleware().middleware)
-      } else {
-        AppHandler.handleProdClient(app, this.envOptions.staticPath)
-      }
-
-      const { server } = this.config
-      app.listen(server.port, () => {
-        console.log(`Server started on localhost and port ${server.port}`)
+    console.log('Starting LTIJS server...')
+    this.setupLTI()
+      .then(() => console.log('LTI application setup has completed.'))
+      .catch((r) => {
+        throw Error(`LTI code failed to initialize app: ${String(r)}`)
       })
-    }
   }
 }
 
