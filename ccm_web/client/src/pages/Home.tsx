@@ -9,6 +9,7 @@ import LibraryBooksOutlinedIcon from '@material-ui/icons/LibraryBooksOutlined'
 import MergeTypeIcon from '@material-ui/icons/MergeType'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
+import InlineTextEdit from '../components/InlineTextEdit'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,8 +68,18 @@ function Home (): JSX.Element {
 
   const cards: FeatureCardProps[] = [mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps]
 
+  const saveCourseName = async (courseName: string): Promise<void> => await new Promise<void>((resolve, reject) => {
+    console.log('saveCourseName ' + courseName)
+    if (courseName === 'reject') {
+      reject(new Error('Rejected as requested'))
+    } else {
+      return resolve()
+    }
+  })
+
   return (
     <div className={classes.root}>
+      <InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName }} />
       <Grid container spacing={3}>
         {cards.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).map(p => {
           return (
