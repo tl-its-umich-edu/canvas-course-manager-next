@@ -2,6 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
+import { FeatureUIProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,12 +20,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-function FeatureCard (props: FeatureCardProps): JSX.Element {
+function FeatureCard (props: FeatureUIProps): JSX.Element {
   const classes = useStyles()
 
   return (
     <Link className={classes.cardLink} to={props.route} >
-      <Card className={`${classes.root}`} variant="outlined" tabIndex={props.ordinality}>
+      <Card className={`${classes.root}`} variant="outlined" tabIndex={props.data.ordinality}>
         <CardContent>
           <Grid container>
             <Grid item xs={12}>
@@ -33,10 +34,10 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
               </div>
               <div className={classes.centered}>
                 <Typography className={classes.title} color="textPrimary" gutterBottom>
-                  {props.title}
+                  {props.data.title}
                 </Typography>
                 <Typography variant="body2" component="p" color="textSecondary">
-                  {props.description}
+                  {props.data.description}
                 </Typography>
               </div>
             </Grid>
@@ -47,14 +48,4 @@ function FeatureCard (props: FeatureCardProps): JSX.Element {
   )
 }
 
-interface FeatureCardProps {
-  id: string
-  title: string
-  description: string
-  icon: JSX.Element
-  ordinality: number
-  route: string
-}
-
-export { FeatureCard as default }
-export type { FeatureCardProps }
+export default FeatureCard
