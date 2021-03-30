@@ -12,6 +12,7 @@ const mergeSectionProps: FeatureDataProps = {
   description: 'Combine sections into one Canvas site for easier management',
   ordinality: 1
 }
+
 const gradebookToolsProps: FeatureDataProps = {
   id: 'GradebookTools',
   title: 'Gradebook Tools',
