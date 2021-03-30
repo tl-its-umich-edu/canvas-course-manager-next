@@ -3,7 +3,7 @@ import path from 'path'
 import { NextHandleFunction } from 'connect'
 import express from 'express'
 import type { Express, Request, Response, Router } from 'express'
-import { Provider } from 'ltijs'
+import { IdToken, Provider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 import webpack from 'webpack'
 import webpackDevMiddleware from 'webpack-dev-middleware'
@@ -26,7 +26,6 @@ interface WebpackDevOutput {
   publicPath: string
 }
 
-// TO DO: handle configured host name for prod
 class AppHandler {
   private readonly config: Config
   private readonly apiRouter: Router
@@ -111,11 +110,11 @@ class AppHandler {
 
     // Set lti launch callback
     // When receiving successful LTI launch redirects to app.
-    provider.onConnect((token: any, req: Request, res: Response) => {
+    provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       if (!this.envOptions.isDev) {
         return res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
       }
-      return provider.redirect(res, '/')
+      provider.redirect(res, '/')
     })
 
     await provider.deploy({ port: server.port })
