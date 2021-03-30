@@ -4,8 +4,8 @@ import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 
 import ConsumerTest from './components/ConsumerTest'
 import Home from './pages/Home'
-import { mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps } from './components/FeatureCard'
 import './App.css'
+import AllFeatures from './models/FeatureCardData'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -20,7 +20,7 @@ interface TitleTypographyProps {
 
 function App (): JSX.Element {
   const classes = useStyles()
-  const featureCardProps = [mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps]
+  const features = AllFeatures
   return (
     <div className='App'>
       <Router>
@@ -39,11 +39,11 @@ function App (): JSX.Element {
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
-                      const feature = featureCardProps.filter(featureCard => { return featureCard.feature.route.substring(1) === value })[0]
+                      const feature = features.filter(feature => { return feature.route.substring(1) === value })[0]
                       const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
                       return <Typography color='textPrimary' key={to} {...titleTypographyProps}>
-                        {feature.feature.title}
+                        {feature.data.title}
                       </Typography>
                     })}
                   </Breadcrumbs>
@@ -53,8 +53,8 @@ function App (): JSX.Element {
           </div>
         <Switch>
           <Route exact={true} path="/" component={Home} />
-          {featureCardProps.map(featureCard => {
-            return <Route key={featureCard.feature.id} path={featureCard.feature.route} component={featureCard.component} />
+          {features.map(feature => {
+            return <Route key={feature.data.id} path={feature.route} component={feature.component} />
           })}
           <Route render={() => (<div><em>Under Construction</em></div>)} />
         </Switch>

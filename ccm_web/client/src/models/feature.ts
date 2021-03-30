@@ -1,50 +1,44 @@
 
-interface FeatureProps {
+interface FeatureDataProps {
   id: string
   title: string
   description: string
   ordinality: number
-  route: string
 }
 
-const mergeSectionProps: FeatureProps = {
+const mergeSectionProps: FeatureDataProps = {
   id: 'MergeSections',
   title: 'Merge Sections',
   description: 'Combine sections into one Canvas site for easier management',
-  ordinality: 1,
-  route: '/merge-sections'
+  ordinality: 1
 }
-const gradebookToolsProps: FeatureProps = {
+const gradebookToolsProps: FeatureDataProps = {
   id: 'GradebookTools',
   title: 'Gradebook Tools',
   description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
-  ordinality: 2,
-  route: '/gradebook'
+  ordinality: 2
 }
 
-const createSectionsProps: FeatureProps = {
+const createSectionsProps: FeatureDataProps = {
   id: 'CreateSections',
   title: 'Create Sections',
   description: 'Create sections through csv files into your own course',
-  ordinality: 3,
-  route: '/create-sections'
+  ordinality: 3
 }
 
-const addUMUsersProps: FeatureProps = {
+const addUMUsersProps: FeatureDataProps = {
   id: 'addUMUsers',
   title: 'Add UM Users',
   description: 'Add UM users to your available sections',
-  ordinality: 4,
-  route: '/add-um-users'
+  ordinality: 4
 }
 
-const addNonUMUsersProps: FeatureProps = {
+const addNonUMUsersProps: FeatureDataProps = {
   id: 'addNonUMUsers',
   title: 'Add Non-UM Users',
   description: 'Enroll non-UM users to your available sections',
-  ordinality: 5,
-  route: '/add-non-um-users'
+  ordinality: 5
 }
 
-export type { FeatureProps }
+export type { FeatureDataProps }
 export { mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps }
