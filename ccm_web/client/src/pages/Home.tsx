@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
 import FeatureCard from '../components/FeatureCard'
-import AllFeatures from '../models/FeatureCardData'
+import allFeatures from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Home (): JSX.Element {
   const classes = useStyles()
-  const features = AllFeatures
+  const features = allFeatures
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>

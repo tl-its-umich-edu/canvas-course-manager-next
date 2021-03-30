@@ -6,7 +6,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 import ConsumerTest from './components/ConsumerTest'
 import Home from './pages/Home'
 import './App.css'
-import AllFeatures from './models/FeatureCardData'
+import allFeatures from './models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -21,7 +21,7 @@ interface TitleTypographyProps {
 
 function App (): JSX.Element {
   const classes = useStyles()
-  const features = AllFeatures
+  const features = allFeatures
   return (
     <div className='App'>
       <Router>

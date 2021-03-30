@@ -2,7 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
-import { FeatureCardProps } from '../models/FeatureCardData'
+import { FeatureUIProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-function FeatureCard (props: FeatureCardProps): JSX.Element {
+function FeatureCard (props: FeatureUIProps): JSX.Element {
   const classes = useStyles()
 
   return (
