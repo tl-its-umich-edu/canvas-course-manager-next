@@ -20,19 +20,12 @@ interface TitleTypographyProps {
 }
 
 function HomeBreadcrumb (pathnames: string[]): JSX.Element {
+  const typography = (<Typography color='textPrimary'>
+                        Canvas Course Manager
+                      </Typography>)
   return pathnames.length > 0
-    ? (
-      <Link component={RouterLink} to='/'>
-        <Typography color='textPrimary'>
-          Canvas Course Manager
-        </Typography>
-      </Link>
-      )
-    : (
-      <Typography color='textPrimary'>
-        Canvas Course Manager
-      </Typography>
-      )
+    ? (<Link component={RouterLink} to='/'>{typography}</Link>)
+    : (typography)
 }
 
 function App (): JSX.Element {
