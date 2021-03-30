@@ -19,9 +19,26 @@ interface TitleTypographyProps {
   to?: string
 }
 
+function HomeBreadcrumb (pathnames: string[]): JSX.Element {
+  return pathnames.length > 0
+    ? (
+      <Link component={RouterLink} to='/'>
+        <Typography color='textPrimary'>
+          Canvas Course Manager
+        </Typography>
+      </Link>
+      )
+    : (
+      <Typography color='textPrimary'>
+        Canvas Course Manager
+      </Typography>
+      )
+}
+
 function App (): JSX.Element {
   const classes = useStyles()
   const features = allFeatures
+
   return (
     <div className='App'>
       <Router>
@@ -31,21 +48,16 @@ function App (): JSX.Element {
                 const pathnames = location.pathname.split('/').filter(x => x)
                 return (
                   <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
-                    <Link component={RouterLink} to='/'>
-                      <Typography color='textPrimary'>
-                        Canvas Course Manager
-                      </Typography>
-                    </Link>
-
+                    {HomeBreadcrumb(pathnames)}
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
-                      const feature = features.filter(feature => { return feature.route.substring(1) === value })[0]
+                      const feature = features.filter(f => { return f.route.substring(1) === value })[0]
                       const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
-                      return <Typography color='textPrimary' key={to} {...titleTypographyProps}>
+                      return (<Typography color='textPrimary' key={to} {...titleTypographyProps}>
                         {feature.data.title}
-                      </Typography>
+                      </Typography>)
                     })}
                   </Breadcrumbs>
                 )
