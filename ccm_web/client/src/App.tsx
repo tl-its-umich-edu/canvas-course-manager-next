@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter as Router, Link as RouterLink, Route, Switch } from 'react-router-dom'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
+import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
 import ConsumerTest from './components/ConsumerTest'
 import Home from './pages/Home'
@@ -29,7 +30,7 @@ function App (): JSX.Element {
               {({ location }) => {
                 const pathnames = location.pathname.split('/').filter(x => x)
                 return (
-                  <Breadcrumbs aria-label="breadcrumb">
+                  <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
                     <Link component={RouterLink} to='/'>
                       <Typography color='textPrimary'>
                         Canvas Course Manager
