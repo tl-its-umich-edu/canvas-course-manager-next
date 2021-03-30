@@ -12,14 +12,25 @@ interface InlineTextEditProps {
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    textAlign: 'left',
     padding: '5px',
     '& .MuiInputBase-root.Mui-disabled': {
       color: 'rgba(0, 0, 0, 0.6)' // (default alpha is 0.38)
+    },
+    '& svg': {
+      paddingTop: '6px',
+      paddingBottom: '7px'
     }
+  },
+  inputRow: {
+    height: '60px',
+    paddingTop: '6px',
+    paddingBottom: '7px',
+    fontSize: '30px'
   },
   editIcon: {
     cursor: 'pointer',
-    textAlign: 'left'
+    fontSize: '30px'
   },
   inputArea: {
     width: '500px'
@@ -70,20 +81,20 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   return (
     <form className={classes.root} noValidate autoComplete="off">
       <Grid container className={classes.inputArea}>
-        <Grid item xs={12} sm={8}>
-          <TextField onClick={toggleEdit} inputProps={{ style: { fontSize: 30 } }} ref={textInput} id="standard-basic" placeholder='Course Name' value={tempName} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempName(e.target.value)} disabled={!isEditing}/>
+        <Grid item xs={8} sm={8}>
+          <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 30 } }} ref={textInput} id="standard-basic" placeholder='Course Name' value={tempName} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempName(e.target.value)} disabled={!isEditing}/>
         </Grid>
-      {!isEditing
-        ? (<Grid item xs={4} className={classes.editIcon} ><EditIcon onClick={toggleEdit}/></Grid>)
-        : (<Grid container item xs={12} sm={4}>
-            <Grid item xs={6} sm={6} >
-              <Button disabled={courseName === tempName} onClick={save}>Save</Button>
-            </Grid>
-            <Grid item xs={6} sm={6} >
-              <Button onClick={cancel}>Cancel</Button>
-            </Grid>
-          </Grid>)
-      }
+        {!isEditing
+          ? (<Grid item xs={4} className={classes.inputRow}><EditIcon className={classes.editIcon} fontSize='inherit' onClick={toggleEdit}/></Grid>)
+          : (<Grid container item xs={12} sm={4} className={classes.inputRow}>
+              <Grid item xs={6} sm={6} >
+                <Button disabled={courseName === tempName} onClick={save}>Save</Button>
+              </Grid>
+              <Grid item xs={6} sm={6} >
+                <Button onClick={cancel}>Cancel</Button>
+              </Grid>
+            </Grid>)
+        }
       </Grid>
     </form>
   )
