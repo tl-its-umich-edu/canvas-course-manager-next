@@ -19,11 +19,11 @@ interface TitleTypographyProps {
   to?: string
 }
 
-function HomeBreadcrumb (pathnames: string[]): JSX.Element {
+function HomeBreadcrumb (isLink: boolean): JSX.Element {
   const typography = (<Typography color='textPrimary'>
                         Canvas Course Manager
                       </Typography>)
-  return pathnames.length > 0
+  return isLink
     ? (<Link component={RouterLink} to='/'>{typography}</Link>)
     : (typography)
 }
@@ -41,7 +41,7 @@ function App (): JSX.Element {
                 const pathnames = location.pathname.split('/').filter(x => x)
                 return (
                   <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
-                    {HomeBreadcrumb(pathnames)}
+                    {HomeBreadcrumb(pathnames.length > 0)}
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
