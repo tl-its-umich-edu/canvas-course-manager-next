@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import usePromise from './usePromise'
 import * as api from '../api'
-import { Globals } from '../models'
+import { Globals } from '../models/models'
 
 /* Hook for fetching global data and checking whether user is authenticated. */
 function useGlobals (ltiKey: string | undefined): [

@@ -1,4 +1,4 @@
-import { Globals, HelloMessageData } from './models'
+import { Globals, HelloMessageData } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 const createAuthHeaders = (key: string | undefined): RequestInit => {
