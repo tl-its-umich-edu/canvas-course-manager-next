@@ -51,7 +51,7 @@ This exact command is not used in any Docker artifacts.
 
 ### Notice(s) regarding external code used
 
-This repository contains modified versions of the npm package
+This repository contains modified portions of the npm package
 [@types/ltijs](https://www.npmjs.com/package/@types/ltijs), which carries an MIT license.
 See `ccm_web/server/localTypes/ltijs/index.d.ts` for more information and the modified code.
 This code will hopefully only remain in this repository temporarily.
