@@ -48,3 +48,10 @@ The file uses the same `.env` configuration file, so adjust any values there as 
 Note: The `npm run prod` command in `ccm_web/package.json` allows you to run the application
 in a similar (but not identical) way to how it would be in production within a container.
 This exact command is not used in any Docker artifacts.
+
+### Notice(s) regarding external code used
+
+This repository contains modified versions of the npm package
+[@types/ltijs](https://www.npmjs.com/package/@types/ltijs), which carries an MIT license.
+See `ccm_web/server/localTypes/ltijs/index.d.ts` for more information and the modified code.
+This code will hopefully only remain in this repository temporarily.
