@@ -29,7 +29,7 @@ function Home (): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName }} />
+      <InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }} />
       <Grid container spacing={3}>
         {features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1).map(featureProps => {
           return (

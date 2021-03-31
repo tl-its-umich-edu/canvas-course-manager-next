@@ -7,7 +7,10 @@ import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
 interface InlineTextEditProps {
   text: string
-  save: (courseName: string) => Promise<void>
+  placeholderText: string
+  successMessage: string
+  failureMessage: string
+  save: (text: string) => Promise<void>
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -40,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
 function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   const classes = useStyles()
   const [isEditing, setIsEditing] = useState(false)
-  const [courseName, setCourseName] = useState(props.text)
-  const [tempName, setTempName] = useState(props.text)
+  const [textValue, setTextValue] = useState(props.text)
+  const [tempTextValue, setTempTextValue] = useState(props.text)
 
   const textInput = useRef(null)
 
@@ -49,20 +52,20 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
 
   const save = (): void => {
     setIsEditing(false)
-    if (courseName === tempName) return
-    props.save(tempName)
+    if (textValue === tempTextValue) return
+    props.save(tempTextValue)
       .then(() => {
-        enqueueSnackbar('Saved', { variant: 'success' })
-        setCourseName(tempName)
+        enqueueSnackbar(props.successMessage, { variant: 'success' })
+        setTextValue(tempTextValue)
       })
       .catch(function () {
-        enqueueSnackbar('Error saving course name:', { variant: 'error' })
+        enqueueSnackbar(props.failureMessage, { variant: 'error' })
         cancel()
       })
   }
   const cancel = (): void => {
     setIsEditing(false)
-    setTempName(courseName)
+    setTempTextValue(textValue)
   }
   const toggleEdit = (): void => {
     if (!isEditing) {
@@ -82,13 +85,13 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
     <form className={classes.root} noValidate autoComplete="off">
       <Grid container className={classes.inputArea}>
         <Grid item xs={8} sm={8}>
-          <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 30 } }} ref={textInput} id="standard-basic" placeholder='Course Name' value={tempName} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempName(e.target.value)} disabled={!isEditing}/>
+          <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 30 } }} ref={textInput} id="standard-basic" placeholder={props.placeholderText} value={tempTextValue} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempTextValue(e.target.value)} disabled={!isEditing}/>
         </Grid>
         {!isEditing
           ? (<Grid item xs={4} className={classes.inputRow}><EditIcon className={classes.editIcon} fontSize='inherit' onClick={toggleEdit}/></Grid>)
           : (<Grid container item xs={12} sm={4} className={classes.inputRow}>
               <Grid item xs={6} sm={6} >
-                <Button disabled={courseName === tempName} onClick={save}>Save</Button>
+                <Button disabled={textValue === tempTextValue} onClick={save}>Save</Button>
               </Grid>
               <Grid item xs={6} sm={6} >
                 <Button onClick={cancel}>Cancel</Button>
