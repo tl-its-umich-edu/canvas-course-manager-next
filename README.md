@@ -6,13 +6,13 @@ Configuration for the project is currently managed using environment variables.
 Docker handles the setting of key-value pairs in `docker-compose.yml`,
 through the `environment` block and by consuming a `.env` file.
 
-This repository includes `.env.sample` template file for `.env, with the expected keys listed out.
+This repository includes a `.env.sample` template file for `.env`, with the expected keys provided.
 Comments above each key describe what the value is used for, and in some cases,
 indicate that the key-value pair is optional.
 
 The `config.ts` module in the `ccm_web/server` directory validates this file,
 using fallbacks when available and throwing an error if required values are not present.
-The application will exit if any of the configuration fails.
+The application will exit if any of the required configuration values are not set properly.
 
 ### Development
 
