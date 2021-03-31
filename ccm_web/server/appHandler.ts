@@ -66,7 +66,7 @@ class AppHandler {
     return { middleware: webpackDevMid, publicPath: String(publicPath) }
   }
 
-  // LTIJS docs: https://cvmcosta.me/ltijs/#/
+  // ltijs docs: https://cvmcosta.me/ltijs/#/
   async setupLTI (): Promise<Express> {
     const { server, db, lti } = this.config
 
@@ -133,7 +133,7 @@ class AppHandler {
   }
 
   startApp (): void {
-    console.log('Starting LTIJS server...')
+    console.log('Starting ltijs server...')
     this.setupLTI()
       .then(() => console.log('LTI application setup has completed.'))
       .catch((r) => {
