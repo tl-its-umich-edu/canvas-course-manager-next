@@ -58,26 +58,26 @@ function App (props: AppProps): JSX.Element {
         <Router>
           <div className={classes.breadcrumbs}>
             <Route>
-                {({ location }) => {
-                  const pathnames = location.pathname.split('/').filter(x => x)
-                  return (
-                    <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
-                      {HomeBreadcrumb(pathnames.length > 0)}
-                      {pathnames.map((value, index) => {
-                        const last = index === pathnames.length - 1
-                        const to = `/${pathnames.slice(0, index + 1).join('/')}`
-                        const feature = features.filter(f => { return f.route.substring(1) === value })[0]
-                        const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
+              {({ location }) => {
+                const pathnames = location.pathname.split('/').filter(x => x)
+                return (
+                  <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
+                    {HomeBreadcrumb(pathnames.length > 0)}
+                    {pathnames.map((value, index) => {
+                      const last = index === pathnames.length - 1
+                      const to = `/${pathnames.slice(0, index + 1).join('/')}`
+                      const feature = features.filter(f => { return f.route.substring(1) === value })[0]
+                      const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
-                        return (<Typography color='textPrimary' variant={breadcrumbVariant} key={to} {...titleTypographyProps}>
-                          {feature.data.title}
-                        </Typography>)
-                      })}
-                    </Breadcrumbs>
-                  )
-                }}
-              </Route>
-            </div>
+                      return (<Typography color='textPrimary' variant={breadcrumbVariant} key={to} {...titleTypographyProps}>
+                        {feature.data.title}
+                      </Typography>)
+                    })}
+                  </Breadcrumbs>
+                )
+              }}
+            </Route>
+          </div>
           <Switch>
             <Route exact={true} path="/" component={Home} />
             {features.map(feature => {
