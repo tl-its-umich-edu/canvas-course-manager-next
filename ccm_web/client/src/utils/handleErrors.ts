@@ -1,4 +1,9 @@
 /*
+Modified version of Remote Office Hours Queue implementation of custom errors and handleErrors
+See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/assets/src/services/api.ts
+*/
+
+/*
 Custom Error types
 */
 
