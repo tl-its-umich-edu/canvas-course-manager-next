@@ -19,7 +19,7 @@
     "express": "^4.17.1",
     "html-webpack-plugin": "^5.2.0",
     "keycode-js": "^3.1.0",
-    "ltijs": "^5.6.6",
+    "ltijs": "^5.6.7",
     "ltijs-sequelize": "^2.3.3",
     "notistack": "^1.0.5",
     "react": "^17.0.1",
