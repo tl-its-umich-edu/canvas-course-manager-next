@@ -20,8 +20,10 @@ interface TitleTypographyProps {
   to?: string
 }
 
+const breadcrumbVariant = 'h5'
+
 function HomeBreadcrumb (isLink: boolean): JSX.Element {
-  const typography = (<Typography color='textPrimary'>
+  const typography = (<Typography color='textPrimary' variant={breadcrumbVariant}>
                         Canvas Course Manager
                       </Typography>)
   return isLink
@@ -50,7 +52,7 @@ function App (): JSX.Element {
                         const feature = features.filter(f => { return f.route.substring(1) === value })[0]
                         const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
-                        return (<Typography color='textPrimary' key={to} {...titleTypographyProps}>
+                        return (<Typography color='textPrimary' variant={breadcrumbVariant} key={to} {...titleTypographyProps}>
                           {feature.data.title}
                         </Typography>)
                       })}
