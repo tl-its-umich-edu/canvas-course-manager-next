@@ -23,17 +23,21 @@ const useStyles = makeStyles((theme) => ({
     '& svg': {
       paddingTop: '6px',
       paddingBottom: '7px'
+    },
+    '& input:disabled': {
+      cursor: 'pointer'
     }
+
   },
   inputRow: {
     height: '60px',
     paddingTop: '6px',
     paddingBottom: '7px',
-    fontSize: '30px'
+    fontSize: '24px'
   },
   editIcon: {
     cursor: 'pointer',
-    fontSize: '30px'
+    fontSize: '24px'
   },
   inputArea: {
     width: '500px'
@@ -85,7 +89,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
     <form className={classes.root} noValidate autoComplete="off">
       <Grid container className={classes.inputArea}>
         <Grid item xs={8} sm={8}>
-          <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 30 } }} ref={textInput} id="standard-basic" placeholder={props.placeholderText} value={tempTextValue} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempTextValue(e.target.value)} disabled={!isEditing}/>
+          <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 24 } }} ref={textInput} id="standard-basic" placeholder={props.placeholderText} value={tempTextValue} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempTextValue(e.target.value)} disabled={!isEditing}/>
         </Grid>
         {!isEditing
           ? (<Grid item xs={4} className={classes.inputRow}><EditIcon className={classes.editIcon} fontSize='inherit' onClick={toggleEdit}/></Grid>)
