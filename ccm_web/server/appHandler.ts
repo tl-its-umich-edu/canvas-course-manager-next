@@ -41,15 +41,6 @@ class AppHandler {
     this.apiRouter = apiRouter
   }
 
-  static handleProdClient (app: Express, staticPath: string): void {
-    console.log('Loading dist/client...')
-    app.use(express.static(staticPath))
-
-    app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(staticPath, 'index.html'))
-    })
-  }
-
   /* TO DO: Investigate some way to dynamically import webpack stuff? */
   static setupWebpackMiddleware (): WebpackDevOutput {
     console.log('Setting up webpack-dev-middleware...')
