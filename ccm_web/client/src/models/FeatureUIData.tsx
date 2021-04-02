@@ -4,9 +4,17 @@ import LibraryBooksOutlinedIcon from '@material-ui/icons/LibraryBooksOutlined'
 import MergeTypeIcon from '@material-ui/icons/MergeType'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
+import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 
-import { FeatureDataProps, mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
+import { FeatureDataProps, mergeSectionProps, canvasGradebookToolsProps, thirdPartygradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
 import MergeSections from '../pages/MergeSections'
+
+interface FeatureUIGroup {
+  id: string
+  title: string
+  ordinality: number
+  features: FeatureUIProps[]
+}
 
 interface FeatureUIProps {
   data: FeatureDataProps
@@ -22,11 +30,18 @@ const mergeSectionCardProps: FeatureUIProps = {
   route: '/merge-sections'
 }
 
-const gradebookToolsCardProps: FeatureUIProps = {
-  data: gradebookToolsProps,
+const canvasGradebookCardProps: FeatureUIProps = {
+  data: canvasGradebookToolsProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
   component: MergeSections,
-  route: '/gradebook'
+  route: '/gradebook-canvas'
+}
+
+const thirdPartyGradebookCardProps: FeatureUIProps = {
+  data: thirdPartygradebookToolsProps,
+  icon: <PostAddOutlinedIcon fontSize='large' />,
+  component: MergeSections,
+  route: '/gradebook-other'
 }
 
 const createSectionsCardProps: FeatureUIProps = {
@@ -50,7 +65,13 @@ const addNonUMUsersCardProps: FeatureUIProps = {
   route: '/add-non-um-users'
 }
 
-const allFeatures = [mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps]
+const allFeatures: FeatureUIGroup[] = [
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookCardProps, thirdPartyGradebookCardProps] },
+  { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
+  { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
+]
 
-export type { FeatureUIProps }
+// const allFeatures = [mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps]
+
+export type { FeatureUIGroup, FeatureUIProps }
 export default allFeatures
