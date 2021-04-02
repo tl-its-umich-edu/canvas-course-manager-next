@@ -8,29 +8,22 @@ import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '& .MuiGrid-item': {
-      backgroundColor: 'red'
-    },
-    padding: 25
+    padding: 25,
+    paddingTop: 5
   },
   title: {
-    '& .MuiGrid-item': {
-      backgroundColor: 'green'
-    },
-    textAlign: 'left'
-  },
-  featureGroupContainer: {
-    paddingTop: '2px'
+    textAlign: 'left',
+    paddingLeft: 5
   },
   featureCardContainer: {
-    padding: '5px'
+    padding: 5
   }
 }))
 
 function FeatureGroup (featureGroup: FeatureUIGroup): JSX.Element {
   const classes = useStyles()
   return (
-    <Grid key={featureGroup.id} className={classes.featureGroupContainer} container item xs={12} spacing={3}>
+    <Grid key={featureGroup.id} container item xs={12} spacing={0}>
       <Grid item xs={12}><Typography variant='h6' className={classes.title} >{featureGroup.title}</Typography></Grid>
       <Grid container item xs={12}>
         {featureGroup.features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1).map(feature => {
