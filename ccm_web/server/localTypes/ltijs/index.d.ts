@@ -217,7 +217,6 @@ declare module 'ltijs' {
     https?: boolean
     ssl?: SSLOptions
     staticPath?: string
-    logger?: boolean
     cors?: boolean
     serverAddon?: ServerAddonFunction
     cookies?: CookieOptions
@@ -232,7 +231,7 @@ declare module 'ltijs' {
   }
 
   type ConnectionCallback = (
-    connection: IdToken,
+    token: IdToken,
     request: ExpressRequest,
     response: ExpressResponse,
     next: NextFunction
@@ -272,10 +271,6 @@ declare module 'ltijs' {
     loginRoute (): string
 
     appRoute (): string
-
-    sessionTimeoutRoute (): string
-
-    invalidTokenRoute (): string
 
     keysetRoute (): string
 
