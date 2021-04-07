@@ -41,7 +41,7 @@ const thirdPartyGradebookCardProps: FeatureUIProps = {
   data: thirdPartygradebookToolsProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
   component: MergeSections,
-  route: '/gradebook-other'
+  route: '/gradebook-thirdparty'
 }
 
 const createSectionsCardProps: FeatureUIProps = {
