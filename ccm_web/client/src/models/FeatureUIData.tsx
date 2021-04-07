@@ -6,6 +6,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
 
 import { FeatureDataProps, mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
+import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 
 interface FeatureUIProps {
@@ -25,7 +26,7 @@ const mergeSectionCardProps: FeatureUIProps = {
 const gradebookToolsCardProps: FeatureUIProps = {
   data: gradebookToolsProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: ConvertCanvasGradebook,
   route: '/gradebook'
 }
 
