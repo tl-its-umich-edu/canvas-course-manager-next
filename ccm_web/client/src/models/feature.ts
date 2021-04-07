@@ -15,14 +15,14 @@ const mergeSectionProps: FeatureDataProps = {
 
 const canvasGradebookToolsProps: FeatureDataProps = {
   id: 'CanvasGradebookTools',
-  title: 'Gradebook Tools',
+  title: 'Canvas Gradebook',
   description: 'Trim the gradebook from Canvas',
   ordinality: 2
 }
 
 const thirdPartygradebookToolsProps: FeatureDataProps = {
   id: 'ThirdPartyGradebookTools',
-  title: 'Gradebook Tools',
+  title: 'Third Party Gradebook',
   description: 'Trim the gradebook from a third party to correct format',
   ordinality: 2
 }
