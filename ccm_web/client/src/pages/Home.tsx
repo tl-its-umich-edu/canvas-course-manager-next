@@ -4,15 +4,40 @@ import Grid from '@material-ui/core/Grid'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
-import allFeatures from '../models/FeatureUIData'
+import allFeatures, { FeatureUIGroup } from '../models/FeatureUIData'
+import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
-    minWidth: 275,
-    padding: 25
+    padding: 25,
+    paddingTop: 5
+  },
+  title: {
+    textAlign: 'left',
+    paddingLeft: 5
+  },
+  featureCardContainer: {
+    padding: 5
   }
 }))
+
+function FeatureGroup (featureGroup: FeatureUIGroup): JSX.Element {
+  const classes = useStyles()
+  return (
+    <Grid key={featureGroup.id} container item xs={12} spacing={0}>
+      <Grid item xs={12}><Typography variant='h6' className={classes.title} >{featureGroup.title}</Typography></Grid>
+      <Grid container item xs={12}>
+        {featureGroup.features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1).map(feature => {
+          return (
+            <Grid key={feature.data.id} item className={classes.featureCardContainer} xs={12} sm={4}>
+              <FeatureCard {...feature} />
+            </Grid>
+          )
+        })}
+      </Grid>
+    </Grid>
+  )
+}
 
 function Home (): JSX.Element {
   const classes = useStyles()
@@ -31,12 +56,8 @@ function Home (): JSX.Element {
     <div className={classes.root}>
       <InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }} />
       <Grid container spacing={3}>
-        {features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1).map(featureProps => {
-          return (
-            <Grid key={featureProps.data.id} item xs={12} sm={4}>
-              <FeatureCard {...featureProps} />
-            </Grid>
-          )
+        {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).map(featureGroup => {
+          return (FeatureGroup(featureGroup))
         })}
       </Grid>
     </div>

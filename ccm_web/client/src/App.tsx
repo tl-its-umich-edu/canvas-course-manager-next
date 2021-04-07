@@ -33,7 +33,7 @@ function HomeBreadcrumb (isLink: boolean): JSX.Element {
 
 function App (): JSX.Element {
   const classes = useStyles()
-  const features = allFeatures
+  const features = allFeatures.map(f => f.features).flat()
 
   return (
     <div className='App'>
