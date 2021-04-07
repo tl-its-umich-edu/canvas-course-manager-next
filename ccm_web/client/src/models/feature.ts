@@ -13,10 +13,17 @@ const mergeSectionProps: FeatureDataProps = {
   ordinality: 1
 }
 
-const gradebookToolsProps: FeatureDataProps = {
-  id: 'GradebookTools',
-  title: 'Gradebook Tools',
-  description: 'Trim the gradebook from Canvas, or trim the gradebook from a third party to correct format',
+const canvasGradebookToolsProps: FeatureDataProps = {
+  id: 'CanvasGradebookTools',
+  title: 'Canvas Gradebook',
+  description: 'Trim the gradebook from Canvas',
+  ordinality: 2
+}
+
+const thirdPartygradebookToolsProps: FeatureDataProps = {
+  id: 'ThirdPartyGradebookTools',
+  title: 'Third Party Gradebook',
+  description: 'Trim the gradebook from a third party to correct format',
   ordinality: 2
 }
 
@@ -42,4 +49,4 @@ const addNonUMUsersProps: FeatureDataProps = {
 }
 
 export type { FeatureDataProps }
-export { mergeSectionProps, gradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps }
+export { mergeSectionProps, canvasGradebookToolsProps, thirdPartygradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps }
