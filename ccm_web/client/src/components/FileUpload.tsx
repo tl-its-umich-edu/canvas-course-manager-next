@@ -60,7 +60,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
               hidden
               ref={fileInput}
               id='fileInput'
-              multiple
+              multiple={false}
               type='file'
             />
             <div>
