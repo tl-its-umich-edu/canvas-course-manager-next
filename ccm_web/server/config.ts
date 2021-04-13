@@ -25,7 +25,7 @@ export interface Config {
 }
 
 const isString = (v: unknown): v is string => typeof v === 'string'
-const isNumber = (v: unknown): v is number => typeof v === 'number'
+const isNumber = (v: unknown): v is number => typeof v === 'number' && !isNaN(v)
 
 function validate<T> (
   key: string,

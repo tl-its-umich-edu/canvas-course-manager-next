@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "nodemon --config nmon_config.json server/app.ts",
+    "dev:server": "nodemon --config nmon_config.json server/app.ts",
+    "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
+    "dev": "npm run dev:server & npm run dev:client",
     "build-client": "webpack --config webpack/webpack.prod.ts",
     "build-server": "tsc",
     "preprod": "npm run build-client && npm run build-server",
@@ -14,23 +16,14 @@
   "dependencies": {
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
-    "clean-webpack-plugin": "^3.0.0",
-    "css-loader": "^5.1.1",
     "express": "^4.17.1",
-    "html-webpack-plugin": "^5.2.0",
     "keycode-js": "^3.1.0",
     "ltijs": "~5.6.8",
     "ltijs-sequelize": "~2.3.3",
     "notistack": "^1.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-router-dom": "^5.2.0",
-    "style-loader": "^2.0.0",
-    "ts-loader": "^8.0.17",
-    "webpack": "^5.24.2",
-    "webpack-cli": "^4.5.0",
-    "webpack-dev-middleware": "^4.1.0",
-    "webpack-merge": "^5.7.3"
+    "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.9",
@@ -44,18 +37,25 @@
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.7",
     "@types/webpack": "^4.41.26",
-    "@types/webpack-dev-middleware": "^4.1.0",
     "@types/webpack-merge": "^4.1.5",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^5.1.1",
     "eslint": "^7.22.0",
     "eslint-config-standard-with-typescript": "^20.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-react": "^7.22.0",
+    "html-webpack-plugin": "^5.2.0",
     "nodemon": "^2.0.7",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0",
+    "webpack-merge": "^5.7.3"
   }
 }
