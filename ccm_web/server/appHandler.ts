@@ -1,5 +1,6 @@
 import path from 'path'
 
+import express from 'express'
 import type { Express, Request, Response, Router } from 'express'
 import { IdToken, Provider } from 'ltijs'
 import Database from 'ltijs-sequelize'
@@ -28,7 +29,7 @@ class AppHandler {
 
   // ltijs docs: https://cvmcosta.me/ltijs/#/
   async setupLTI (): Promise<Express> {
-    const { server, db, lti } = this.config
+    const { db, lti } = this.config
 
     const dbPlugin = new Database(
       db.name,
@@ -36,8 +37,6 @@ class AppHandler {
       db.password,
       { host: db.host, dialect: 'postgres', logging: false }
     )
-
-    const cookieOptions = { secure: true, sameSite: 'None' }
 
     const provider = Provider.setup(
       lti.encryptionKey, // Key used to sign cookies and tokens
@@ -49,21 +48,17 @@ class AppHandler {
         keysetRoute: '/keys',
         // Set secure to true if the testing platform is in a different domain and https is being used
         // Set sameSite to 'None' if the testing platform is in a different domain and https is being used
-        cookies: cookieOptions,
-        staticPath: this.envOptions.staticPath
+        cookies: { secure: true, sameSite: 'None' }
       }
     )
 
-    provider.app.use('/api', this.apiRouter)
-
-    // Set lti launch callback
-    // When receiving successful LTI launch redirects to app.
+    // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       console.log(token.userInfo)
-      return res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
+      provider.redirect(res, '/')
     })
 
-    await provider.deploy({ port: server.port })
+    await provider.deploy({ serverless: true })
 
     await provider.registerPlatform({
       name: lti.platformURL,
@@ -78,13 +73,29 @@ class AppHandler {
     return provider.app
   }
 
-  startApp (): void {
-    console.log('Starting ltijs server...')
-    this.setupLTI()
-      .then(() => console.log('LTI application setup has completed.'))
-      .catch((r) => {
-        throw Error(`LTI code failed to initialize app: ${String(r)}`)
-      })
+  async startApp (): Promise<void> {
+    const { server } = this.config
+
+    const app = express()
+
+    console.log('Adding ltijs as middleware...')
+    const ltiApp = await this.setupLTI()
+    app.use('/lti', ltiApp)
+
+    console.log('Installing backend API router...')
+    app.use('/api', this.apiRouter)
+
+    console.log('Loading client static assets...')
+    app.use(express.static(this.envOptions.staticPath))
+
+    // Pass requests to all routes to SPA
+    app.get('*', (req: Request, res: Response) => {
+      res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
+    })
+
+    app.listen(server.port, () => {
+      console.log(`Server started on localhost and port ${server.port}`)
+    })
   }
 }
 

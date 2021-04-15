@@ -18,4 +18,8 @@ const envOptions = isDev
 const appHandler = new AppHandler(config, envOptions, apiRouter)
 
 // TO DO: need to implement database availability check
-setTimeout(() => appHandler.startApp(), 15000)
+setTimeout(() => {
+  appHandler.startApp()
+    .then(() => console.log('The application was successfully started.'))
+    .catch(() => console.log('An error occurred while starting the application.'))
+}, 15000)
