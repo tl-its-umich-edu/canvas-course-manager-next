@@ -55,7 +55,7 @@ class AppHandler {
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       console.log(token.userInfo)
-      provider.redirect(res, '/')
+      return res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
     })
 
     await provider.deploy({ serverless: true })
@@ -78,15 +78,15 @@ class AppHandler {
 
     const app = express()
 
+    console.log('Loading client static assets...')
+    app.use('/static', express.static(this.envOptions.staticPath))
+
     console.log('Adding ltijs as middleware...')
     const ltiApp = await this.setupLTI()
-    app.use('/lti', ltiApp)
+    app.use(ltiApp)
 
     console.log('Installing backend API router...')
     app.use('/api', this.apiRouter)
-
-    console.log('Loading client static assets...')
-    app.use(express.static(this.envOptions.staticPath))
 
     // Pass requests to all routes to SPA
     app.get('*', (req: Request, res: Response) => {
