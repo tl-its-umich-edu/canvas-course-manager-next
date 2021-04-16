@@ -239,7 +239,7 @@ declare module 'ltijs' {
   /* eslint-disable @typescript-eslint/no-invalid-void-type */
   => Promise<ExpressResponse | void>
 
-  type ErrorCallback = (req: Request, res: ExpressResponse) => Promise<ExpressResponse | void>
+  type ErrorCallback = (req: ExpressRequest, res: ExpressResponse) => Promise<ExpressResponse | void>
 
   interface RedirectOptions {
     newResource?: boolean
