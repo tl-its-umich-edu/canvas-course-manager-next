@@ -78,6 +78,7 @@ class AppHandler {
 
     const app = express()
 
+    // Order of middleware matters
     console.log('Loading client static assets...')
     app.use('/static', express.static(this.envOptions.staticPath))
 
@@ -88,7 +89,7 @@ class AppHandler {
     console.log('Installing backend API router...')
     app.use('/api', this.apiRouter)
 
-    // Pass requests to all routes to SPA
+    // Pass requests to other routes to SPA
     app.get('*', (req: Request, res: Response) => {
       res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
     })
