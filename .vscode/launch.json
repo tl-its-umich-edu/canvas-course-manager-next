@@ -2,7 +2,6 @@
 // https://stackoverflow.com/questions/43898947/docker-node-app-always-crashes-on-file-change-using-nodemon/56832975#56832975
 {
     "configurations": [
-        
         {
             "type": "node",
             "request": "attach",
