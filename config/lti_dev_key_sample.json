@@ -6,12 +6,12 @@
       "platform": "canvas.instructure.com",
       "settings": {
         "platform": "canvas.instructure.com",
-        "default": "visible",
         "placements": [
           {
             "placement": "course_navigation",
             "message_type": "LtiResourceLinkRequest",
-            "target_link_uri": "https://{ccm_app_url}"
+            "target_link_uri": "https://{ccm_app_url}",
+            "visibility": "admins"
           }
         ]
       },
