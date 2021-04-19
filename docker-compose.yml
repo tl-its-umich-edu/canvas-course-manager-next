@@ -36,6 +36,3 @@ services:
     volumes:
       - .postgres_data:/var/lib/postgresql/data
     container_name: ccm_db
-
-volumes:
-  postgres_data:
