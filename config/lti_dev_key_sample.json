@@ -9,9 +9,9 @@
         "default": "visible",
         "placements": [
           {
-              "placement": "course_navigation",
-              "message_type": "LtiResourceLinkRequest",
-              "target_link_uri": "https://{ccm_app_url}"
+            "placement": "course_navigation",
+            "message_type": "LtiResourceLinkRequest",
+            "target_link_uri": "https://{ccm_app_url}"
           }
         ]
       },

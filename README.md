@@ -9,7 +9,7 @@ Docker handles the setting of key-value pairs in `docker-compose.yml`,
 through the `environment` block and by consuming a `.env` file.
 Docker will expect to find a `.env` file at the project's root directory.
 
-This repository includes in the `config` directory a `.env.sample` template file for `.env` ,
+This repository includes in the `config` directory a `.env.sample` template file for `.env`,
 with the expected keys provided. Comments above each key describe what the value is used for,
 and in some cases, indicate that the key-value pair is optional.
 
