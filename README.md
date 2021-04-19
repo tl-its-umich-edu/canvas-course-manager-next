@@ -38,7 +38,7 @@ the URL (without the protocol) for the instance you are configuring,
 you can simply paste the JSON in the Canvas form.
 (You will want to enter the Key Name and Owner Email separately.)
 
-#### Development
+### Development
 
 Here are some basic set-up instructions.
 
@@ -59,7 +59,7 @@ Use `^C` to stop the container and `docker-compose down` to remove the last used
 Many TypeScript and static file changes can be made without re-building the image,
 but as necessary, rebuild the image using Step 1.
 
-### Debbugging using VSCode
+#### Debbugging using VSCode
 1. Go to the Run and Debug option in the left navigation of VS Code Editor.
 2. Select the configuration CCM_DEBUG and hit the Play button, debugger should be attached.
 3. Put a break point anywhere in the server folder and code execution stops on that break point.
