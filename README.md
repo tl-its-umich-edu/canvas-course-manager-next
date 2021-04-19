@@ -66,8 +66,10 @@ Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized i
 You can test the Docker production image and other production code branches by using `docker-compose-prod.yml`.
 To do so, issue the same commands as above under **Development**
 with the `-f` flag specifying `docker-compose-prod.yml`.
-The file uses the same `.env` configuration file, so adjust any values there as desired
+The file uses the same `.env` configuration file, so adjust any values there as needed
 (see **Configuration** above for more info).
+Note that, at minimum, the database host needs to be changed to `ccm_db_prod`
+(since that is the name of the container).
 
 Note: The `npm run prod` command in `ccm_web/package.json` allows you to run the application
 in a similar (but not identical) way to how it would be in production within a container.
