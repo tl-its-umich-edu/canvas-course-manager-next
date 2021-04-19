@@ -35,7 +35,7 @@ class AppHandler {
       db.name,
       db.user,
       db.password,
-      { host: db.host, dialect: 'postgres', logging: false }
+      { host: db.host, dialect: 'mysql', port: db.port, logging: false }
     )
 
     const provider = Provider.setup(
