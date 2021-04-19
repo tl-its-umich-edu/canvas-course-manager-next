@@ -38,7 +38,7 @@ the URL (without the protocol) for the instance you are configuring,
 you can simply paste the JSON in the Canvas form.
 (You will want to enter the Key Name and Owner Email separately.)
 
-### Development
+#### Development
 
 Here are some basic set-up instructions.
 
