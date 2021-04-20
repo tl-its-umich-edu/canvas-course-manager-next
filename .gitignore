@@ -3,6 +3,9 @@
 # distributables
 ccm_web/dist
 
+# database volume
+.postgres_data*
+
 # dependencies
 node_modules
 .pnp
@@ -29,3 +32,6 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# vscode ignores
+.history

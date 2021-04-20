@@ -44,8 +44,8 @@ const commonConfig: webpack.Configuration = {
   ],
   output: {
     filename: '[name]-[chunkhash].js',
-    path: path.resolve('dist', 'client'),
-    publicPath: '/'
+    path: path.resolve(__dirname, '..', 'dist', 'client'),
+    publicPath: '/static'
   }
 }
 

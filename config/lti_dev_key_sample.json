@@ -1,0 +1,31 @@
+{
+  "title": "Canvas Course Manager",
+  "scopes": [],
+  "extensions": [
+    {
+      "platform": "canvas.instructure.com",
+      "settings": {
+        "platform": "canvas.instructure.com",
+        "placements": [
+          {
+            "placement": "course_navigation",
+            "message_type": "LtiResourceLinkRequest",
+            "target_link_uri": "https://{ccm_app_url}",
+            "visibility": "admins"
+          }
+        ]
+      },
+      "domain": "{ccm_app_url}",
+      "privacy_level": "public"
+    }
+  ],
+  "public_jwk": {},
+  "description": "Sample LTI Developer Key for CCM",
+  "custom_fields": {
+    "roles": "$Canvas.membership.roles",
+    "isRootAccountAdmin": "$Canvas.user.isRootAccountAdmin"
+  },
+  "public_jwk_url": "https://{ccm_app_url}/keys",
+  "target_link_uri": "https://{ccm_app_url}",
+  "oidc_initiation_url": "https://{ccm_app_url}/login"
+}
