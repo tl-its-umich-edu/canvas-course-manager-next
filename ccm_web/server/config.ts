@@ -62,7 +62,7 @@ export function validateConfig (env: Record<string, unknown>): Config | undefine
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString),
-      port: validate<number>('DB_PORT', env.DB_PORT, isNumber, 3306),
+      port: validate<number>('DB_PORT', Number(env.DB_PORT), isNumber, 3306),
       name: validate<string>('DB_NAME', env.DB_NAME, isString),
       user: validate<string>('DB_USER', env.DB_USER, isString),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString)
