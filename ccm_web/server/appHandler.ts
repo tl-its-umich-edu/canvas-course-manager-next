@@ -6,11 +6,14 @@ import { IdToken, Provider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
 import { Config } from './config'
+import baseLogger from './logger'
 
 interface EnvOptions {
   isDev: boolean
   staticPath: string
 }
+
+const logger = baseLogger.child({ filePath: __filename })
 
 class AppHandler {
   private readonly config: Config
@@ -54,7 +57,7 @@ class AppHandler {
 
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
-      console.log(token.userInfo)
+      logger.debug(JSON.stringify(token.userInfo))
       return res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
     })
 
@@ -79,14 +82,14 @@ class AppHandler {
     const app = express()
 
     // Order of middleware matters
-    console.log('Loading client static assets...')
+    logger.info('Loading client static assets...')
     app.use('/static', express.static(this.envOptions.staticPath))
 
-    console.log('Adding ltijs as middleware...')
+    logger.info('Adding ltijs as middleware...')
     const ltiApp = await this.setupLTI()
     app.use(ltiApp)
 
-    console.log('Installing backend API router...')
+    logger.info('Installing backend API router...')
     app.use('/api', this.apiRouter)
 
     // Pass requests to other routes to SPA
@@ -95,7 +98,7 @@ class AppHandler {
     })
 
     app.listen(server.port, () => {
-      console.log(`Server started on localhost and port ${server.port}`)
+      logger.info(`Server started on localhost and port ${server.port}`)
     })
   }
 }
