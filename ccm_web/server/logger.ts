@@ -3,7 +3,7 @@ import winston, { format } from 'winston'
 
 const logFormat = format.printf(
   ({ level, message, timestamp, filePath }) => {
-    const moduleName = path.basename(filePath, '.ts')
+    const moduleName = path.basename(filePath)
     return `${String(timestamp)} - ${moduleName} - ${level} - ${message}`
   }
 )
