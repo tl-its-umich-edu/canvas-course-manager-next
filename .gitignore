@@ -4,7 +4,7 @@
 ccm_web/dist
 
 # database volume
-.postgres_data*
+.mysql_data*
 
 # dependencies
 node_modules

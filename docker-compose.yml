@@ -26,13 +26,18 @@ services:
       - database
 
   database:
-    image: postgres:13
+    image: mysql:5.7
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
     environment:
-      - POSTGRES_DB=ccm
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD=ccm_root_pw
+      - MYSQL_HOST=ccm_db
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=ccm
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+    entrypoint: ['docker-entrypoint.sh', '--default-authentication-plugin=mysql_native_password']
     ports:
-      - 5400:5432
+      - 5400:3306
     volumes:
-      - .postgres_data:/var/lib/postgresql/data
+      - ./.mysql_data:/var/lib/mysql:delegated
     container_name: ccm_db
