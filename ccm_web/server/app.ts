@@ -21,5 +21,5 @@ const appHandler = new AppHandler(config, envOptions, apiRouter)
 setTimeout(() => {
   appHandler.startApp()
     .then(() => console.log('The application was successfully started.'))
-    .catch(() => console.log('An error occurred while starting the application.'))
+    .catch((error) => console.error('An error occurred while starting the application.', error))
 }, 15000)
