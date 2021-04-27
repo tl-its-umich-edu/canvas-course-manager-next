@@ -1,22 +1,14 @@
 import React, { useRef } from 'react'
-import { Button, Card, CardActions, CardContent, Link, makeStyles, SvgIconProps, Typography } from '@material-ui/core'
-import ForwardIcon from '@material-ui/icons/Forward'
-
-interface FileUploadActionProps {
-  actionText: string
-  actionLink: URL
-}
+import { Button, Card, CardContent, makeStyles, Typography } from '@material-ui/core'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 
 interface FileUploadProps {
-  labelText: string[]
-  action: FileUploadActionProps|undefined
   onUploadComplete: (file: File) => void
-  primaryIcon: React.ReactElement<SvgIconProps>
 }
 
 const useStyles = makeStyles((theme) => ({
   root: {
-
+    textAlign: 'center'
   },
   cardContent: {
     cursor: 'pointer'
@@ -29,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
 
+  },
+  uploadIcon: {
+    color: '#3F648E'
   }
 }))
 
@@ -51,9 +46,10 @@ function FileUpload (props: FileUploadProps): JSX.Element {
       <Card variant='outlined'>
         <CardContent className={classes.cardContent} onDragOver={dragover} onDrop={dragdrop} onClick={onFileInputClick}>
           <div>
-            <div>
-              {props.primaryIcon}
-            </div>
+            <CloudUploadIcon className={classes.uploadIcon} fontSize='large'/>
+            <Typography>
+              Drag and drop or <Button color='primary' component="span" onClick={onFileInputClick}>browse your files</Button>
+            </Typography>
             <input
               accept='.csv'
               className={classes.input}
@@ -63,27 +59,11 @@ function FileUpload (props: FileUploadProps): JSX.Element {
               multiple={false}
               type='file'
             />
-            <div>
-              <label htmlFor='fileInput'>
-                {props.labelText.map(function (name, index) {
-                  return <div key={ index }>{name}</div>
-                })}
-              </label>
-            </div>
-            <Button color='primary' component="span" onClick={onFileInputClick}>
-                Upload
-            </Button>
           </div>
         </CardContent>
-        {props.action !== undefined &&
-          <CardActions className={classes.actionsBar}>
-              <Link href={props.action?.actionLink.href}><Typography>{props.action?.actionText}<ForwardIcon className={classes.actionsBarIcon} fontSize='inherit'></ForwardIcon></Typography></Link>
-          </CardActions>
-        }
       </Card>
     </div>
   )
 }
 
-export type { FileUploadActionProps }
 export default FileUpload
