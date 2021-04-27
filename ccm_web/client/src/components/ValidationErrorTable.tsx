@@ -7,17 +7,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     marginLeft: theme.spacing(2.5)
-  },
-  table: {
-
-  },
-  tableBody: {
-    minHeight: 391,
-    maxHeight: 391
-  },
-  tableContainer: {
-    minHeight: 500,
-    maxHeight: 500
   }
 }))
 
@@ -78,7 +67,7 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function TablePaginationActions (props: { count: any, page: any, rowsPerPage: any, onChangePage: any }): JSX.Element {
-      const classes = useStyles()
+      // const classes = useStyles()
       const theme = useTheme()
       const { count, page, rowsPerPage, onChangePage } = props
 
@@ -137,8 +126,8 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
     }
 
     return (
-      <TableContainer className={classes.tableContainer} component={Paper}>
-        <Table stickyHeader className={classes.table} aria-label="custom pagination table">
+      <TableContainer component={Paper}>
+        <Table stickyHeader aria-label="custom pagination table">
           <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -152,7 +141,7 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
                 ))}
               </TableRow>
             </TableHead>
-          <TableBody className={classes.tableBody}>
+          <TableBody>
             {tableRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.rowNumber}>
