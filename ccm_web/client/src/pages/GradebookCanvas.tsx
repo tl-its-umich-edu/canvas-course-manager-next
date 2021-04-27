@@ -13,6 +13,11 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
     textAlign: 'left'
+  },
+  fileName: {
+    marginBottom: 15,
+    paddingLeft: 10,
+    paddingRight: 10
   }
 }))
 
@@ -120,10 +125,8 @@ function ConvertCanvasGradebook (): JSX.Element {
   const topLevelClasses = useTopLevelErrorStyles()
 
   const { enqueueSnackbar } = useSnackbar()
-  // const [tableHidden, setTableHidden] = useState(true)
-  // const [fileUploadColumns, setFileUploadColumns] = useState<GridSize>(12)
-
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
+  const [file, setFile] = useState<File|undefined>(undefined)
 
   useEffect(() => {
     if (pageState.errorMessage !== undefined) {
@@ -132,12 +135,12 @@ function ConvertCanvasGradebook (): JSX.Element {
   }, [pageState])
 
   const uploadComplete = (file: File): void => {
+    setFile(file)
     parseUpload(file)
   }
 
   const parseUpload = (file: File): void => {
     // This results in an error on the 2nd "header" row for possible scores
-    handleValidating()
     parse<GradebookRecord>(file, {
       header: true,
       skipEmptyLines: true,
@@ -148,15 +151,8 @@ function ConvertCanvasGradebook (): JSX.Element {
     })
   }
 
-  const handleValidating = (): void => {
-    // setUploadIcon(validatingIcon)
-    // setFileUploadLabelText(['Validating...'])
-    // setFileUploadAction(undefined)
-  }
-
   const handleNoLetterGradesError = (): void => {
     setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: ['Your file needs to include grade letter (A-E)', 'Change your grading scheme in settings'] })
-    // handleError(['Your file needs to include grade letter (A-E)', 'Change your grading scheme in settings'], { actionText: 'More Info', actionLink: new URL('http://documentation.its.umich.edu/node/401') }, false)
   }
 
   const handleRowLevelInvalidationError = (errorMessage: string[], invalidations: GradebookRowInvalidation[]): void => {
@@ -171,7 +167,6 @@ function ConvertCanvasGradebook (): JSX.Element {
     const data = results.data.slice(1) // The first row is possible scores
 
     if (data[0]['Final Grade'] === undefined) {
-      // show message about the lack of grading scheme and Final Grade
       handleNoLetterGradesError()
       return
     }
@@ -220,39 +215,53 @@ function ConvertCanvasGradebook (): JSX.Element {
 
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
     return (
-      <Grid container justify='flex-start'>
-        <Box clone order={{ xs: 2, sm: 1 }}>
-          <Grid item xs={12} sm={9} className={rowLevelErrorClasses.table} >
-            <ValidationErrorTable invalidations={invalidations} />
-          </Grid>
-        </Box>
-        <Box clone order={{ xs: 1, sm: 2 }}>
-          <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
-            <Paper>
-              <Typography>Review your CSV file</Typography>
-              <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
-              <Typography>Correct the file first and <Link href='#'>Upload again</Link></Typography>
-            </Paper>
-          </Grid>
-        </Box>
-      </Grid>)
+      <div>
+        {renderCSVFileName()}
+        <Grid container justify='flex-start'>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={rowLevelErrorClasses.table} >
+              <ValidationErrorTable invalidations={invalidations} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
+              <Paper>
+                <Typography>Review your CSV file</Typography>
+                <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
+                <Typography>Correct the file first and <Link href='#'>Upload again</Link></Typography>
+              </Paper>
+            </Grid>
+          </Box>
+        </Grid>
+      </div>)
   }
 
   const renderTopLevelErrors = (errors: string[]): JSX.Element => {
     return (
-      <Grid container justify='flex-start'>
-        <Grid item xs={12} className={topLevelClasses.dialog}>
-          <Paper>
-            <Typography>Review your CSV file</Typography>
-            <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-            <div>
-              {errors.map(e => {
-                return <div key={errors.indexOf(e)}><Typography>{e}</Typography></div>
-              })}
-            </div>
-          </Paper>
+      <div>
+        {renderCSVFileName()}
+        <Grid container justify='flex-start'>
+          <Grid item xs={12} className={topLevelClasses.dialog}>
+            <Paper>
+              <Typography>Review your CSV file</Typography>
+              <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
+              <div>
+                {errors.map(e => {
+                  return <div key={errors.indexOf(e)}><Typography>{e}</Typography></div>
+                })}
+              </div>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>)
+      </div>)
+  }
+
+  const renderCSVFileName = (): JSX.Element => {
+    if (file !== undefined) {
+      return <div className={classes.fileName}>CSV File: {file.name}</div>
+    } else {
+      return <></>
+    }
   }
 
   const renderInvalidUpload = (): JSX.Element => {
@@ -267,24 +276,27 @@ function ConvertCanvasGradebook (): JSX.Element {
 
   const renderConfirm = (grades: StudentGrade[]): JSX.Element => {
     return (
-      <Grid container>
-        <Box clone order={{ xs: 2, sm: 1 }}>
-          <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-            <ConfirmationTable grades={grades} />
-          </Grid>
-        </Box>
-        <Box clone order={{ xs: 1, sm: 2 }}>
-          <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
-            <Paper>
-              <Typography>Review your CSV file</Typography>
-              <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-              <Typography>Your NAME_OF_GRADEBOOK file is valid!  If this is the right file you want ot upload click Submit File</Typography>
-              <Button variant="contained">Cancel</Button>
-              <Button variant="contained">Submit File</Button>
-            </Paper>
-          </Grid>
-        </Box>
-      </Grid>)
+      <div>
+        {renderCSVFileName()}
+        <Grid container>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={confirmationClasses.table}>
+              <ConfirmationTable grades={grades} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
+              <Paper>
+                <Typography>Review your CSV file</Typography>
+                <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
+                <Typography>Your {file === undefined ? '' : file.name} file is valid!  If this is the right file you want ot upload click Submit File</Typography>
+                <Button variant="contained">Cancel</Button>
+                <Button variant="contained">Submit File</Button>
+              </Paper>
+            </Grid>
+          </Box>
+        </Grid>
+      </div>)
   }
 
   const renderDone = (): JSX.Element => {

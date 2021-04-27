@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { ChangeEvent, useRef } from 'react'
 import { Button, Card, CardContent, makeStyles, Typography } from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 
@@ -28,19 +28,31 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function FileUpload (props: FileUploadProps): JSX.Element {
+  const handleFileSelected = (file: File|undefined): void => {
+    if (file === undefined) return
+    props.onUploadComplete(file)
+  }
+
   const dragover = (e: React.DragEvent): void => {
     e.preventDefault()
   }
   const dragdrop = (e: React.DragEvent): void => {
     e.preventDefault()
-    props.onUploadComplete(e.dataTransfer.files[0])
+    handleFileSelected(e.dataTransfer.files[0])
   }
   const onFileInputClick = (): void => {
     fileInput.current?.click()
+    console.log(fileInput)
   }
 
   const fileInput = useRef<HTMLInputElement | null>(null)
   const classes = useStyles()
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    if (event.target === null || event.target.files === null) return
+    handleFileSelected(event.target.files[0])
+  }
+
   return (
     <div className={classes.root}>
       <Card variant='outlined'>
@@ -48,7 +60,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
           <div>
             <CloudUploadIcon className={classes.uploadIcon} fontSize='large'/>
             <Typography>
-              Drag and drop or <Button color='primary' component="span" onClick={onFileInputClick}>browse your files</Button>
+              Drag and drop or <Button color='primary' component="span">browse your files</Button>
             </Typography>
             <input
               accept='.csv'
@@ -58,6 +70,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
               id='fileInput'
               multiple={false}
               type='file'
+              onChange={handleFileChange}
             />
           </div>
         </CardContent>
