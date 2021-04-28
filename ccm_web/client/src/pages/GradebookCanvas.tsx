@@ -12,12 +12,19 @@ import ConfirmationTable, { StudentGrade } from '../components/ConfirmationTable
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left'
+    textAlign: 'left',
+    '& button': {
+      margin: 5
+    }
   },
-  fileName: {
+  fileNameContainer: {
     marginBottom: 15,
     paddingLeft: 10,
     paddingRight: 10
+  },
+  fileName: {
+    color: '#3F648E',
+    fontFamily: 'monospace'
   }
 }))
 
@@ -258,7 +265,7 @@ function ConvertCanvasGradebook (): JSX.Element {
 
   const renderCSVFileName = (): JSX.Element => {
     if (file !== undefined) {
-      return <div className={classes.fileName}>CSV File: {file.name}</div>
+      return (<h5 className={classes.fileNameContainer}><Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography></h5>)
     } else {
       return <></>
     }
@@ -289,9 +296,9 @@ function ConvertCanvasGradebook (): JSX.Element {
               <Paper>
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-                <Typography>Your {file === undefined ? '' : file.name} file is valid!  If this is the right file you want ot upload click Submit File</Typography>
-                <Button variant="contained">Cancel</Button>
-                <Button variant="contained">Submit File</Button>
+                <Typography>Your file is valid!  If this is the right file you want ot upload click Submit File</Typography>
+                <Button variant="outlined">Cancel</Button>
+                <Button variant="outlined" color="primary">Submit File</Button>
               </Paper>
             </Grid>
           </Box>
