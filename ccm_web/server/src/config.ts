@@ -1,13 +1,13 @@
 import baseLogger from './logger'
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-interface ServerConfig {
+export interface ServerConfig {
   port: number
   logLevel: LogLevel
 }
 
-interface LTIConfig {
+export interface LTIConfig {
   encryptionKey: string
   clientID: string
   platformURL: string
@@ -16,7 +16,7 @@ interface LTIConfig {
   keysetEnding: string
 }
 
-interface DatabaseConfig {
+export interface DatabaseConfig {
   host: string
   port: number
   name: string
@@ -53,7 +53,7 @@ function validate<T> (
   throw (Error(errorBase + `Value ${String(value)} for ${key} is not valid`))
 }
 
-export function validateConfig (env: Record<string, unknown>): Config | undefined {
+export function validateConfig (env: Record<string, unknown>): Config {
   let server
   let lti
   let db
@@ -80,9 +80,7 @@ export function validateConfig (env: Record<string, unknown>): Config | undefine
     }
   } catch (error) {
     logger.error(error)
+    throw new Error(error)
   }
-  if (server !== undefined && lti !== undefined && db !== undefined) {
-    return { server, lti, db }
-  }
-  return undefined
+  return { server, lti, db }
 }

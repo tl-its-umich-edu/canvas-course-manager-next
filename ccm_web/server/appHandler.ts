@@ -5,8 +5,8 @@ import type { Express, Request, Response, Router } from 'express'
 import { IdToken, Provider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
-import { Config } from './config'
-import baseLogger from './logger'
+import { Config } from './src/config'
+import baseLogger from './src/logger'
 
 interface EnvOptions {
   isDev: boolean
