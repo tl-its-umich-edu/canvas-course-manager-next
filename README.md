@@ -59,6 +59,13 @@ Use `^C` to stop the container and `docker-compose down` to remove the last used
 Many TypeScript and static file changes can be made without re-building the image,
 but as necessary, rebuild the image using Step 1.
 
+#### Debbugging using VSCode
+1. Go to the Run and Debug option in the left navigation of VS Code Editor.
+2. Select the configuration CCM_DEBUG and hit the Play button, debugger should be attached.
+3. Put a break point anywhere in the server folder and code execution stops on that break point.
+4. The Debugger will reattach if you change the code in the server this support code and debug simultaneously.
+5. For more info VSCode Debug [Referance](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+
 ### Production
 
 Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized image for production.

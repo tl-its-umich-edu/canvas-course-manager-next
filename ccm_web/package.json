@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev:server": "nodemon --config nmon_config.json server/app.ts",
+    "dev:server": "nodemon --inspect=0.0.0.0:9229 --config nmon_config.json server/app.ts",
     "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
     "dev": "npm run dev:server & npm run dev:client",
     "build-client": "webpack --config webpack/webpack.prod.ts",
@@ -18,14 +18,15 @@
     "@material-ui/icons": "^4.11.2",
     "express": "^4.17.1",
     "keycode-js": "^3.1.0",
-    "ltijs": "~5.6.8",
-    "ltijs-sequelize": "~2.3.3",
+    "ltijs": "~5.7.3",
+    "ltijs-sequelize": "~2.4.2",
     "notistack": "^1.0.5",
     "papaparse": "^5.3.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.9",

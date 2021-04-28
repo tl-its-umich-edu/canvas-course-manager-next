@@ -8,5 +8,6 @@
     "env": {
       "TS_NODE_FILES": "true"
     },
-    "ext": "js,json,ts"
+    "ext": "js,json,ts",
+    "signal": "SIGINT"
 }

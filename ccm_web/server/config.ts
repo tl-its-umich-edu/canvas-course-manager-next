@@ -1,5 +1,10 @@
+import baseLogger from './logger'
+
+type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
 interface ServerConfig {
   port: number
+  logLevel: LogLevel
 }
 
 interface LTIConfig {
@@ -13,6 +18,7 @@ interface LTIConfig {
 
 interface DatabaseConfig {
   host: string
+  port: number
   name: string
   user: string
   password: string
@@ -24,8 +30,13 @@ export interface Config {
   db: DatabaseConfig
 }
 
+const logger = baseLogger.child({ filePath: __filename })
+
 const isString = (v: unknown): v is string => typeof v === 'string'
 const isNumber = (v: unknown): v is number => typeof v === 'number' && !isNaN(v)
+const isLogLevel = (v: unknown): v is LogLevel => {
+  return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
+}
 
 function validate<T> (
   key: string,
@@ -36,7 +47,7 @@ function validate<T> (
   const errorBase = 'Exception while loading configuration: '
   if (check(value)) return value
   if (fallback !== undefined) {
-    console.log(`Value ${String(value)} for ${key} is invalid; using fallback ${String(fallback)}`)
+    logger.info(`Value ${String(value)} for ${key} is invalid; using fallback ${String(fallback)}`)
     return fallback
   }
   throw (Error(errorBase + `Value ${String(value)} for ${key} is not valid`))
@@ -49,7 +60,8 @@ export function validateConfig (env: Record<string, unknown>): Config | undefine
 
   try {
     server = {
-      port: validate<number>('PORT', Number(env.PORT), isNumber, 4000)
+      port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
+      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
@@ -61,12 +73,13 @@ export function validateConfig (env: Record<string, unknown>): Config | undefine
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString),
+      port: validate<number>('DB_PORT', Number(env.DB_PORT), isNumber, 3306),
       name: validate<string>('DB_NAME', env.DB_NAME, isString),
       user: validate<string>('DB_USER', env.DB_USER, isString),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString)
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
   if (server !== undefined && lti !== undefined && db !== undefined) {
     return { server, lti, db }
