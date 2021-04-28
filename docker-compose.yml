@@ -15,6 +15,7 @@ services:
     env_file: .env
     ports:
       - 4000:4000
+      - 9229:9229
     volumes:
       - ./ccm_web/server:/base/server:z
       - ./ccm_web/client:/base/client:z

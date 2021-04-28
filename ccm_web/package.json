@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev:server": "nodemon --config nmon_config.json server/app.ts",
+    "dev:server": "nodemon --inspect=0.0.0.0:9229 --config nmon_config.json server/app.ts",
     "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
     "dev": "npm run dev:server & npm run dev:client",
     "build-client": "webpack --config webpack/webpack.prod.ts",
