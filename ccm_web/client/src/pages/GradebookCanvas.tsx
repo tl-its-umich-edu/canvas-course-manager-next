@@ -3,7 +3,7 @@ import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@materia
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import { parse, ParseResult } from 'papaparse'
-import { useSnackbar } from 'notistack'
+// import { useSnackbar } from 'notistack'
 
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
@@ -65,7 +65,17 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
     textAlign: 'center',
     marginBottom: 15,
     paddingLeft: 10,
-    paddingRight: 10
+    paddingRight: 10,
+    // marginLeft: 'auto',
+    // marginRight: 'auto',
+    width: '75%',
+    '& ol': {
+      margin: 'auto',
+      width: '75%'
+    },
+    '& li': {
+      textAlign: 'left'
+    }
   },
   dialogIcon: {
     color: 'red'
@@ -83,7 +93,7 @@ interface GradebookRecord {
 interface GradebookCanvasPageStateData {
   state: GradebookCanvasPageState
   invalidations?: GradebookRowInvalidation[] | undefined
-  errorMessage?: string[]
+  errorMessage?: JSX.Element[]
   grades?: GradebookRecord[]
 }
 
@@ -125,28 +135,42 @@ class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
   }
 }
 
+interface DownloadData {
+  data: string
+  fileName: string
+}
+
 function ConvertCanvasGradebook (): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
 
-  const { enqueueSnackbar } = useSnackbar()
+  // const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
   const [file, setFile] = useState<File|undefined>(undefined)
+  const [downloadData, setDownloadData] = useState<DownloadData|undefined>(undefined)
 
-  useEffect(() => {
-    if (pageState.errorMessage !== undefined) {
-      enqueueSnackbar(pageState.errorMessage.join('  '), { variant: 'error' })
-    }
-  }, [pageState])
+  // useEffect(() => {
+  //   if (pageState.errorMessage !== undefined) {
+  //     enqueueSnackbar(pageState.errorMessage.join('  '), { variant: 'error' })
+  //   }
+  // }, [pageState])
 
   const uploadComplete = (file: File): void => {
     setFile(file)
-    parseUpload(file)
+    // parseUpload(file)
   }
 
-  const parseUpload = (file: File): void => {
+  useEffect(() => {
+    parseUpload(file)
+  }, [file])
+
+  const parseUpload = (file: File|undefined): void => {
+    if (file === undefined) {
+      resetPageState()
+      return
+    }
     // This results in an error on the 2nd "header" row for possible scores
     parse<GradebookRecord>(file, {
       header: true,
@@ -158,16 +182,37 @@ function ConvertCanvasGradebook (): JSX.Element {
     })
   }
 
-  const handleNoLetterGradesError = (): void => {
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: ['Your file needs to include grade letter (A-E)', 'Change your grading scheme in settings'] })
+  const resetPageState = (): void => {
+    setPageState({ state: GradebookCanvasPageState.Upload })
   }
 
-  const handleRowLevelInvalidationError = (errorMessage: string[], invalidations: GradebookRowInvalidation[]): void => {
+  const getOutputFilename = (file: File | undefined): string => {
+    if (file === undefined) return ''
+    const splitName = file.name.split('.')
+    const filenameIndex = splitName.length >= 2 ? splitName.length - 2 : 0
+    splitName[filenameIndex] = splitName[filenameIndex] + '-geff'
+    return splitName.join('.')
+  }
+
+  const setCSVtoDownload = (data: GradebookRecord[]): void => {
+    let csvContent = 'data:text/csv;charset=utf-8,'
+    data.forEach(function (record, index) {
+      csvContent += record['SIS Login ID'] + ',' + record['Final Grade'] + (index < data.length ? '\n' : '')
+    })
+    setDownloadData({ data: encodeURI(csvContent), fileName: getOutputFilename(file) })
+  }
+
+  const handleNoLetterGradesError = (): void => {
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>, <Typography key='1'><Link href='#' onClick={() => resetPageState()}>Upload again.</Link></Typography>] })
+  }
+
+  const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
     setPageState({ state: GradebookCanvasPageState.InvalidUpload, invalidations: invalidations, errorMessage: errorMessage })
   }
 
   const handleParseSuccess = (grades: GradebookRecord[]): void => {
     setPageState({ state: GradebookCanvasPageState.Confirm, grades: grades })
+    setCSVtoDownload(grades)
   }
 
   const handleParseComplete = (results: ParseResult<GradebookRecord>): void => {
@@ -187,7 +232,7 @@ function ConvertCanvasGradebook (): JSX.Element {
     })
 
     if (invalidations.length > 0) {
-      handleRowLevelInvalidationError(['There are blank cells in the gradebook. Please enter 0 or EX (for excused) for any blank cells in the gradebook and export a new CSV file.'], invalidations)
+      handleRowLevelInvalidationError([<div key='0'>There are blank cells in the gradebook. Please enter 0 or EX (for excused) for any blank cells in the gradebook and export a new CSV file.</div>], invalidations)
     } else {
       handleParseSuccess(data)
     }
@@ -235,7 +280,7 @@ function ConvertCanvasGradebook (): JSX.Element {
               <Paper>
                 <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
-                <Typography>Correct the file first and <Link href='#'>Upload again</Link></Typography>
+                <Typography>Correct the file first and <Link href='#' onClick={() => resetPageState()}>Upload again</Link></Typography>
               </Paper>
             </Grid>
           </Box>
@@ -243,7 +288,7 @@ function ConvertCanvasGradebook (): JSX.Element {
       </div>)
   }
 
-  const renderTopLevelErrors = (errors: string[]): JSX.Element => {
+  const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
     return (
       <div>
         {renderCSVFileName()}
@@ -252,11 +297,11 @@ function ConvertCanvasGradebook (): JSX.Element {
             <Paper>
               <Typography>Review your CSV file</Typography>
               <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-              <div>
+              <ol>
                 {errors.map(e => {
-                  return <div key={errors.indexOf(e)}><Typography>{e}</Typography></div>
+                  return (<li key={e.key}>{e}</li>)
                 })}
-              </div>
+              </ol>
             </Paper>
           </Grid>
         </Grid>
@@ -297,8 +342,10 @@ function ConvertCanvasGradebook (): JSX.Element {
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this is the right file you want ot upload click Submit File</Typography>
-                <Button variant="outlined">Cancel</Button>
-                <Button variant="outlined" color="primary">Submit File</Button>
+                <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
+                <Link href={downloadData?.data} download={downloadData?.fileName}>
+                  <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
+                </Link>
               </Paper>
             </Grid>
           </Box>
