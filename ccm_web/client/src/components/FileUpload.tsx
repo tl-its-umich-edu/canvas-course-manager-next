@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useRef } from 'react'
 import { Button, Card, CardContent, makeStyles, Typography } from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
+import { useSnackbar } from 'notistack'
 
 interface FileUploadProps {
   onUploadComplete: (file: File) => void
@@ -28,8 +29,15 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function FileUpload (props: FileUploadProps): JSX.Element {
+  const { enqueueSnackbar } = useSnackbar()
   const handleFileSelected = (file: File|undefined): void => {
     if (file === undefined) return
+    if (file.name.toUpperCase().match(/.+.CSV/) == null) {
+      enqueueSnackbar('File type not supported.', {
+        variant: 'error'
+      })
+      return
+    }
     props.onUploadComplete(file)
   }
 
