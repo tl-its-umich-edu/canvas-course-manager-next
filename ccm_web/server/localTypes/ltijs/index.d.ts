@@ -85,8 +85,7 @@ declare module 'ltijs' {
     createdAt: Date
     __v: number
     __id: string
-    // changed to unknown
-    custom: unknown
+    custom?: Record<string, unknown>
   }
 
   // Changed to class from interface
@@ -131,6 +130,7 @@ declare module 'ltijs' {
     platformInfo: PlatformInfo
     endpoint: Endpoint
     clientId: string
+    platformContext: PlatformContext
   }
 
   /* Database */

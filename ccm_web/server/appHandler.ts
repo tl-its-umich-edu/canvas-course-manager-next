@@ -4,6 +4,7 @@ import express from 'express'
 import type { Express, Request, Response, Router } from 'express'
 import { IdToken, Provider } from 'ltijs'
 import Database from 'ltijs-sequelize'
+import { UpsertUser } from  './db/models/user'
 
 import { Config } from './config'
 import baseLogger from './logger'
@@ -57,7 +58,19 @@ class AppHandler {
 
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
-      logger.debug(JSON.stringify(token.userInfo))
+      logger.debug(JSON.stringify(token))
+      const customLTIVariables = token.platformContext.custom
+      // const customCanvasProps = token.custom != null? token.custom.loginId : 
+      if(customLTIVariables == null){
+        return res.json({'lti_error': 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas'})
+      }
+      const userModelValues = {
+        loginId:customLTIVariables.loginid,
+        firstName: token.userInfo.given_name,
+        lastName: token.userInfo.family_name,
+        email: token.userInfo.email
+      }
+      UpsertUser(userModelValues)
       return res.sendFile(path.join(this.envOptions.staticPath, 'index.html'))
     })
 

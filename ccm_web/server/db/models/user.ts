@@ -1,5 +1,7 @@
-import { Model, Optional, DataTypes } from "sequelize";
-import { sequelize } from ".";
+import { Model, Optional, DataTypes } from 'sequelize'
+import baseLogger from './../../logger'
+const logger = baseLogger.child({ filePath: __filename })
+import { sequelize } from '.'
 
 interface UsersAttributes {
   id?: Number;
@@ -48,5 +50,17 @@ const Users = sequelize.define<UsersInstance>("Users", {
     allowNull: true,
     type: DataTypes.TEXT,
   },
-});
-export default Users;
+})
+
+const UpsertUser = async(values: any): Promise<any> => {
+  const [record, created] = await Users.upsert({
+    loginId: values.loginId,
+    firstName: values.firstName,
+    lastName: values.lastName,
+    email: values.email
+  })
+  logger.info(record)
+  logger.info(created)
+
+}
+export {Users, UpsertUser}
