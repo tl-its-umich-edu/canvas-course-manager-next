@@ -341,7 +341,7 @@ function ConvertCanvasGradebook (): JSX.Element {
               <Paper>
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-                <Typography>Your file is valid!  If this is the right file you want ot upload click Submit File</Typography>
+                <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
                 <Link href={downloadData?.data} download={downloadData?.fileName}>
                   <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
