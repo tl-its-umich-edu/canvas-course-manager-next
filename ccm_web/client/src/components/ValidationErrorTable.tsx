@@ -47,7 +47,7 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
   const renderTable = (): JSX.Element => {
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, tableRows.length - page * rowsPerPage)
 
-    const handleChangePage = (event: any, newPage: number): void => {
+    const handleChangePage = (event: unknown, newPage: number): void => {
       setPage(newPage)
     }
 
