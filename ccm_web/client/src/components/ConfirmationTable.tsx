@@ -21,18 +21,8 @@ interface ConfirmationTableProps {
   grades: StudentGrade[]
 }
 
-interface ColumnType {
-  [key: string]: boolean
-}
-
-const columnOptions: ColumnType = {
-  rowNumber: true,
-  uniqname: true,
-  grade: true
-}
-
 interface TableHeaderColumnInfoShouldUseMatUIType {
-  id: keyof typeof columnOptions
+  id: keyof StudentGrade
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
@@ -45,7 +35,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 ]
 
 function ConfirmationTable (props: ConfirmationTableProps): JSX.Element {
-  const classes = useStyles()
+  // const classes = useStyles()
   const [tableRows, setTableRows] = useState<StudentGrade[]>([])
   const [page, setPage] = React.useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(5)

@@ -19,17 +19,8 @@ interface ErrorTableProps {
   invalidations: ValidationError[]
 }
 
-interface ColumnType {
-  [key: string]: boolean
-}
-
-const columnOptions: ColumnType = {
-  rowNumber: true,
-  message: true
-}
-
 interface TableHeaderColumnInfoShouldUseMatUIType {
-  id: keyof typeof columnOptions
+  id: keyof ValidationError
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
