@@ -280,7 +280,7 @@ function ConvertCanvasGradebook (): JSX.Element {
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
-              <Paper>
+              <Paper role='alert' >
                 <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
                 <Typography>Correct the file first and{renderUploadAgainButton()}</Typography>
@@ -297,7 +297,7 @@ function ConvertCanvasGradebook (): JSX.Element {
         {renderCSVFileName()}
         <Grid container justify='flex-start'>
           <Grid item xs={12} className={topLevelClasses.dialog}>
-            <Paper>
+            <Paper role='alert'>
               <Typography>Review your CSV file</Typography>
               <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
               <ol>
@@ -341,7 +341,7 @@ function ConvertCanvasGradebook (): JSX.Element {
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
-              <Paper>
+              <Paper role='status'>
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
