@@ -203,7 +203,7 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const handleNoLetterGradesError = (): void => {
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>, <Typography key='1'><Link href='#' onClick={() => resetPageState()}>Upload again.</Link></Typography>] })
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>, <Typography key='1'>{renderUploadAgainButton()}</Typography>] })
   }
 
   const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
@@ -265,6 +265,9 @@ function ConvertCanvasGradebook (): JSX.Element {
     </span>
   }
 
+  const renderUploadAgainButton = (): JSX.Element => {
+    return <Button color='primary' component="span" onClick={() => resetPageState()}>Upload again</Button>
+  }
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
     return (
       <div>
@@ -280,7 +283,7 @@ function ConvertCanvasGradebook (): JSX.Element {
               <Paper>
                 <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
-                <Typography>Correct the file first and <Link href='#' onClick={() => resetPageState()}>Upload again</Link></Typography>
+                <Typography>Correct the file first and{renderUploadAgainButton()}</Typography>
               </Paper>
             </Grid>
           </Box>
