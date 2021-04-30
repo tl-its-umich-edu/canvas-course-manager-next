@@ -48,9 +48,10 @@ function FileUpload (props: FileUploadProps): JSX.Element {
     e.preventDefault()
     handleFileSelected(e.dataTransfer.files[0])
   }
-  const onFileInputClick = (): void => {
+  const onFileInputClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
     fileInput.current?.click()
     console.log(fileInput)
+    e.stopPropagation()
   }
 
   const fileInput = useRef<HTMLInputElement | null>(null)
@@ -64,11 +65,11 @@ function FileUpload (props: FileUploadProps): JSX.Element {
   return (
     <div className={classes.root}>
       <Card variant='outlined'>
-        <CardContent className={classes.cardContent} onDragOver={dragover} onDrop={dragdrop} onClick={onFileInputClick}>
+        <CardContent className={classes.cardContent} onDragOver={dragover} onDrop={dragdrop} onClick={(e) => onFileInputClick(e)}>
           <div>
             <CloudUploadIcon className={classes.uploadIcon} fontSize='large'/>
             <Typography>
-              Drag and drop or <Button color='primary' component="span">browse your files</Button>
+              Drag and drop or <Button color='primary' component="span" onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => onFileInputClick(e)}>browse your files</Button>
             </Typography>
             <input
               accept='.csv'
