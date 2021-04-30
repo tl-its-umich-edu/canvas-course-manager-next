@@ -12,6 +12,9 @@ import './App.css'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
+    fontSize: '1.125rem'
+  },
+  breadcrumbContainer: {
     paddingLeft: 25,
     paddingTop: 25
   }
@@ -21,16 +24,7 @@ interface TitleTypographyProps {
   to?: string
 }
 
-const breadcrumbVariant = 'h5'
-
-function HomeBreadcrumb (isLink: boolean): JSX.Element {
-  const typography = (<Typography color='textPrimary' variant={breadcrumbVariant}>
-                        Canvas Course Manager
-                      </Typography>)
-  return isLink
-    ? (<Link component={RouterLink} to='/'>{typography}</Link>)
-    : (typography)
-}
+// const breadcrumbVariant = 'h5'
 
 interface AppProps {
   ltiKey: string | undefined
@@ -52,16 +46,25 @@ function App (props: AppProps): JSX.Element {
     )
   }
 
+  const HomeBreadcrumb = (isLink: boolean): JSX.Element => {
+    const typography = (<Typography className={classes.breadcrumbs} color='textPrimary'>
+                          Canvas Course Manager
+                        </Typography>)
+    return isLink
+      ? (<Link component={RouterLink} to='/'>{typography}</Link>)
+      : (typography)
+  }
+
   return (
     <div className='App'>
       <SnackbarProvider maxSnack={3}>
         <Router>
-          <div className={classes.breadcrumbs}>
+          <div>
             <Route>
               {({ location }) => {
                 const pathnames = location.pathname.split('/').filter(x => x)
                 return (
-                  <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
+                  <Breadcrumbs className={classes.breadcrumbContainer} aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
                     {HomeBreadcrumb(pathnames.length > 0)}
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
@@ -69,7 +72,7 @@ function App (props: AppProps): JSX.Element {
                       const feature = features.filter(f => { return f.route.substring(1) === value })[0]
                       const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
 
-                      return (<Typography color='textPrimary' variant={breadcrumbVariant} key={to} {...titleTypographyProps}>
+                      return (<Typography className={classes.breadcrumbs} color='textPrimary' key={to} {...titleTypographyProps}>
                         {feature.data.title}
                       </Typography>)
                     })}
