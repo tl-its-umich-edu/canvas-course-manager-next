@@ -30,6 +30,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE S
 DEALINGS IN THE SOFTWARE.
 */
 
+declare type Express = import('express').Express
 declare type ExpressRequest = import('express').Request
 declare type ExpressResponse = import('express').Response
 declare type NextFunction = import('express').NextFunction
@@ -122,6 +123,13 @@ declare module 'ltijs' {
     lineItem: string
   }
 
+  interface UserInfo {
+    given_name: string
+    family_name: string
+    name: string
+    email: string
+  }
+
   interface IdToken {
     iss: string
     issuerCode: string
@@ -167,7 +175,7 @@ declare module 'ltijs' {
     Insert (
       encryptionKey: string | false,
       table: string,
-      item: Record<>,
+      item: Record<string, unknown>,
       index: Record<string, unknown>
     ): Promise<true>
 
