@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { BaseModule } from './base/base.module'
 import { LtiModule } from './lti/lti.module'
 
 import { validateConfig } from './config'
@@ -13,9 +12,8 @@ import { validateConfig } from './config'
       validate: validateConfig,
       ignoreEnvFile: true
     }),
-    LtiModule
-  ],
-  controllers: [AppController],
-  providers: [AppService]
+    LtiModule,
+    BaseModule
+  ]
 })
 export class AppModule {}

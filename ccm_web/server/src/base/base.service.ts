@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { Globals, HelloData } from './app.interfaces'
+
+import { Globals, HelloData } from './base.interfaces'
 
 @Injectable()
-export class AppService {
+export class BaseService {
   getHello (): HelloData {
     return {
       message: 'You successfully communicated with the backend server. Hooray!'

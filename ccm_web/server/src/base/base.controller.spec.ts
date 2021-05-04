@@ -1,22 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { BaseController } from './base.controller'
+import { BaseService } from './base.service'
 
-describe('AppController', () => {
-  let appController: AppController
+describe('BaseController', () => {
+  let baseController: BaseController
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService]
+      controllers: [BaseController],
+      providers: [BaseService]
     }).compile()
 
-    appController = app.get<AppController>(AppController)
+    baseController = app.get<BaseController>(BaseController)
   })
 
   describe('hello', () => {
     it('should return data with a "Hooray" message', () => {
-      expect(appController.getHello()).toStrictEqual({
+      expect(baseController.getHello()).toStrictEqual({
         message: 'You successfully communicated with the backend server. Hooray!'
       })
     })
@@ -24,7 +24,7 @@ describe('AppController', () => {
 
   describe('globals', () => {
     it('should return globals data', () => {
-      expect(appController.getGlobals()).toStrictEqual({
+      expect(baseController.getGlobals()).toStrictEqual({
         environment: process.env.NODE_ENV
       })
     })
