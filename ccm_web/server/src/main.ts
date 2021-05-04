@@ -23,7 +23,7 @@ async function bootstrap () {
     path.join(__dirname, '..', '..'),
     isDev ? path.join('dist', 'client') : 'client'
   )
-  app.useStaticAssets(staticPath)
+  app.useStaticAssets(staticPath, { prefix: '/' })
 
   await app.listen(
     serverConfig.port,
