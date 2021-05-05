@@ -60,36 +60,6 @@ declare module 'ltijs' {
     authConfig: PlatformAuthConfig
   }
 
-  interface PlatformContext {
-    context: {
-      id: string
-      label: string
-      title: string
-      // changed to unknown
-      type: unknown[]
-    }
-    resource: {
-      title: string
-      id: string
-    }
-    path: string
-    user: string
-    deploymentId: string
-    targetLinkUri: string
-    launchPresentation: {
-      locale: string
-      document_target: string
-      return_url: string
-    }
-    messageType: string
-    version: string
-    createdAt: Date
-    __v: number
-    __id: string
-    // changed to unknown
-    custom: unknown
-  }
-
   // Changed to class from interface
   class Platform {
     platformName (name?: string): Promise<string | boolean>
@@ -119,8 +89,43 @@ declare module 'ltijs' {
 
   interface Endpoint {
     scope: string[]
-    lineItems: string
-    lineItem: string
+    lineitems: string
+    lineitem: string
+  }
+
+  interface PlatformContext {
+    contextId: string
+    path: string
+    user: string
+    roles: string[]
+    targetLinkUri: string
+    context: {
+      id: string
+      label: string
+      title: string
+      type: string[]
+    }
+    resource: {
+      title: string
+      id: string
+    }
+    custom: Record<string, unknown>
+    lis: {
+      person_sourcedid: string
+      course_section_sourcedid: string | null
+    }
+    endpoint: Endpoint | null
+    namesRoles: {
+      context_memberships_url: string
+      service_versions: string[]
+    } | null
+    launchPresentation: {
+      locale: string
+      document_target: string
+      return_url: string
+    }
+    messageType: string
+    version: string
   }
 
   interface UserInfo {
@@ -132,13 +137,13 @@ declare module 'ltijs' {
 
   interface IdToken {
     iss: string
-    issuerCode: string
-    user: string
-    roles: string[]
-    userInfo: UserInfo
-    platformInfo: PlatformInfo
-    endpoint: Endpoint
     clientId: string
+    deploymentId: string
+    platformId: string
+    platformInfo: PlatformInfo
+    user: string
+    userInfo: UserInfo
+    platformContext: PlatformContext
   }
 
   /* Database */
