@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, useTheme } from '@material-ui/core'
+import { createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Theme, useTheme, withStyles } from '@material-ui/core'
 import { KeyboardArrowRight, KeyboardArrowLeft, LastPage as LastPageIcon, FirstPage as FirstPageIcon } from '@material-ui/icons'
+import { grey } from '@material-ui/core/colors'
 import PropTypes from 'prop-types'
 
 const useStyles = makeStyles((theme) => ({
@@ -9,6 +10,19 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2.5)
   }
 }))
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: grey[100],
+      color: theme.palette.common.black,
+      fontWeight: 'bold'
+    },
+    body: {
+      fontSize: 24
+    }
+  })
+)(TableCell)
 
 interface ValidationError {
   rowNumber: number
@@ -122,13 +136,13 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
           <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell
+                  <StyledTableCell
                     key={column.id}
                     align={column.align}
                     style={{ minWidth: column.minWidth }}
                   >
                     {column.label}
-                  </TableCell>
+                  </StyledTableCell>
                 ))}
               </TableRow>
             </TableHead>
