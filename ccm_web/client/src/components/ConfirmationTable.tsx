@@ -14,7 +14,6 @@ interface StudentGrade {
   rowNumber: number
   uniqname: string
   grade: string
-
 }
 
 interface ConfirmationTableProps {
