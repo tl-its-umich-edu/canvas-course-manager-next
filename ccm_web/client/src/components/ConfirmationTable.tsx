@@ -34,7 +34,6 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 ]
 
 function ConfirmationTable (props: ConfirmationTableProps): JSX.Element {
-  // const classes = useStyles()
   const [tableRows, setTableRows] = useState<StudentGrade[]>([])
   const [page, setPage] = React.useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(5)
