@@ -24,8 +24,6 @@ interface TitleTypographyProps {
   to?: string
 }
 
-// const breadcrumbVariant = 'h5'
-
 interface AppProps {
   ltiKey: string | undefined
 }
@@ -46,11 +44,15 @@ function App (props: AppProps): JSX.Element {
     )
   }
 
-  const HomeBreadcrumb = (isLink: boolean): JSX.Element => {
+  interface BreadcrumbProps {
+    isLink: boolean
+  }
+
+  const HomeBreadcrumb = (props: BreadcrumbProps): JSX.Element => {
     const typography = (<Typography className={classes.breadcrumbs} color='textPrimary'>
                           Canvas Course Manager
                         </Typography>)
-    return isLink
+    return props.isLink
       ? (<Link component={RouterLink} to='/'>{typography}</Link>)
       : (typography)
   }
@@ -65,7 +67,7 @@ function App (props: AppProps): JSX.Element {
                 const pathnames = location.pathname.split('/').filter(x => x)
                 return (
                   <Breadcrumbs className={classes.breadcrumbContainer} aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />}>
-                    {HomeBreadcrumb(pathnames.length > 0)}
+                    <HomeBreadcrumb isLink={(pathnames.length > 0)} />
                     {pathnames.map((value, index) => {
                       const last = index === pathnames.length - 1
                       const to = `/${pathnames.slice(0, index + 1).join('/')}`
