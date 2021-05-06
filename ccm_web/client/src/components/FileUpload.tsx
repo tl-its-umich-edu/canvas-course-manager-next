@@ -12,7 +12,11 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center'
   },
   cardContent: {
-    cursor: 'pointer'
+    cursor: 'pointer',
+    height: 250,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
   },
   actionsBar: {
     backgroundColor: '#EEEEEE'
