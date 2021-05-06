@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   fileName: {
     color: '#3F648E',
     fontFamily: 'monospace'
+  },
+  uploadHeader: {
+    paddingTop: 15
   }
 }))
 
@@ -239,12 +242,12 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const renderUploadHeader = (): JSX.Element => {
-    return <span>
+    return <div className={classes.uploadHeader}>
       <Typography variant='h6'>Upload your CSV File</Typography>
       <Typography>The CSV file will be formatted by trimming out nonessential columns.</Typography>
       <br/>
       <Typography><strong>Requirement needed:</strong> <Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>
-    </span>
+    </div>
   }
 
   const renderFileUpload = (): JSX.Element => {
