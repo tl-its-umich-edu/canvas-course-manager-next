@@ -7,6 +7,7 @@ import { parse, ParseResult } from 'papaparse'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import ConfirmationTable, { StudentGrade } from '../components/ConfirmationTable'
+import {canvasGradebookFormatterProps} from '../models/feature'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -380,7 +381,7 @@ function ConvertCanvasGradebook (): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5'>Convert Canvas Gradebook</Typography>
+      <Typography variant='h5'>{canvasGradebookFormatterProps.title}</Typography>
       {renderComponent()}
     </div>
   )
