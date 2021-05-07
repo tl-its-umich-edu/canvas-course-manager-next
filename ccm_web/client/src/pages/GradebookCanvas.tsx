@@ -149,20 +149,12 @@ function ConvertCanvasGradebook (): JSX.Element {
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
 
-  // const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [downloadData, setDownloadData] = useState<DownloadData|undefined>(undefined)
 
-  // useEffect(() => {
-  //   if (pageState.errorMessage !== undefined) {
-  //     enqueueSnackbar(pageState.errorMessage.join('  '), { variant: 'error' })
-  //   }
-  // }, [pageState])
-
   const uploadComplete = (file: File): void => {
     setFile(file)
-    // parseUpload(file)
   }
 
   useEffect(() => {

@@ -54,7 +54,6 @@ function FileUpload (props: FileUploadProps): JSX.Element {
   }
   const onFileInputClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
     fileInput.current?.click()
-    console.log(fileInput)
     e.stopPropagation()
   }
 

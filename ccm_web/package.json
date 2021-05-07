@@ -22,7 +22,6 @@
     "ltijs-sequelize": "~2.4.2",
     "notistack": "^1.0.5",
     "papaparse": "^5.3.0",
-    "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
