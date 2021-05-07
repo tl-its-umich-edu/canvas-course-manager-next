@@ -231,7 +231,7 @@ function ConvertCanvasGradebook (): JSX.Element {
     const gradeMismatchValidator = new CurrentAndFinalGradeMatchGradebookValidator()
 
     data.forEach(record => {
-      invalidations = invalidations.concat(gradeMismatchValidator.validate(record, data.indexOf(record) + 1))
+      invalidations = invalidations.concat(gradeMismatchValidator.validate(record, data.indexOf(record) + 1 + 2)) // Add 2 because of 2 header rows
     })
 
     if (invalidations.length > 0) {
@@ -368,7 +368,7 @@ function ConvertCanvasGradebook (): JSX.Element {
       return []
     }
     return grades.map<StudentGrade>(g => {
-      return { rowNumber: grades.indexOf(g) + 1, uniqname: g.Student, grade: g['Final Grade'] }
+      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g.Student, grade: g['Final Grade'] } // Add 2 because of 2 header rows
     })
   }
 
