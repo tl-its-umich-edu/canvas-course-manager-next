@@ -3,7 +3,6 @@ import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@materia
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import { parse, ParseResult } from 'papaparse'
-// import { useSnackbar } from 'notistack'
 
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
