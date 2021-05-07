@@ -66,11 +66,11 @@ const useRowLevelErrorStyles = makeStyles((theme) => ({
 const useTopLevelErrorStyles = makeStyles((theme) => ({
   dialog: {
     textAlign: 'center',
+    maxWidth: '75%',
+    margin: 'auto',
     marginBottom: 15,
     paddingLeft: 10,
     paddingRight: 10,
-    // marginLeft: 'auto',
-    // marginRight: 'auto',
     width: '75%',
     '& ol': {
       margin: 'auto',
