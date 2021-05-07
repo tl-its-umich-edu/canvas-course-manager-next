@@ -9,7 +9,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-function TablePaginationActions (props: { count: number, page: number, rowsPerPage: number, onChangePage: any}): JSX.Element {
+type PageChangeCallback = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, page: number) => void
+
+function TablePaginationActions (props: { count: number, page: number, rowsPerPage: number, onChangePage: PageChangeCallback}): JSX.Element {
   const classes = useStyles()
   const theme = useTheme()
   const { count, page, rowsPerPage, onChangePage } = props
