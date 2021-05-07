@@ -37,7 +37,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
   const handleFileSelected = (file: File|undefined): void => {
     if (file === undefined) return
     if (file.name.toUpperCase().match(/.+.CSV/) == null) {
-      enqueueSnackbar('File type not supported.', {
+      enqueueSnackbar('Only .csv files are supported', {
         variant: 'error'
       })
       return
