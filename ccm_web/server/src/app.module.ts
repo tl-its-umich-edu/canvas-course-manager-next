@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
 import { APIModule } from './api/api.module'
-import { LtiModule } from './lti/lti.module'
+import { LTIModule } from './lti/lti.module'
 
 import { validateConfig } from './config'
 
@@ -12,7 +12,7 @@ import { validateConfig } from './config'
       validate: validateConfig,
       ignoreEnvFile: true
     }),
-    LtiModule,
+    LTIModule,
     APIModule
   ]
 })

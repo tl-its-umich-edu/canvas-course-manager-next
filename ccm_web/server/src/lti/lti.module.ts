@@ -19,7 +19,7 @@ import { LTIService } from './lti.service'
     }
   ]
 })
-export class LtiModule implements NestModule {
+export class LTIModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
     consumer
       .apply(LTIMiddleware)
