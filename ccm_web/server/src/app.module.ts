@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { BaseModule } from './base/base.module'
+import { APIModule } from './api/api.module'
 import { LtiModule } from './lti/lti.module'
 
 import { validateConfig } from './config'
@@ -13,7 +13,7 @@ import { validateConfig } from './config'
       ignoreEnvFile: true
     }),
     LtiModule,
-    BaseModule
+    APIModule
   ]
 })
 export class AppModule {}
