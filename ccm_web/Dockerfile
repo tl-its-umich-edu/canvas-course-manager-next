@@ -30,6 +30,6 @@ COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
-CMD node server/app.js
+CMD node server/src/main.js
 
 # Done!
