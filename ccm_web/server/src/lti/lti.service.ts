@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from 'express'
-import { Injectable } from '@nestjs/common'
+import { BeforeApplicationShutdown, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
@@ -11,10 +11,12 @@ const logger = baseLogger.child({ filePath: __filename })
 
 // ltijs docs: https://cvmcosta.me/ltijs/#/
 @Injectable()
-export class LTIService {
+export class LTIService implements BeforeApplicationShutdown {
+  provider: LTIProvider | undefined
+
   constructor (private readonly configService: ConfigService) {}
 
-  async setUpLTI (): Promise<Express> {
+  async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
     const ltiConfig = this.configService.get('lti') as LTIConfig
 
@@ -59,6 +61,15 @@ export class LTIService {
         method: 'JWK_SET', key: ltiConfig.platformURL + ltiConfig.keysetEnding
       }
     })
-    return provider.app
+
+    this.provider = provider
+  }
+
+  getMiddleware (): Express | undefined {
+    return this.provider?.app
+  }
+
+  beforeApplicationShutdown (): void {
+    this.provider?.close()
   }
 }
