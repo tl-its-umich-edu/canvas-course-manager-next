@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { AppModule } from './../src/app.module'
 
-describe('AppController (e2e)', () => {
+describe('BaseController (e2e)', () => {
   let app: INestApplication
 
   beforeEach(async () => {
@@ -15,10 +15,23 @@ describe('AppController (e2e)', () => {
     await app.init()
   })
 
-  it('/ (GET)', async () => {
+  it('/api/globals (GET)', async () => {
     return await request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!')
+      .get('/api/globals')
+      .expect(401)
+      .expect(
+        {
+          status: 401,
+          error: 'Unauthorized',
+          details:
+            {
+              description: 'No Ltik or ID Token found.',
+              message: 'NO_LTIK_OR_IDTOKEN_FOUND',
+              bodyReceived: {}
+            }
+        }
+      )
   })
+
+  afterEach(async () => await app.close(), 10000)
 })
