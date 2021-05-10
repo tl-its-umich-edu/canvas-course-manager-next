@@ -6,7 +6,8 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
 import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 
-import { FeatureDataProps, mergeSectionProps, canvasGradebookToolsProps, thirdPartygradebookToolsProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
+import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, ExternalToolsGradebookFormatterProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
+import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 
 interface FeatureUIGroup {
@@ -30,15 +31,15 @@ const mergeSectionCardProps: FeatureUIProps = {
   route: '/merge-sections'
 }
 
-const canvasGradebookCardProps: FeatureUIProps = {
-  data: canvasGradebookToolsProps,
+const canvasGradebookFormatterCardProps: FeatureUIProps = {
+  data: canvasGradebookFormatterProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: ConvertCanvasGradebook,
   route: '/gradebook-canvas'
 }
 
-const thirdPartyGradebookCardProps: FeatureUIProps = {
-  data: thirdPartygradebookToolsProps,
+const ExternalToolsGradebookFormatterCardProps: FeatureUIProps = {
+  data: ExternalToolsGradebookFormatterProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
   component: MergeSections,
   route: '/gradebook-thirdparty'
@@ -66,7 +67,7 @@ const addNonUMUsersCardProps: FeatureUIProps = {
 }
 
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookCardProps, thirdPartyGradebookCardProps] },
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookFormatterCardProps, ExternalToolsGradebookFormatterCardProps] },
   { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]
