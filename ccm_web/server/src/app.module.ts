@@ -10,7 +10,8 @@ import { validateConfig } from './config'
   imports: [
     ConfigModule.forRoot({
       validate: validateConfig,
-      ignoreEnvFile: true
+      ignoreEnvFile: true,
+      isGlobal: true
     }),
     LTIModule,
     APIModule

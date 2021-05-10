@@ -1,11 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigService } from '@nestjs/config'
 
 import { LTIMiddleware } from './lti.middleware'
 import { LTIService } from './lti.service'
 
 @Module({
-  imports: [ConfigModule],
   providers: [
   // https://docs.nestjs.com/fundamentals/custom-providers
     {
