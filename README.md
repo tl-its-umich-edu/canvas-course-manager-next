@@ -183,6 +183,13 @@ enter the container using `docker exec`.
     npm run test:e2e
     ```
 
+#### Nest CLI
+
+The Nest framework comes with a [command-line interface tool](https://docs.nestjs.com/cli/overview)
+for generating module and other code stubs and performing other tasks.
+As the necessary libraries are not included in `package.json`, follow the documentation's suggestion
+and install `@nestjs/cli` globally on your machine if you want to use the tool.
+
 ### Production
 
 Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized image for production.

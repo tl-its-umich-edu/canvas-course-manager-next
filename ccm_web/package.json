@@ -39,8 +39,6 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@nestjs/cli": "^7.6.0",
-    "@nestjs/schematics": "^7.3.0",
     "@nestjs/testing": "^7.6.15",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
