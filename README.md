@@ -59,12 +59,96 @@ Use `^C` to stop the container and `docker-compose down` to remove the last used
 Many TypeScript and static file changes can be made without re-building the image,
 but as necessary, rebuild the image using Step 1.
 
-#### Debbugging using VSCode
-1. Go to the Run and Debug option in the left navigation of VS Code Editor.
-2. Select the configuration CCM_DEBUG and hit the Play button, debugger should be attached.
-3. Put a break point anywhere in the server folder and code execution stops on that break point.
-4. The Debugger will reattach if you change the code in the server this support code and debug simultaneously.
-5. For more info VSCode Debug [Referance](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+#### Step By Step
+
+Explicit steps for setting up CCM in a development environment.
+
+1. `ngrok http 4000`
+
+2. `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
+   Copy the hostname of the `ngrok` instance for use later.  Get only the hostname, not the `http`/`https` scheme prefix.
+
+3. `cp config/.env.sample .env`
+
+4. Edit new `.env` file to add or replace settings from the sample.
+
+   `vim .env`
+
+5. `cp config/lti_dev_key_sample.json lti_dev_key.json`
+
+6. Edit new `lti_dev_key.json` file to add or replace settings from the sample.  Replace all occurrences of `{ccm_app_url}` with the hostname copied in the earlier step.
+
+   `vim lti_dev_key.json`
+
+7. Go to Canvas "Developer Keys" management page at (https://umich.instructure.com/accounts/1/developer_keys).  Click the button for "+ Developer Key", then "+ LTI Key".
+
+8. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
+
+9. *Recommended:* Enter a name for the application in the "Key Name" field and an email address in the "Owner Email" field.
+
+10. Click the "Save" button.
+
+11. *Optional:* LTI Key, use "Manual Entry" under the "Method" menu to access "LTI Advantage Services" under the "Configuration" section.  Enable all options, then click the "Save" button.
+
+    1. Note:  After saving, using "Paste JSON" under the "Method" menu, will show the corresponding JSON for the LTI Advantage configuration changes.  Enabling the LTI Advantage options adds them to the `scopes` key of the JSON.
+
+12. Copy the ID number of the LTI key created in Canvas.  The ID is the long number shown in the "Details" column of the "Developer Keys" page.  It usually looks like `17700000000000nnn`.
+
+13. Edit the `.env` file
+
+    1. Verify the`LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
+    2. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied in the earlier step.
+
+14. Build and start the application with docker-compose.
+
+    1. `docker-compose build`
+    2. *Optional:* The very first time the database container starts, it takes some time to set itself up, during which it will not accept connections from the application container.  The application container then fails, which prevents it from creating tables in the DB it will need later.  A solution that seems to work is to start the database container alone first, letting it run in detached mode for a few minutes before starting the application.
+       `docker-compose up -d -- database`
+    3. `docker-compose up`
+
+15. Add the app to a course.  Go to (https://umich.instructure.com/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
+    1. Under the "Apps" tab, click the "+App" button.
+    2. In the "Configuration Type" menu, select "By Client ID".
+    3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
+    4. When prompted to verify the ID for the tool, click the "Install" button.
+
+#### Troubleshooting
+
+1. ***Error:***
+   ```txt
+   ccm_web     | Error during deployment:  ConnectionRefusedError [SequelizeConnectionRefusedError]: connect ECONNREFUSED 172.18.0.2:3306
+   ```
+   This may happen when the application is run for the very first time. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
+   ***Solution:***  Stop and restart the Docker containers.
+   
+2. ***Error:***
+   ```txt
+   ccm_web     | (node:64) UnhandledPromiseRejectionWarning: Error: An error occurred while setting up ltijs: Error: MISSING_PLATFORM_URL_OR_CLIENTID
+   ccm_web     |     at /base/server/src/lti/lti.middleware.ts:22:15
+   ccm_web     |     at processTicksAndRejections (internal/process/task_queues.js:93:5)
+   ```
+   
+   This happens when the LTI key is not configured or configured improperly.
+   ***Solution:***  Follow the steps documented above to ensure the key is configured correctly, then start the application again.
+   
+3. ***Error:***
+
+   ```txt
+   ccm_db      | 2021-05-05T19:46:18.445529Z 3 [Warning] InnoDB: Cannot open table ccm/platformStatuses from the internal data dictionary of InnoDB though the .frm file for the table exists. Please refer to http://dev.mysql.com/doc/refman/5.7/en/innodb-troubleshooting.html for how to resolve the issue.
+   ccm_web     | Error during deployment:  DatabaseError [SequelizeDatabaseError]: Table 'ccm.platformStatuses' doesn't exist
+   ```
+
+   This may occur if the application has been run without being fully configured before.  The DB may have been left in an invalid state.
+   When investigated, some DB clients show that table `platformStatuses` is known, but when it is queried, an error like `SQL Error [1146] [42S02]: Table 'ccm.platformStatuses' doesn't exist` is given.
+
+   ***Solution:***  Stop the Docker containers, delete the `.mysql_data` directory, optionally delete the Docker images, then rebuild all again.  Be sure the LTI key is properly configured before running the application again.
+
+#### Debugging using VS Code
+1. Go to the Run and Debug option in the left navigation of VS Code editor.
+2. Select the configuration CCM_DEBUG and click the Play button. The debugger should then be attached.
+3. Add a break point anywhere in the server folder and code execution will stop at that break point.
+4. The debugger will reattach if you change the code in the server.  This supports code and debug simultaneously.
+5. For more information, see "[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)" on the official documentation website. 
 
 ### Production
 
@@ -89,3 +173,4 @@ This repository contains modified portions of the npm package
 [@types/ltijs](https://www.npmjs.com/package/@types/ltijs), which carries an MIT license.
 See `ccm_web/server/localTypes/ltijs/index.d.ts` for more information and the modified code.
 This code will hopefully only remain in this repository temporarily.
+
