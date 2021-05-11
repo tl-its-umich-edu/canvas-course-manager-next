@@ -6,6 +6,8 @@ import Database from 'ltijs-sequelize'
 
 import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
+import { UserService } from '../user/user.service'
+import { CreateUserDto } from '../user/dto/create-user.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -14,7 +16,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService) {}
+  constructor (private readonly configService: ConfigService, private userService: UserService) {}
 
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
@@ -46,6 +48,18 @@ export class LTIService implements BeforeApplicationShutdown {
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(JSON.stringify(token.userInfo))
+      const customLTIVariables = token.platformContext.custom
+      // const customCanvasProps = token.custom != null? token.custom.loginId : 
+      if(customLTIVariables == null){
+        return res.json({'lti_error': 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas'})
+      }
+      const user =  new CreateUserDto()
+      user.firstName = token.userInfo.given_name
+      user.lastName = token.userInfo.family_name
+      user.email = token.userInfo.email
+      user.loginId = 'pushyami'
+      const l = this.userService.create(user)
+      logger.info(JSON.stringify(l))
       return provider.redirect(res, '/')
     })
 

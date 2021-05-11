@@ -26,6 +26,7 @@
     "@nestjs/core": "^7.6.15",
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/swagger": "^4.8.0",
+    "@nestjs/sequelize": "^0.2.0",
     "express": "^4.17.1",
     "keycode-js": "^3.1.0",
     "ltijs": "~5.7.3",
@@ -38,6 +39,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.6",
     "swagger-ui-express": "^4.1.6",
+    "sequelize-typescript": "^2.1.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
@@ -54,6 +56,7 @@
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.7",
+    "@types/sequelize": "^4.28.9",
     "@types/supertest": "^2.0.10",
     "@types/webpack": "^4.41.27",
     "@types/webpack-merge": "^4.1.5",
