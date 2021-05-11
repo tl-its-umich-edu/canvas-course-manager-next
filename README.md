@@ -143,12 +143,12 @@ Explicit steps for setting up CCM in a development environment.
 
    ***Solution:***  Stop the Docker containers, delete the `.mysql_data` directory, optionally delete the Docker images, then rebuild all again.  Be sure the LTI key is properly configured before running the application again.
 
-#### Debbugging using VSCode
-1. Go to the Run and Debug option in the left navigation of VS Code Editor.
-2. Select the configuration CCM_DEBUG and hit the Play button, debugger should be attached.
-3. Put a break point anywhere in the server folder and code execution stops on that break point.
-4. The Debugger will reattach if you change the code in the server this support code and debug simultaneously.
-5. For more info VSCode Debug [Referance](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+#### Debugging using VS Code
+1. Go to the Run and Debug option in the left navigation of VS Code editor.
+2. Select the configuration CCM_DEBUG and click the Play button. The debugger should then be attached.
+3. Add a break point anywhere in the server folder and code execution will stop at that break point.
+4. The debugger will reattach if you change the code in the server.  This supports code and debug simultaneously.
+5. For more information, see "[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)" on the official documentation website. 
 
 ### Production
 
