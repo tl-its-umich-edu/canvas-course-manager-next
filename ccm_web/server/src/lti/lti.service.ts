@@ -57,9 +57,8 @@ export class LTIService implements BeforeApplicationShutdown {
       user.firstName = token.userInfo.given_name
       user.lastName = token.userInfo.family_name
       user.email = token.userInfo.email
-      user.loginId = 'pushyami'
-      const l = this.userService.create(user)
-      logger.info(JSON.stringify(l))
+      user.loginId = customLTIVariables.loginid as string
+      this.userService.upsertUser(user)
       return provider.redirect(res, '/')
     })
 
