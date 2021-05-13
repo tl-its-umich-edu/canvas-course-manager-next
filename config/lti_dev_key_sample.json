@@ -10,7 +10,7 @@
           {
             "placement": "course_navigation",
             "message_type": "LtiResourceLinkRequest",
-            "target_link_uri": "https://{ccm_app_url}",
+            "target_link_uri": "https://{ccm_app_url}/lti",
             "visibility": "admins"
           }
         ]
@@ -25,7 +25,7 @@
     "roles": "$Canvas.membership.roles",
     "isRootAccountAdmin": "$Canvas.user.isRootAccountAdmin"
   },
-  "public_jwk_url": "https://{ccm_app_url}/keys",
-  "target_link_uri": "https://{ccm_app_url}",
-  "oidc_initiation_url": "https://{ccm_app_url}/login"
+  "public_jwk_url": "https://{ccm_app_url}/lti/keys",
+  "target_link_uri": "https://{ccm_app_url}/lti",
+  "oidc_initiation_url": "https://{ccm_app_url}/lti/login"
 }

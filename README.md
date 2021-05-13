@@ -1,5 +1,11 @@
 ## Canvas Course Manager
 
+### Overview
+
+The application is primarily written in [TypeScript](https://www.typescriptlang.org/)
+and makes use of the [React framework](https://reactjs.org/) for the client and
+the [Nest framework](https://docs.nestjs.com/) for the NodeJS server.
+
 ### Configuration
 
 #### Application
@@ -40,7 +46,10 @@ you can simply paste the JSON in the Canvas form.
 
 ### Development
 
-Here are some basic set-up instructions.
+#### Installation and usage
+
+Once you have fully configured the application (see the **Configuration** section above),
+you can use the following steps to build and run the application using Docker.
 
 1. Build a development image for the web application.
     ```
@@ -144,11 +153,42 @@ Explicit steps for setting up CCM in a development environment.
    ***Solution:***  Stop the Docker containers, delete the `.mysql_data` directory, optionally delete the Docker images, then rebuild all again.  Be sure the LTI key is properly configured before running the application again.
 
 #### Debugging using VS Code
+
 1. Go to the Run and Debug option in the left navigation of VS Code editor.
 2. Select the configuration CCM_DEBUG and click the Play button. The debugger should then be attached.
 3. Add a break point anywhere in the server folder and code execution will stop at that break point.
 4. The debugger will reattach if you change the code in the server.  This supports code and debug simultaneously.
-5. For more information, see "[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)" on the official documentation website. 
+5. For more information, see "[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)" on the official documentation website.
+
+#### Running unit tests
+
+The backend application includes some unit and end-to-end tests built using Nest tooling
+as well as [Jest](https://jestjs.io/) and [Supertest](https://github.com/visionmedia/supertest).
+To run the test suites, do the following:
+
+1. Start up the application using the steps above, and then in a separate terminal window,
+enter the container using `docker exec`.
+
+    ```
+    docker exec -it ccm_web /bin/bash
+    ````
+
+2. Run one of a handful of test commands defined in `package.json` under `scripts`.
+
+    ```
+    # To run the unit tests and generate a coverage report
+    npm run test:cov
+
+    # To run the end-to-end test(s)
+    npm run test:e2e
+    ```
+
+#### Nest CLI
+
+The Nest framework comes with a [command-line interface tool](https://docs.nestjs.com/cli/overview)
+for generating module and other code stubs and performing other tasks.
+As the necessary libraries are not included in `package.json`, follow the documentation's suggestion
+and install `@nestjs/cli` globally on your machine if you want to use the tool.
 
 ### Production
 
