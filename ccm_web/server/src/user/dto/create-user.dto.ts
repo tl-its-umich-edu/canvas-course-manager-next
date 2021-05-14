@@ -3,4 +3,5 @@ export class CreateUserDto {
     lastName!: string
     email!: string 
     loginId!: string 
+    ltiId!: string
 }

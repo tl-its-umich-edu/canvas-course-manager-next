@@ -4,11 +4,12 @@ import { Optional } from 'sequelize'
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
 interface UserAttributes {
-    id?: Number;
-    loginId: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    id?: Number
+    loginId: string
+    firstName: string
+    lastName: string
+    email: string
+    ltiId: string
   }
 
 interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
@@ -16,7 +17,9 @@ interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
     updatedAt?: Date
 }
 
-@Table
+@Table({
+freezeTableName: true
+})
 export class User extends Model<UserAttributes, UserCreationAttributes> {
 
     @Column
@@ -31,5 +34,8 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     @Unique
     @Column
     loginId!: string
+
+    @Column
+    ltiId!: string
 
 }

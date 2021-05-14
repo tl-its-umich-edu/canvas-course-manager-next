@@ -47,9 +47,8 @@ export class LTIService implements BeforeApplicationShutdown {
 
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
-      logger.debug(JSON.stringify(token.userInfo))
+      logger.debug(JSON.stringify(token))
       const customLTIVariables = token.platformContext.custom
-      // const customCanvasProps = token.custom != null? token.custom.loginId : 
       if(customLTIVariables == null){
         return res.json({'lti_error': 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas'})
       }
@@ -58,6 +57,7 @@ export class LTIService implements BeforeApplicationShutdown {
       user.lastName = token.userInfo.family_name
       user.email = token.userInfo.email
       user.loginId = customLTIVariables.loginid as string
+      user.ltiId = token.user
       this.userService.upsertUser(user)
       return provider.redirect(res, '/')
     })

@@ -11,6 +11,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "strict": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -24,6 +25,6 @@
     "server",
     /* Including webpack and .eslintrc.js to make linter happy. */
     "webpack",
-    ".eslintrc.js"
+    ".eslintrc.js",
   ]
 }

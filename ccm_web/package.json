@@ -5,7 +5,7 @@
   "scripts": {
     "dev:server": "nodemon --inspect=0.0.0.0:9229 --config nmon_config.json server/src/main.ts",
     "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
-    "dev": "npm run dev:server & npm run dev:client",
+    "dev": "wait-port ccm_db:3306 && sequelize db:migrate & npm run dev:server & npm run dev:client",
     "build:client": "webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
     "preprod": "npm run build:client && npm run build:server",
@@ -27,6 +27,7 @@
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/swagger": "^4.8.0",
     "@nestjs/sequelize": "^0.2.0",
+    "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "keycode-js": "^3.1.0",
     "ltijs": "~5.7.3",
@@ -40,6 +41,7 @@
     "rxjs": "^6.6.6",
     "swagger-ui-express": "^4.1.6",
     "sequelize-typescript": "^2.1.0",
+    "wait-port": "^0.2.9",
     "winston": "^3.3.3"
   },
   "devDependencies": {
@@ -80,6 +82,7 @@
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^4.2.3",
+    "wait-for": "^2.1.1",
     "webpack": "^5.24.2",
     "webpack-cli": "^4.5.0",
     "webpack-merge": "^5.7.3"
