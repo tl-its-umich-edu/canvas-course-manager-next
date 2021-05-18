@@ -26,20 +26,22 @@ async function bootstrap (): Promise<void> {
   )
   app.useStaticAssets(staticPath, { prefix: '/' })
 
-  const swaggerConfig = new DocumentBuilder()
-    .addBearerAuth({
-      type: 'http',
-      description: (
-        'The bearer token can be found in the "token" URL parameter' +
-        ' (use View Frame Source).'
-      )
-    })
-    .setTitle('Canvas Course Manager')
-    .setDescription('CCM application API description and explorer')
-    .build()
+  if (isDev) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Canvas Course Manager')
+      .setDescription('CCM application API description and explorer')
+      .addBearerAuth({
+        type: 'http',
+        description: (
+          'The bearer token can be found in the "token" URL parameter' +
+          ' (use View Frame Source).'
+        )
+      })
+      .build()
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('swagger', app, document)
+    const document = SwaggerModule.createDocument(app, swaggerConfig)
+    SwaggerModule.setup('swagger', app, document)
+  }
 
   await app.listen(
     serverConfig.port,
