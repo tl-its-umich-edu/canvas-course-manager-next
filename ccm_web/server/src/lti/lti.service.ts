@@ -56,7 +56,7 @@ export class LTIService implements BeforeApplicationShutdown {
       user.firstName = token.userInfo.given_name
       user.lastName = token.userInfo.family_name
       user.email = token.userInfo.email
-      user.loginId = customLTIVariables.loginid as string
+      user.loginId = customLTIVariables.login_id as string
       user.ltiId = token.user
       this.userService.upsertUser(user)
       return provider.redirect(res, '/')

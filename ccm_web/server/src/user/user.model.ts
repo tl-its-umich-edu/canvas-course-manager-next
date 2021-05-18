@@ -18,7 +18,7 @@ interface UserCreationAttributes extends Optional<UserAttributes, "id"> {
 }
 
 @Table({
-freezeTableName: true
+freezeTableName: true,
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
 
