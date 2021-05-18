@@ -92,6 +92,10 @@ function App (props: AppProps): JSX.Element {
           </Switch>
         </Router>
         <ConsumerTest ltiKey={props.ltiKey} />
+        {
+          globals?.environment === 'development' && props.ltiKey !== undefined &&
+            <Link href={`/swagger?token=${props.ltiKey}`}>Swagger UI</Link>
+        }
       </SnackbarProvider>
     </div>
   )
