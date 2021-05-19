@@ -28,15 +28,7 @@ export const umzug = new Umzug({
   },
   context: sequelize,
   storage: new SequelizeStorage({ sequelize }),
-  logger: logger,
-  create: {
-		folder: 'migrations',
-		template: filepath => {
-      console.log(filepath)
-      return [
-      [filepath, fs.readFileSync(path.join(__dirname, 'template/sample-migrations.ts')).toString()],
-    ]},
-	},
+  logger: logger
 })
 
 export type Migration = typeof umzug._types.migration;
