@@ -1,6 +1,10 @@
 {
   /* Visit https://aka.ms/tsconfig.json to read more about this file */
   "compilerOptions": {
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "incremental": true,
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -10,6 +14,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist"

@@ -19,6 +19,7 @@ module.exports = {
       './client/tsconfig.json' // Client
     ]
   },
+  plugins: ['@typescript-eslint/eslint-plugin'],
   settings: {
     react: {
       version: 'detect'
@@ -28,5 +29,11 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'standard-with-typescript'
-  ]
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js']
 }
