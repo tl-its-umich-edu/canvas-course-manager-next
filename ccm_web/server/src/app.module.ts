@@ -9,6 +9,7 @@ import { User } from './user/user.model'
 import { UserService } from './user/user.service'
 
 import { validateConfig } from './config'
+import { CanvasModule } from './canvas/canvas.module'
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { validateConfig } from './config'
         models: [User]
       })
     }),
-    UserModule
+    UserModule,
+    CanvasModule
   ],
   providers: [UserService]
 })

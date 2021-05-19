@@ -16,6 +16,11 @@ export interface LTIConfig {
   keysetEnding: string
 }
 
+export interface CanvasConfig {
+  devKeyClient: string
+  devKeySecret: string
+}
+
 export interface DatabaseConfig {
   host: string
   port: number
@@ -27,6 +32,7 @@ export interface DatabaseConfig {
 export interface Config {
   server: ServerConfig
   lti: LTIConfig
+  canvas: CanvasConfig
   db: DatabaseConfig
 }
 
@@ -56,12 +62,17 @@ function validate<T> (
 export function validateConfig (env: Record<string, unknown>): Config {
   let server
   let lti
+  let canvas
   let db
 
   try {
     server = {
       port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
+    }
+    canvas = {
+      devKeyClient: validate<string>('CANVAS_DEV_KEY_CLIENT', env.CANVAS_DEV_KEY_CLIENT, isString),
+      devKeySecret: validate<string>('CANVAS_DEV_KEY_SECRET', env.CANVAS_DEV_KEY_SECRET, isString)
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
@@ -82,5 +93,5 @@ export function validateConfig (env: Record<string, unknown>): Config {
     logger.error(error)
     throw new Error(error)
   }
-  return { server, lti, db }
+  return { server, lti, db, canvas }
 }
