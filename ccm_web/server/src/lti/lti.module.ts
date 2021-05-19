@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { UserModule } from '../user/user.module'
 import { UserService } from '../user/user.service'
-
 import { LTIMiddleware } from './lti.middleware'
 import { LTIService } from './lti.service'
 

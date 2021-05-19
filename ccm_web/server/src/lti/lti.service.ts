@@ -7,7 +7,6 @@ import Database from 'ltijs-sequelize'
 import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
 import { UserService } from '../user/user.service'
-import { CreateUserDto } from '../user/dto/create-user.dto'
 import { User } from '../user/user.model'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -17,7 +16,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService, private userService: UserService) {}
+  constructor (private readonly configService: ConfigService, private readonly userService: UserService) {}
 
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
@@ -50,25 +49,28 @@ export class LTIService implements BeforeApplicationShutdown {
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`LTI launch is successfull! ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
-      if(customLTIVariables == null){
-        return res.json({'lti_error': 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas'})
+      if (customLTIVariables == null) {
+        return res.json({ lti_error: 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas' })
       }
-      const user =  new CreateUserDto()
-      user.firstName = token.userInfo.given_name
-      user.lastName = token.userInfo.family_name
-      user.email = token.userInfo.email
-      user.loginId = customLTIVariables.login_id as string
-      user.ltiId = token.user
-      const [record, created] = await this.userService.upsertUser(user)
+      const loginId = customLTIVariables.login_id as string
+      const [record, created] = await this.userService.upsertUser({
+        firstName: token.userInfo.given_name,
+        lastName: token.userInfo.family_name,
+        email: token.userInfo.email,
+        loginId: loginId,
+        ltiId: token.user
+      })
+      /* exclusively treating null value as false, But in really the const `created` won't be null with mysql dialect.
+      This is typescript being smart. See more comments on this in user.service.ts */
       logger.info(
-        `User ${user.loginId} is ${
-          created ? "created" : "updated"
+        `User ${record.loginId} is ${
+          (created ?? false) ? 'created' : 'updated'
         } in 'user' table`
       )
-      // if the user inserting failed don't want to proceed further
-      if(!(record instanceof User)){
-        logger.error(`something went wrong in creating user: ${user.loginId}`)
-        return res.json('The Launch of application failed, please try again')
+      // if the user inserting into DB failed don't want to proceed further
+      if (!(record instanceof User)) {
+        logger.error(`something went wrong in creating user: ${loginId}`)
+        return res.json('The Launch of application failed, please try to refresh the page.')
       }
       return provider.redirect(res, '/')
     })
