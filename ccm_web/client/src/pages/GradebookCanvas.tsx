@@ -6,8 +6,8 @@ import { parse, ParseResult } from 'papaparse'
 
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
-import ConfirmationTable, { StudentGrade } from '../components/ConfirmationTable'
-import {canvasGradebookFormatterProps} from '../models/feature'
+import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
+import { canvasGradebookFormatterProps } from '../models/feature'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -331,7 +331,7 @@ function ConvertCanvasGradebook (): JSX.Element {
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-              <ConfirmationTable grades={grades} />
+              <GradebookUploadConfirmationTable grades={grades} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>

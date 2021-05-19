@@ -22,7 +22,7 @@ interface StudentGrade {
   grade: string
 }
 
-interface ConfirmationTableProps {
+interface GradebookUploadConfirmationTableProps {
   grades: StudentGrade[]
 }
 
@@ -39,7 +39,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'grade', label: 'grade', minWidth: 100 }
 ]
 
-function ConfirmationTable (props: ConfirmationTableProps): JSX.Element {
+function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTableProps): JSX.Element {
   const [tableRows, setTableRows] = useState<StudentGrade[]>([])
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -126,5 +126,5 @@ function ConfirmationTable (props: ConfirmationTableProps): JSX.Element {
   return renderTable()
 }
 
-export type { ConfirmationTableProps, StudentGrade }
-export default ConfirmationTable
+export type { GradebookUploadConfirmationTableProps, StudentGrade }
+export default GradebookUploadConfirmationTable

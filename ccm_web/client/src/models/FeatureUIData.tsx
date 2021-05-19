@@ -9,6 +9,7 @@ import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, ExternalToolsGradebookFormatterProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
+import BulkSectionCreate from '../pages/BulkSectionCreate'
 
 interface FeatureUIGroup {
   id: string
@@ -48,7 +49,7 @@ const ExternalToolsGradebookFormatterCardProps: FeatureUIProps = {
 const createSectionsCardProps: FeatureUIProps = {
   data: createSectionsProps,
   icon: <AccountCircleOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: BulkSectionCreate,
   route: '/create-sections'
 }
 
