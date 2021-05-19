@@ -1,5 +1,5 @@
 import { Express, Request, Response } from 'express'
-import { BeforeApplicationShutdown, Injectable } from '@nestjs/common'
+import { BeforeApplicationShutdown, HttpCode, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
@@ -70,7 +70,7 @@ export class LTIService implements BeforeApplicationShutdown {
       // if the user inserting into DB failed don't want to proceed further
       if (!(record instanceof User)) {
         logger.error(`something went wrong in creating user: ${loginId}`)
-        return res.json('The Launch of application failed, please try to refresh the page.')
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The Launch of application failed, please try to refresh the page.')
       }
       return provider.redirect(res, '/')
     })
