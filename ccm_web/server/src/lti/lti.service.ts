@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from 'express'
+import { Express, Request, Response } from 'express'
 import { BeforeApplicationShutdown, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
@@ -8,6 +8,7 @@ import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
 import { UserService } from '../user/user.service'
 import { CreateUserDto } from '../user/dto/create-user.dto'
+import { User } from '../user/user.model'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -47,7 +48,7 @@ export class LTIService implements BeforeApplicationShutdown {
 
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
-      logger.debug(JSON.stringify(token))
+      logger.debug(`LTI launch is successfull! ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
       if(customLTIVariables == null){
         return res.json({'lti_error': 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas'})
@@ -58,7 +59,17 @@ export class LTIService implements BeforeApplicationShutdown {
       user.email = token.userInfo.email
       user.loginId = customLTIVariables.login_id as string
       user.ltiId = token.user
-      this.userService.upsertUser(user)
+      const [record, created] = await this.userService.upsertUser(user)
+      logger.info(
+        `User ${user.loginId} is ${
+          created ? "created" : "updated"
+        } in 'user' table`
+      )
+      // if the user inserting failed don't want to proceed further
+      if(!(record instanceof User)){
+        logger.error(`something went wrong in creating user: ${user.loginId}`)
+        return res.json('The Launch of application failed, please try again')
+      }
       return provider.redirect(res, '/')
     })
 

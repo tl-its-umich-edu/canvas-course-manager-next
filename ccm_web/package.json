@@ -5,7 +5,8 @@
   "scripts": {
     "dev:server": "nodemon --inspect=0.0.0.0:9229 --config nmon_config.json server/src/main.ts",
     "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
-    "dev": "wait-port ccm_db:3306 && node -r ts-node/register server/migrator up && npm run dev:server & npm run dev:client",
+    "predev": "wait-port ccm_db:3306",
+    "dev": "node -r ts-node/register server/migrator up && npm run dev:server & npm run dev:client",
     "build:client": "webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
     "preprod": "npm run build:client && npm run build:server",

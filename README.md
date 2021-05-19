@@ -121,14 +121,15 @@ Explicit steps for setting up CCM in a development environment.
     3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
     4. When prompted to verify the ID for the tool, click the "Install" button.
 
-16. Running migrations commands. More info (refer)[https://github.com/sequelize/umzug#cli-usage]
+16. Running migrations commands. More info [refer](https://github.com/sequelize/umzug#cli-usage)
     1. Running migration `Locally`
        1. Running the migrations `docker exec -it ccm_web node -r ts-node/register server/migrator up`
        2. Reverting the migration `docker exec -it ccm_web node -r ts-node/register server/migrator down`.
-       3. Create a migration file `docker exec -it ccm_web node -r ts-node/register server/migrator create --name my-migration.ts`. generate a migration file called <<timestamp>>.my-migration.ts The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
-    2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations, revert or create migrations file use above commands
-    3. Running migration `dev/test/prod`
-       1. For running the migrations up/down commands in non local i.e in dev/test/prod take out `-r ts-node/register` . `docker exec -it node ccm_web_prod server/migrator up` ; `docker exec -it node ccm_web_prod server/migrator down`
+       3. Create a migration file `docker exec -it ccm_web node -r ts-node/register server/migrator create --name my-migration.ts`. Generate a migration file called `<timestamp>.my-migration.ts` The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
+    2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
+    3. Running migrations `dev/test/prod`
+       1. For running the migrations in in dev/test/prod, `docker exec -it node ccm_web_prod server/migrator up` ; `docker exec -it node ccm_web_prod server/migrator down`.
+       2. The reason for separate setup for running migration local and non-prod/prod is Locally we don't transpile Typescript to Java script and so we always use `ts-node/register` module for running in node envirorment.  
 
 #### Troubleshooting
 
