@@ -1,20 +1,23 @@
 import { Umzug, SequelizeStorage } from "umzug"
 import { Sequelize } from "sequelize"
-import { databaseConfig } from "./db/config/dbconfig"
+import { validateConfig } from "./src/config"
 import baseLogger from "./src/logger"
-const logger = baseLogger.child({ filePath: __filename })
-import { readFileSync } from 'fs'
+import fs from 'fs'
 import path from 'path'
+const logger = baseLogger.child({ filePath: __filename })
+
+const databaseConfig = validateConfig(process.env).db
+logger.info(`DB Config: ${JSON.stringify(databaseConfig)}`)
 
 const sequelize = new Sequelize(
-  databaseConfig.database,
-  databaseConfig.username,
+  databaseConfig.name,
+  databaseConfig.user,
   databaseConfig.password,
   {
     dialect: "mysql",
     host: databaseConfig.host,
   }
-);
+)
 
 export const umzug = new Umzug({
   migrations: {
@@ -26,11 +29,19 @@ export const umzug = new Umzug({
   context: sequelize,
   storage: new SequelizeStorage({ sequelize }),
   logger: logger,
-});
+  create: {
+		folder: 'migrations',
+		template: filepath => {
+      console.log(filepath)
+      return [
+      [filepath, fs.readFileSync(path.join(__dirname, 'template/sample-migrations.ts')).toString()],
+    ]},
+	},
+})
 
 export type Migration = typeof umzug._types.migration;
 
 if (require.main === module) {
-  logger.info("Running the migrations....");
+  logger.info("migrations CLI ....");
   umzug.runAsCLI();
 }

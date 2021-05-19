@@ -26,5 +26,6 @@
     /* Including webpack and .eslintrc.js to make linter happy. */
     "webpack",
     ".eslintrc.js",
+    "wait-for"
   ]
 }
