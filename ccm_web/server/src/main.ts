@@ -34,7 +34,7 @@ async function bootstrap (): Promise<void> {
         type: 'http',
         description: (
           'The bearer token can be found in the "token" URL parameter' +
-          ' (use View Frame Source).'
+          ' (use a browser tool to view the URL of the frame).'
         )
       })
       .build()
