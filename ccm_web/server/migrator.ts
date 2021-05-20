@@ -37,6 +37,6 @@ if (require.main === module) {
     .runAsCLI()
     .then(() => logger.info('Migration tasks ran!'))
     .catch((e) =>
-      logger.error('An error occured when running the migration task: ', e)
+      logger.error('An error occured when running the migration tasks: ', e)
     )
 }
