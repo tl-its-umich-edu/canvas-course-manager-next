@@ -16,7 +16,7 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
   updatedAt?: Date
 }
 
-// Sequelize Datatypes mapping with Mysql https://sequelize.org/v5/manual/data-types.html
+// Sequelize Datatypes mapping with Mysql https://sequelize.org/master/manual/model-basics.html#data-types
 @Table({
   freezeTableName: true
 })

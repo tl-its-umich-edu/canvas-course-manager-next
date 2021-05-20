@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { CreateUserDto } from './dto/create-user.dto'
+import { UserToUpsert } from './user.interfaces'
 import { User } from './user.model'
 
 @Injectable()
@@ -14,9 +14,9 @@ export class UserService {
   but not with other DB dialects. To avoid typescript errors including boolean | null
   https://sequelize.org/master/class/lib/model.js~Model.html#static-method-upsert
   */
-  async upsertUser (createUserDto: CreateUserDto): Promise<[User, boolean | null]> {
-    const [record, created] = await User.upsert({
-      ...createUserDto
+  async upsertUser (userToUpsert: UserToUpsert): Promise<[User, boolean | null]> {
+    const [record, created] = await this.userModel.upsert({
+      ...userToUpsert
     })
     return [record, created]
   }

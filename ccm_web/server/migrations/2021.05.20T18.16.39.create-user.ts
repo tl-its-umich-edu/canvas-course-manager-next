@@ -7,7 +7,7 @@ export const up: Migration = async ({ context: sequelize }) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.INTEGER
+      type: DataTypes.BIGINT
     },
     firstName: {
       allowNull: true,
