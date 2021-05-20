@@ -2,6 +2,7 @@ import { Umzug, SequelizeStorage } from 'umzug'
 import { Sequelize } from 'sequelize'
 import { validateConfig } from './src/config'
 import baseLogger from './src/logger'
+
 const logger = baseLogger.child({ filePath: __filename })
 
 const databaseConfig = validateConfig(process.env).db
