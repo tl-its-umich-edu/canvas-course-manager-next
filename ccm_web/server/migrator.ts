@@ -32,7 +32,7 @@ export const umzug = new Umzug({
 export type Migration = typeof umzug._types.migration
 
 if (require.main === module) {
-  logger.info('Running migrations CLI ....')
+  logger.info('Running migrations CLI...')
   umzug
     .runAsCLI()
     .then(() => logger.info('Migration tasks ran!'))
