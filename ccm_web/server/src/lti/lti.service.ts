@@ -63,7 +63,7 @@ export class LTIService implements BeforeApplicationShutdown {
       /* exclusively treating null value as false, But in really the const `created` won't be null with mysql dialect.
       This is typescript being smart. See more comments on this in user.service.ts */
       logger.info(
-        `User ${record.loginId} is ${
+        `User record for ${record.loginId} was ${
           (created ?? false) ? 'created' : 'updated'
         } in 'user' table`
       )
