@@ -1,5 +1,5 @@
 import { Column, Model, Table, Unique } from 'sequelize-typescript'
-import { Optional } from 'sequelize'
+import { Optional, DataTypes } from 'sequelize'
 
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
@@ -9,7 +9,6 @@ interface UserAttributes {
   firstName: string
   lastName: string
   email: string
-  ltiId: string
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
@@ -17,23 +16,29 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
   updatedAt?: Date
 }
 
+// Sequelize Datatypes mapping with Mysql https://sequelize.org/v5/manual/data-types.html
 @Table({
   freezeTableName: true
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
-  @Column
+  @Column({
+    type: DataTypes.STRING
+  })
   firstName!: string
 
-  @Column
+  @Column({
+    type: DataTypes.STRING
+  })
   lastName!: string
 
-  @Column
+  @Column({
+    type: DataTypes.STRING
+  })
   email!: string
 
   @Unique
-  @Column
+  @Column({
+    type: DataTypes.STRING
+  })
   loginId!: string
-
-  @Column
-  ltiId!: string
 }

@@ -26,10 +26,6 @@ export const up: Migration = async ({ context: sequelize }) => {
       unique: true,
       type: DataTypes.STRING
     },
-    ltiId: {
-      allowNull: false,
-      type: DataTypes.STRING
-    },
     createdAt: {
       allowNull: false,
       type: DataTypes.DATE

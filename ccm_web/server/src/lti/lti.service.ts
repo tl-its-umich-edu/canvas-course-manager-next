@@ -1,5 +1,5 @@
 import { Express, Request, Response } from 'express'
-import { BeforeApplicationShutdown, HttpCode, HttpStatus, Injectable } from '@nestjs/common'
+import { BeforeApplicationShutdown, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
@@ -57,12 +57,11 @@ export class LTIService implements BeforeApplicationShutdown {
         firstName: token.userInfo.given_name,
         lastName: token.userInfo.family_name,
         email: token.userInfo.email,
-        loginId: loginId,
-        ltiId: token.user
+        loginId: loginId
       })
       /* created variable will return non null value for Mysql, but the Return type on upsert method is Promise<[User, boolean|null] >
       so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors */
-      logger.info(
+      logger.debug(
         `User record for ${record.loginId} was ${
           (created ?? false) ? 'created' : 'updated'
         } in 'user' table`
