@@ -10,7 +10,6 @@ import { LTIService } from './lti.service'
   providers: [
   // https://docs.nestjs.com/fundamentals/custom-providers
     {
-
       provide: LTIService,
       inject: [ConfigService, UserService],
       useFactory: async (configService: ConfigService, userService: UserService) => {
