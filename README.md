@@ -120,14 +120,16 @@ Explicit steps for setting up CCM in a development environment.
     2. In the "Configuration Type" menu, select "By Client ID".
     3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
     4. When prompted to verify the ID for the tool, click the "Install" button.
+#### Database Migrations
 
-16. Running migrations using the Umzug. Umzug is a sister library to Sequelize for migration tasks. More info [refer](https://github.com/sequelize/umzug#cli-usage). After creating/modifying model you create a migration file and run migration. Create a model using Sequelize ORM and create/run migration using Umzug CLI. These steps needs to be done by the dev's.
-    1. Running migration `Locally`
+Running migrations using the Umzug. Umzug is a sister library to Sequelize for migration tasks. More info [refer](https://github.com/sequelize/umzug#cli-usage). After creating/modifying model you create a migration file and run migration. Create a model using Sequelize ORM and create/run migration using Umzug CLI. These steps needs to be done by the dev's.
+
+1. Running migration `Locally`
        1. Running the migrations `docker exec -it ccm_web node -r ts-node/register server/migrator up`
        2. Reverting the migration `docker exec -it ccm_web node -r ts-node/register server/migrator down`.
        3. Create a migration file `docker exec -it ccm_web node -r ts-node/register server/migrator create --name my-migration.ts`. Generate a migration file called `<timestamp>.my-migration.ts` The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
-    2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
-    3. Running migrations `dev/test/prod`
+2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
+3. Running migrations `dev/test/prod`
        1. For running the migrations in in dev/test/prod, `docker exec -it node ccm_web_prod server/migrator up` ; `docker exec -it node ccm_web_prod server/migrator down`.
        2. The reason for separate setup for running migration local and non-prod/prod is Locally we don't transpile Typescript to Java script and so we always use `ts-node/register` module for running in node envirorment.  
 
@@ -137,7 +139,7 @@ Explicit steps for setting up CCM in a development environment.
    ```txt
    ccm_web     | Error during deployment:  ConnectionRefusedError [SequelizeConnectionRefusedError]: connect ECONNREFUSED 172.18.0.2:3306
    ```
-   This may happen when the application is run for the very first time. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
+   This may happen when the application is run for the very first time in Prod only. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
    ***Solution:***  Stop and restart the Docker containers.
    
 2. ***Error:***
