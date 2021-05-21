@@ -2,9 +2,11 @@ import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@materia
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
+import { getCourseSections, LtiProps } from '../api'
 import BulSectionCreateUploadConfirmationTable, { Section } from '../components/BulSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
+import usePromise from '../hooks/usePromise'
 import { createSectionsProps } from '../models/feature'
 
 const FILE_HEADER = 'SECTION_NAME'
@@ -86,6 +88,7 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
 }))
 
 enum BulkSectionCreatePageState {
+  Loading,
   Upload,
   InvalidUpload,
   Confirm,
@@ -165,16 +168,22 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
     }
     const invalidations: SectionsRowInvalidation[] = []
     console.log(duplicates)
-    let i = 0
+    let i = 1
     sectionNames.forEach(sectionName => {
       if (duplicates.includes(sectionName.toUpperCase())) {
-        invalidations.push({ message: 'Duplicate section name: "' + sectionName + '"', rowNumber: ++i, type: InvalidationType.Error })
+        invalidations.push({ message: 'Duplicate section name: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
       }
+      ++i
     })
     return invalidations
   }
 }
-function BulkSectionCreate (): JSX.Element {
+
+interface BulkSectionCreateProps extends LtiProps {
+
+}
+
+function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
@@ -183,6 +192,42 @@ function BulkSectionCreate (): JSX.Element {
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.Upload, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
+  const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
+
+  // Support for this might be addressed by https://github.com/tl-its-umich-edu/canvas-course-manager-next/issues/74 ?
+  useEffect(() => {
+    getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?')
+      .then(sections => {
+        setExistingSectionNames(sections.map(s => { return s.toUpperCase() }))
+      }).catch(error => {
+        console.log(error)
+        setExistingSectionNames(undefined)
+      })
+  }, [])
+
+  class DuplicateExistingSectionRowsValidator implements SectionRowsValidator {
+    validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
+      const sortedSectionNames = sectionNames.map(n => { return n.toUpperCase() }).sort((a, b) => { return a.localeCompare(b) })
+      const duplicates: string[] = []
+      for (let i = 0; i < sortedSectionNames.length; ++i) {
+        if (existingSectionNames?.includes(sortedSectionNames[i])) {
+          duplicates.push(sortedSectionNames[i])
+        }
+      }
+
+      const invalidations: SectionsRowInvalidation[] = []
+      console.log(duplicates)
+      let i = 1
+      sectionNames.forEach(sectionName => {
+        if (duplicates.includes(sectionName.toUpperCase())) {
+          invalidations.push({ message: 'Section name already used in canvas: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
+        }
+        ++i
+      })
+
+      return invalidations
+    }
+  }
 
   const uploadComplete = (file: File): void => {
     setFile(file)
@@ -246,6 +291,9 @@ function BulkSectionCreate (): JSX.Element {
 
       const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
       rowInvalidations.push(...duplicateNamesInFileValidator.validate(lines))
+
+      const duplicatesNamesInCanvasValidator: DuplicateExistingSectionRowsValidator = new DuplicateExistingSectionRowsValidator()
+      rowInvalidations.push(...duplicatesNamesInCanvasValidator.validate(lines))
 
       if (rowInvalidations.length !== 0) {
         handleRowLevelInvalidationError([<div key='0'>Row Error!</div>], rowInvalidations)
