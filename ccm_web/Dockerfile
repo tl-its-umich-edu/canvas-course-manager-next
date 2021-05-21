@@ -30,6 +30,6 @@ COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
-CMD ["sh", "-c", "node server/migrator up && node server/src/main.js"]
+CMD ["sh", "-c", "node server/src/migrator up && node server/src/main.js"]
 
 # Done!

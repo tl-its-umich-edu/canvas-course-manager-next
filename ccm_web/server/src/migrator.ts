@@ -1,7 +1,7 @@
 import { Umzug, SequelizeStorage } from 'umzug'
 import { Sequelize } from 'sequelize'
-import { validateConfig } from './src/config'
-import baseLogger from './src/logger'
+import { validateConfig } from './config'
+import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
