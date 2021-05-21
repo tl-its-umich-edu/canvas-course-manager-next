@@ -7,7 +7,6 @@ import Database from 'ltijs-sequelize'
 import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
 import { UserService } from '../user/user.service'
-import { User } from '../user/user.model'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -49,29 +48,30 @@ export class LTIService implements BeforeApplicationShutdown {
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
-      if (customLTIVariables === null) {
-        return res.json({ lti_error: 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas' })
+      if (customLTIVariables?.login_id === undefined) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ lti_error: 'LTI launch is missing custom attributes, please add it in LTI configutation in Canvas' })
       }
       const loginId = customLTIVariables.login_id as string
-      const [record, created] = await this.userService.upsertUser({
-        firstName: token.userInfo.given_name,
-        lastName: token.userInfo.family_name,
-        email: token.userInfo.email,
-        loginId: loginId
-      })
-      /* created variable will return non null value for Mysql, but the Return type on upsert method is Promise<[User, boolean|null] >
+      try {
+        const [record, created] = await this.userService.upsertUser({
+          firstName: token.userInfo.given_name,
+          lastName: token.userInfo.family_name,
+          email: token.userInfo.email,
+          loginId: loginId
+        })
+
+        /* created variable will return non null value for Mysql, but the Return type on upsert method is Promise<[User, boolean|null] >
       so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors */
-      logger.debug(
-        `User record for ${record.loginId} was ${
-          (created ?? false) ? 'created' : 'updated'
-        } in 'user' table`
-      )
-      // if the user inserting into DB failed don't want to proceed further
-      if (!(record instanceof User)) {
-        logger.error(`something went wrong in creating user: ${loginId}`)
+        logger.info(
+          `User ${record.loginId} is ${
+            (created ?? false) ? 'created' : 'updated'
+          } in 'user' table`
+        )
+        return provider.redirect(res, '/')
+      } catch (e) {
+        logger.error(`something went wrong in creating user: ${loginId} with error ${String(e.name)} due to ${String(e.message)}`)
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The Launch of application failed, please try to refresh the page.')
       }
-      return provider.redirect(res, '/')
     })
 
     await provider.deploy({ serverless: true })
