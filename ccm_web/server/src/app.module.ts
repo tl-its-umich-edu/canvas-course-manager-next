@@ -4,11 +4,11 @@ import { SequelizeModule } from '@nestjs/sequelize'
 
 import { APIModule } from './api/api.module'
 import { LTIModule } from './lti/lti.module'
-
-import { validateConfig } from './config'
 import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
 import { UserService } from './user/user.service'
+
+import { validateConfig } from './config'
 
 @Module({
   imports: [
@@ -21,16 +21,16 @@ import { UserService } from './user/user.service'
     APIModule,
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         dialect: 'mysql',
-        host: configService.get('DB_HOST'),
-        port: configService.get('DB_PORT'),
-        username: configService.get('DB_USER'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_NAME'),
+        host: configService.get('db.host'),
+        port: configService.get('db.port'),
+        username: configService.get('db.user'),
+        password: configService.get('db.password'),
+        database: configService.get('db.name'),
         models: [User]
-      }),
-      inject: [ConfigService]
+      })
     }),
     UserModule
   ],
