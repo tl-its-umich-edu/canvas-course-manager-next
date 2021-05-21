@@ -201,7 +201,6 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
       return []
     }
     const invalidations: SectionsRowInvalidation[] = []
-    console.log(duplicates)
     let i = 1
     sectionNames.forEach(sectionName => {
       if (duplicates.includes(sectionName.toUpperCase())) {
@@ -235,8 +234,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       .then(sections => {
         setExistingSectionNames(sections.map(s => { return s.toUpperCase() }))
         setIsExistingSectionsLoading(false)
-      }).catch(error => {
-        console.log(error)
+      }).catch(() => {
         setExistingSectionNames(undefined)
         setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
       })
@@ -258,7 +256,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       }
 
       const invalidations: SectionsRowInvalidation[] = []
-      console.log(duplicates)
       let i = 1
       sectionNames.forEach(sectionName => {
         if (duplicates.includes(sectionName.toUpperCase())) {
@@ -283,15 +280,11 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     setPageState({ state: BulkSectionCreatePageState.Upload, schemaInvalidation: [], rowInvalidations: [] })
   }
 
-  const handleSchemaError = (errorMessage: JSX.Element, schemaInvalidations: SectionsSchemaInvalidation[]): void => {
-    console.log('Schema Error')
-    schemaInvalidations.forEach(i => {
-      console.log(i)
-    })
+  const handleSchemaError = (schemaInvalidations: SectionsSchemaInvalidation[]): void => {
     setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidation: schemaInvalidations, rowInvalidations: [] })
   }
 
-  const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: SectionsRowInvalidation[]): void => {
+  const handleRowLevelInvalidationError = (invalidations: SectionsRowInvalidation[]): void => {
     setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidation: [], rowInvalidations: invalidations })
   }
 
@@ -311,9 +304,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       if (lines.length > 0 && lines[0].length === 0) {
         lines = lines.slice(1)
       }
-      lines.forEach(l => {
-        console.log(l)
-      })
 
       const schemaInvalidations: SectionsSchemaInvalidation[] = []
 
@@ -321,7 +311,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       schemaInvalidations.push(...sectionNameHeaderValidator.validate(lines))
 
       if (schemaInvalidations.length !== 0) {
-        handleSchemaError(<div>Schema error!</div>, schemaInvalidations)
+        handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
         return
       }
 
@@ -338,13 +328,14 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       rowInvalidations.push(...duplicatesNamesInCanvasValidator.validate(lines))
 
       if (rowInvalidations.length !== 0) {
-        handleRowLevelInvalidationError([<div key='0'>Row Error!</div>], rowInvalidations)
+        handleRowLevelInvalidationError(rowInvalidations)
         return
       }
 
       handleParseSuccess(lines)
     }).catch(e => {
-      console.log(e)
+      // TODO Not sure how to produce this error in real life
+      handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
     })
   }
 
