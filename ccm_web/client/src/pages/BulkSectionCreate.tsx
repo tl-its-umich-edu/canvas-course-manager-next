@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { getCourseSections, LtiProps } from '../api'
 import BulSectionCreateUploadConfirmationTable, { Section } from '../components/BulSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
-import usePromise from '../hooks/usePromise'
 import { createSectionsProps } from '../models/feature'
 
 const FILE_HEADER = 'SECTION_NAME'
@@ -18,6 +17,16 @@ const useStyles = makeStyles((theme) => ({
     '& button': {
       margin: 5
     }
+  },
+  uploadContainer: {
+    position: 'relative',
+    zIndex: 0,
+    textAlign: 'center'
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    position: 'absolute'
   },
   fileNameContainer: {
     marginBottom: 15,
@@ -189,7 +198,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
 
-  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.Upload, schemaInvalidation: [], rowInvalidations: [] })
+  const [isExistingSectionsLoading, setIsExistingSectionsLoading] = useState(true)
+  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.Loading, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
@@ -199,6 +209,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?')
       .then(sections => {
         setExistingSectionNames(sections.map(s => { return s.toUpperCase() }))
+        setIsExistingSectionsLoading(false)
       }).catch(error => {
         console.log(error)
         setExistingSectionNames(undefined)
@@ -210,7 +221,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       const sortedSectionNames = sectionNames.map(n => { return n.toUpperCase() }).sort((a, b) => { return a.localeCompare(b) })
       const duplicates: string[] = []
       for (let i = 0; i < sortedSectionNames.length; ++i) {
-        if (existingSectionNames?.includes(sortedSectionNames[i])) {
+        if ((existingSectionNames?.includes(sortedSectionNames[i])) ?? false) {
           duplicates.push(sortedSectionNames[i])
         }
       }
@@ -316,21 +327,31 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   }
 
   const renderFileUpload = (): JSX.Element => {
-    return <span>
+    return <div className={classes.uploadContainer}>
       <Grid container>
         <Grid item xs={12}>
           <FileUpload onUploadComplete={uploadComplete}></FileUpload>
         </Grid>
       </Grid>
-    </span>
+      <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+        <Grid container>
+          <Grid item xs={12}>
+            <CircularProgress color="inherit" />
+          </Grid>
+          <Grid item xs={12}>
+          <Typography>Loading Section Information</Typography>
+          </Grid>
+        </Grid>
+      </Backdrop>
+    </div>
   }
 
   const renderUpload = (): JSX.Element => {
-    return <span>
+    return <div>
       {renderUploadHeader()}
       <br/>
       {renderFileUpload()}
-    </span>
+    </div>
   }
 
   const renderCSVFileName = (): JSX.Element => {
@@ -447,6 +468,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
+      case BulkSectionCreatePageState.Loading:
+        return renderUpload()
       case BulkSectionCreatePageState.Upload:
         return renderUpload()
       case BulkSectionCreatePageState.InvalidUpload:

@@ -35,7 +35,14 @@ export const getGlobals = async (key: string | undefined): Promise<Globals> => {
   return await resp.json()
 }
 
+const delay = async (ms: number): Promise<void> => {
+  await new Promise<void>(resolve => setTimeout(() => resolve(), ms))
+}
+
 // This is a placeholder for a real implementation (I mean, obviously :D)
 export const getCourseSections = async (key: string | undefined, courseId: string): Promise<string[]> => {
-  return (['AAAA', 'BBBB'])
+  const sections = await delay(2000).then(() => {
+    return (['AAAA', 'BBBB'])
+  })
+  return sections
 }
