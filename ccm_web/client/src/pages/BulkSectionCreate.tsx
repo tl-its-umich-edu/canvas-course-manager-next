@@ -2,11 +2,12 @@ import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper,
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
-import { getCourseSections, LtiProps } from '../api'
+import { getCourseSections } from '../api'
 import BulSectionCreateUploadConfirmationTable, { Section } from '../components/BulSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import { createSectionsProps } from '../models/feature'
+import { CCMComponentProps } from '../models/FeatureUIData'
 
 const FILE_HEADER = 'SECTION_NAME'
 
@@ -188,7 +189,7 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
   }
 }
 
-interface BulkSectionCreateProps extends LtiProps {
+interface BulkSectionCreateProps extends CCMComponentProps {
 
 }
 
