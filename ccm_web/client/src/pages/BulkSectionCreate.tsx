@@ -97,8 +97,32 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
   }
 }))
 
+const useAPIErrorStyles = makeStyles((theme) => ({
+  dialog: {
+    textAlign: 'center',
+    maxWidth: '75%',
+    margin: 'auto',
+    marginTop: 30,
+    marginBottom: 15,
+    paddingLeft: 10,
+    paddingRight: 10,
+    width: '75%',
+    '& ol': {
+      margin: 'auto',
+      width: '75%'
+    },
+    '& li': {
+      textAlign: 'left'
+    }
+  },
+  dialogIcon: {
+    color: 'red'
+  }
+}))
+
 enum BulkSectionCreatePageState {
-  Loading,
+  LoadingExistingSectionNames,
+  LoadingExistingSectionNamesFailed,
   Upload,
   InvalidUpload,
   Confirm,
@@ -198,15 +222,15 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
+  const apiErrorClasses = useAPIErrorStyles()
 
   const [isExistingSectionsLoading, setIsExistingSectionsLoading] = useState(true)
-  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.Loading, schemaInvalidation: [], rowInvalidations: [] })
+  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.LoadingExistingSectionNames, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
 
-  // Support for this might be addressed by https://github.com/tl-its-umich-edu/canvas-course-manager-next/issues/74 ?
-  useEffect(() => {
+  const loadCanvasSectionData = (): void => {
     getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?')
       .then(sections => {
         setExistingSectionNames(sections.map(s => { return s.toUpperCase() }))
@@ -214,7 +238,13 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       }).catch(error => {
         console.log(error)
         setExistingSectionNames(undefined)
+        setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
       })
+  }
+
+  // Support for this might be addressed by https://github.com/tl-its-umich-edu/canvas-course-manager-next/issues/74 ?
+  useEffect(() => {
+    loadCanvasSectionData()
   }, [])
 
   class DuplicateExistingSectionRowsValidator implements SectionRowsValidator {
@@ -367,6 +397,10 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     return <Button color='primary' component="span" onClick={() => resetPageState()}>Upload again</Button>
   }
 
+  const renderTryAgainButton = (): JSX.Element => {
+    return <Button color='primary' component="span" onClick={() => { resetPageState(); loadCanvasSectionData() }}>Try again</Button>
+  }
+
   const renderRowLevelErrors = (invalidations: SectionsRowInvalidation[]): JSX.Element => {
     return (
       <div>
@@ -432,6 +466,18 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     )
   }
 
+  const renderAPIError = (): JSX.Element => {
+    return (
+      <Grid item xs={12} className={apiErrorClasses.dialog}>
+        <Paper role='alert' >
+          <ErrorIcon className={apiErrorClasses.dialogIcon} fontSize='large'/>
+          <Typography>Sometheing went wrong.  Please try again later.</Typography>
+          {renderTryAgainButton()}
+        </Paper>
+      </Grid>
+    )
+  }
+
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
       <div>
@@ -469,8 +515,10 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
-      case BulkSectionCreatePageState.Loading:
+      case BulkSectionCreatePageState.LoadingExistingSectionNames:
         return renderUpload()
+      case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
+        return renderAPIError()
       case BulkSectionCreatePageState.Upload:
         return renderUpload()
       case BulkSectionCreatePageState.InvalidUpload:
