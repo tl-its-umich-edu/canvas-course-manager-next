@@ -141,7 +141,7 @@ Running migrations using the Umzug. Umzug is a sister library to Sequelize for m
    ```txt
    ccm_web     | Error during deployment:  ConnectionRefusedError [SequelizeConnectionRefusedError]: connect ECONNREFUSED 172.18.0.2:3306
    ```
-   This may happen when the application is run for the very first time in Prod only. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
+   This may happen when the application is run for the very first time using `docker-compose-prod.yml` only. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
    ***Solution:***  Stop and restart the Docker containers.
    
 2. ***Error:***
