@@ -130,7 +130,7 @@ Running migrations using the Umzug. Umzug is a sister library to Sequelize for m
        3. Create a migration file `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`. Generate a migration file called `<timestamp>.my-migration.ts` The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
 3. Running migrations `dev/test/prod`
-       1. For running the migrations in in dev/test/prod, `docker exec -it ccm_web_prod node server/migrator up` ; `docker exec -it ccm_web_prod node server/src/migrator down`.
+       1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up`  and `docker exec -it ccm_web_prod node server/src/migrator down`.
        2. The reason for separate setup for running migration local and non-prod/prod is Locally we don't transpile Typescript to Java script and so we always use `ts-node/register` module for running in node envirorment.  
 
 #### Troubleshooting
@@ -243,4 +243,3 @@ This repository contains modified portions of the npm package
 [@types/ltijs](https://www.npmjs.com/package/@types/ltijs), which carries an MIT license.
 See `ccm_web/server/localTypes/ltijs/index.d.ts` for more information and the modified code.
 This code will hopefully only remain in this repository temporarily.
-
