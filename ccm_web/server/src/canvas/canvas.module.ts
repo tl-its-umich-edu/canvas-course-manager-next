@@ -5,6 +5,7 @@ import { CanvasService } from './canvas.service'
 
 @Module({
   imports: [ConfigModule],
-  providers: [CanvasService]
+  providers: [CanvasService],
+  exports: [CanvasService]
 })
 export class CanvasModule {}

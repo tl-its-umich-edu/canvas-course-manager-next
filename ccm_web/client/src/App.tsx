@@ -4,6 +4,7 @@ import { SnackbarProvider } from 'notistack'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
+import AuthorizePrompt from './components/AuthorizePrompt'
 import ConsumerTest from './components/ConsumerTest'
 import useGlobals from './hooks/useGlobals'
 import allFeatures from './models/FeatureUIData'
@@ -42,6 +43,10 @@ function App (props: AppProps): JSX.Element {
         <p>You were not properly authenticated to the application.</p>
       </div>
     )
+  }
+
+  if (globals?.user !== undefined && !globals.user.hasAuthorized) {
+    return <AuthorizePrompt authURL={globals.canvasAuthURL} />
   }
 
   interface BreadcrumbProps {

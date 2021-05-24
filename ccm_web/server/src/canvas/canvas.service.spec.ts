@@ -1,3 +1,4 @@
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { CanvasService } from './canvas.service'
 
@@ -6,7 +7,8 @@ describe('CanvasService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CanvasService]
+      imports: [ConfigModule],
+      providers: [CanvasService, ConfigService]
     }).compile()
 
     service = module.get<CanvasService>(CanvasService)

@@ -17,8 +17,9 @@ export interface LTIConfig {
 }
 
 export interface CanvasConfig {
-  devKeyClient: string
-  devKeySecret: string
+  instanceURL: string
+  apiClientId: string
+  apiSecret: string
 }
 
 export interface DatabaseConfig {
@@ -71,8 +72,9 @@ export function validateConfig (env: Record<string, unknown>): Config {
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
     }
     canvas = {
-      devKeyClient: validate<string>('CANVAS_DEV_KEY_CLIENT', env.CANVAS_DEV_KEY_CLIENT, isString),
-      devKeySecret: validate<string>('CANVAS_DEV_KEY_SECRET', env.CANVAS_DEV_KEY_SECRET, isString)
+      instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString),
+      apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString),
+      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString)
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
