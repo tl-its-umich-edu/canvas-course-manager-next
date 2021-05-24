@@ -4,7 +4,7 @@ import { Optional, DataTypes } from 'sequelize'
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
 interface UserAttributes {
-  id?: number
+  id?: bigint
   loginId: string
   firstName: string
   lastName: string
