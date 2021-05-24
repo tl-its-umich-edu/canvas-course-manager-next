@@ -139,7 +139,7 @@ Developers have to write `up` and `down` migration steps manually.
        so it's easy for humans and tools to determine what order they should run in
        so the default prefix is recommended.
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
-3. Running migrations `dev/test/prod`
+3. Running migrations `docker-compose-prod.yml`
        1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up`  and `docker exec -it ccm_web_prod node server/src/migrator down`.
        2. The reason for the separate setups for running migrations for local/non-prod and prod is, locally, we don't 
        transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node 
