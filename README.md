@@ -131,7 +131,9 @@ Running migrations using the Umzug. Umzug is a sister library to Sequelize for m
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
 3. Running migrations `dev/test/prod`
        1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up`  and `docker exec -it ccm_web_prod node server/src/migrator down`.
-       2. The reason for separate setup for running migration local and non-prod/prod is Locally we don't transpile Typescript to Java script and so we always use `ts-node/register` module for running in node envirorment.  
+       2. The reason for the separate setups for running migrations for local/non-prod and prod is, locally, we don't 
+       transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node 
+       environment.
 
 #### Troubleshooting
 
