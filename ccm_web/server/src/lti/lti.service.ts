@@ -71,8 +71,8 @@ export class LTIService implements BeforeApplicationShutdown {
         )
         return provider.redirect(res, '/')
       } catch (e) {
-        logger.error(`something went wrong in creating user: ${loginId} with error ${String(e.name)} due to ${String(e.message)}`)
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The Launch of application failed, please try to refresh the page.')
+        logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The launch of the application failed; please try to refresh the page or contact support.')
       }
     })
 
