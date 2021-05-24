@@ -123,7 +123,11 @@ Explicit steps for setting up CCM in a development environment.
 
 #### Database Migrations
 
-Running migrations using the Umzug. Umzug is a sister library to Sequelize for migration tasks. More info [refer](https://github.com/sequelize/umzug#cli-usage). After creating/modifying model you create a migration file and run migration. Create a model using Sequelize ORM and create/run migration using Umzug CLI. These steps needs to be done by the dev's.
+Database migrations are managed using [`umzug`](https://github.com/sequelize/umzug).
+Umzug is a sister library to [`sequelize`](https://sequelize.org/) for migration tasks.
+After creating/modifying a model using the Sequelize ORM,
+you create a migration file and run the migration using `umzug`.
+Developers have to write `up` and `down` migration steps manually.
 
 1. Running migration `Locally`
        1. Running the migrations `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
