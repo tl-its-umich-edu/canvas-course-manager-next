@@ -10,8 +10,9 @@ export class UserService {
     private readonly userModel: typeof User
   ) {}
 
-  /* the User object for Mysql dialects always returns boolean value for `created` variable,
-  but not with other DB dialects. To avoid typescript errors including boolean | null
+  /* 
+  The User object for MySQL dialect always returns boolean value for `created` variable,
+  but not with other DB dialects. To avoid TypeScript errors including boolean | null
   https://sequelize.org/master/class/lib/model.js~Model.html#static-method-upsert
   */
   async upsertUser (userToUpsert: UserToUpsert): Promise<[User, boolean | null]> {
