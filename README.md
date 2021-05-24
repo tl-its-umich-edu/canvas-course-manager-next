@@ -190,6 +190,24 @@ for generating module and other code stubs and performing other tasks.
 As the necessary libraries are not included in `package.json`, follow the documentation's suggestion
 and install `@nestjs/cli` globally on your machine if you want to use the tool.
 
+#### Using OpenAPI and Swagger
+
+When in development mode (i.e. the `NODE_ENV` environment variable's value is `development`),
+the application generates [OpenAPI](https://www.openapis.org/) documentation and an explorer for
+the API endpoints using recommended [Nest patterns](https://docs.nestjs.com/openapi/introduction) and
+[Swagger](https://swagger.io/).
+
+To access and use the Swagger UI, launch the application from a course in Canvas,
+then click on the "Swagger UI" link in the application interface's footer.
+This will take you to the Swagger page where you can view the documented API endpoints.
+
+However, to execute requests using Swagger, you need to authenticate using a Bearer token.
+The token is currently made available as a URL parameter called `token`, which you can see and copy
+by using a browser tool to view the frame's source.
+Once the token is obtained, in the Swagger UI, click the "Authorize" button, paste the token in the popup field,
+and then click "Authorize" to complete the process.
+Subsequent requests made using the "Try it out" functionality will pass the token in the proper header.
+
 ### Production
 
 Taken together, all the stages in `ccm_web/Dockerfile` will build an optimized image for production.

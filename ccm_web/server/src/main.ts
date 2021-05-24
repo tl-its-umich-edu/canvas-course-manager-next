@@ -3,6 +3,7 @@ import path from 'path'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 import { ServerConfig } from './config'
@@ -10,7 +11,7 @@ import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-async function bootstrap () {
+async function bootstrap (): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
   const configService = app.get(ConfigService)
@@ -24,6 +25,23 @@ async function bootstrap () {
     isDev ? path.join('dist', 'client') : 'client'
   )
   app.useStaticAssets(staticPath, { prefix: '/' })
+
+  if (isDev) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Canvas Course Manager')
+      .setDescription('CCM application API description and explorer')
+      .addBearerAuth({
+        type: 'http',
+        description: (
+          'The bearer token can be found in the "token" URL parameter' +
+          ' (use a browser tool to view the URL of the frame).'
+        )
+      })
+      .build()
+
+    const document = SwaggerModule.createDocument(app, swaggerConfig)
+    SwaggerModule.setup('swagger', app, document)
+  }
 
   await app.listen(
     serverConfig.port,
