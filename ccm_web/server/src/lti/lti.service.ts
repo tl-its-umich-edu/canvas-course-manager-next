@@ -65,7 +65,7 @@ export class LTIService implements BeforeApplicationShutdown {
       so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
       */
         logger.info(
-          `User ${record.loginId} is ${
+          `User ${record.loginId} was ${
             (created ?? false) ? 'created' : 'updated'
           } in 'user' table`
         )
