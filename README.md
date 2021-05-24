@@ -130,7 +130,7 @@ you create a migration file and run the migration using `umzug`.
 Developers have to write `up` and `down` migration steps manually.
 
 1. Running migrations locally
-       1. Running the migrations `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
+       1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
        2. Reverting the migration `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
        3. Create a migration file `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`. Generate a migration file called `<timestamp>.my-migration.ts` The timestamp prefix can be customized to be date-only or omitted, but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable so it's easy for humans and tools to determine what order they should run in - so the default prefix is recommended.
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
