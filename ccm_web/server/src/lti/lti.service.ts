@@ -60,8 +60,10 @@ export class LTIService implements BeforeApplicationShutdown {
           loginId: loginId
         })
 
-        /* created variable will return non null value for Mysql, but the Return type on upsert method is Promise<[User, boolean|null] >
-      so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors */
+        /* 
+        created variable will return non-null value for MySQL, but the return type on upsert method is Promise<[User, boolean|null]>
+      so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
+      */
         logger.info(
           `User ${record.loginId} is ${
             (created ?? false) ? 'created' : 'updated'
