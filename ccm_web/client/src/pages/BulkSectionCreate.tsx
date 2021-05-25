@@ -309,7 +309,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       schemaInvalidations.push(...sectionNameHeaderValidator.validate(lines))
 
       if (schemaInvalidations.length !== 0) {
-        handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
+        handleSchemaError(schemaInvalidations)
         return
       }
 
@@ -332,6 +332,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
       handleParseSuccess(lines)
     }).catch(e => {
+      console.log(e)
+      alert(e)
       // TODO Not sure how to produce this error in real life
       handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
     })
