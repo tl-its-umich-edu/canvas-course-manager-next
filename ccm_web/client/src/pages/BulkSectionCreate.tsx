@@ -402,7 +402,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
-              <Paper role='alert' >
+              <Paper role='alert'>
                 <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
                 <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
