@@ -212,9 +212,7 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
   }
 }
 
-interface BulkSectionCreateProps extends CCMComponentProps {
-
-}
+interface BulkSectionCreateProps extends CCMComponentProps {}
 
 function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const classes = useStyles()

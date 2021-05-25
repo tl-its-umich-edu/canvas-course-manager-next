@@ -12,9 +12,7 @@ import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
 import { LtiProps } from '../api'
 
-export interface CCMComponentProps extends LtiProps {
-
-}
+export interface CCMComponentProps extends LtiProps {}
 
 interface FeatureUIGroup {
   id: string

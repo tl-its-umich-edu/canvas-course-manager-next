@@ -4,9 +4,7 @@ import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import { HelloMessageData } from '../models/models'
 
-interface ConsumerTestProps extends api.LtiProps {
-
-}
+interface ConsumerTestProps extends api.LtiProps {}
 
 // Added for proof of concept
 function ConsumerTest (props: ConsumerTestProps): JSX.Element {
