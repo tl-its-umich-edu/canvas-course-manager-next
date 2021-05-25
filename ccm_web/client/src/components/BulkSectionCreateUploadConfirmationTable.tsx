@@ -21,7 +21,7 @@ interface Section {
   sectionName: string
 }
 
-interface BulSectionCreateUploadConfirmationTableProps {
+interface BulkSectionCreateUploadConfirmationTableProps {
   sectionNames: Section[]
 }
 
@@ -37,7 +37,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'sectionName', label: 'Section Name', minWidth: 100 }
 ]
 
-function BulSectionCreateUploadConfirmationTable (props: BulSectionCreateUploadConfirmationTableProps): JSX.Element {
+function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploadConfirmationTableProps): JSX.Element {
   const [tableRows, setTableRows] = useState<Section[]>([])
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -124,5 +124,5 @@ function BulSectionCreateUploadConfirmationTable (props: BulSectionCreateUploadC
   return renderTable()
 }
 
-export type { BulSectionCreateUploadConfirmationTableProps, Section }
-export default BulSectionCreateUploadConfirmationTable
+export type { BulkSectionCreateUploadConfirmationTableProps, Section }
+export default BulkSectionCreateUploadConfirmationTable

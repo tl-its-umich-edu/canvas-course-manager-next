@@ -3,7 +3,7 @@ import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
 import { getCourseSections } from '../api'
-import BulSectionCreateUploadConfirmationTable, { Section } from '../components/BulSectionCreateUploadConfirmationTable'
+import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import { createSectionsProps } from '../models/feature'
@@ -476,7 +476,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-              <BulSectionCreateUploadConfirmationTable sectionNames={sectionNames}/>
+              <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames}/>
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
