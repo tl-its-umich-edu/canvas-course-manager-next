@@ -484,9 +484,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Do Something</Button>
-                {/* <Link href={downloadData?.data} download={downloadData?.fileName}>
-                  <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
-                </Link> */}
               </Paper>
             </Grid>
           </Box>
