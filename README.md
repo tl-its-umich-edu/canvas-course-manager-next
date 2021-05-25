@@ -121,13 +121,37 @@ Explicit steps for setting up CCM in a development environment.
     3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
     4. When prompted to verify the ID for the tool, click the "Install" button.
 
+#### Database Migrations
+
+Database migrations are managed using [`umzug`](https://github.com/sequelize/umzug).
+Umzug is a sister library to [`sequelize`](https://sequelize.org/) for migration tasks.
+After creating/modifying a model using the Sequelize ORM,
+you create a migration file and run the migration using `umzug`.
+Developers have to write `up` and `down` migration steps manually.
+
+1. Running migrations locally
+       1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
+       2. Revert a migration: `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
+       3. Create a migration file: `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`.
+       This generates a migration file called `<timestamp>.my-migration.ts`. 
+       The timestamp prefix can be customized to be date-only or omitted,
+       but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable
+       so it's easy for humans and tools to determine what order they should run in
+       so the default prefix is recommended.
+2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
+3. Running migrations `docker-compose-prod.yml`
+       1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up`  and `docker exec -it ccm_web_prod node server/src/migrator down`.
+       2. The reason for the separate setups for running migrations for local/non-prod and prod is, locally, we don't 
+       transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node 
+       environment.
+
 #### Troubleshooting
 
 1. ***Error:***
    ```txt
    ccm_web     | Error during deployment:  ConnectionRefusedError [SequelizeConnectionRefusedError]: connect ECONNREFUSED 172.18.0.2:3306
    ```
-   This may happen when the application is run for the very first time. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
+   This may happen when the application is run for the very first time using `docker-compose-prod.yml` only. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
    ***Solution:***  Stop and restart the Docker containers.
    
 2. ***Error:***
@@ -231,4 +255,3 @@ This repository contains modified portions of the npm package
 [@types/ltijs](https://www.npmjs.com/package/@types/ltijs), which carries an MIT license.
 See `ccm_web/server/localTypes/ltijs/index.d.ts` for more information and the modified code.
 This code will hopefully only remain in this repository temporarily.
-

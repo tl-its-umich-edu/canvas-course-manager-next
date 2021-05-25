@@ -3,8 +3,11 @@ import winston, { format } from 'winston'
 
 const logFormat = format.printf(
   ({ level, message, timestamp, filePath }) => {
+    const finalMessage = (typeof message === 'object')
+      ? JSON.stringify(message, null, 2)
+      : message
     const moduleName = path.basename(filePath)
-    return `${String(timestamp)} - ${moduleName} - ${level} - ${message}`
+    return `${String(timestamp)} - ${moduleName} - ${level} - ${finalMessage}`
   }
 )
 

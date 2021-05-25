@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { SequelizeModule } from '@nestjs/sequelize'
 
 import { APIModule } from './api/api.module'
 import { LTIModule } from './lti/lti.module'
+import { UserModule } from './user/user.module'
+import { User } from './user/user.model'
+import { UserService } from './user/user.service'
 
 import { validateConfig } from './config'
 
@@ -14,7 +18,22 @@ import { validateConfig } from './config'
       isGlobal: true
     }),
     LTIModule,
-    APIModule
-  ]
+    APIModule,
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        dialect: 'mysql',
+        host: configService.get('db.host'),
+        port: configService.get('db.port'),
+        username: configService.get('db.user'),
+        password: configService.get('db.password'),
+        database: configService.get('db.name'),
+        models: [User]
+      })
+    }),
+    UserModule
+  ],
+  providers: [UserService]
 })
 export class AppModule {}

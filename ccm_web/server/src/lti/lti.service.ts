@@ -1,11 +1,12 @@
-import type { Express, Request, Response } from 'express'
-import { BeforeApplicationShutdown, Injectable } from '@nestjs/common'
+import { Express, Request, Response } from 'express'
+import { BeforeApplicationShutdown, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
 import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
+import { UserService } from '../user/user.service'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -14,7 +15,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService) {}
+  constructor (private readonly configService: ConfigService, private readonly userService: UserService) {}
 
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
@@ -45,8 +46,34 @@ export class LTIService implements BeforeApplicationShutdown {
 
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
-      logger.debug(JSON.stringify(token.userInfo))
-      return provider.redirect(res, '/')
+      logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
+      const customLTIVariables = token.platformContext.custom
+      if (customLTIVariables.login_id === undefined) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ lti_error: 'LTI launch is missing custom attributes; please check the LTI configuration in Canvas.' })
+      }
+      const loginId = customLTIVariables.login_id as string
+      try {
+        const [record, created] = await this.userService.upsertUser({
+          firstName: token.userInfo.given_name,
+          lastName: token.userInfo.family_name,
+          email: token.userInfo.email,
+          loginId: loginId
+        })
+
+        /*
+        created variable will return non-null value for MySQL, but the return type on upsert method is Promise<[User, boolean|null]>
+      so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
+      */
+        logger.info(
+          `User ${record.loginId} was ${
+            (created ?? false) ? 'created' : 'updated'
+          } in 'user' table`
+        )
+        return provider.redirect(res, '/')
+      } catch (e) {
+        logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The launch of the application failed; please try to refresh the page or contact support.')
+      }
     })
 
     await provider.deploy({ serverless: true })

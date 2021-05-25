@@ -23,7 +23,9 @@
   "description": "Sample LTI Developer Key for CCM",
   "custom_fields": {
     "roles": "$Canvas.membership.roles",
-    "isRootAccountAdmin": "$Canvas.user.isRootAccountAdmin"
+    "is_root_account_admin": "$Canvas.user.isRootAccountAdmin",
+    "login_id": "$Canvas.user.loginId"
+    
   },
   "public_jwk_url": "https://{ccm_app_url}/lti/keys",
   "target_link_uri": "https://{ccm_app_url}/lti",
