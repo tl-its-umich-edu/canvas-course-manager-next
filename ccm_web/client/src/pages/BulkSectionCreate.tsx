@@ -474,7 +474,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-              <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames}/>
+              <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
