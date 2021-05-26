@@ -378,7 +378,11 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
   const renderCSVFileName = (): JSX.Element => {
     if (file !== undefined) {
-      return (<h5 className={classes.fileNameContainer}><Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography></h5>)
+      return (
+        <h5 className={classes.fileNameContainer}>
+          <Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography>
+        </h5>
+      )
     } else {
       return <></>
     }
@@ -443,10 +447,9 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       rowLevelErrors = renderRowLevelErrors(pageState.rowInvalidations)
     }
     if (pageState.schemaInvalidation.length > 0) {
-      const schemaErrors: JSX.Element[] = []
-      for (let i = 0; i < pageState.schemaInvalidation.length; ++i) {
-        schemaErrors.push(<div key={i}>{pageState.schemaInvalidation[i].error}</div>)
-      }
+      const schemaErrors: JSX.Element[] = pageState.schemaInvalidation.map((invalidation, i) => {
+        return (<div key={i}>{invalidation.error}</div>)
+      })
       schemaLevelErrors = <div>{renderTopLevelErrors(schemaErrors)}</div>
     }
     return (
@@ -494,11 +497,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   }
 
   const sectionNamesToSection = (sectionNames: string[]): Section[] => {
-    const sections: Section[] = []
-    for (let i = 0; i < sectionNames.length; ++i) {
-      sections.push({ rowNumber: i + 1, sectionName: sectionNames[i] })
-    }
-    return sections
+    return sectionNames.map((name, i) => { return { rowNumber: i + 1, sectionName: name } })
   }
 
   const renderComponent = (): JSX.Element => {
