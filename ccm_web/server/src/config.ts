@@ -4,6 +4,7 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 export interface ServerConfig {
   port: number
+  domain: string
   logLevel: LogLevel
 }
 
@@ -69,6 +70,7 @@ export function validateConfig (env: Record<string, unknown>): Config {
   try {
     server = {
       port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
+      domain: validate<string>('DOMAIN', env.DOMAIN, isString),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
     }
     canvas = {

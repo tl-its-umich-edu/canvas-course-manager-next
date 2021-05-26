@@ -19,9 +19,9 @@ export class CanvasService {
     const params = {
       client_id: this.clientId,
       response_type: 'code',
-      scope: privilegeLevelOneScopes.join(' ')
-      // state (handled by client?)
-      // redirect_uri (handled by client?)
+      scope: privilegeLevelOneScopes.join(' '),
+      redirect_uri: this.configService.get('server.domain') as string + '/canvas/returnFromOAuth'
+      // state (handled by controller?)
     }
     const searchParams = new URLSearchParams()
     Object.entries(params).map(([key, value]) => searchParams.append(key, value))

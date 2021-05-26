@@ -44,6 +44,8 @@ export class LTIService implements BeforeApplicationShutdown {
       }
     )
 
+    provider.whitelist('/canvas/returnFromOAuth')
+
     // Redirect to the application root after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
@@ -69,7 +71,7 @@ export class LTIService implements BeforeApplicationShutdown {
             (created ?? false) ? 'created' : 'updated'
           } in 'user' table`
         )
-        return provider.redirect(res, '/')
+        return provider.redirect(res, '/canvas/redirectOAuth')
       } catch (e) {
         logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The launch of the application failed; please try to refresh the page or contact support.')
