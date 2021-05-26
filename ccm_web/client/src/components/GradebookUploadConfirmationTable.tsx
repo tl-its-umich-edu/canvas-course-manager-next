@@ -42,7 +42,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTableProps): JSX.Element {
   const [tableRows, setTableRows] = useState<StudentGrade[]>([])
   const [page, setPage] = useState<number>(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const rowsPerPage = 5
 
   useEffect(() => {
     setTableRows(props.grades.map(i => {
@@ -56,11 +56,6 @@ function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTab
 
     const handleChangePage = (event: unknown, newPage: number): void => {
       setPage(newPage)
-    }
-
-    const handleChangeRowsPerPage = (event: { target: { value: string } }): void => {
-      setRowsPerPage(parseInt(event.target.value, rowsPerPage))
-      setPage(0)
     }
 
     return (
@@ -113,7 +108,6 @@ function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTab
                   native: true
                 }}
                 onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
               />
             </TableRow>

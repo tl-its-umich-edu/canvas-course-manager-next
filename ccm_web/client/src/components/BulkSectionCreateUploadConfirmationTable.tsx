@@ -40,7 +40,8 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploadConfirmationTableProps): JSX.Element {
   const [tableRows, setTableRows] = useState<Section[]>([])
   const [page, setPage] = useState<number>(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+
+  const rowsPerPage = 5
 
   useEffect(() => {
     setTableRows(props.sectionNames.map(i => {
@@ -54,11 +55,6 @@ function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploa
 
     const handleChangePage = (event: unknown, newPage: number): void => {
       setPage(newPage)
-    }
-
-    const handleChangeRowsPerPage = (event: { target: { value: string } }): void => {
-      setRowsPerPage(parseInt(event.target.value, rowsPerPage))
-      setPage(0)
     }
 
     return (
@@ -111,7 +107,6 @@ function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploa
                   native: true
                 }}
                 onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
               />
             </TableRow>
