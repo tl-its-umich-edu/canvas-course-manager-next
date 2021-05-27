@@ -42,7 +42,7 @@ const delay = async (ms: number): Promise<void> => {
 // This is a placeholder for a real implementation (I mean, obviously :D)
 export const getCourseSections = async (key: string | undefined, courseId: string): Promise<string[]> => {
   const sections = await delay(2000).then(() => {
-    if (Math.random() * 2 > 1) {
+    if (Math.random() * 3 > 1) {
       return (['AAAA', 'BBBB'])
     } else {
       return new Promise<string[]>((resolve, reject) => { reject(new Error('Error retrieving course section information.')) })

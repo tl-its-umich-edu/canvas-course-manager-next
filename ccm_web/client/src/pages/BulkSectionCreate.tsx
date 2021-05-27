@@ -1,15 +1,17 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Paper, Popover, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import FindInPageTwoToneIcon from '@material-ui/icons/FindInPageTwoTone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
 import { getCourseSections } from '../api'
+import BulkSectionCreateFileExample from '../components/BulkSectionCreateFileExample'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
-const FILE_HEADER = 'SECTION_NAME'
+export const FILE_HEADER_VALUE = 'SECTION_NAME'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,6 +42,12 @@ const useStyles = makeStyles((theme) => ({
   },
   uploadHeader: {
     paddingTop: 15
+  },
+  popover: {
+    pointerEvents: 'none'
+  },
+  paper: {
+    padding: theme.spacing(1)
   }
 }))
 
@@ -136,7 +144,7 @@ interface BulkSectionCreatePageStateData {
 }
 
 const isHeader = (text: string): boolean => {
-  return text.toUpperCase() === FILE_HEADER.toUpperCase()
+  return text.toUpperCase() === FILE_HEADER_VALUE.toUpperCase()
 }
 
 const hasHeader = (sectionNames: string[]): boolean => {
@@ -226,6 +234,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
   const loadCanvasSectionData = (): void => {
     getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?')
@@ -332,11 +341,19 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
       handleParseSuccess(lines)
     }).catch(e => {
-      console.log(e)
-      alert(e)
       // TODO Not sure how to produce this error in real life
       handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
     })
+  }
+
+  const open = Boolean(anchorEl)
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement, MouseEvent>): void => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handlePopoverClose = (): void => {
+    setAnchorEl(null)
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -344,7 +361,44 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       <Typography variant='h6'>Upload your CSV File</Typography>
       <br/>
       <Typography><strong>Requirement:</strong> Your file should include one section name per line</Typography>
-      <Typography>View a <Link href='#'>CSV File Example</Link></Typography>
+
+      <Typography
+        aria-owns={open ? 'mouse-over-popover' : undefined}
+        aria-haspopup="true"
+        onMouseEnter={handlePopoverOpen}
+        onMouseLeave={handlePopoverClose}
+      >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <FindInPageTwoToneIcon />
+          <span>View an example file</span>
+        </div>
+      </Typography>
+      <Popover
+        id="mouse-over-popover"
+        className={classes.popover}
+        classes={{
+          paper: classes.paper
+        }}
+        open={open}
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left'
+        }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        <BulkSectionCreateFileExample />
+      </Popover>
+
     </div>
   }
 
