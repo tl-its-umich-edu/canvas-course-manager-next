@@ -10,6 +10,7 @@ import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import usePromise from '../hooks/usePromise'
 
 export const FILE_HEADER_VALUE = 'SECTION_NAME'
 
@@ -229,28 +230,26 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const topLevelClasses = useTopLevelErrorStyles()
   const apiErrorClasses = useAPIErrorStyles()
 
-  const [isExistingSectionsLoading, setIsExistingSectionsLoading] = useState(true)
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.LoadingExistingSectionNames, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
-  const loadCanvasSectionData = (): void => {
-    getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?')
-      .then(sections => {
-        setExistingSectionNames(sections.map(s => { return s.toUpperCase() }))
-        setIsExistingSectionsLoading(false)
-      }).catch(() => {
-        setExistingSectionNames(undefined)
-        setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
-      })
-  }
+  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+    async () => await getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?'),
+    (value: string[]) => setExistingSectionNames(value.map(s => { return s.toUpperCase() }))
+  )
 
-  // Support for this might be addressed by https://github.com/tl-its-umich-edu/canvas-course-manager-next/issues/74 ?
   useEffect(() => {
-    loadCanvasSectionData()
+    console.log('pageLoadEffect')
+    // eslint-disable-next-line no-void
+    void doLoadCanvasSectionData()
   }, [])
+
+  useEffect(() => {
+    setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+  }, [getCanvasSectionDataError])
 
   class DuplicateExistingSectionRowsValidator implements SectionRowsValidator {
     validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
@@ -396,7 +395,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
         onClose={handlePopoverClose}
         disableRestoreFocus
       >
-        <BulkSectionCreateFileExample />
+        <BulkSectionCreateFileExample sectionName='ABC 101' sectionCount={3} />
       </Popover>
 
     </div>
@@ -447,7 +446,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   }
 
   const renderTryAgainButton = (): JSX.Element => {
-    return <Button color='primary' component="span" onClick={() => { resetPageState(); loadCanvasSectionData() }}>Try again</Button>
+    // eslint-disable-next-line no-void
+    return <Button color='primary' component="span" onClick={() => { resetPageState(); void doLoadCanvasSectionData() }}>Try again</Button>
   }
 
   const renderRowLevelErrors = (invalidations: SectionsRowInvalidation[]): JSX.Element => {
