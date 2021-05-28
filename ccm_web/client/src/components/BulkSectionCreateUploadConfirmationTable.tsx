@@ -1,20 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { createStyles, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Theme, withStyles } from '@material-ui/core'
-import { grey } from '@material-ui/core/colors'
+import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@material-ui/core'
 import { TablePaginationActions } from './TablePagination'
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      backgroundColor: grey[100],
-      color: theme.palette.common.black,
-      fontWeight: 'bold'
-    },
-    body: {
-      fontSize: 24
-    }
-  })
-)(TableCell)
+import StyledTableCell from './StyledTableCell'
 
 interface Section {
   rowNumber: number
