@@ -243,7 +243,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
   useEffect(() => {
     console.log('pageLoadEffect')
-    // eslint-disable-next-line no-void
     void doLoadCanvasSectionData()
   }, [])
 

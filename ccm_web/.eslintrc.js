@@ -35,5 +35,10 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js']
+  ignorePatterns: ['.eslintrc.js'],
+  rules: {
+    'no-void': ['error', { 'allowAsStatement': true }],
+    '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }]
+  }
+
 }
