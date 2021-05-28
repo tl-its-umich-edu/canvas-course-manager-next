@@ -173,14 +173,14 @@ class SectionNameHeaderValidator implements SectionsSchemaValidator {
     const invalidations: SectionsSchemaInvalidation[] = []
 
     if (!hasHeader(sectionNames)) {
-      invalidations.push({ error: 'Missing SECTION_NAME Header Row', type: InvalidationType.Error })
+      invalidations.push({ error: 'First line must be "' + FILE_HEADER_VALUE + '"', type: InvalidationType.Error })
     }
     if (sectionNames.length === 0) {
-      invalidations.push({ error: 'No data', type: InvalidationType.Error })
+      invalidations.push({ error: 'No data found', type: InvalidationType.Error })
     }
 
     if (sectionNames.length === 1 && isHeader(sectionNames[0])) {
-      invalidations.push({ error: 'No data', type: InvalidationType.Error })
+      invalidations.push({ error: 'No data found', type: InvalidationType.Error })
     }
     return invalidations
   }
@@ -213,7 +213,7 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
     let i = 1
     sectionNames.forEach(sectionName => {
       if (duplicates.includes(sectionName.toUpperCase())) {
-        invalidations.push({ message: 'Duplicate section name: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
+        invalidations.push({ message: 'Duplicate section name found in this file: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
       }
       ++i
     })
@@ -264,7 +264,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       let i = 1
       sectionNames.forEach(sectionName => {
         if (duplicates.includes(sectionName.toUpperCase())) {
-          invalidations.push({ message: 'Section name already used in canvas: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
+          invalidations.push({ message: 'Section name already used in this course: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
         }
         ++i
       })
