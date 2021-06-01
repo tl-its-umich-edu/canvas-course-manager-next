@@ -6,6 +6,7 @@ export interface ServerConfig {
   port: number
   domain: string
   logLevel: LogLevel
+  sessionSecret: string
 }
 
 export interface LTIConfig {
@@ -71,7 +72,8 @@ export function validateConfig (env: Record<string, unknown>): Config {
     server = {
       port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
       domain: validate<string>('DOMAIN', env.DOMAIN, isString),
-      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
+      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
+      sessionSecret: validate<string>('SESSION_SECRET', env.SESSION_SECRET, isString, 'SESSIONSECRET')
     }
     canvas = {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString),

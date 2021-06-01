@@ -33,7 +33,7 @@ async function bootstrap (): Promise<void> {
 
   const sessionOptions = {
     store: sessionStore,
-    secret: 'my-secret',
+    secret: serverConfig.sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: { domain: serverConfig.domain, maxAge: 5000000, secure: true }
