@@ -8,6 +8,7 @@ import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { canvasGradebookFormatterProps } from '../models/feature'
+import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,37 +106,6 @@ enum GradebookCanvasPageState {
   InvalidUpload,
   Confirm,
   Done
-}
-
-interface GradebookRowInvalidation {
-  message: string
-  rowNumber: number
-}
-class CurrentAndFinalGradeMismatchInvalidation implements GradebookRowInvalidation {
-  message: string
-  record: GradebookRecord
-  rowNumber: number
-  constructor (record: GradebookRecord, rowNumber: number) {
-    this.record = record
-    this.rowNumber = rowNumber
-    this.message = 'Current and Final grade mismatch: ' + record.Student + '(' + record['SIS Login ID'] + ')'
-  }
-}
-
-interface GradebookRecordValidator {
-  validate: (record: GradebookRecord, rowNumber: number) => GradebookRowInvalidation[]
-}
-abstract class GradebookValidator implements GradebookRecordValidator {
-  abstract validate: (record: GradebookRecord, rowNumber: number) => GradebookRowInvalidation[]
-}
-class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
-  validate = (record: GradebookRecord, rowNumber: number): GradebookRowInvalidation[] => {
-    const invalidations: GradebookRowInvalidation[] = []
-    if (record['Final Grade'] !== record['Current Grade']) {
-      invalidations.push(new CurrentAndFinalGradeMismatchInvalidation(record, rowNumber))
-    }
-    return invalidations
-  }
 }
 
 interface DownloadData {
@@ -387,4 +357,5 @@ function ConvertCanvasGradebook (): JSX.Element {
   )
 }
 
+export type { GradebookRecord }
 export default ConvertCanvasGradebook

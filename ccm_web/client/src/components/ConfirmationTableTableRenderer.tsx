@@ -4,7 +4,7 @@ import StyledTableCell from './StyledTableCell'
 import { TablePaginationActions } from './TablePagination'
 
 interface ConfirmationTableColumn {
-  id: any
+  id: string
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
