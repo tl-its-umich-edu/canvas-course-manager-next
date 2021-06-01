@@ -1,35 +1,90 @@
-import crypto from 'crypto'
+import { Request, Response } from 'express'
+import { CustomData } from 'express-session'
+import {
+  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException
+} from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
 
-import { Response } from 'express'
-import { Controller, Get, Query, Res } from '@nestjs/common'
-
+import { OAuthResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
+import { Session as SessionModel } from '../session/session.model'
 
-interface CanvasOAuthResponseQuery {
-  code: string
-  state: string
-}
+import baseLogger from '../logger'
+
+const logger = baseLogger.child({ filePath: __filename })
 
 @Controller('canvas')
 export class CanvasController {
-  constructor (private readonly canvasService: CanvasService) {}
+  constructor (
+    private readonly canvasService: CanvasService,
+    @InjectModel(SessionModel)
+    private readonly sessionModel: typeof SessionModel
+  ) {}
 
   @Get('redirectOAuth')
-  redirectTo (@Res() response: Response): void {
-    // if user is authorized (call DB), skip
+  redirectToOAuth (@Req() req: Request, @Res() res: Response): void {
+    // TO DO: if user has authorized Canvas API usage (call DB), skip
 
-    const nonce = crypto.randomBytes(16).toString('base64')
+    if (req.session.data === undefined) {
+      req.session.data = { ltiKey: res.locals.ltik }
+    } else {
+      req.session.data.ltiKey = res.locals.ltik
+    }
 
-    // Session[nonce] = { ltiKey: res.ltiKey } <= pseudocode
-
-    const fullURL = `${this.canvasService.getAuthURL()}&state=${nonce}`
-    console.log(fullURL)
-    response.redirect(fullURL)
+    req.session.save((err) => {
+      logger.debug(`Sesssion ID: ${req.sessionID}`)
+      logger.debug(JSON.stringify(req.session, null, 2))
+      const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
+      logger.debug(`Full redirect URL: ${fullURL}`)
+      if (err !== null) throw new Error(err)
+      res.redirect(fullURL)
+    })
   }
 
-  // Not behind ltijs authentication, so care is needed
+  /*
+  Not behind ltijs authentication; this seems necessary, right?
+  See provider.whitelist in LTIService
+  */
   @Get('returnFromOAuth')
-  returnFromOAuth (@Query() query: CanvasOAuthResponseQuery): void {
-    console.log(query)
+  async returnFromOAuth (
+    @Query() query: OAuthResponseQuery, @Req() req: Request, @Res() res: Response
+  ): Promise<void> {
+    // Would reloading help re-establish earlier Session after redirect? Doesn't seem to
+    // req.session.reload((err) => {
+    //   if (err !== null && err !== undefined) throw new Error(err)
+    //   logger.debug(`Session ID: ${req.sessionID}`)
+    //   logger.debug(JSON.stringify(req.session, null, 2))
+    // })
+
+    // Log new session
+    logger.debug(`Session ID: ${req.sessionID}`)
+    logger.debug(JSON.stringify(req.session, null, 2))
+
+    // Get old session, add custom data to new one
+    let oldSession: SessionModel | null
+    try {
+      oldSession = await this.sessionModel.findOne({ where: { sid: query.state } })
+    } catch (e) {
+      logger.error('Problem when querying database for old session: ', e)
+      throw new InternalServerErrorException()
+    }
+    if (oldSession === null) throw new UnauthorizedException()
+    const prevData = JSON.parse(oldSession.data).data as CustomData
+    req.session.data = prevData
+
+    // Destroy old session
+    try {
+      await oldSession.destroy()
+    } catch (e) {
+      logger.error('Problem when deleting old session: ', e)
+      throw new InternalServerErrorException()
+    }
+
+    // Save changes to new session and redirect
+    req.session.save((err) => {
+      // Delete old session
+      if (err !== null) throw new Error(err)
+      res.redirect(`/?ltik=${prevData.ltiKey}`)
+    })
   }
 }

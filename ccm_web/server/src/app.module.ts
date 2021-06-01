@@ -3,13 +3,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 
 import { APIModule } from './api/api.module'
+import { CanvasModule } from './canvas/canvas.module'
 import { LTIModule } from './lti/lti.module'
+import { Session } from './session/session.model'
 import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
 import { UserService } from './user/user.service'
 
 import { validateConfig } from './config'
-import { CanvasModule } from './canvas/canvas.module'
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { CanvasModule } from './canvas/canvas.module'
         username: configService.get('db.user'),
         password: configService.get('db.password'),
         database: configService.get('db.name'),
-        models: [User]
+        models: [Session, User]
       })
     }),
     UserModule,
