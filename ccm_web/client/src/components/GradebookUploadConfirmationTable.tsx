@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import renderTable from './ConfirmationTableTableRenderer'
+import React, { useState } from 'react'
+import ConfirmationTable from './ConfirmationTable'
 
 interface StudentGrade {
   rowNumber: number
@@ -25,18 +25,11 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 ]
 
 function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTableProps): JSX.Element {
-  const [tableRows, setTableRows] = useState<StudentGrade[]>([])
   const [page, setPage] = useState<number>(0)
-  const rowsPerPage = 5
 
-  useEffect(() => {
-    setTableRows(props.grades.map(i => {
-      return { rowNumber: i.rowNumber, uniqname: i.uniqname, grade: i.grade }
-    }).sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-    )
-  }, [props.grades])
+  const tableRows = props.grades.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
 
-  return renderTable(tableRows, columns, page, setPage, rowsPerPage)
+  return <ConfirmationTable<StudentGrade> {...{ tableRows, columns, page, setPage }} />
 }
 
 export type { GradebookUploadConfirmationTableProps, StudentGrade }

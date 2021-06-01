@@ -3,14 +3,29 @@ import React from 'react'
 import StyledTableCell from './StyledTableCell'
 import { TablePaginationActions } from './TablePagination'
 
-interface ConfirmationTableColumn {
-  id: string
+interface ConfirmationEntity {
+  rowNumber: number
+}
+
+interface ConfirmationTableColumn<T> {
+  id: keyof T
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
 }
 
-const renderTable = (tableRows: any[], columns: ConfirmationTableColumn[], page: number, setPage: (page: number) => void, rowsPerPage: number): JSX.Element => {
+interface ConfirmationTableProps<T> {
+  tableRows: T[]
+  columns: Array<ConfirmationTableColumn<T>>
+  page: number
+  setPage: (page: number) => void
+}
+
+function ConfirmationTable<T extends ConfirmationEntity> (props: ConfirmationTableProps<T>): JSX.Element {
+  const rowsPerPage = 5
+
+  const { tableRows, columns, page, setPage } = props
+
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, tableRows.length - page * rowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number): void => {
@@ -24,7 +39,7 @@ const renderTable = (tableRows: any[], columns: ConfirmationTableColumn[], page:
             <TableRow>
               {columns.map((column) => (
                 <StyledTableCell
-                  key={column.id}
+                  key={String(column.id)}
                   align={column.align}
                   style={{ minWidth: column.minWidth }}
                 >
@@ -40,7 +55,7 @@ const renderTable = (tableRows: any[], columns: ConfirmationTableColumn[], page:
                 {columns.map((column) => {
                   const value = row[column.id]
                   return (
-                    <TableCell key={column.id} align={column.align}>
+                    <TableCell key={String(column.id)} align={column.align}>
                       {value}
                     </TableCell>
                   )
@@ -77,4 +92,4 @@ const renderTable = (tableRows: any[], columns: ConfirmationTableColumn[], page:
 }
 
 export type { ConfirmationTableColumn }
-export default renderTable
+export default ConfirmationTable
