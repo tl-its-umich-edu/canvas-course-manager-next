@@ -1,5 +1,5 @@
 import React from 'react'
-import { FILE_HEADER_VALUE } from '../pages/BulkSectionCreate'
+import { FILE_HEADER_VALUE } from './BulkSectionCreateValidators'
 
 interface BulkSectionCreateFileExampleProps {
   sectionName: string
