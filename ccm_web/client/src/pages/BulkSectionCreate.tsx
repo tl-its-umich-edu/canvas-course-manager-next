@@ -439,7 +439,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       <Grid item xs={12} className={apiErrorClasses.dialog}>
         <Paper role='alert' >
           <ErrorIcon className={apiErrorClasses.dialogIcon} fontSize='large'/>
-          <Typography>Sometheing went wrong.  Please try again later.</Typography>
+          <Typography>Something went wrong.  Please try again later.</Typography>
           {renderTryAgainButton()}
         </Paper>
       </Grid>
