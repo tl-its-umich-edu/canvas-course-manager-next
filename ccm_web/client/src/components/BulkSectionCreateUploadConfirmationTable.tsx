@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import renderTable from './ConfirmationTableTableRenderer'
+import React, { useState } from 'react'
+import ConfirmationTable from './ConfirmationTable'
 
 interface Section {
   rowNumber: number
@@ -23,19 +23,11 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 ]
 
 function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploadConfirmationTableProps): JSX.Element {
-  const [tableRows, setTableRows] = useState<Section[]>([])
   const [page, setPage] = useState<number>(0)
 
-  const rowsPerPage = 5
+  const tableRows = props.sectionNames.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
 
-  useEffect(() => {
-    setTableRows(props.sectionNames.map(i => {
-      return { rowNumber: i.rowNumber, sectionName: i.sectionName }
-    }).sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-    )
-  }, [props.sectionNames])
-
-  return renderTable(tableRows, columns, page, setPage, rowsPerPage)
+  return <ConfirmationTable<Section> {...{ tableRows, columns, page, setPage }} />
 }
 
 export type { BulkSectionCreateUploadConfirmationTableProps, Section }
