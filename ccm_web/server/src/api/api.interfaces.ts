@@ -4,7 +4,4 @@ export interface HelloData {
 
 export interface Globals {
   environment: 'production' | 'development'
-  user?: {
-    hasAuthorized: boolean
-  }
 }
