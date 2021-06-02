@@ -78,4 +78,4 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
 }
 
 export type { SectionsSchemaInvalidation, SectionsRowInvalidation, SectionRowsValidator, SectionsSchemaValidator }
-export { InvalidationType, SectionNameHeaderValidator, DuplicateSectionInFileSectionRowsValidator, hasHeader, isHeader }
+export { InvalidationType, SectionNameHeaderValidator, DuplicateSectionInFileSectionRowsValidator, hasHeader }
