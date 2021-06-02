@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/sequelize'
 
 import { OAuthResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
+import { LTIUser } from '../lti/lti.decorators'
 import { Session as SessionModel } from '../session/session.model'
 
 import baseLogger from '../logger'
@@ -22,13 +23,16 @@ export class CanvasController {
   ) {}
 
   @Get('redirectOAuth')
-  redirectToOAuth (@Req() req: Request, @Res() res: Response): void {
+  redirectToOAuth (
+    @Req() req: Request, @Res() res: Response, @LTIUser() ltiUser: string
+  ): void {
     // TO DO: if user has authorized Canvas API usage (call DB), skip
 
     if (req.session.data === undefined) {
-      req.session.data = { ltiKey: res.locals.ltik }
+      req.session.data = { ltiKey: res.locals.ltik, userLoginId: ltiUser }
     } else {
       req.session.data.ltiKey = res.locals.ltik
+      req.session.data.userLoginId = ltiUser
     }
 
     req.session.save((err) => {
@@ -79,6 +83,10 @@ export class CanvasController {
       logger.error('Problem when deleting old session: ', e)
       throw new InternalServerErrorException()
     }
+
+    // Create token for user
+    const tokenCreated = await this.canvasService.createTokenForUser(req.session.data.userLoginId, query.code)
+    if (!tokenCreated) throw new InternalServerErrorException()
 
     // Save changes to new session and redirect
     req.session.save((err) => {
