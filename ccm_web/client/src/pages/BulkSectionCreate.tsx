@@ -164,7 +164,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   )
 
   useEffect(() => {
-    console.log('pageLoadEffect')
     void doLoadCanvasSectionData()
   }, [])
 
