@@ -1,5 +1,4 @@
-import got from 'got'
-import { Injectable } from '@nestjs/common'
+import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
@@ -22,6 +21,7 @@ export class CanvasService {
 
   constructor (
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
     private readonly userService: UserService,
     @InjectModel(CanvasToken)
     private readonly canvasTokenModel: typeof CanvasToken
@@ -66,8 +66,10 @@ export class CanvasService {
 
     let data: TokenResponseBody | undefined
     try {
-      const response = await got(`${this.url}/login/oauth2/token`, { searchParams, method: 'POST' })
-      data = JSON.parse(response.body)
+      const response = await this.httpService.post<TokenResponseBody>(
+        `${this.url}/login/oauth2/token?${searchParams.toString()}`
+      ).toPromise()
+      data = response.data
       logger.debug(JSON.stringify(data, null, 2))
     } catch (error) {
       logger.error(JSON.stringify(error, null, 2))

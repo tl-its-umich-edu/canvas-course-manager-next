@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { HttpModule, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 
@@ -10,7 +10,12 @@ import { UserModule } from '../user/user.module'
 import { UserService } from '../user/user.service'
 
 @Module({
-  imports: [ConfigModule, SequelizeModule.forFeature([CanvasToken, Session]), UserModule],
+  imports: [
+    ConfigModule,
+    HttpModule,
+    SequelizeModule.forFeature([CanvasToken, Session]),
+    UserModule
+  ],
   controllers: [CanvasController],
   providers: [CanvasService, UserService],
   exports: [CanvasService, SequelizeModule]
