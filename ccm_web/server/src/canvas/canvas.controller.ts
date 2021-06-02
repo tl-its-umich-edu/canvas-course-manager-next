@@ -23,9 +23,9 @@ export class CanvasController {
   ) {}
 
   @Get('redirectOAuth')
-  redirectToOAuth (
+  async redirectToOAuth (
     @Req() req: Request, @Res() res: Response, @LTIUser() ltiUser: string
-  ): void {
+  ): Promise<void> {
     // TO DO: if user has authorized Canvas API usage (call DB), skip
 
     if (req.session.data === undefined) {
@@ -33,6 +33,12 @@ export class CanvasController {
     } else {
       req.session.data.ltiKey = res.locals.ltik
       req.session.data.userLoginId = ltiUser
+    }
+
+    const token = await this.canvasService.findToken(ltiUser)
+    if (token !== null) {
+      logger.debug(`User ${ltiUser} already has a CanvasToken record, redirecting to home page...`)
+      return res.redirect(`/?ltik=${req.session.data.ltiKey}`)
     }
 
     req.session.save((err) => {

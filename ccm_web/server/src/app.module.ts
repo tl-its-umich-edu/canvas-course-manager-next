@@ -4,6 +4,7 @@ import { SequelizeModule } from '@nestjs/sequelize'
 
 import { APIModule } from './api/api.module'
 import { CanvasModule } from './canvas/canvas.module'
+import { CanvasToken } from './canvas/canvas.model'
 import { LTIModule } from './lti/lti.module'
 import { Session } from './session/session.model'
 import { UserModule } from './user/user.module'
@@ -31,7 +32,7 @@ import { validateConfig } from './config'
         username: configService.get('db.user'),
         password: configService.get('db.password'),
         database: configService.get('db.name'),
-        models: [Session, User]
+        models: [CanvasToken, Session, User]
       })
     }),
     UserModule,

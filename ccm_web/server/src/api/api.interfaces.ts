@@ -4,7 +4,6 @@ export interface HelloData {
 
 export interface Globals {
   environment: 'production' | 'development'
-  canvasAuthURL: string
   user?: {
     hasAuthorized: boolean
   }

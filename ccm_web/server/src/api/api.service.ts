@@ -17,7 +17,6 @@ export class APIService {
   getGlobals (): Globals {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-      canvasAuthURL: this.canvasService.getAuthURL(),
       user: {
         hasAuthorized: false
       }
