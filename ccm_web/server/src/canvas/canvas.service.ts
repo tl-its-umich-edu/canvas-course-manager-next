@@ -100,6 +100,4 @@ export class CanvasService {
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
   }
-
-  // initiateOAuthFlow
 }

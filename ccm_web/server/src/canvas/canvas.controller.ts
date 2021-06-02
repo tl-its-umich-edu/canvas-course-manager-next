@@ -26,8 +26,6 @@ export class CanvasController {
   async redirectToOAuth (
     @Req() req: Request, @Res() res: Response, @LTIUser() ltiUser: string
   ): Promise<void> {
-    // TO DO: if user has authorized Canvas API usage (call DB), skip
-
     if (req.session.data === undefined) {
       req.session.data = { ltiKey: res.locals.ltik, userLoginId: ltiUser }
     } else {
