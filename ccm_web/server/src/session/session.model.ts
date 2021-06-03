@@ -11,6 +11,7 @@ interface SessionAttributes {
 interface SessionCreationAttributes extends Optional<SessionAttributes, 'id'> {}
 
 @Table({
+  tableName: 'session',
   freezeTableName: true,
   timestamps: false
 })
