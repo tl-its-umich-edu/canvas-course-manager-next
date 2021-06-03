@@ -9,6 +9,10 @@ import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, ExternalToolsGradebookFormatterProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
+import BulkSectionCreate from '../pages/BulkSectionCreate'
+import { LtiProps } from '../api'
+
+export interface CCMComponentProps extends LtiProps {}
 
 interface FeatureUIGroup {
   id: string
@@ -20,7 +24,7 @@ interface FeatureUIGroup {
 interface FeatureUIProps {
   data: FeatureDataProps
   icon: JSX.Element
-  component: ComponentType
+  component: ComponentType<CCMComponentProps>
   route: string
 }
 
@@ -48,7 +52,7 @@ const ExternalToolsGradebookFormatterCardProps: FeatureUIProps = {
 const createSectionsCardProps: FeatureUIProps = {
   data: createSectionsProps,
   icon: <AccountCircleOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: BulkSectionCreate,
   route: '/create-sections'
 }
 
@@ -71,8 +75,6 @@ const allFeatures: FeatureUIGroup[] = [
   { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]
-
-// const allFeatures = [mergeSectionCardProps, gradebookToolsCardProps, createSectionsCardProps, addUMUsersCardProps, addNonUMUsersCardProps]
 
 export type { FeatureUIGroup, FeatureUIProps }
 export default allFeatures
