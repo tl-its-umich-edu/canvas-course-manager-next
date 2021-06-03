@@ -18,6 +18,7 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
 
 // Sequelize Datatypes mapping with Mysql https://sequelize.org/master/manual/model-basics.html#data-types
 @Table({
+  tableName: 'user',
   freezeTableName: true
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
