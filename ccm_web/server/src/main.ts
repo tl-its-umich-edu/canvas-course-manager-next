@@ -17,6 +17,7 @@ const logger = baseLogger.child({ filePath: __filename })
 
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  app.enableCors({ credentials: true })
 
   const configService = app.get(ConfigService)
   const sequelize = app.get(Sequelize)
@@ -25,29 +26,34 @@ async function bootstrap (): Promise<void> {
 
   const isDev = process.env.NODE_ENV !== 'production'
 
+  const staticPath = path.join(
+    path.join(__dirname, '..', '..'),
+    isDev ? path.join('dist', 'client') : 'client'
+  )
+  app.useStaticAssets(staticPath, { prefix: '/' })
+
+  app.set('trust proxy', 1)
+
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({
     db: sequelize,
     table: 'Session'
   })
 
-  const sessionOptions = {
-    store: sessionStore,
-    secret: serverConfig.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { domain: serverConfig.domain, maxAge: 5000000, secure: true }
-  }
-
-  if (!isDev) app.set('trust proxy', 1)
-
-  app.use(session(sessionOptions))
-
-  const staticPath = path.join(
-    path.join(__dirname, '..', '..'),
-    isDev ? path.join('dist', 'client') : 'client'
+  app.use(
+    session({
+      store: sessionStore,
+      secret: serverConfig.sessionSecret,
+      resave: false,
+      saveUninitialized: false,
+      proxy: true,
+      cookie: {
+        domain: serverConfig.domain,
+        secure: true,
+        sameSite: 'none'
+      }
+    })
   )
-  app.useStaticAssets(staticPath, { prefix: '/' })
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()

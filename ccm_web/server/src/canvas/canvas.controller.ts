@@ -26,22 +26,24 @@ export class CanvasController {
   async redirectToOAuth (
     @Req() req: Request, @Res() res: Response, @LTIUser() ltiUser: string
   ): Promise<void> {
-    if (req.session.data === undefined) {
-      req.session.data = { ltiKey: res.locals.ltik, userLoginId: ltiUser }
-    } else {
-      req.session.data.ltiKey = res.locals.ltik
-      req.session.data.userLoginId = ltiUser
-    }
-
     const token = await this.canvasService.findToken(ltiUser)
-    if (token !== null) {
-      logger.debug(`User ${ltiUser} already has a CanvasToken record, redirecting to home page...`)
-      return res.redirect(`/?ltik=${req.session.data.ltiKey}`)
+    const sessionData = { ltiKey: res.locals.ltik as string, userLoginId: ltiUser }
+
+    if (req.session.data === undefined) {
+      req.session.data = sessionData
+    } else {
+      req.session.data = Object.assign(req.session.data, sessionData)
     }
 
     req.session.save((err) => {
-      logger.debug(`Sesssion ID: ${req.sessionID}`)
+      logger.debug('Saved session ID?')
+      logger.debug(`Session ID: ${req.sessionID}`)
       logger.debug(JSON.stringify(req.session, null, 2))
+
+      if (token !== null) {
+        logger.debug(`User ${ltiUser} already has a CanvasToken record, redirecting to home page...`)
+        return res.redirect(`/?ltik=${sessionData.ltiKey}`)
+      }
       const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
       logger.debug(`Full redirect URL: ${fullURL}`)
       if (err !== null) throw new Error(err)

@@ -1,4 +1,6 @@
-import { Controller, Get } from '@nestjs/common'
+import { Request } from 'express'
+import { SessionData } from 'express-session'
+import { Controller, Get, Req, Session } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
 import { HelloData, Globals } from './api.interfaces'
@@ -10,7 +12,9 @@ export class APIController {
   constructor (private readonly apiService: APIService) {}
 
   @Get('hello')
-  getHello (): HelloData {
+  getHello (@Req() req: Request, @Session() session: SessionData): HelloData {
+    console.log(req.sessionID)
+    console.log(req.session)
     return this.apiService.getHello()
   }
 
