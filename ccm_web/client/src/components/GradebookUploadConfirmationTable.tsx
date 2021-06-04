@@ -5,6 +5,7 @@ interface StudentGrade {
   rowNumber: number
   uniqname: string
   grade: string
+  overrideGrade: string | undefined
 }
 
 interface GradebookUploadConfirmationTableProps {
@@ -21,14 +22,14 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
   { id: 'uniqname', label: 'uniqname', minWidth: 100 },
-  { id: 'grade', label: 'grade', minWidth: 100 }
+  { id: 'grade', label: 'grade', minWidth: 75 },
+  { id: 'overrideGrade', label: 'override grade', minWidth: 75 }
 ]
 
 function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTableProps): JSX.Element {
   const [page, setPage] = useState<number>(0)
 
   const tableRows = props.grades.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-
   return <ConfirmationTable<StudentGrade> {...{ tableRows, columns, page, setPage }} />
 }
 
