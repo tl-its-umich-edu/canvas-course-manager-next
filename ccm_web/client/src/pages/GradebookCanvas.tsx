@@ -366,7 +366,6 @@ function ConvertCanvasGradebook (): JSX.Element {
       case GradebookCanvasPageState.InvalidUpload:
         return renderInvalidUpload()
       case GradebookCanvasPageState.Confirm:
-        // This is kind of an uncomfortable solution, but we want just a single warning rather than one for each row
         return renderConfirm(gradeBookRecordToStudentGrade(pageState.grades), (pageState.invalidations !== undefined && pageState.invalidations.length > 0))
       case GradebookCanvasPageState.Done:
         return renderDone()
