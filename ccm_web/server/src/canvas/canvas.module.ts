@@ -5,7 +5,6 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import { CanvasController } from './canvas.controller'
 import { CanvasService } from './canvas.service'
 import { CanvasToken } from './canvas.model'
-import { Session } from '../session/session.model'
 import { UserModule } from '../user/user.module'
 import { UserService } from '../user/user.service'
 
@@ -13,7 +12,7 @@ import { UserService } from '../user/user.service'
   imports: [
     ConfigModule,
     HttpModule,
-    SequelizeModule.forFeature([CanvasToken, Session]),
+    SequelizeModule.forFeature([CanvasToken]),
     UserModule
   ],
   controllers: [CanvasController],
