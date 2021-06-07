@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import ErrorIcon from '@material-ui/icons/Error'
+import WarningIcon from '@material-ui/icons/Warning'
 import { parse, ParseResult } from 'papaparse'
 
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { canvasGradebookFormatterProps } from '../models/feature'
-import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
+import { CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +46,9 @@ const useConfirmationStyles = makeStyles((theme) => ({
   },
   dialogIcon: {
     color: '#3F648E'
+  },
+  dialogWarningIcon: {
+    color: '#e2cf2a'
   }
 }))
 
@@ -90,6 +94,7 @@ interface GradebookRecord {
   'Current Grade': string
   'Final Grade': string
   'SIS Login ID': string
+  'Override Grade': string | undefined
   grade: string | undefined
   Student: string
 }
@@ -159,10 +164,14 @@ function ConvertCanvasGradebook (): JSX.Element {
     return splitName.join('.')
   }
 
+  const getGradeForExport = (record: GradebookRecord): string => {
+    return record['Override Grade'] !== undefined ? record['Override Grade'] : record['Final Grade']
+  }
+
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
     let csvContent = 'data:text/csv;charset=utf-8,'
     data.forEach(function (record, index) {
-      csvContent += record['SIS Login ID'] + ',' + record['Final Grade'] + (index < data.length ? '\n' : '')
+      csvContent += record['SIS Login ID'] + ',' + getGradeForExport(record) + (index < data.length ? '\n' : '')
     })
     setDownloadData({ data: encodeURI(csvContent), fileName: getOutputFilename(file) })
   }
@@ -175,13 +184,13 @@ function ConvertCanvasGradebook (): JSX.Element {
     setPageState({ state: GradebookCanvasPageState.InvalidUpload, invalidations: invalidations, errorMessage: errorMessage })
   }
 
-  const handleParseSuccess = (grades: GradebookRecord[]): void => {
-    setPageState({ state: GradebookCanvasPageState.Confirm, grades: grades })
+  const handleParseSuccess = (grades: GradebookRecord[], warnings: GradebookRowInvalidation[]): void => {
+    setPageState({ state: GradebookCanvasPageState.Confirm, grades: grades, invalidations: warnings })
     setCSVtoDownload(grades)
   }
 
   const handleParseComplete = (results: ParseResult<GradebookRecord>): void => {
-    const data = results.data.slice(1) // The first row is possible scores
+    const data = results.data.slice(1).map(d => { return { ...d, 'Override Grade': (d['Override Grade'] !== undefined && d['Override Grade'].trim().length > 0) ? d['Override Grade'] : undefined } }) // The first row is possible scores
 
     if (data[0]['Final Grade'] === undefined) {
       handleNoLetterGradesError()
@@ -196,10 +205,10 @@ function ConvertCanvasGradebook (): JSX.Element {
       invalidations = invalidations.concat(gradeMismatchValidator.validate(record, data.indexOf(record) + 1 + 2)) // Add 2 because of 2 header rows
     })
 
-    if (invalidations.length > 0) {
+    if (invalidations.filter(i => { return i.type === GradbookRowInvalidationType.ERROR }).length > 0) {
       handleRowLevelInvalidationError([<div key='0'>There are blank cells in the gradebook. Please enter 0 or EX (for excused) for any blank cells in the gradebook and export a new CSV file.</div>], invalidations)
     } else {
-      handleParseSuccess(data)
+      handleParseSuccess(data, invalidations.filter(i => { return i.type === GradbookRowInvalidationType.WARNING }))
     }
   }
 
@@ -294,7 +303,23 @@ function ConvertCanvasGradebook (): JSX.Element {
     }
   }
 
-  const renderConfirm = (grades: StudentGrade[]): JSX.Element => {
+  const renderConfirmIcon = (isWarning: boolean): JSX.Element => {
+    if (isWarning) {
+      return (<WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large'/>)
+    } else {
+      return (<CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>)
+    }
+  }
+
+  const renderConfirmText = (isWarning: boolean): JSX.Element => {
+    if (isWarning) {
+      return (<Typography>Some assignment grades may be missing, but you’ve supplied an override grade. Continue?</Typography>)
+    } else {
+      return (<Typography>Your file is valid!  If this looks correct proceed with download</Typography>)
+    }
+  }
+
+  const renderConfirm = (grades: StudentGrade[], overideGradeMismatchWarning: boolean): JSX.Element => {
     return (
       <div>
         {renderCSVFileName()}
@@ -308,8 +333,8 @@ function ConvertCanvasGradebook (): JSX.Element {
             <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
               <Paper role='status'>
                 <Typography>Review your CSV file</Typography>
-                <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-                <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
+                {renderConfirmIcon(overideGradeMismatchWarning)}
+                {renderConfirmText(overideGradeMismatchWarning)}
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
                 <Link href={downloadData?.data} download={downloadData?.fileName}>
                   <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
@@ -330,7 +355,7 @@ function ConvertCanvasGradebook (): JSX.Element {
       return []
     }
     return grades.map<StudentGrade>(g => {
-      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g.Student, grade: g['Final Grade'] } // Add 2 because of 2 header rows
+      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g.Student, grade: g['Final Grade'], overrideGrade: g['Override Grade'] } // Add 2 because of 2 header rows
     })
   }
 
@@ -341,7 +366,7 @@ function ConvertCanvasGradebook (): JSX.Element {
       case GradebookCanvasPageState.InvalidUpload:
         return renderInvalidUpload()
       case GradebookCanvasPageState.Confirm:
-        return renderConfirm(gradeBookRecordToStudentGrade(pageState.grades))
+        return renderConfirm(gradeBookRecordToStudentGrade(pageState.grades), (pageState.invalidations !== undefined && pageState.invalidations.length > 0))
       case GradebookCanvasPageState.Done:
         return renderDone()
       default:
