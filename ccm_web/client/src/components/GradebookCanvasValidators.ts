@@ -10,27 +10,29 @@ interface GradebookRowInvalidation {
   rowNumber: number
   type: GradbookRowInvalidationType
 }
-class CurrentAndFinalGradeMismatchError implements GradebookRowInvalidation {
+
+class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   message: string
   record: GradebookRecord
   rowNumber: number
-  type: GradbookRowInvalidationType = GradbookRowInvalidationType.ERROR
-  constructor (record: GradebookRecord, rowNumber: number) {
+  type: GradbookRowInvalidationType
+  constructor (record: GradebookRecord, rowNumber: number, type: GradbookRowInvalidationType) {
     this.record = record
     this.rowNumber = rowNumber
     this.message = 'Current and Final grade mismatch: ' + record.Student + '(' + record['SIS Login ID'] + ')'
+    this.type = type
   }
 }
 
-class CurrentAndFinalGradeMismatchWarning implements GradebookRowInvalidation {
-  message: string
-  record: GradebookRecord
-  rowNumber: number
-  type: GradbookRowInvalidationType = GradbookRowInvalidationType.WARNING
-  constructor (record: GradebookRecord, rowNumber: number) {
-    this.record = record
-    this.rowNumber = rowNumber
-    this.message = 'Current and Final grade mismatch: ' + record.Student + '(' + record['SIS Login ID'] + ')'
+class CurrentAndFinalGradeMismatchError extends CurrentAndFinalGradeInvalidation {
+  constructor (record: GradebookRecord, rowNumber: number, isError: boolean) {
+    super(record, rowNumber, GradbookRowInvalidationType.ERROR)
+  }
+}
+
+class CurrentAndFinalGradeMismatchWarning extends CurrentAndFinalGradeInvalidation {
+  constructor (record: GradebookRecord, rowNumber: number, isError: boolean) {
+    super(record, rowNumber, GradbookRowInvalidationType.WARNING)
   }
 }
 
