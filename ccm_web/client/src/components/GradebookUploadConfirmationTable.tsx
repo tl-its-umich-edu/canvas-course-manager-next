@@ -1,3 +1,4 @@
+import { GradeRounded } from '@material-ui/icons'
 import React, { useState } from 'react'
 import ConfirmationTable from './ConfirmationTable'
 
@@ -30,7 +31,11 @@ function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTab
   const [page, setPage] = useState<number>(0)
 
   const tableRows = props.grades.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-  return <ConfirmationTable<StudentGrade> {...{ tableRows, columns, page, setPage }} />
+  const confirmationTableColumns = (tableRows.filter(grade => { return grade.overrideGrade !== undefined }).length > 0)
+    ? columns
+    : columns.filter(column => { return column.id !== 'overrideGrade' })
+
+  return <ConfirmationTable<StudentGrade> {...{ tableRows, columns: confirmationTableColumns, page, setPage }} />
 }
 
 export type { GradebookUploadConfirmationTableProps, StudentGrade }
