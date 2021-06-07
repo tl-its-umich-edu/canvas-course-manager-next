@@ -25,13 +25,13 @@ class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
 }
 
 class CurrentAndFinalGradeMismatchError extends CurrentAndFinalGradeInvalidation {
-  constructor (record: GradebookRecord, rowNumber: number, isError: boolean) {
+  constructor (record: GradebookRecord, rowNumber: number) {
     super(record, rowNumber, GradbookRowInvalidationType.ERROR)
   }
 }
 
 class CurrentAndFinalGradeMismatchWarning extends CurrentAndFinalGradeInvalidation {
-  constructor (record: GradebookRecord, rowNumber: number, isError: boolean) {
+  constructor (record: GradebookRecord, rowNumber: number) {
     super(record, rowNumber, GradbookRowInvalidationType.WARNING)
   }
 }
