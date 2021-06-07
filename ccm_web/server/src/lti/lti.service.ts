@@ -10,6 +10,12 @@ import { UserService } from '../user/user.service'
 
 const logger = baseLogger.child({ filePath: __filename })
 
+const createLaunchErrorResponse = (res: Response): Response => {
+  return res
+    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+    .json('The launch of the application failed; please try to refresh the page or contact support.')
+}
+
 // ltijs docs: https://cvmcosta.me/ltijs/#/
 @Injectable()
 export class LTIService implements BeforeApplicationShutdown {
@@ -64,18 +70,31 @@ export class LTIService implements BeforeApplicationShutdown {
 
         /*
         created variable will return non-null value for MySQL, but the return type on upsert method is Promise<[User, boolean|null]>
-      so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
-      */
+        so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
+        */
         logger.info(
           `User ${record.loginId} was ${
             (created ?? false) ? 'created' : 'updated'
           } in 'user' table`
         )
-        return provider.redirect(res, '/canvas/redirectOAuth')
       } catch (e) {
         logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json('The launch of the application failed; please try to refresh the page or contact support.')
+        return createLaunchErrorResponse(res)
       }
+
+      // More data will be added to the session here later
+      const sessionData = {
+        ltiKey: res.locals.ltik as string,
+        userLoginId: loginId
+      }
+      req.session.data = sessionData
+      req.session.save((err) => {
+        if (err !== null) {
+          logger.error('Failed to save session data due to error: ', err)
+          return createLaunchErrorResponse(res)
+        }
+        return provider.redirect(res, '/canvas/redirectOAuth')
+      })
     })
 
     await provider.deploy({ serverless: true })

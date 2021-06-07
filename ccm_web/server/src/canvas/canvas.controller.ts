@@ -5,7 +5,6 @@ import {
 
 import { OAuthResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
-import { LTIUser } from '../lti/lti.decorators'
 
 import baseLogger from '../logger'
 
@@ -17,31 +16,25 @@ export class CanvasController {
 
   @Get('redirectOAuth')
   async redirectToOAuth (
-    @Req() req: Request, @Res() res: Response, @LTIUser() ltiUser: string
+    @Req() req: Request, @Res() res: Response
   ): Promise<void> {
-    logger.debug('Updating session and redirecting to Canvas for OAuth')
-    const token = await this.canvasService.findToken(ltiUser)
-    const sessionData = { ltiKey: res.locals.ltik as string, userLoginId: ltiUser }
+    logger.debug('Pulling session data, checking for Canvas token, and redirecting to Canvas for OAuth...')
 
     if (req.session.data === undefined) {
-      req.session.data = sessionData
-    } else {
-      req.session.data = Object.assign(req.session.data, sessionData)
+      throw new InternalServerErrorException('Session data is not available!')
     }
 
-    req.session.save((err) => {
-      logger.debug(`Session ID: ${req.sessionID}`)
-      logger.debug(JSON.stringify(req.session, null, 2))
+    const { ltiKey, userLoginId } = req.session.data
 
-      if (token !== null) {
-        logger.debug(`User ${ltiUser} already has a CanvasToken record, redirecting to home page...`)
-        return res.redirect(`/?ltik=${sessionData.ltiKey}`)
-      }
-      const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
-      logger.debug(`Full redirect URL: ${fullURL}`)
-      if (err !== null) throw new Error(err)
-      res.redirect(fullURL)
-    })
+    const token = await this.canvasService.findToken(userLoginId)
+    if (token !== null) {
+      logger.debug(`User ${userLoginId} already has a CanvasToken record, redirecting to home page...`)
+      return res.redirect(`/?ltik=${ltiKey}`)
+    }
+
+    const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
+    logger.debug(`Full redirect URL: ${fullURL}`)
+    res.redirect(fullURL)
   }
 
   /*
@@ -59,7 +52,7 @@ export class CanvasController {
     if (req.sessionID !== query.state) throw new UnauthorizedException()
 
     if (req.session.data === undefined) {
-      throw new InternalServerErrorException('Session data from before redirect is not available!')
+      throw new InternalServerErrorException('Session data is not available!')
     }
 
     // Create token for user
