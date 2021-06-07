@@ -22,9 +22,9 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 
 const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
-  { id: 'uniqname', label: 'uniqname', minWidth: 100 },
-  { id: 'grade', label: 'grade', minWidth: 75 },
-  { id: 'overrideGrade', label: 'override grade', minWidth: 75 }
+  { id: 'uniqname', label: 'Uniqname', minWidth: 100 },
+  { id: 'grade', label: 'Grade', minWidth: 75 },
+  { id: 'overrideGrade', label: 'Override Grade', minWidth: 75 }
 ]
 
 function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTableProps): JSX.Element {
