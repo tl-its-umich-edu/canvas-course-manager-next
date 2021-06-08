@@ -48,7 +48,7 @@ Authorization for making changes in Canvas using the application is managed usin
 the [Canvas OAuth workflow](https://canvas.instructure.com/doc/api/file.oauth.html)
 and scoped tokens. As such, you will also need to create an API Developer Key (see the Canvas documentation
 [here](https://community.canvaslms.com/t5/Admin-Guide/How-do-I-add-a-developer-key-for-an-account/ta-p/259)).
-The "Redirect URI" must be the protocol and domain of the application, plus `/canvas/returnFromOAuth`
+The "Redirect URI" must be the protocol and domain of the application, plus `/canvas/returnFromOAuth`.
 The list of API scopes to specify are in flux. Refer to `ccm_web/server/src/canvas/canvas.scopes.ts` for details
 on the latest expected scopes. Once the API Developer Key is created, you will need to collect
 the associated client ID and secret and specify them in the `.env` configuration file.
@@ -98,7 +98,7 @@ Explicit steps for setting up CCM in a development environment.
 
    `vim lti_dev_key.json`
 
-7. Go to Canvas "Developer Keys" management page under your account Admin page.  Click the button for "+ Developer Key", then "+ LTI Key".
+7. Go to Canvas "Developer Keys" management page available from the "Admin" page for your account.  Click the button for "+ Developer Key", then "+ LTI Key".
 
 8. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
 
@@ -114,7 +114,7 @@ Explicit steps for setting up CCM in a development environment.
 
 13. Click the "ON" part of the switch in the "State" column of your LTI key, so that it has a green background.
 
-14. Go to Canvas "Developer Keys" management page under your account Admin page. Click the button for "+ Developer Key", then "+ API Key".
+14. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
 
 15. Add a tool name in the "Name" field, and under "Redirect URI(s)" add `https:{ngrok_url}/canvas/redirectFromOAuth` where `{ngrok_url}`
 is the `ngrok` hostname copied earlier (in step 2).
@@ -129,7 +129,7 @@ is the `ngrok` hostname copied earlier (in step 2).
 
 20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
 
-21. Edit the `.env` file
+21. Edit the `.env` file.
 
     1. Verify the `LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
     2. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied earlier (in step 12).
