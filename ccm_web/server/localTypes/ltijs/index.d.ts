@@ -305,6 +305,7 @@ declare module 'ltijs' {
   declare module 'express' {
     interface Response<ResBody = unknown, Locals extends Record<string, unknown> = Record<string, unknown>> {
       locals: Locals & {
+        ltik?: string
         token?: IdToken
         context?: PlatformContext
       }

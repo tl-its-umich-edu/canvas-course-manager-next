@@ -54,7 +54,7 @@ export class LTIService implements BeforeApplicationShutdown {
 
     provider.whitelist('/canvas/returnFromOAuth')
 
-    // Redirect to the application root after a successful launch
+    // Redirect to the Canvas token check and OAuth workflow after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
@@ -86,7 +86,7 @@ export class LTIService implements BeforeApplicationShutdown {
 
       // More data will be added to the session here later
       const sessionData = {
-        ltiKey: res.locals.ltik as string,
+        ltiKey: res.locals.ltik as string, // Asserting ltik is not undefined, since launch was successful
         userLoginId: loginId
       }
       req.session.data = sessionData
