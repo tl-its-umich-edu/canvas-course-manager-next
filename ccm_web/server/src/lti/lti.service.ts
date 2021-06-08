@@ -10,10 +10,12 @@ import { UserService } from '../user/user.service'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-const createLaunchErrorResponse = (res: Response): Response => {
-  return res
-    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-    .json('The launch of the application failed; please try to refresh the page or contact support.')
+const createLaunchErrorResponse = (res: Response, action?: string): Response => {
+  const message = (
+    'The launch of the application failed; ' +
+    (action !== undefined ? action : 'please try to refresh the page or contact support.')
+  )
+  return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(message)
 }
 
 // ltijs docs: https://cvmcosta.me/ltijs/#/
@@ -57,7 +59,7 @@ export class LTIService implements BeforeApplicationShutdown {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
       if (customLTIVariables.login_id === undefined) {
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ lti_error: 'LTI launch is missing custom attributes; please check the LTI configuration in Canvas.' })
+        return createLaunchErrorResponse(res, 'please check the LTI configuration in Canvas.')
       }
       const loginId = customLTIVariables.login_id as string
       try {
