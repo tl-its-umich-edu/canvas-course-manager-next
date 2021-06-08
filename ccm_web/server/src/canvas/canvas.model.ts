@@ -13,7 +13,7 @@ interface CanvasTokenAttributes {
 interface CanvasTokenCreationAttributes extends Optional<CanvasTokenAttributes, 'id'> {}
 
 @Table({
-  tableName: 'canvas_token',
+  tableName: 'canvasToken',
   freezeTableName: true,
   timestamps: false
 })
