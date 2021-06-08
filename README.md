@@ -44,6 +44,15 @@ the URL (without the protocol) for the instance you are configuring,
 you can simply paste the JSON in the Canvas form.
 (You will want to enter the Key Name and Owner Email separately.)
 
+Authorization for making changes in Canvas using the application is managed using
+the [Canvas OAuth workflow](https://canvas.instructure.com/doc/api/file.oauth.html)
+and scoped tokens. As such, you will also need to create an API Developer Key (see the Canvas documentation
+[here](https://community.canvaslms.com/t5/Admin-Guide/How-do-I-add-a-developer-key-for-an-account/ta-p/259)).
+The "Redirect URI" must be the protocol and domain of the application, plus `/canvas/returnFromOAuth`
+The list of API scopes to specify are in flux. Refer to `ccm_web/server/src/canvas/canvas.scopes.ts` for details
+on the latest expected scopes. Once the API Developer Key is created, you will need to collect
+the associated client ID and secret and specify them in the `.env` configuration file.
+
 ### Development
 
 #### Installation and usage
@@ -61,7 +70,7 @@ you can use the following steps to build and run the application using Docker.
     docker-compose up
     ```
 
-3. Access the client by visiting `http://localhost:4000` in your browser of choice.
+3. Access the client by launching the tool from a Canvas course in your browser of choice.
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
 
@@ -89,7 +98,7 @@ Explicit steps for setting up CCM in a development environment.
 
    `vim lti_dev_key.json`
 
-7. Go to Canvas "Developer Keys" management page at (https://umich.instructure.com/accounts/1/developer_keys).  Click the button for "+ Developer Key", then "+ LTI Key".
+7. Go to Canvas "Developer Keys" management page under your account Admin page.  Click the button for "+ Developer Key", then "+ LTI Key".
 
 8. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
 
@@ -103,19 +112,38 @@ Explicit steps for setting up CCM in a development environment.
 
 12. Copy the ID number of the LTI key created in Canvas.  The ID is the long number shown in the "Details" column of the "Developer Keys" page.  It usually looks like `17700000000000nnn`.
 
-13. Edit the `.env` file
+13. Click the "ON" part of the switch in the "State" column of your LTI key, so that it has a green background.
 
-    1. Verify the`LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
-    2. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied in the earlier step.
+14. Go to Canvas "Developer Keys" management page under your account Admin page. Click the button for "+ Developer Key", then "+ API Key".
 
-14. Build and start the application with docker-compose.
+15. Add a tool name in the "Name" field, and under "Redirect URI(s)" add `https:{ngrok_url}/canvas/redirectFromOAuth` where `{ngrok_url}`
+is the `ngrok` hostname copied earlier (in step 2).
+
+16. Add all scopes needed by the application, i.e. so that they match those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`.
+
+17. Click the "Save" button.
+
+18. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like `17700000000000nnn`.
+
+19. Click the "Show Key" button underneath the ID located in step 17, and copy the secret that appears in the dialog.
+
+20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+
+21. Edit the `.env` file
+
+    1. Verify the `LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
+    2. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied earlier (in step 12).
+    3. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 18).
+    4. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 19).
+
+22. Build and start the application with docker-compose.
 
     1. `docker-compose build`
     2. *Optional:* The very first time the database container starts, it takes some time to set itself up, during which it will not accept connections from the application container.  The application container then fails, which prevents it from creating tables in the DB it will need later.  A solution that seems to work is to start the database container alone first, letting it run in detached mode for a few minutes before starting the application.
        `docker-compose up -d -- database`
     3. `docker-compose up`
 
-15. Add the app to a course.  Go to (https://umich.instructure.com/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
+23. Add the app to a course.  Go to (https://umich.instructure.com/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
     1. Under the "Apps" tab, click the "+App" button.
     2. In the "Configuration Type" menu, select "By Client ID".
     3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
@@ -130,20 +158,23 @@ you create a migration file and run the migration using `umzug`.
 Developers have to write `up` and `down` migration steps manually.
 
 1. Running migrations locally
-       1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
-       2. Revert a migration: `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
-       3. Create a migration file: `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`.
-       This generates a migration file called `<timestamp>.my-migration.ts`. 
-       The timestamp prefix can be customized to be date-only or omitted,
-       but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable
-       so it's easy for humans and tools to determine what order they should run in
-       so the default prefix is recommended.
+    1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
+    2. Revert a migration: `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
+    3. Create a migration file: `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`.
+
+        This generates a migration file called `<timestamp>.my-migration.ts`.
+        The timestamp prefix can be customized to be date-only or omitted,
+        but be aware that it's strongly recommended to ensure your migrations are lexicographically sortable
+        so it's easy for humans and tools to determine what order they should run in
+        so the default prefix is recommended.
+
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
+
 3. Running migrations `docker-compose-prod.yml`
-       1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up`  and `docker exec -it ccm_web_prod node server/src/migrator down`.
-       2. The reason for the separate setups for running migrations for local/non-prod and prod is, locally, we don't 
-       transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node 
-       environment.
+    1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up` and `docker exec -it ccm_web_prod node server/src/migrator down`.
+    2. The reason for the separate setups for running migrations for local/non-prod and prod is locally, we don't
+    transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node
+    environment.
 
 #### Troubleshooting
 
