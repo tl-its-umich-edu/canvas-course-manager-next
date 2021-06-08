@@ -39,7 +39,6 @@ export class CanvasService {
       response_type: 'code',
       scope: privilegeLevelOneScopes.join(' '),
       redirect_uri: this.redirectURI
-      // state (handled by controller?)
     }
     const searchParams = new URLSearchParams(params)
     return `${this.url}/login/oauth2/auth?${searchParams.toString()}`
@@ -57,7 +56,6 @@ export class CanvasService {
       client_secret: this.secret,
       redirect_uri: this.redirectURI,
       code: canvasCode
-      // replace_tokens: true
     }
     const searchParams = new URLSearchParams(params)
 
@@ -72,7 +70,10 @@ export class CanvasService {
       data = response.data
       logger.debug(JSON.stringify(data, null, 2))
     } catch (error) {
-      logger.error(JSON.stringify(error, null, 2))
+      logger.error(
+        'Error occurred while making request to Canvas for access token: ',
+        JSON.stringify(error, null, 2)
+      )
     }
     if (data === undefined) return false
 
@@ -84,8 +85,8 @@ export class CanvasService {
         accessToken: data.access_token,
         refreshToken: data.refresh_token
       })
-      logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
       tokenCreated = true
+      logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
     } catch (error) {
       logger.error(
         'Error occurred while writing Canvas token data to the database: ',
@@ -97,7 +98,7 @@ export class CanvasService {
 
   async findToken (userLoginId: string): Promise<CanvasToken | null> {
     const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) return null
+    if (user === null) throw new Error(`User with login ID ${userLoginId} was not found!`)
 
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
