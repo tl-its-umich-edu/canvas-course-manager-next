@@ -400,7 +400,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
         <Grid container justify='flex-start'>
           <Grid item xs={12} className={topLevelClasses.dialog}>
             <Paper role='alert'>
-              <Typography>Review your CSV file</Typography>
+              <Typography>Grading Scheme must be enabled in course settings.</Typography>
               <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
               <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
               <ol>
