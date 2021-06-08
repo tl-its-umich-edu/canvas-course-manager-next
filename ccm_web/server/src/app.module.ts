@@ -6,7 +6,6 @@ import { APIModule } from './api/api.module'
 import { CanvasModule } from './canvas/canvas.module'
 import { CanvasToken } from './canvas/canvas.model'
 import { LTIModule } from './lti/lti.module'
-import { Session } from './session/session.model'
 import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
 import { UserService } from './user/user.service'
@@ -32,7 +31,7 @@ import { validateConfig } from './config'
         username: configService.get('db.user'),
         password: configService.get('db.password'),
         database: configService.get('db.name'),
-        models: [CanvasToken, Session, User]
+        models: [CanvasToken, User]
       })
     }),
     UserModule,

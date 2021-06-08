@@ -35,10 +35,8 @@ async function bootstrap (): Promise<void> {
   app.set('trust proxy', 1)
 
   const SequelizeStore = ConnectSessionSequelize(session.Store)
-  const sessionStore = new SequelizeStore({
-    db: sequelize,
-    table: 'Session'
-  })
+  const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
+  sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   app.use(
     session({
