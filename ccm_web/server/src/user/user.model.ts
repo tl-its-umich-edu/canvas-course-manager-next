@@ -1,5 +1,6 @@
-import { Column, Model, Table, Unique } from 'sequelize-typescript'
+import { Column, HasOne, Model, Table, Unique } from 'sequelize-typescript'
 import { Optional, DataTypes } from 'sequelize'
+import { CanvasToken } from '../canvas/canvas.model'
 
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
@@ -42,4 +43,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     type: DataTypes.STRING
   })
   loginId!: string
+
+  @HasOne(() => CanvasToken)
+  canvasToken?: CanvasToken
 }

@@ -301,4 +301,15 @@ declare module 'ltijs' {
 
     redirect (response: ExpressResponse, path: string, options?: RedirectOptions): void
   }
+
+  declare module 'express' {
+    interface Response<ResBody = unknown, Locals extends Record<string, unknown> = Record<string, unknown>> {
+      locals: Locals & {
+        ltik?: string
+        token?: IdToken
+        context?: PlatformContext
+      }
+    }
+  }
+
 }

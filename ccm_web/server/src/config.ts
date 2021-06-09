@@ -4,7 +4,9 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 export interface ServerConfig {
   port: number
+  domain: string
   logLevel: LogLevel
+  sessionSecret: string
 }
 
 export interface LTIConfig {
@@ -14,6 +16,12 @@ export interface LTIConfig {
   authEnding: string
   tokenEnding: string
   keysetEnding: string
+}
+
+export interface CanvasConfig {
+  instanceURL: string
+  apiClientId: string
+  apiSecret: string
 }
 
 export interface DatabaseConfig {
@@ -27,6 +35,7 @@ export interface DatabaseConfig {
 export interface Config {
   server: ServerConfig
   lti: LTIConfig
+  canvas: CanvasConfig
   db: DatabaseConfig
 }
 
@@ -56,12 +65,15 @@ function validate<T> (
 export function validateConfig (env: Record<string, unknown>): Config {
   let server
   let lti
+  let canvas
   let db
 
   try {
     server = {
       port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
-      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug')
+      domain: validate<string>('DOMAIN', env.DOMAIN, isString),
+      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
+      sessionSecret: validate<string>('SESSION_SECRET', env.SESSION_SECRET, isString, 'SESSIONSECRET')
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
@@ -70,6 +82,11 @@ export function validateConfig (env: Record<string, unknown>): Config {
       authEnding: validate<string>('LTI_AUTH_ENDING', env.LTI_AUTH_ENDING, isString),
       tokenEnding: validate<string>('LTI_TOKEN_ENDING', env.LTI_TOKEN_ENDING, isString),
       keysetEnding: validate<string>('LTI_KEYSET_ENDING', env.LTI_KEYSET_ENDING, isString)
+    }
+    canvas = {
+      instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString),
+      apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString),
+      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString)
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString),
@@ -82,5 +99,5 @@ export function validateConfig (env: Record<string, unknown>): Config {
     logger.error(error)
     throw new Error(error)
   }
-  return { server, lti, db }
+  return { server, lti, canvas, db }
 }
