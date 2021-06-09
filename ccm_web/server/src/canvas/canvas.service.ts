@@ -1,3 +1,4 @@
+import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
@@ -107,5 +108,13 @@ export class CanvasService {
 
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
+  }
+
+  async createRequestorForUser (userLoginId: string): Promise<CanvasRequestor> {
+    const token = await this.findToken(userLoginId)
+    if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
+
+    const requestor = new CanvasRequestor(this.url + '/api/v1/', token.accessToken)
+    return requestor
   }
 }

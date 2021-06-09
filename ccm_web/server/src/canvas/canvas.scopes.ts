@@ -7,6 +7,7 @@ can be found in the API Developer Key interface in Canvas.
 
 const privilegeLevelOneScopes = [
   // Courses
+  'url:GET|/api/v1/courses/:id',
   'url:PUT|/api/v1/courses/:id'
 ]
 

@@ -10,3 +10,8 @@ export interface Globals {
     roles: string[]
   }
 }
+
+export interface Course {
+  id: number
+  name: string
+}
