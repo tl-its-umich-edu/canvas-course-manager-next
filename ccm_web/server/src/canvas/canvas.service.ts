@@ -1,4 +1,4 @@
-import { HttpService, Injectable } from '@nestjs/common'
+import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
@@ -67,8 +67,13 @@ export class CanvasService {
       const response = await this.httpService.post<TokenResponseBody>(
         `${this.url}/login/oauth2/token?${searchParams.toString()}`
       ).toPromise()
-      data = response.data
-      logger.debug(JSON.stringify(data, null, 2))
+      logger.debug(`Status code: ${response.status}`)
+      if (response.status === HttpStatus.OK) {
+        data = response.data
+      } else {
+        logger.error(`Received unusual status code ${response.status}`)
+        logger.error(`Response body: ${JSON.stringify(response.data, null, 2)}`)
+      }
     } catch (error) {
       logger.error(
         'Error occurred while making request to Canvas for access token: ',

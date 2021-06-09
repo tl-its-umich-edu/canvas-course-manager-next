@@ -41,7 +41,10 @@ export class UserService {
       }
       return user
     } catch (error) {
-      logger.error(JSON.stringify(error, null, 2))
+      logger.error(
+        'An error occurred while fetching the User record from the database: ',
+        JSON.stringify(error, null, 2)
+      )
       return null
     }
   }
