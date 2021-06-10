@@ -271,6 +271,10 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
+    const errorListItems = errors.map(e => {
+      return (<li key={e.key}>{e}</li>)
+    })
+    const errorList = errors.length > 1 ? <ol>{errorListItems}</ol> : <ul>{errorListItems}</ul>
     return (
       <div>
         {renderCSVFileName()}
@@ -278,11 +282,7 @@ function ConvertCanvasGradebook (): JSX.Element {
           <Grid item xs={12} className={topLevelClasses.dialog}>
             <Paper role='alert'>
               <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-              <ol>
-                {errors.map(e => {
-                  return (<li key={e.key}>{e}</li>)
-                })}
-              </ol>
+              {errorList}
             </Paper>
           </Grid>
         </Grid>
