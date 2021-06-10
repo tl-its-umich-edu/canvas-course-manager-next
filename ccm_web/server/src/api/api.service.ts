@@ -11,12 +11,12 @@ export class APIService {
     }
   }
 
-  getGlobals (data: SessionData): Globals {
+  getGlobals (sessionData: SessionData): Globals {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-      userLoginId: data.data.userLoginId,
-      courseId: data.data.courseId,
-      roles: data.data.roles
+      userLoginId: sessionData.data.userLoginId,
+      courseId: sessionData.data.courseId,
+      roles: sessionData.data.roles
     }
   }
 }
