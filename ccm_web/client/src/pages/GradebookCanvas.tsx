@@ -81,6 +81,10 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
       margin: 'auto',
       width: '75%'
     },
+    '& ul': {
+      margin: 'auto',
+      width: '75%'
+    },
     '& li': {
       textAlign: 'left'
     }
@@ -177,7 +181,7 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const handleNoLetterGradesError = (): void => {
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>, <Typography key='1'>{renderUploadAgainButton()}</Typography>] })
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_new' rel='noopener'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
   }
 
   const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
@@ -215,9 +219,14 @@ function ConvertCanvasGradebook (): JSX.Element {
   const renderUploadHeader = (): JSX.Element => {
     return <div className={classes.uploadHeader}>
       <Typography variant='h6'>Upload your CSV File</Typography>
-      <Typography>The CSV file will be formatted by trimming out nonessential columns.</Typography>
+      <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
       <br/>
-      <Typography><strong>Requirement needed:</strong> <Link href='#'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>
+      <Typography><strong>Requirements</strong></Typography>
+      <ol>
+        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades' target='_blank' rel="noopener">All assignments are graded.</Link></Typography></li>
+        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_blank' rel="noopener">Grading scheme must be enabled in your course settings.</Link></Typography></li>
+        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook</Link></Typography></li>
+      </ol>
     </div>
   }
 
@@ -255,9 +264,9 @@ function ConvertCanvasGradebook (): JSX.Element {
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
               <Paper role='alert' >
-                <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
-                <Typography>Correct the file first and{renderUploadAgainButton()}</Typography>
+                <Typography>Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors</Typography>
+                <Typography>{renderUploadAgainButton()}</Typography>
               </Paper>
             </Grid>
           </Box>
@@ -266,19 +275,18 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
+    const errorListItems = errors.map(e => {
+      return (<li key={e.key}>{e}</li>)
+    })
+    const errorList = errors.length > 1 ? <ol>{errorListItems}</ol> : <ul>{errorListItems}</ul>
     return (
       <div>
         {renderCSVFileName()}
         <Grid container justify='flex-start'>
           <Grid item xs={12} className={topLevelClasses.dialog}>
             <Paper role='alert'>
-              <Typography>Review your CSV file</Typography>
               <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-              <ol>
-                {errors.map(e => {
-                  return (<li key={e.key}>{e}</li>)
-                })}
-              </ol>
+              {errorList}
             </Paper>
           </Grid>
         </Grid>
@@ -315,7 +323,7 @@ function ConvertCanvasGradebook (): JSX.Element {
     if (isWarning) {
       return (<Typography>Some assignment grades may be missing, but you’ve supplied an override grade. Continue?</Typography>)
     } else {
-      return (<Typography>Your file is valid!  If this looks correct proceed with download</Typography>)
+      return (<Typography>File validation successful.</Typography>)
     }
   }
 
@@ -332,7 +340,6 @@ function ConvertCanvasGradebook (): JSX.Element {
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
               <Paper role='status'>
-                <Typography>Review your CSV file</Typography>
                 {renderConfirmIcon(overideGradeMismatchWarning)}
                 {renderConfirmText(overideGradeMismatchWarning)}
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
