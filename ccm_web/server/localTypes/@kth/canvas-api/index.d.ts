@@ -5,21 +5,21 @@ declare module '@kth/canvas-api' {
   type RequestMethod = 'POST' | 'PUT' | 'DELETE'
 
   class CanvasAPI {
-    constructor (apiUrl: str, apiToken: str, options?: Record<string, unknown>)
+    constructor (apiUrl: string, apiToken: string, options?: Record<string, unknown>)
 
     gotClient: Got
 
     requestUrl<T> (
-      endpoint: str, method: RequestMethod, body?: Record<string, unknown>, options?: Record<string, unknown>
+      endpoint: string, method: RequestMethod, body?: Record<string, unknown>, options?: Record<string, unknown>
     ): Promise<GotResponse<T>>
 
     get<T> (endpoint: string, queryParams?: Record<string, unknown>): Promise<GotResponse<T>>
 
-    sendSis<T> (endpoint: str, attachment: string, body?: Record<string, unknown>): Promise<GotResponse<T>>
+    sendSis<T> (endpoint: string, attachment: string, body?: Record<string, unknown>): Promise<GotResponse<T>>
 
-    listPaginated (endpoint: str, queryParams?: Record<string, unknown>, options?: Record<string, unknown>): str[]
+    listPaginated (endpoint: string, queryParams?: Record<string, unknown>, options?: Record<string, unknown>): string[]
 
-    list (endpoint: str, queryParams?: Record<string, unknown>, options?: Record<string, unknown>): str[]
+    list (endpoint: string, queryParams?: Record<string, unknown>, options?: Record<string, unknown>): string[]
   }
 
   export = CanvasAPI
