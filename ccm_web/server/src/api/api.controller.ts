@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Req, Session } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
+import { Request } from 'express'
+import { SessionData } from 'express-session'
 
 import { HelloData, Globals } from './api.interfaces'
 import { APIService } from './api.service'
@@ -15,7 +17,7 @@ export class APIController {
   }
 
   @Get('globals')
-  getGlobals (): Globals {
-    return this.apiService.getGlobals()
+  getGlobals (@Req() req: Request, @Session() session: SessionData): Globals {
+    return this.apiService.getGlobals(session)
   }
 }

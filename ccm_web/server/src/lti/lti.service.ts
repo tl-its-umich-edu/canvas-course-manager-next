@@ -58,10 +58,14 @@ export class LTIService implements BeforeApplicationShutdown {
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
-      if (customLTIVariables.login_id === undefined) {
+      if (customLTIVariables.login_id === undefined || customLTIVariables.course_id === undefined ||
+        customLTIVariables.roles === undefined || customLTIVariables.is_root_account_admin === undefined) {
         return createLaunchErrorResponse(res, 'please check the LTI configuration in Canvas.')
       }
       const loginId = customLTIVariables.login_id as string
+      const courseId = customLTIVariables.course_id as number
+      const roles = customLTIVariables.roles as string
+      const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
       try {
         const [record, created] = await this.userService.upsertUser({
           firstName: token.userInfo.given_name,
@@ -87,7 +91,10 @@ export class LTIService implements BeforeApplicationShutdown {
       // More data will be added to the session here later
       const sessionData = {
         ltiKey: res.locals.ltik as string, // Asserting ltik is not undefined, since launch was successful
-        userLoginId: loginId
+        userLoginId: loginId,
+        courseId: courseId,
+        roles: (roles.length > 0) ? roles.split(',') : [], // role won't be empty but adding a validation for safety
+        isRootAdmin: isRootAdmin
       }
       req.session.data = sessionData
       req.session.save((err) => {
