@@ -116,7 +116,7 @@ Explicit steps for setting up CCM in a development environment.
 
 14. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
 
-15. Add a tool name in the "Name" field, and under "Redirect URI(s)" add `https:{ngrok_url}/canvas/redirectFromOAuth` where `{ngrok_url}`
+15. Add a tool name in the "Name" field, and under "Redirect URI(s)" add `https:{ngrok_url}/canvas/returnFromOAuth` where `{ngrok_url}`
 is the `ngrok` hostname copied earlier (in step 2).
 
 16. Add all scopes needed by the application, i.e. so that they match those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`.
