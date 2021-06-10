@@ -81,6 +81,10 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
       margin: 'auto',
       width: '75%'
     },
+    '& ul': {
+      margin: 'auto',
+      width: '75%'
+    },
     '& li': {
       textAlign: 'left'
     }
