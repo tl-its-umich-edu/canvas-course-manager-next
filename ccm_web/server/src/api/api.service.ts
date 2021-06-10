@@ -39,10 +39,10 @@ export class APIService {
           `Received unusual status code ${String(response.statusCode)}: `,
           JSON.stringify(response.body, null, 2)
         )
-        return null
+      } else {
+        const course = response.body
+        name = course.name
       }
-      const course = response.body
-      name = course.name
     } catch (error) {
       logger.error(
         'An error occurred while making a request to Canvas: ',
@@ -55,10 +55,10 @@ export class APIService {
 
   async postCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId)
-    let name
 
     const params = new URLSearchParams({ 'course[name]': newName })
 
+    let name = null
     try {
       const response = await requestor.requestUrl<Course>(`courses/${courseId}?${params.toString()}`, 'PUT')
       logger.debug('Returned Request URL: ', response.requestUrl)
@@ -68,10 +68,10 @@ export class APIService {
           `Received unusual status code ${String(response.statusCode)}: `,
           JSON.stringify(response.body, null, 2)
         )
-        return null
+      } else {
+        const course = response.body
+        name = course.name
       }
-      const course = response.body
-      name = course.name
     } catch (error) {
       logger.error(
         'An error occurred while making a request to Canvas: ',
