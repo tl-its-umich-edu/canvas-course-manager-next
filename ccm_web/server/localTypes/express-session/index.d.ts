@@ -1,11 +1,15 @@
 import 'express-session'
 
 declare module 'express-session' {
+
+  interface course {
+    id: number
+    roles: string[]
+  }
   interface CustomData {
     ltiKey: string
     userLoginId: string
-    courseId: number
-    roles: string[]
+    course: course
     isRootAdmin: boolean
   }
 

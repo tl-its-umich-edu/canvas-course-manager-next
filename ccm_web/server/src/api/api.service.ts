@@ -15,8 +15,10 @@ export class APIService {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
       userLoginId: sessionData.data.userLoginId,
-      courseId: sessionData.data.courseId,
-      roles: sessionData.data.roles
+      course: {
+        id: sessionData.data.course.id,
+        roles: sessionData.data.course.roles
+      }
     }
   }
 }

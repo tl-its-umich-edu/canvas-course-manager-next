@@ -89,11 +89,14 @@ export class LTIService implements BeforeApplicationShutdown {
       }
 
       // More data will be added to the session here later
+      const course = {
+        id: courseId,
+        roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
+      }
       const sessionData = {
         ltiKey: res.locals.ltik as string, // Asserting ltik is not undefined, since launch was successful
         userLoginId: loginId,
-        courseId: courseId,
-        roles: (roles.length > 0) ? roles.split(',') : [], // role won't be empty but adding a validation for safety
+        course: course,
         isRootAdmin: isRootAdmin
       }
       req.session.data = sessionData
