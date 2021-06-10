@@ -55,12 +55,11 @@ export class APIService {
 
   async postCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId)
-
-    const params = new URLSearchParams({ 'course[name]': newName })
-
     let name = null
     try {
-      const response = await requestor.requestUrl<Course>(`courses/${courseId}?${params.toString()}`, 'PUT')
+      const response = await requestor.requestUrl<Course>(
+        `courses/${courseId}`, 'PUT', { course: { name: newName } }
+      )
       logger.debug('Returned Request URL: ', response.requestUrl)
       logger.debug('Response body: ', JSON.stringify(response.body, null, 2))
       if (response.statusCode !== HttpStatus.OK) {
