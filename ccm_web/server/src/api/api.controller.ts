@@ -1,5 +1,7 @@
 import { SessionData } from 'express-session'
-import { Body, Controller, Get, InternalServerErrorException, Post, Session } from '@nestjs/common'
+import {
+  Body, Controller, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Session
+} from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
 import { HelloData, Globals } from './api.interfaces'
@@ -21,20 +23,22 @@ export class APIController {
     return this.apiService.getGlobals(session)
   }
 
-  @Get('courseName')
-  async getCourseName (@Session() session: SessionData): Promise<string> {
-    const { userLoginId, course } = session.data
-    const result = await this.apiService.getCourseName(userLoginId, course.id)
+  @Get('course/:id/name')
+  async getCourseName (
+    @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
+  ): Promise<string> {
+    const { userLoginId } = session.data
+    const result = await this.apiService.getCourseName(userLoginId, courseId)
     if (result === null) throw new InternalServerErrorException('Error occurred while communicating with Canvas')
     return result
   }
 
-  @Post('courseName')
+  @Post('course/:id/name')
   async postCourseName (
-    @Body() courseNameDto: CourseNameDto, @Session() session: SessionData
+    @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @Session() session: SessionData
   ): Promise<string> {
-    const { userLoginId, course } = session.data
-    const result = await this.apiService.postCourseName(userLoginId, course.id, courseNameDto.newName)
+    const { userLoginId } = session.data
+    const result = await this.apiService.postCourseName(userLoginId, courseId, courseNameDto.newName)
     if (result === null) throw new InternalServerErrorException('Error occurred while communicating with Canvas')
     return result
   }
