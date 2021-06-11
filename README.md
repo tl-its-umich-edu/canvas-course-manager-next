@@ -117,7 +117,7 @@ Explicit steps for setting up CCM in a development environment.
        copied during step 2.
     2. Verify the `LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
     3. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied earlier (in step 10).
-    5. `CANVAS_INSTANCE_URL` – For U-M development/testing, this should
+    4. `CANVAS_INSTANCE_URL` – For U-M development/testing, this should
        be `https://canvas-test.it.umich.edu`.  Note that this is the URL
        that would be used by the user to access Canvas.  It may be 
        different from the value of the `LTI_PLATFORM_URL` key.
@@ -126,9 +126,7 @@ Explicit steps for setting up CCM in a development environment.
 21. Build and start the application with docker-compose.
 
     1. `docker-compose build`
-    2. *Optional:* The very first time the database container starts, it takes some time to set itself up, during which it will not accept connections from the application container.  The application container then fails, which prevents it from creating tables in the DB it will need later.  A solution that seems to work is to start the database container alone first, letting it run in detached mode for a few minutes before starting the application.
-       `docker-compose up -d -- database`
-    3. `docker-compose up`
+    2. `docker-compose up`
 22. Add the app to a course.  Go to 
     (https://canvas-test.it.umich.edu/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
     1. Under the "Apps" tab, click the "+App" button.
