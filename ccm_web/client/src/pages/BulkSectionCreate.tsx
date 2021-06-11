@@ -1,10 +1,8 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Paper, Popover, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
-import FindInPageTwoToneIcon from '@material-ui/icons/FindInPageTwoTone'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
 import { getCourseSections } from '../api'
-import BulkSectionCreateFileExample from '../components/BulkSectionCreateFileExample'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
@@ -12,6 +10,7 @@ import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import usePromise from '../hooks/usePromise'
 import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
+import StaticContentDownloadLink from '../components/StaticContentDownloadLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -156,7 +155,6 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
     async () => await getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?'),
@@ -265,59 +263,15 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     })
   }
 
-  const open = Boolean(anchorEl)
-
-  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement, MouseEvent>): void => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handlePopoverClose = (): void => {
-    setAnchorEl(null)
-  }
-
   const renderUploadHeader = (): JSX.Element => {
+    const fileData =
+`SECTION_NAME
+Section 001`
     return <div className={classes.uploadHeader}>
       <Typography variant='h6'>Upload your CSV File</Typography>
       <br/>
       <Typography><strong>Requirement:</strong> Your file should include one section name per line</Typography>
-
-      <Typography
-        aria-owns={open ? 'mouse-over-popover' : undefined}
-        aria-haspopup="true"
-        onMouseEnter={handlePopoverOpen}
-        onMouseLeave={handlePopoverClose}
-      >
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
-          <FindInPageTwoToneIcon />
-          <span>View an example file</span>
-        </div>
-      </Typography>
-      <Popover
-        id="mouse-over-popover"
-        className={classes.popover}
-        classes={{
-          paper: classes.paper
-        }}
-        open={open}
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left'
-        }}
-        onClose={handlePopoverClose}
-        disableRestoreFocus
-      >
-        <BulkSectionCreateFileExample sectionName='ABC 101' sectionCount={3} />
-      </Popover>
-
+      <StaticContentDownloadLink data={fileData} fileName='sections.csv' linkText='Download an example'/>
     </div>
   }
 
