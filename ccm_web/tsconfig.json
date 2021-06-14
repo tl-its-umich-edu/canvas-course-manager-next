@@ -15,6 +15,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist"
@@ -24,6 +25,8 @@
     "server",
     /* Including webpack and .eslintrc.js to make linter happy. */
     "webpack",
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "wait-for.js"
+
   ]
 }
