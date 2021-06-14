@@ -4,4 +4,9 @@ export interface HelloData {
 
 export interface Globals {
   environment: 'production' | 'development'
+  userLoginId: string
+  course: {
+    id: number
+    roles: string[]
+  }
 }

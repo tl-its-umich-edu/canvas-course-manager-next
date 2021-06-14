@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { SessionData } from 'express-session'
 
 import { Globals, HelloData } from './api.interfaces'
 
@@ -10,9 +11,14 @@ export class APIService {
     }
   }
 
-  getGlobals (): Globals {
+  getGlobals (sessionData: SessionData): Globals {
     return {
-      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development'
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      userLoginId: sessionData.data.userLoginId,
+      course: {
+        id: sessionData.data.course.id,
+        roles: sessionData.data.course.roles
+      }
     }
   }
 }

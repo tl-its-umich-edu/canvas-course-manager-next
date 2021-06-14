@@ -24,8 +24,8 @@
   "custom_fields": {
     "roles": "$Canvas.membership.roles",
     "is_root_account_admin": "$Canvas.user.isRootAccountAdmin",
-    "login_id": "$Canvas.user.loginId"
-    
+    "login_id": "$Canvas.user.loginId",
+    "course_id": "$Canvas.course.id"
   },
   "public_jwk_url": "https://{ccm_app_url}/lti/keys",
   "target_link_uri": "https://{ccm_app_url}/lti",
