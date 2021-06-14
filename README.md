@@ -127,12 +127,15 @@ Explicit steps for setting up CCM in a development environment.
 
     1. `docker-compose build`
     2. `docker-compose up`
-22. Add the app to a course.  Go to 
-    (https://canvas-test.it.umich.edu/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
-    1. Under the "Apps" tab, click the "+App" button.
-    2. In the "Configuration Type" menu, select "By Client ID".
-    3. In the "Client ID" field, paste in the same ID number that was added to `LTI_CLIENT_ID` in the `.env` file above.
-    4. When prompted to verify the ID for the tool, click the "Install" button.
+22. Add the CCM LTI tool to a course.  
+    1. Course home page → "Settings" → "Apps" tab → "View App Configurations" button.
+        Alternatively, if working in the Canvas test environment, go to 
+        (https://canvas-test.it.umich.edu/courses/nnnnnn/settings/configurations),
+        where "nnnnnn" is the course ID.
+    2. Click the "+App" button.
+    3. In the "Configuration Type" menu, select "By Client ID".
+    4. In the "Client ID" field, paste in the same ID number that was added to `LTI_CLIENT_ID` in the `.env` file above.
+    5. When prompted to verify the ID for the tool, click the "Install" button.
 
 #### Database Migrations
 
