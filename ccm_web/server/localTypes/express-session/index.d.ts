@@ -2,10 +2,11 @@ import 'express-session'
 
 declare module 'express-session' {
 
-  interface course {
+  interface Course {
     id: number
     roles: string[]
   }
+
   interface CustomData {
     ltiKey: string
     userLoginId: string
