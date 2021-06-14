@@ -10,12 +10,12 @@
           {
             "placement": "course_navigation",
             "message_type": "LtiResourceLinkRequest",
-            "target_link_uri": "https://{ccm_app_url}/lti",
+            "target_link_uri": "https://{ccm_app_hostname}/lti",
             "visibility": "admins"
           }
         ]
       },
-      "domain": "{ccm_app_url}",
+      "domain": "{ccm_app_hostname}",
       "privacy_level": "public"
     }
   ],
@@ -27,7 +27,7 @@
     "login_id": "$Canvas.user.loginId",
     "course_id": "$Canvas.course.id"
   },
-  "public_jwk_url": "https://{ccm_app_url}/lti/keys",
-  "target_link_uri": "https://{ccm_app_url}/lti",
-  "oidc_initiation_url": "https://{ccm_app_url}/lti/login"
+  "public_jwk_url": "https://{ccm_app_hostname}/lti/keys",
+  "target_link_uri": "https://{ccm_app_hostname}/lti",
+  "oidc_initiation_url": "https://{ccm_app_hostname}/lti/login"
 }

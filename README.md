@@ -81,73 +81,61 @@ but as necessary, rebuild the image using Step 1.
 
 Explicit steps for setting up CCM in a development environment.
 
-1. `ngrok http 4000`
-
-2. `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
-   Copy the hostname of the `ngrok` instance for use later.  Get only the hostname, not the `http`/`https` scheme prefix.
-
-3. `cp config/.env.sample .env`
-
-4. Edit new `.env` file to add or replace settings from the sample.
-
-   `vim .env`
-
-5. `cp config/lti_dev_key_sample.json lti_dev_key.json`
-
-6. Edit new `lti_dev_key.json` file to add or replace settings from the sample.  Replace all occurrences of `{ccm_app_url}` with the hostname copied in the earlier step.
-
-   `vim lti_dev_key.json`
-
-7. Go to Canvas "Developer Keys" management page available from the "Admin" page for your account.  Click the button for "+ Developer Key", then "+ LTI Key".
-
-8. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
-
-9. *Recommended:* Enter a name for the application in the "Key Name" field and an email address in the "Owner Email" field.
-
-10. Click the "Save" button.
-
-11. *Optional:* LTI Key, use "Manual Entry" under the "Method" menu to access "LTI Advantage Services" under the "Configuration" section.  Enable all options, then click the "Save" button.
+1. Start an ngrok instance for the application, which will run on port 4000.
+   `ngrok http 4000`
+2. Make note of the hostname of the ngrok instance for use later.  The hostname may be found in the console output or it can be obtained from the ngrok API.  For example, if `jq` is installed, use the command:
+   `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
+   ***Note:*** Get only the hostname, not the `http`/`https` scheme prefix.  
+3. Create an LTI key JSON file, based on the sample provided.
+   `cp config/lti_dev_key_sample.json lti_dev_key.json`
+4. Edit the new `lti_dev_key.json` file to add or replace settings from the sample.  Replace all occurrences of `{ccm_app_hostname}` with the ngrok hostname copied in the earlier step.
+5. Go to Canvas "Developer Keys" management page available from the "Admin" page for your account.  Click the button for "+ Developer Key", then "+ LTI Key".
+6. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
+7. *Recommended:* Enter a name for the application in the "Key Name" field and an email address in the "Owner Email" field.
+8. Click the "Save" button.
+9. *Optional:* LTI Key, use "Manual Entry" under the "Method" menu to access "LTI Advantage Services" under the "Configuration" section.  Enable all options, then click the "Save" button.
 
     1. Note:  After saving, using "Paste JSON" under the "Method" menu, will show the corresponding JSON for the LTI Advantage configuration changes.  Enabling the LTI Advantage options adds them to the `scopes` key of the JSON.
+10. Copy the ID number of the LTI key created in Canvas.  The ID is the long number shown in the "Details" column of the "Developer Keys" page.  It usually looks like "`17700000000000nnn`".
+11. Click the "ON" part of the switch in the "State" column of your LTI key, so that it has a green background.
+12. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
+13. Enter a name in the "Key Name" field, and under "Redirect URIs" enter:
+    `https://{ccm_app_hostname}/canvas/returnFromOAuth`
+    Where `{ccm_app_hostname}` is the ngrok hostname copied earlier (in step 2).
+    ***Note:*** Do ***NOT*** use the "Redirect URI (Legacy)" field.
+14. Enable the "Enforce Scopes" option, then add all scopes needed by the application (i.e., those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`).
+15. Click the "Save" button.
+16. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like "`17700000000000nnn`".
+17. Click the "Show Key" button underneath the ID located in step 15, and copy the secret that appears in the dialog.
+18. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+19. Make a `.env` file for the project, based on the sample provided.
+    `cp config/.env.sample .env`
+20. Edit the `.env` file.  The keys in the following list must/should be updated.
 
-12. Copy the ID number of the LTI key created in Canvas.  The ID is the long number shown in the "Details" column of the "Developer Keys" page.  It usually looks like `17700000000000nnn`.
-
-13. Click the "ON" part of the switch in the "State" column of your LTI key, so that it has a green background.
-
-14. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
-
-15. Add a tool name in the "Name" field, and under "Redirect URI(s)" add `https:{ngrok_url}/canvas/returnFromOAuth` where `{ngrok_url}`
-is the `ngrok` hostname copied earlier (in step 2).
-
-16. Add all scopes needed by the application, i.e. so that they match those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`.
-
-17. Click the "Save" button.
-
-18. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like `17700000000000nnn`.
-
-19. Click the "Show Key" button underneath the ID located in step 17, and copy the secret that appears in the dialog.
-
-20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
-
-21. Edit the `.env` file.
-
-    1. Verify the `LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
-    2. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied earlier (in step 12).
-    3. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 18).
-    4. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 19).
-
-22. Build and start the application with docker-compose.
+    1. `DOMAIN` – Hostname of the server hosting the CCM application.
+       For local development purposes with ngrok, use the hostname
+       copied during step 2.
+    2. Verify the `LTI_PLATFORM_URL` variable value is correct for the instance of Canvas used.
+    3. Add to the `LTI_CLIENT_ID` variable value the LTI key ID number copied earlier (in step 10).
+    4. `CANVAS_INSTANCE_URL` – For U-M development/testing, this should
+       be `https://canvas-test.it.umich.edu`.  Note that this is the URL
+       that would be used by the user to access Canvas.  It may be 
+       different from the value of the `LTI_PLATFORM_URL` key.
+    5. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 16).
+    6. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 17).
+21. Build and start the application with docker-compose.
 
     1. `docker-compose build`
-    2. *Optional:* The very first time the database container starts, it takes some time to set itself up, during which it will not accept connections from the application container.  The application container then fails, which prevents it from creating tables in the DB it will need later.  A solution that seems to work is to start the database container alone first, letting it run in detached mode for a few minutes before starting the application.
-       `docker-compose up -d -- database`
-    3. `docker-compose up`
-
-23. Add the app to a course.  Go to (https://umich.instructure.com/courses/nnnnnn/settings/configurations), where "nnnnnn" is the course ID.
-    1. Under the "Apps" tab, click the "+App" button.
-    2. In the "Configuration Type" menu, select "By Client ID".
-    3. In the "Client ID" field, paste in the same ID number that was added to `.env` above.
-    4. When prompted to verify the ID for the tool, click the "Install" button.
+    2. `docker-compose up`
+22. Add the CCM LTI tool to a course.  
+    1. Course home page → "Settings" → "Apps" tab → "View App Configurations" button.
+        Alternatively, if working in the Canvas test environment, go to 
+        (https://canvas-test.it.umich.edu/courses/nnnnnn/settings/configurations),
+        where "nnnnnn" is the course ID.
+    2. Click the "+App" button.
+    3. In the "Configuration Type" menu, select "By Client ID".
+    4. In the "Client ID" field, paste in the same ID number that was added to `LTI_CLIENT_ID` in the `.env` file above.
+    5. When prompted to verify the ID for the tool, click the "Install" button.
 
 #### Database Migrations
 
@@ -226,14 +214,14 @@ enter the container using `docker exec`.
 
     ```
     docker exec -it ccm_web /bin/bash
-    ````
+    ```
 
 2. Run one of a handful of test commands defined in `package.json` under `scripts`.
 
     ```
     # To run the unit tests and generate a coverage report
     npm run test:cov
-
+    
     # To run the end-to-end test(s)
     npm run test:e2e
     ```
