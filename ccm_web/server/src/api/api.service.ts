@@ -1,4 +1,5 @@
 import { SessionData } from 'express-session'
+import { HTTPError } from 'got'
 import { HttpStatus, Injectable } from '@nestjs/common'
 
 import { Course, Globals, HelloData } from './api.interfaces'
@@ -34,20 +35,15 @@ export class APIService {
     let name = null
     try {
       const response = await requestor.get<Course>(`courses/${courseId}`)
-      if (response.statusCode !== HttpStatus.OK) {
-        logger.error(
-          `Received unusual status code ${String(response.statusCode)}: `,
-          JSON.stringify(response.body, null, 2)
-        )
-      } else {
-        const course = response.body
-        name = course.name
-      }
+      const course = response.body
+      name = course.name
     } catch (error) {
-      logger.error(
-        'An error occurred while making a request to Canvas: ',
-        JSON.stringify(error, null, 2)
-      )
+      if (error instanceof HTTPError && error.response.statusCode !== HttpStatus.OK) {
+        logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
+      } else {
+        logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
+      }
       throw new Error(error)
     }
     return name
@@ -60,22 +56,15 @@ export class APIService {
       const response = await requestor.requestUrl<Course>(
         `courses/${courseId}`, 'PUT', { course: { name: newName } }
       )
-      logger.debug('Returned Request URL: ', response.requestUrl)
-      logger.debug('Response body: ', JSON.stringify(response.body, null, 2))
-      if (response.statusCode !== HttpStatus.OK) {
-        logger.error(
-          `Received unusual status code ${String(response.statusCode)}: `,
-          JSON.stringify(response.body, null, 2)
-        )
-      } else {
-        const course = response.body
-        name = course.name
-      }
+      const course = response.body
+      name = course.name
     } catch (error) {
-      logger.error(
-        'An error occurred while making a request to Canvas: ',
-        JSON.stringify(error, null, 2)
-      )
+      if (error instanceof HTTPError && error.response.statusCode !== HttpStatus.OK) {
+        logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
+      } else {
+        logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
+      }
       throw new Error(error)
     }
     return name
