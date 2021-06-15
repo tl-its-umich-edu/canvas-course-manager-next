@@ -44,7 +44,6 @@ export class APIService {
       } else {
         logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
       }
-      throw new Error(error)
     }
     return name
   }
@@ -65,7 +64,6 @@ export class APIService {
       } else {
         logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
       }
-      throw new Error(error)
     }
     return name
   }
