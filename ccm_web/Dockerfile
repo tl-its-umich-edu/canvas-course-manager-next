@@ -28,7 +28,7 @@ ENV NODE_ENV=production
 RUN apt-get -q update && apt-get install netcat -y
 WORKDIR /app
 
-COPY --from=base /base/package.json  /base/wait-for-it.sh /base/start.sh  ./
+COPY --from=base /base/package.json /base/wait-for  /base/wait-for-it.sh /base/start.sh  ./
 RUN npm install --production
 
 COPY --from=build /build/dist/ ./
