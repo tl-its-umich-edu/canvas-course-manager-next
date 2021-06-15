@@ -49,7 +49,7 @@ export class APIService {
     return name
   }
 
-  async postCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
+  async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId)
     let name = null
     try {

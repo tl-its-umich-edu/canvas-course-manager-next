@@ -1,6 +1,6 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Session
+  Body, Controller, Get, InternalServerErrorException, Param, ParseIntPipe, Put, Session
 } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
@@ -33,12 +33,12 @@ export class APIController {
     return result
   }
 
-  @Post('course/:id/name')
-  async postCourseName (
+  @Put('course/:id/name')
+  async putCourseName (
     @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @Session() session: SessionData
   ): Promise<string> {
     const { userLoginId } = session.data
-    const result = await this.apiService.postCourseName(userLoginId, courseId, courseNameDto.newName)
+    const result = await this.apiService.putCourseName(userLoginId, courseId, courseNameDto.newName)
     if (result === null) throw new InternalServerErrorException('Error occurred while communicating with Canvas')
     return result
   }
