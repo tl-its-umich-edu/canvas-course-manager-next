@@ -14,4 +14,5 @@ export interface Globals {
 export interface Course {
   id: number
   name: string
+  course_code: string
 }

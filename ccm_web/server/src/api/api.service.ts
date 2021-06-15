@@ -53,7 +53,7 @@ export class APIService {
     let name = null
     try {
       const response = await requestor.requestUrl<Course>(
-        `courses/${courseId}`, 'PUT', { course: { name: newName } }
+        `courses/${courseId}`, 'PUT', { course: { name: newName, course_code: newName } }
       )
       const course = response.body
       name = course.name
