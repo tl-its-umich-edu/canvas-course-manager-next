@@ -1,6 +1,6 @@
 import { SessionData } from 'express-session'
 import { HTTPError } from 'got'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 
 import { Course, Globals, HelloData } from './api.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -38,7 +38,7 @@ export class APIService {
       const course = response.body
       name = course.name
     } catch (error) {
-      if (error instanceof HTTPError && error.response.statusCode !== HttpStatus.OK) {
+      if (error instanceof HTTPError) {
         logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
         logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
       } else {
@@ -58,7 +58,7 @@ export class APIService {
       const course = response.body
       name = course.name
     } catch (error) {
-      if (error instanceof HTTPError && error.response.statusCode !== HttpStatus.OK) {
+      if (error instanceof HTTPError) {
         logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
         logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
       } else {
