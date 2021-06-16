@@ -10,7 +10,6 @@
     "build:client": "webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
     "preprod": "npm run build:client && npm run build:server",
-    "prod": "NODE_ENV=production node dist/server/src/main.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
