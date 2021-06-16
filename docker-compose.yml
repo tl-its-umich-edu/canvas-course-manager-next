@@ -13,7 +13,7 @@ services:
       - PORT=4000
       - NODE_ENV=development
     env_file: .env
-    command: ["./wait-for-it.sh", "ccm_db:3306", "--timeout=0","--", "sh", "-c" ,"npm run dev"]
+    command: npm run dev
     ports:
       - 4000:4000
       - 9229:9229

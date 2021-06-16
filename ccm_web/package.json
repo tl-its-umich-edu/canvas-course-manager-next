@@ -5,6 +5,7 @@
   "scripts": {
     "dev:server": "nodemon --inspect=0.0.0.0:9229 --config nmon_config.json server/src/main.ts",
     "dev:client": "webpack --watch --config webpack/webpack.dev.ts",
+    "predev": "wait-port ccm_db:3306",
     "dev": "node -r ts-node/register server/src/migrator up && npm run dev:server & npm run dev:client",
     "build:client": "webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
@@ -45,6 +46,7 @@
     "sequelize-typescript": "^2.1.0",
     "swagger-ui-express": "^4.1.6",
     "umzug": "^3.0.0-beta.15",
+    "wait-port": "^0.2.9",
     "winston": "^3.3.3"
   },
   "devDependencies": {
