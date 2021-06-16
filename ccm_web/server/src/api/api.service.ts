@@ -31,7 +31,7 @@ export class APIService {
   }
 
   async getCourseName (userLoginId: string, courseId: number): Promise<string | null> {
-    const requestor = await this.canvasService.createRequestorForUser(userLoginId)
+    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     let name = null
     try {
       const response = await requestor.get<Course>(`courses/${courseId}`)
@@ -49,7 +49,7 @@ export class APIService {
   }
 
   async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
-    const requestor = await this.canvasService.createRequestorForUser(userLoginId)
+    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     let name = null
     try {
       const response = await requestor.requestUrl<Course>(

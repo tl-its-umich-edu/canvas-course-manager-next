@@ -112,9 +112,7 @@ export class CanvasService {
     return token
   }
 
-  async createRequestorForUser (
-    userLoginId: string, endpoint: SupportedAPIEndpoint = '/api/v1/'
-  ): Promise<CanvasRequestor> {
+  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
     const token = await this.findToken(userLoginId)
     if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
 
