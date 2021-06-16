@@ -11,11 +11,13 @@ export const up: Migration = async ({ context: sequelize }) => {
     },
     firstName: {
       allowNull: true,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      field: 'first_name'
     },
     lastName: {
       allowNull: true,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      field: 'last_name'
     },
     email: {
       allowNull: true,
@@ -24,15 +26,18 @@ export const up: Migration = async ({ context: sequelize }) => {
     loginId: {
       allowNull: false,
       unique: true,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      field: 'login_id'
     },
     createdAt: {
       allowNull: false,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'created_at'
     },
     updatedAt: {
       allowNull: false,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'updated_at'
     }
   })
 }

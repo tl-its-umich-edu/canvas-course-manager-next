@@ -13,8 +13,9 @@ interface CanvasTokenAttributes {
 interface CanvasTokenCreationAttributes extends Optional<CanvasTokenAttributes, 'id'> {}
 
 @Table({
-  tableName: 'canvasToken',
+  tableName: 'canvas_token',
   freezeTableName: true,
+  underscored: true,
   timestamps: false
 })
 export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreationAttributes> {
