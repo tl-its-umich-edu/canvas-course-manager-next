@@ -13,6 +13,8 @@ import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
+type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
+
 @Injectable()
 export class CanvasService {
   clientId: string
@@ -110,11 +112,13 @@ export class CanvasService {
     return token
   }
 
-  async createRequestorForUser (userLoginId: string): Promise<CanvasRequestor> {
+  async createRequestorForUser (
+    userLoginId: string, endpoint: SupportedAPIEndpoint = '/api/v1/'
+  ): Promise<CanvasRequestor> {
     const token = await this.findToken(userLoginId)
     if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
 
-    const requestor = new CanvasRequestor(this.url + '/api/v1/', token.accessToken)
+    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
     return requestor
   }
 }
