@@ -11,15 +11,6 @@ export interface Globals {
   }
 }
 
-export interface CanvasCourseBase {
-  id: number
-  name: string
-}
-
-export interface CanvasCourse extends CanvasCourseBase {
-  course_code: string
-}
-
 export interface APIErrorData {
   statusCode: number
   message: string

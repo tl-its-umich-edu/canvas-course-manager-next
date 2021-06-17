@@ -3,7 +3,7 @@ import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { TokenResponseBody } from './canvas.interfaces'
+import { isCanvasErrorBody, TokenResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
 import { UserService } from '../user/user.service'
@@ -118,5 +118,11 @@ export class CanvasService {
 
     const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
     return requestor
+  }
+
+  static parseErrorBody (body: unknown): string {
+    if (body === null || body === undefined) return 'No response body was found.'
+    if (!isCanvasErrorBody(body)) return `Response body had unexpected shape: ${JSON.stringify(body)}`
+    return body.errors.map(e => e.message).join('. ')
   }
 }
