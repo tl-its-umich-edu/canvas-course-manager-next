@@ -1,3 +1,5 @@
+import { hasKey } from '../typeUtils'
+
 export interface HelloData {
   message: string
 }
@@ -16,7 +18,6 @@ export interface APIErrorData {
   message: string
 }
 
-export function isAPIErrorData (v: unknown): v is APIErrorData {
-  if (typeof v !== 'object' || v === null) return false
-  return 'statusCode' in v && 'message' in v
+export function isAPIErrorData (value: unknown): value is APIErrorData {
+  return hasKey(value, 'statusCode') && hasKey(value, 'message')
 }

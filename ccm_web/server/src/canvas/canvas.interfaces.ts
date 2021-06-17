@@ -31,19 +31,19 @@ interface CanvasError {
   message: string
 }
 
-function isCanvasError (v: unknown): v is CanvasError {
-  return hasKey(v, 'message')
+function isCanvasError (value: unknown): value is CanvasError {
+  return hasKey(value, 'message')
 }
 
 export interface CanvasErrorBody {
   errors: CanvasError[]
 }
 
-export function isCanvasErrorBody (v: unknown): v is CanvasErrorBody {
-  if (!hasKey(v, 'errors') || !Array.isArray(v.errors)) {
+export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
+  if (!hasKey(value, 'errors') || !Array.isArray(value.errors)) {
     return false
   } else {
-    const result = v.errors.map(e => isCanvasError(e)).every(e => e)
+    const result = value.errors.map(e => isCanvasError(e)).every(e => e)
     return result
   }
 }
