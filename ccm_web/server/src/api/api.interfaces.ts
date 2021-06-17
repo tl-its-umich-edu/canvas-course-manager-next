@@ -11,8 +11,21 @@ export interface Globals {
   }
 }
 
-export interface Course {
+export interface CanvasCourseBase {
   id: number
   name: string
+}
+
+export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
+}
+
+export interface APIErrorData {
+  statusCode: number
+  message: string
+}
+
+export function isAPIErrorData (v: unknown): v is APIErrorData {
+  if (typeof v !== 'object' || v === null) return false
+  return 'statusCode' in v && 'message' in v
 }

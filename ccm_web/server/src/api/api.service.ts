@@ -2,7 +2,7 @@ import { SessionData } from 'express-session'
 import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
-import { Course, Globals, HelloData } from './api.interfaces'
+import { APIErrorData, CanvasCourse, CanvasCourseBase, Globals, HelloData } from './api.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
@@ -30,41 +30,43 @@ export class APIService {
     }
   }
 
-  async getCourseName (userLoginId: string, courseId: number): Promise<string | null> {
+  async getCourseName (userLoginId: string, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
-    let name = null
     try {
-      const response = await requestor.get<Course>(`courses/${courseId}`)
+      const response = await requestor.get<CanvasCourse>(`courses/${courseId}`)
       const course = response.body
-      name = course.name
+      return { id: course.id, name: course.name }
     } catch (error) {
       if (error instanceof HTTPError) {
+        const { statusCode, body } = error.response
         logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
         logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
+        return { statusCode, message: JSON.stringify(body) }
       } else {
         logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
+        return { statusCode: 500, message: 'Error occurred while communicating with Canvas' }
       }
     }
-    return name
   }
 
-  async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<string | null> {
+  async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
-    let name = null
     try {
-      const response = await requestor.requestUrl<Course>(
+      const response = await requestor.requestUrl<CanvasCourse>(
         `courses/${courseId}`, 'PUT', { course: { name: newName, course_code: newName } }
       )
       const course = response.body
-      name = course.name
+      return { id: course.id, name: course.name }
     } catch (error) {
       if (error instanceof HTTPError) {
+        const { statusCode, body } = error.response
         logger.error(`Received unusual status code ${String(error.response.statusCode)}`)
         logger.error(`Response body: ${JSON.stringify(error.response.body)}`)
+        return { statusCode, message: JSON.stringify(body) }
       } else {
         logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
+        return { statusCode: 500, message: 'Error occurred while communicating with Canvas' }
       }
     }
-    return name
   }
 }
