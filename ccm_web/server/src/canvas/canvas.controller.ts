@@ -50,6 +50,11 @@ export class CanvasController {
     logger.debug(`Session ID: ${req.sessionID}`)
     logger.debug(JSON.stringify(req.session, null, 2))
 
+    if (typeof (query.error) !== 'undefined') {
+      logger.error(`Canvas OAuth failed  due to ${query.error}. ${query.error_description}`)
+      throw new InternalServerErrorException(query.error_description)
+    }
+
     if (req.sessionID !== query.state) {
       logger.warn('State variable returned from Canvas did not match session ID; throwing unauthorized exception...')
       throw new UnauthorizedException('You are not authorized to access this resource.')

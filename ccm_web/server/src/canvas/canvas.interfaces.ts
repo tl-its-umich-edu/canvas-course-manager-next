@@ -1,10 +1,13 @@
 import { hasKeys } from '../typeUtils'
 
-export interface OAuthResponseQuery {
+export interface OAuthGoodResponseQuery {
   code: string
   state: string
 }
-
+export interface OAuthErrorResponseQuery {
+  error: string
+  error_description: string
+}
 export interface TokenResponseBody {
   access_token: string
   token_type: 'Bearer'
