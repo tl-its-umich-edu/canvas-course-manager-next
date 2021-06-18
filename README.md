@@ -255,12 +255,6 @@ The file uses the same `.env` configuration file, so adjust any values there as 
 (see **Configuration** above for more info).
 Note that, at minimum, the database host needs to be changed to `ccm_db_prod`
 (since that is the name of the container).
-
-Note: The `npm run prod` command in `ccm_web/package.json` allows you to run the application
-in a similar (but not identical) way to how it would be in production within a container.
-This exact command is not used in any Docker artifacts, and you would need some external
-resources and environment variables set up for the command to function properly.
-
 ### Notice(s) regarding external code used
 
 This repository contains modified portions of the npm package

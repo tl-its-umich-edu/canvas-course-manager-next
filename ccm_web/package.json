@@ -9,7 +9,7 @@
     "dev": "node -r ts-node/register server/src/migrator up && npm run dev:server & npm run dev:client",
     "build:client": "webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
-    "preprod": "npm run build:client && npm run build:server",
+    "build": "npm run build:client && npm run build:server",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
