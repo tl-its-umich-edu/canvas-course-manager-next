@@ -16,20 +16,20 @@ EXPOSE ${PORT}
 FROM base AS build
 WORKDIR /build/
 COPY --from=base /base ./
-RUN npm run preprod
+RUN npm run build
 
 # Prod stage
 FROM node:14-slim AS prod
 ENV NODE_ENV=production
 WORKDIR /app
 
-COPY --from=base /base/package.json ./
+COPY --from=base /base/package.json /base/package-lock.json /base/start.sh ./
 RUN npm install --production
 
 COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
-CMD ["sh", "-c", "node server/src/migrator up && node server/src/main.js"]
+CMD ["sh", "-c", "./start.sh"]
 
 # Done!

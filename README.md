@@ -165,15 +165,8 @@ Developers have to write `up` and `down` migration steps manually.
     environment.
 
 #### Troubleshooting
-
-1. ***Error:***
-   ```txt
-   ccm_web     | Error during deployment:  ConnectionRefusedError [SequelizeConnectionRefusedError]: connect ECONNREFUSED 172.18.0.2:3306
-   ```
-   This may happen when the application is run for the very first time using `docker-compose-prod.yml` only. It appears that during the first run of the app, the DB pod requires time to set up before it's ready.  The web pod is unable to connect to the DB, therefore its server shuts down.
-   ***Solution:***  Stop and restart the Docker containers.
    
-2. ***Error:***
+1. ***Error:***
    ```txt
    ccm_web     | (node:64) UnhandledPromiseRejectionWarning: Error: An error occurred while setting up ltijs: Error: MISSING_PLATFORM_URL_OR_CLIENTID
    ccm_web     |     at /base/server/src/lti/lti.middleware.ts:22:15
@@ -183,7 +176,7 @@ Developers have to write `up` and `down` migration steps manually.
    This happens when the LTI key is not configured or configured improperly.
    ***Solution:***  Follow the steps documented above to ensure the key is configured correctly, then start the application again.
    
-3. ***Error:***
+2. ***Error:***
 
    ```txt
    ccm_db      | 2021-05-05T19:46:18.445529Z 3 [Warning] InnoDB: Cannot open table ccm/platformStatuses from the internal data dictionary of InnoDB though the .frm file for the table exists. Please refer to http://dev.mysql.com/doc/refman/5.7/en/innodb-troubleshooting.html for how to resolve the issue.
@@ -262,12 +255,6 @@ The file uses the same `.env` configuration file, so adjust any values there as 
 (see **Configuration** above for more info).
 Note that, at minimum, the database host needs to be changed to `ccm_db_prod`
 (since that is the name of the container).
-
-Note: The `npm run prod` command in `ccm_web/package.json` allows you to run the application
-in a similar (but not identical) way to how it would be in production within a container.
-This exact command is not used in any Docker artifacts, and you would need some external
-resources and environment variables set up for the command to function properly.
-
 ### Notice(s) regarding external code used
 
 This repository contains modified portions of the npm package

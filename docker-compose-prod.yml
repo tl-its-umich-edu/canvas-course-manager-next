@@ -11,6 +11,7 @@ services:
       - PORT=4000
       - NODE_ENV=production
     env_file: .env
+    command: sh -c './node_modules/.bin/wait-port ccm_db_prod:3306 && ./start.sh'
     ports:
       - 4000:4000
     container_name: ccm_web_prod
