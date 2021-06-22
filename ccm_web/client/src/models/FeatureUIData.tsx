@@ -11,6 +11,7 @@ import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
 import { LtiProps } from '../api'
+import { RoleEnum } from './models'
 
 export interface CCMComponentProps extends LtiProps {}
 
@@ -76,5 +77,25 @@ const allFeatures: FeatureUIGroup[] = [
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]
 
+const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[], featureDescriptionForLogging: string): boolean => {
+  const rolesAllowingAccess = userRoles.filter(requiredRole => requiredRoles.includes(requiredRole))
+  // These log messages seem useful while debugging/testing but should be removed later
+  if (rolesAllowingAccess.length > 0) {
+    console.debug('Feature ' + featureDescriptionForLogging + ' allowed by ' + rolesAllowingAccess.join(','))
+  } else {
+    console.debug('Feature ' + featureDescriptionForLogging + ' forbid for ' + userRoles.join(','))
+  }
+  return rolesAllowingAccess.length > 0
+}
+
+const isAuthorizedForFeature = (roles: RoleEnum[], feature: FeatureUIProps): boolean => {
+  return isAuthorizedForRoles(roles, feature.data.roles, feature.route)
+}
+
+const isAuthorizedForAnyFeature = (roles: RoleEnum[], features: FeatureUIProps[]): boolean => {
+  return features.map(feature => { return isAuthorizedForFeature(roles, feature) }).filter(f => { return f }).length > 0
+}
+
 export type { FeatureUIGroup, FeatureUIProps }
+export { isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles }
 export default allFeatures
