@@ -19,8 +19,7 @@ function useGlobals (ltiKey: string | undefined): [
     (value: Globals) => setGlobals(value)
   )
   useEffect(() => {
-    /* eslint-disable @typescript-eslint/no-floating-promises */
-    doGetGlobals()
+    void doGetGlobals()
   }, [])
 
   let isAuthenticated
