@@ -84,7 +84,7 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" component={Home} />
+            <Route exact={true} path="/" render={() => (<Home ltiKey={props.ltiKey} />)} />
             {features.map(feature => {
               return <Route key={feature.data.id} path={feature.route} component={feature.component} />
             })}
