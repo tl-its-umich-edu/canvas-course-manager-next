@@ -3,7 +3,8 @@ import {
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException
 } from '@nestjs/common'
 
-import { OAuthResponseQuery } from './canvas.interfaces'
+import { OAuthGoodResponseQuery, OAuthErrorResponseQuery } from './canvas.interfaces'
+import { isOAuthErrorResponseQuery } from './canvas.utils'
 import { CanvasService } from './canvas.service'
 
 import baseLogger from '../logger'
@@ -44,13 +45,13 @@ export class CanvasController {
   */
   @Get('returnFromOAuth')
   async returnFromOAuth (
-    @Query() query: OAuthResponseQuery, @Req() req: Request, @Res() res: Response
+    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery, @Req() req: Request, @Res() res: Response
   ): Promise<void> {
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
     logger.debug(`Session ID: ${req.sessionID}`)
     logger.debug(JSON.stringify(req.session, null, 2))
 
-    if (typeof (query.error) !== 'undefined') {
+    if (isOAuthErrorResponseQuery(query)) {
       logger.error(`Canvas OAuth failed  due to ${query.error}. ${query.error_description}`)
       throw new InternalServerErrorException(query.error_description)
     }
