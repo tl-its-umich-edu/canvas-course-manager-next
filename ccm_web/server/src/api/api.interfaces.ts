@@ -1,4 +1,4 @@
-import { hasKey } from '../typeUtils'
+import { hasKeys } from '../typeUtils'
 
 export interface HelloData {
   message: string
@@ -19,5 +19,5 @@ export interface APIErrorData {
 }
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKey(value, 'statusCode') && hasKey(value, 'message')
+  return hasKeys(value, ['statusCode', 'message'])
 }

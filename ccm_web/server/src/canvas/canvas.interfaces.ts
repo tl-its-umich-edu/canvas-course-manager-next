@@ -1,4 +1,4 @@
-import { hasKey } from '../typeUtils'
+import { hasKeys } from '../typeUtils'
 
 export interface OAuthResponseQuery {
   code: string
@@ -32,7 +32,7 @@ interface CanvasError {
 }
 
 function isCanvasError (value: unknown): value is CanvasError {
-  return hasKey(value, 'message')
+  return hasKeys(value, ['message'])
 }
 
 export interface CanvasErrorBody {
@@ -40,7 +40,7 @@ export interface CanvasErrorBody {
 }
 
 export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
-  if (!hasKey(value, 'errors') || !Array.isArray(value.errors)) {
+  if (!hasKeys(value, ['errors']) || !Array.isArray(value.errors)) {
     return false
   } else {
     const result = value.errors.map(e => isCanvasError(e)).every(e => e)
