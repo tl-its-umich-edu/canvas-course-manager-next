@@ -10,7 +10,7 @@ import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import usePromise from '../hooks/usePromise'
 import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
-import StaticContentDownloadLink from '../components/StaticContentDownloadLink'
+import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,9 +38,6 @@ const useStyles = makeStyles((theme) => ({
   fileName: {
     color: '#3F648E',
     fontFamily: 'monospace'
-  },
-  uploadHeader: {
-    paddingTop: 15
   },
   popover: {
     pointerEvents: 'none'
@@ -267,12 +264,14 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     const fileData =
 `SECTION_NAME
 Section 001`
-    return <div className={classes.uploadHeader}>
-      <Typography variant='h6'>Upload your CSV File</Typography>
-      <br/>
-      <Typography><strong>Requirement:</strong> Your file should include one section name per line</Typography>
-      <StaticContentDownloadLink data={fileData} fileName='sections.csv' linkText='Download an example'/>
-    </div>
+    const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
+      bodyText: 'Your file should include one section name per line',
+      fileData: fileData,
+      fileName: 'sections.csv',
+      linkText: 'Download an example',
+      titleText: 'Upload your CSV File'
+    }
+    return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
   }
 
   const renderFileUpload = (): JSX.Element => {
