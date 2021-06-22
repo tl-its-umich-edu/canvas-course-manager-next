@@ -1,8 +1,9 @@
+import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { TokenResponseBody } from './canvas.interfaces'
+import { isCanvasErrorBody, TokenResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
 import { UserService } from '../user/user.service'
@@ -11,6 +12,8 @@ import { CanvasConfig } from '../config'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
+
+type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
 @Injectable()
 export class CanvasService {
@@ -107,5 +110,19 @@ export class CanvasService {
 
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
+  }
+
+  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+    const token = await this.findToken(userLoginId)
+    if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
+
+    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
+    return requestor
+  }
+
+  static parseErrorBody (body: unknown): string {
+    if (body === null || body === undefined) return 'No response body was found.'
+    if (!isCanvasErrorBody(body)) return `Response body had unexpected shape: ${JSON.stringify(body)}`
+    return body.errors.map(e => e.message).join(' ')
   }
 }

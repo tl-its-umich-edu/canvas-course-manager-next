@@ -3,6 +3,7 @@ import path from 'path'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import session from 'express-session'
 import { Sequelize } from 'sequelize-typescript'
+import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
@@ -52,6 +53,8 @@ async function bootstrap (): Promise<void> {
       }
     })
   )
+
+  app.useGlobalPipes(new ValidationPipe())
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()

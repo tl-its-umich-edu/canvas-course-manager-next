@@ -17,6 +17,6 @@ import { UserService } from '../user/user.service'
   ],
   controllers: [CanvasController],
   providers: [CanvasService, UserService],
-  exports: [CanvasService, SequelizeModule]
+  exports: [CanvasService, HttpModule, SequelizeModule, UserService]
 })
 export class CanvasModule {}
