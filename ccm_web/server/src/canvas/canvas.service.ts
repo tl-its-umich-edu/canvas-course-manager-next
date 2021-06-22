@@ -123,6 +123,6 @@ export class CanvasService {
   static parseErrorBody (body: unknown): string {
     if (body === null || body === undefined) return 'No response body was found.'
     if (!isCanvasErrorBody(body)) return `Response body had unexpected shape: ${JSON.stringify(body)}`
-    return body.errors.map(e => e.message).join('. ')
+    return body.errors.map(e => e.message).join(' ')
   }
 }
