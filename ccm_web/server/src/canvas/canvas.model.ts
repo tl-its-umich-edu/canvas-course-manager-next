@@ -44,6 +44,6 @@ export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreatio
   expiresAt!: string
 
   isExpired (): boolean {
-    return new Date(Date.now()) > new Date(this.expiresAt)
+    return new Date() > new Date(this.expiresAt)
   }
 }
