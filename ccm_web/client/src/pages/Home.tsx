@@ -101,7 +101,7 @@ function Home (props: HomeProps): JSX.Element {
     } else {
       return (
         <>
-        {renderCourseRename()}
+          {renderCourseRename()}
           <Grid container spacing={3}>
             {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
               return isAuthorizedForAnyFeature((globals != null) ? globals.course.roles : [], featureGroup.features)
