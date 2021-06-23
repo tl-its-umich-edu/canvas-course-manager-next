@@ -9,6 +9,7 @@ import useGlobals from './hooks/useGlobals'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
+import { Globals } from './models/models'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -84,7 +85,7 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home ltiKey={props.ltiKey} />)} />
+            <Route exact={true} path="/" render={() => (<Home globals={globals as Globals} ltiKey={props.ltiKey} />)} />
             {features.map(feature => {
               return <Route key={feature.data.id} path={feature.route} component={feature.component} />
             })}

@@ -6,9 +6,9 @@ import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
 
 import { LtiProps } from '../api'
-import useGlobals from '../hooks/useGlobals'
 import { courseRenameRoles } from '../models/feature'
 import { Grid, Typography } from '@material-ui/core'
+import { Globals } from '../models/models'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,10 +30,10 @@ const useStyles = makeStyles((theme) => ({
 
 interface HomeProps extends LtiProps {
   ltiKey: string | undefined
+  globals: Globals
 }
 
 function Home (props: HomeProps): JSX.Element {
-  const [globals, isAuthenticated, loading, error] = useGlobals(props.ltiKey)
   const classes = useStyles()
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
@@ -51,7 +51,7 @@ function Home (props: HomeProps): JSX.Element {
         <Grid container item xs={12}>
           {featureGroup.features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1)
             .filter(feature => {
-              return isAuthorizedForFeature((globals != null) ? globals.course.roles : [], feature)
+              return isAuthorizedForFeature(props.globals.course.roles, feature)
             })
             .map(feature => {
               return renderFeature(feature)
@@ -61,20 +61,8 @@ function Home (props: HomeProps): JSX.Element {
     )
   }
 
-  const renderLoading = (): JSX.Element => {
-    return (<span>Loading</span>)
-  }
-
-  const renderNotAuthenticated = (): JSX.Element => {
-    return (<span>Not Authenticated</span>)
-  }
-
-  const renderError = (): JSX.Element => {
-    return (<div id='error' hidden={error === undefined}>Error: {error?.message}</div>)
-  }
-
   const renderCourseRename = (): JSX.Element => {
-    if (isAuthorizedForRoles((globals != null) ? globals.course.roles : [], courseRenameRoles, 'Course Rename')) {
+    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
       const saveCourseName = async (courseName: string): Promise<void> => await new Promise<void>((resolve, reject) => {
         console.log('saveCourseName ' + courseName)
         if (courseName === 'reject') {
@@ -91,26 +79,17 @@ function Home (props: HomeProps): JSX.Element {
 
   const renderFeatures = (): JSX.Element => {
     const features = allFeatures
-
-    if (loading) {
-      return renderLoading()
-    } else if (isAuthenticated !== undefined && !isAuthenticated) {
-      return renderNotAuthenticated()
-    } else if (error !== undefined) {
-      return renderError()
-    } else {
-      return (
-        <>
-          {renderCourseRename()}
-          <Grid container spacing={3}>
-            {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
-              return isAuthorizedForAnyFeature((globals != null) ? globals.course.roles : [], featureGroup.features)
-            }).map(featureGroup => {
-              return (renderFeatureGroup(featureGroup))
-            })}
-          </Grid>
-        </>)
-    }
+    return (
+      <>
+        {renderCourseRename()}
+        <Grid container spacing={3}>
+          {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
+            return isAuthorizedForAnyFeature(props.globals.course.roles, featureGroup.features)
+          }).map(featureGroup => {
+            return (renderFeatureGroup(featureGroup))
+          })}
+        </Grid>
+      </>)
   }
 
   return (
