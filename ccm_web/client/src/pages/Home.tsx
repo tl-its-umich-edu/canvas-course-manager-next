@@ -47,7 +47,7 @@ function Home (props: HomeProps): JSX.Element {
   const renderFeatureGroup = (featureGroup: FeatureUIGroup): JSX.Element => {
     return (
       <Grid key={featureGroup.id} container item xs={12} spacing={0}>
-        <Grid item xs={12}><Typography variant='h6' className={classes.title} >{featureGroup.title}</Typography></Grid>
+        <Grid item xs={12}><Typography variant='h6' component='h2' className={classes.title} >{featureGroup.title}</Typography></Grid>
         <Grid container item xs={12}>
           {featureGroup.features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1)
             .filter(feature => {
@@ -85,7 +85,7 @@ function Home (props: HomeProps): JSX.Element {
       })
       return (<InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }}/>)
     } else {
-      return (<Typography className={classes.courseName} variant='h5'>Course 123ABC</Typography>)
+      return (<Typography className={classes.courseName} variant='h5' component='h1'>Course 123ABC</Typography>)
     }
   }
 
