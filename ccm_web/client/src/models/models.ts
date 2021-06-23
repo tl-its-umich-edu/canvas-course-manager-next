@@ -2,6 +2,9 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
+/* Left side = canvas display value
+   Right side = canvas internal string representation
+*/
 export enum RoleEnum {
   'Account Admin' = 'Account Admin',
   'Assistant' = 'Assistant',
