@@ -8,6 +8,7 @@ interface CanvasTokenAttributes {
   userId: bigint
   accessToken: string
   refreshToken: string
+  expiresAt: string
 }
 
 interface CanvasTokenCreationAttributes extends Optional<CanvasTokenAttributes, 'id'> {}
@@ -36,4 +37,13 @@ export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreatio
     type: DataTypes.STRING
   })
   refreshToken!: string
+
+  @Column({
+    type: DataTypes.DATE
+  })
+  expiresAt!: string
+
+  isExpired (): boolean {
+    return new Date(Date.now()) > new Date(this.expiresAt)
+  }
 }
