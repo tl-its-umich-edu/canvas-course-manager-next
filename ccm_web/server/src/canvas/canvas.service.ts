@@ -75,7 +75,7 @@ export class CanvasService {
     }
 
     let data: TokenCodeResponseBody | undefined
-    const timeOfRequest = new Date(Date.now())
+    const timeOfRequest = new Date()
 
     try {
       const response = await this.httpService.post<TokenCodeResponseBody>(
@@ -135,7 +135,7 @@ export class CanvasService {
     }
 
     let data: TokenRefreshResponseBody | undefined
-    const timeOfRequest = new Date(Date.now())
+    const timeOfRequest = new Date()
 
     try {
       const response = await this.httpService.post<TokenRefreshResponseBody>(
