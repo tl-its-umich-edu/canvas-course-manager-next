@@ -1,5 +1,6 @@
+import axios from 'axios'
 import CanvasRequestor from '@kth/canvas-api'
-import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
@@ -82,16 +83,16 @@ export class CanvasService {
       ).toPromise()
       logger.debug(`Status code: ${response.status}`)
       logger.debug(response.data)
-      if (response.status === HttpStatus.OK) {
-        data = response.data
-      } else {
-        logger.error(`Received unusual status code ${response.status}`)
-        logger.error(`Response body: ${JSON.stringify(response.data, null, 2)}`)
-      }
+      data = response.data
     } catch (error) {
-      logger.error(
-        `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
-      )
+      if (axios.isAxiosError(error) && error.response !== undefined) {
+        logger.error(`Received unusual status code ${error.response.status}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+      } else {
+        logger.error(
+          `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
+        )
+      }
     }
     if (data === undefined) return false
 
@@ -141,16 +142,16 @@ export class CanvasService {
         `${this.url}/login/oauth2/token`, params
       ).toPromise()
       logger.debug(`Status code: ${response.status}`)
-      if (response.status === HttpStatus.OK) {
-        data = response.data
-      } else {
-        logger.error(`Received unusual status code ${response.status}`)
-        logger.error(`Response body: ${JSON.stringify(response.data, null, 2)}`)
-      }
+      data = response.data
     } catch (error) {
-      logger.error(
-        `Error occurred while making request to Canvas to refresh access token: ${JSON.stringify(error, null, 2)}`
-      )
+      if (axios.isAxiosError(error) && error.response !== undefined) {
+        logger.error(`Received unusual status code ${error.response.status}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+      } else {
+        logger.error(
+          `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
+        )
+      }
     }
     if (data === undefined) return null
 
