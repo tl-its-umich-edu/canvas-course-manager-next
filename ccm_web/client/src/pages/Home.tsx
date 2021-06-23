@@ -1,13 +1,12 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import { Grid, Typography } from '@material-ui/core'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
-
 import { LtiProps } from '../api'
 import { courseRenameRoles } from '../models/feature'
-import { Grid, Typography } from '@material-ui/core'
 import { Globals } from '../models/models'
 
 const useStyles = makeStyles((theme) => ({
