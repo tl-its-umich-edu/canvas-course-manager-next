@@ -78,7 +78,7 @@ const allFeatures: FeatureUIGroup[] = [
 ]
 
 const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[], featureDescriptionForLogging: string): boolean => {
-  const rolesAllowingAccess = userRoles.filter(requiredRole => requiredRoles.includes(requiredRole))
+  const rolesAllowingAccess = userRoles.filter(userRole => requiredRoles.includes(userRole))
   // These log messages seem useful while debugging/testing but should be removed later
   if (rolesAllowingAccess.length > 0) {
     console.debug('Feature ' + featureDescriptionForLogging + ' allowed by ' + rolesAllowingAccess.join(','))
