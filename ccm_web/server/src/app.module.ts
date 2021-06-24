@@ -11,7 +11,7 @@ import { User } from './user/user.model'
 import { UserService } from './user/user.service'
 
 import { validateConfig } from './config'
-import baseLogger from "./logger";
+import baseLogger from './logger';
 
 const logger = baseLogger.child({ filePath: __filename})
 
