@@ -1,10 +1,13 @@
 import { hasKeys } from '../typeUtils'
 
-export interface OAuthResponseQuery {
+export interface OAuthGoodResponseQuery {
   code: string
   state: string
 }
-
+export interface OAuthErrorResponseQuery {
+  error: string
+  error_description: string
+}
 export interface TokenResponseBody {
   access_token: string
   token_type: 'Bearer'
@@ -46,4 +49,8 @@ export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
     const result = value.errors.map(e => isCanvasError(e)).every(e => e)
     return result
   }
+}
+
+export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
+  return hasKeys(value, ['error']) && hasKeys(value, ['error_description'])
 }
