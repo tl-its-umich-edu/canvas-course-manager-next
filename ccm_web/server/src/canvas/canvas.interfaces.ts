@@ -50,3 +50,7 @@ export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
     return result
   }
 }
+
+export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
+  return hasKeys(value, ['error']) && hasKeys(value, ['error_description'])
+}

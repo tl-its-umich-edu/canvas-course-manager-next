@@ -3,8 +3,7 @@ import {
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException
 } from '@nestjs/common'
 
-import { OAuthGoodResponseQuery, OAuthErrorResponseQuery } from './canvas.interfaces'
-import { isOAuthErrorResponseQuery } from './canvas.utils'
+import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
 
 import baseLogger from '../logger'
