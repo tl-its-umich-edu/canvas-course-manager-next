@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography } from '@material-ui/core'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { LtiProps } from '../api'
+import { getCourseName, setCourseName as apiSetCourseName, LtiProps } from '../api'
 import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
+import { CanvasCourseBase } from '../models/canvas'
+import usePromise from '../hooks/usePromise'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,6 +36,28 @@ interface HomeProps extends LtiProps {
 
 function Home (props: HomeProps): JSX.Element {
   const classes = useStyles()
+  const [courseName, setCourseName] = useState<undefined|string>(undefined)
+
+  const [doLoadCourseName, isLoadingCourseName, getCourseNameError] = usePromise(
+    async () => await getCourseName(props.ltiKey, props.globals.course.id),
+    (value: CanvasCourseBase) => setCourseName(value.name)
+  )
+
+  const setCourseNameAsync = async (
+    newCourseName: string
+  ): Promise<CanvasCourseBase> => {
+    return await apiSetCourseName(props.ltiKey, props.globals.course.id, newCourseName)
+  }
+  const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise(
+    setCourseNameAsync,
+    (course: CanvasCourseBase) => {
+      setCourseName(course.name)
+    }
+  )
+
+  useEffect(() => {
+    void doLoadCourseName()
+  }, [])
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
     return (
@@ -61,18 +85,14 @@ function Home (props: HomeProps): JSX.Element {
   }
 
   const renderCourseRename = (): JSX.Element => {
-    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      const saveCourseName = async (courseName: string): Promise<void> => await new Promise<void>((resolve, reject) => {
-        console.log('saveCourseName ' + courseName)
-        if (courseName === 'reject') {
-          reject(new Error('Rejected as requested'))
-        } else {
-          return resolve()
-        }
-      })
-      return (<InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }}/>)
+    if (isLoadingCourseName) {
+      return (<div className={classes.courseName}>Loading...</div>)
+    } else if (getCourseNameError !== undefined || courseName === undefined) {
+      return (<div className={classes.courseName}>Error getting course name</div>)
+    } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
+      return (<InlineTextEdit {...{ text: courseName, save: doSetCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }}/>)
     } else {
-      return (<Typography className={classes.courseName} variant='h5' component='h1'>Course 123ABC</Typography>)
+      return (<Typography className={classes.courseName} variant='h5' component='h1'>{courseName}</Typography>)
     }
   }
 
