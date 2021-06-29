@@ -35,7 +35,7 @@ const logger = baseLogger.child({ filePath: __filename})
         password: configService.get('db.password'),
         database: configService.get('db.name'),
         models: [CanvasToken, User],
-        logging: (message: string) => logger.debug(message),
+        logging: (message: string) => logger.debug(message)
       })
     }),
     UserModule,
