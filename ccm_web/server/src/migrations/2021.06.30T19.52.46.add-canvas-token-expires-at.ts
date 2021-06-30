@@ -3,16 +3,17 @@ import { Migration } from '../migrator'
 
 export const up: Migration = async ({ context: sequelize }) => {
   await sequelize.getQueryInterface().addColumn(
-    'canvasToken',
-    'expiresAt',
+    'canvas_token',
+    'expires_at',
     {
-      type: DataTypes.DATE,
       allowNull: false,
+      type: DataTypes.DATE,
+      field: 'expires_at',
       defaultValue: Sequelize.fn('NOW')
     }
   )
 }
 
 export const down: Migration = async ({ context: sequelize }) => {
-  await sequelize.getQueryInterface().removeColumn('canvasToken', 'expiresAt')
+  await sequelize.getQueryInterface().removeColumn('canvas_token', 'expires_at')
 }
