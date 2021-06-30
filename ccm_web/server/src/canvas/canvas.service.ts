@@ -88,7 +88,6 @@ export class CanvasService {
         `${this.url}/login/oauth2/token`, params
       ).toPromise()
       logger.debug(`Status code: ${response.status}`)
-      logger.debug(response.data)
       data = response.data
     } catch (error) {
       if (axios.isAxiosError(error) && error.response !== undefined) {
