@@ -25,7 +25,7 @@ export const umzug = new Umzug({
     }
   },
   context: sequelize,
-  storage: new SequelizeStorage({ sequelize }),
+  storage: new SequelizeStorage({ sequelize, tableName: 'ccm_sequelize_meta' }),
   logger: logger
 })
 
