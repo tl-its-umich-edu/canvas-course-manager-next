@@ -178,7 +178,6 @@ export class CanvasService {
     if (token === null) throw new CanvasTokenNotFoundError(userLoginId)
 
     const tokenExpired = token.isExpired()
-    logger.debug(`tokenExpired: ${String(tokenExpired)}`)
     if (tokenExpired) {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)

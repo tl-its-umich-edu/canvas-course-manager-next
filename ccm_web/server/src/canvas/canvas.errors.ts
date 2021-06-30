@@ -10,7 +10,7 @@ export class CanvasOAuthAPIError extends Error {
 
 export class CanvasTokenNotFoundError extends Error {
   date: Date
-  public name = 'UserNotFoundError'
+  public name = 'CanvasTokenNotFoundError'
 
   constructor (userLoginId: string) {
     super(
