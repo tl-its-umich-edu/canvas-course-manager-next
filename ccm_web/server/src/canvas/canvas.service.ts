@@ -4,12 +4,15 @@ import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
 import { isCanvasErrorBody, TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
+import { UserNotFoundError } from '../user/user.errors'
 import { UserService } from '../user/user.service'
 
 import { CanvasConfig } from '../config'
+import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -57,14 +60,17 @@ export class CanvasService {
     return expiresAt
   }
 
-  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<boolean> {
+  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<void> {
     /*
     Make a call to the Canvas API to create token
     https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
     */
 
     const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) return false
+    if (user === null) {
+      logger.error(`User ${userLoginId} is not in the database.`)
+      throw new UserNotFoundError(userLoginId)
+    }
 
     const params = {
       grant_type: 'authorization_code',
@@ -93,12 +99,10 @@ export class CanvasService {
           `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
         )
       }
+      throw new CanvasOAuthAPIError()
     }
-    if (data === undefined) return false
 
     // Create CanvasToken instance for user
-    let tokenCreated = false
-
     const expiresAt = CanvasService.calculateExpiresAt(timeOfRequest, data.expires_in)
     try {
       await this.canvasTokenModel.create({
@@ -107,26 +111,26 @@ export class CanvasService {
         refreshToken: data.refresh_token,
         expiresAt: expiresAt.toISOString()
       })
-      tokenCreated = true
       logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
     } catch (error) {
       logger.error(
-        'Error occurred while writing Canvas token data to the database: ',
-        JSON.stringify(error, null, 2)
+        `Error occurred while writing Canvas token data to the database: ${JSON.stringify(error, null, 2)}`
       )
+      throw new DatabaseError()
     }
-    return tokenCreated
   }
 
   async findToken (userLoginId: string): Promise<CanvasToken | null> {
     const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) throw new Error(`User with login ID ${userLoginId} was not found!`)
-
+    if (user === null) {
+      logger.error(`User ${userLoginId} is not in the database.`)
+      throw new UserNotFoundError(userLoginId)
+    }
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
   }
 
-  async refreshToken (token: CanvasToken): Promise<CanvasToken | null> {
+  async refreshToken (token: CanvasToken): Promise<CanvasToken> {
     const params = {
       grant_type: 'refresh_token',
       client_id: this.clientId,
@@ -152,8 +156,8 @@ export class CanvasService {
           `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
         )
       }
+      throw new CanvasOAuthAPIError()
     }
-    if (data === undefined) return null
 
     token.accessToken = data.access_token
     const expiresAt = CanvasService.calculateExpiresAt(timeOfRequest, data.expires_in)
@@ -165,13 +169,13 @@ export class CanvasService {
       logger.error(
         `Error occurred while saving CanvasToken with new accessToken: ${JSON.stringify(error, null, 2)}`
       )
-      return null
+      throw new DatabaseError()
     }
   }
 
   async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
     let token = await this.findToken(userLoginId)
-    if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
+    if (token === null) throw new CanvasTokenNotFoundError(userLoginId)
 
     const tokenExpired = token.isExpired()
     logger.debug(`tokenExpired: ${String(tokenExpired)}`)
@@ -179,8 +183,6 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    if (token === null) throw new Error('Error occurred while refreshing the access token.')
-
     const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
     return requestor
   }

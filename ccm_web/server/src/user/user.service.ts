@@ -5,6 +5,7 @@ import { CanvasToken } from '../canvas/canvas.model'
 import { UserToUpsert } from './user.interfaces'
 import { User } from './user.model'
 
+import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -36,16 +37,12 @@ export class UserService {
         where: { loginId },
         include: [{ model: this.canvasTokenModel }]
       })
-      if (user === null) {
-        logger.error(`User ${loginId} is not in the database.`)
-      }
       return user
     } catch (error) {
       logger.error(
-        'An error occurred while fetching the User record from the database: ',
-        JSON.stringify(error, null, 2)
+        `An error occurred while fetching a User record from the database: ${JSON.stringify(error, null, 2)}`
       )
-      return null
+      throw new DatabaseError()
     }
   }
 }
