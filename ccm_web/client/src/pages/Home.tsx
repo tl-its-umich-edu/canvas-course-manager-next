@@ -65,7 +65,7 @@ function Home (props: HomeProps): JSX.Element {
 
   useEffect(() => {
     if (setCourseNameError !== undefined) {
-      enqueueSnackbar('Error saving course name', { variant: 'error' })
+      enqueueSnackbar('Error saving course name: ' + setCourseNameError.message, { variant: 'error' })
     }
   }, [setCourseNameError])
 

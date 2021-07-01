@@ -48,8 +48,8 @@ const handleErrors = async (resp: Response): Promise<void> => {
       console.error(text)
       throw new NotFoundError()
     default:
-      console.error(await resp.text())
-      throw new Error(resp.statusText)
+      text = (JSON.parse(await resp.text()) as Error).message
+      throw new Error(text)
   }
 }
 
