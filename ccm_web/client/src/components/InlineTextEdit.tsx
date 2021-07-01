@@ -2,14 +2,11 @@ import React, { useRef, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Button, Grid, TextField } from '@material-ui/core'
 import { Edit as EditIcon } from '@material-ui/icons'
-import { useSnackbar } from 'notistack'
 import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
 interface InlineTextEditProps {
   text: string
   placeholderText: string
-  successMessage: string
-  failureMessage: string
   save: (text: string) => Promise<void>
 }
 
@@ -52,18 +49,14 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
 
   const textInput = useRef(null)
 
-  const { enqueueSnackbar } = useSnackbar()
-
   const save = (): void => {
     setIsEditing(false)
     if (textValue === tempTextValue) return
     props.save(tempTextValue)
       .then(() => {
-        enqueueSnackbar(props.successMessage, { variant: 'success' })
         setTextValue(tempTextValue)
       })
       .catch(function () {
-        enqueueSnackbar(props.failureMessage, { variant: 'error' })
         cancel()
       })
   }
