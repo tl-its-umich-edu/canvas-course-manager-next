@@ -102,7 +102,7 @@ function Home (props: HomeProps): JSX.Element {
     } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
       return (<InlineTextEdit {...{ text: course.name, save: doSetCourseName, placeholderText: 'Course name' }}/>)
     } else {
-      return (<Typography className={classes.courseName} variant='h5' component='h1'>{course}</Typography>)
+      return (<Typography className={classes.courseName} variant='h5' component='h1'>{course.name}</Typography>)
     }
   }
 
