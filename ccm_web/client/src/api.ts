@@ -23,7 +23,7 @@ const getGet = (key: string | undefined): RequestInit => {
   return request
 }
 
-// This currently assumes all put requests have a json payload and recieve a json response
+// This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (key: string | undefined, body: string): RequestInit => {
   const headers: string[][] = []
   headers.push(['Content-Type', 'application/json'])
