@@ -1,6 +1,6 @@
 export class CanvasOAuthAPIError extends Error {
   date: Date
-  public name = 'CanvasOAuthError'
+  public name = 'CanvasOAuthAPIError'
 
   constructor () {
     super('An error occurred while requesting or refreshing a Canvas OAuth access token.')
