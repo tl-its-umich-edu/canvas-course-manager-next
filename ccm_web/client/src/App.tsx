@@ -38,16 +38,11 @@ function App (props: AppProps): JSX.Element {
   const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals(props.ltiKey)
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
-  const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, (key: string|undefined, courseId: number) => Promise<CanvasCourseBase|undefined>>(
-    async (ltiKey: string|undefined, courseId: number): Promise<CanvasCourseBase|undefined> => {
-      if (globals !== undefined) {
-        return await getCourse(ltiKey, courseId)
-      } else {
-        setCourse(undefined)
-        return undefined
-      }
+  const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
+    async (ltiKey: string|undefined, courseId: number): Promise<CanvasCourseBase> => {
+      return await getCourse(ltiKey, courseId)
     },
-  (value: CanvasCourseBase|undefined) => setCourse(value)
+    (value: CanvasCourseBase|undefined) => setCourse(value)
   )
 
   useEffect(() => {
