@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography } from '@material-ui/core'
+import { useSnackbar } from 'notistack'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { getCourse, setCourseName as apiSetCourseName, LtiProps } from '../api'
+import { setCourseName as apiSetCourseName, LtiProps } from '../api'
 import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
-import { useSnackbar } from 'notistack'
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,21 +34,13 @@ const useStyles = makeStyles((theme) => ({
 interface HomeProps extends LtiProps {
   ltiKey: string | undefined
   globals: Globals
+  course: CanvasCourseBase | undefined
+  setCourse: (course: CanvasCourseBase|undefined) => void
 }
 
 function Home (props: HomeProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const classes = useStyles()
-  const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
-
-  const [doLoadCourse, isLoadingCourse, getCourseError] = usePromise(
-    async () => await getCourse(props.ltiKey, props.globals.course.id),
-    (value: CanvasCourseBase) => setCourse(value)
-  )
-
-  useEffect(() => {
-    void doLoadCourse()
-  }, [])
 
   const setCourseNameAsync = async (
     newCourseName: string
@@ -58,7 +51,7 @@ function Home (props: HomeProps): JSX.Element {
   const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(
     setCourseNameAsync,
     (course: CanvasCourseBase|undefined) => {
-      setCourse(course)
+      props.setCourse(course)
       enqueueSnackbar('Course name saved', { variant: 'success' })
     }
   )
@@ -95,14 +88,12 @@ function Home (props: HomeProps): JSX.Element {
   }
 
   const renderCourseRename = (): JSX.Element => {
-    if (isLoadingCourse) {
-      return (<div className={classes.courseName}>Loading...</div>)
-    } else if (getCourseError !== undefined || course === undefined) {
+    if (props.course === undefined) {
       return (<div className={classes.courseName}>Error getting course name</div>)
     } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      return (<InlineTextEdit {...{ text: course.name, save: doSetCourseName, placeholderText: 'Course name' }}/>)
+      return (<InlineTextEdit {...{ text: props.course.name, save: doSetCourseName, placeholderText: 'Course name' }}/>)
     } else {
-      return (<Typography className={classes.courseName} variant='h5' component='h1'>{course.name}</Typography>)
+      return (<Typography className={classes.courseName} variant='h5' component='h1'>{props.course.name}</Typography>)
     }
   }
 
