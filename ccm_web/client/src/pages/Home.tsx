@@ -12,7 +12,6 @@ import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
 
-
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
@@ -35,6 +34,7 @@ interface HomeProps extends LtiProps {
   ltiKey: string | undefined
   globals: Globals
   course: CanvasCourseBase | undefined
+  getCourseError: Error | undefined
   setCourse: (course: CanvasCourseBase|undefined) => void
 }
 
@@ -91,7 +91,7 @@ function Home (props: HomeProps): JSX.Element {
     if (props.course === undefined) {
       return (<div className={classes.courseName}>Error getting course name</div>)
     } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      return (<InlineTextEdit {...{ text: props.course.name, save: doSetCourseName, placeholderText: 'Course name' }}/>)
+      return (<InlineTextEdit {...{ text: props.course.name, save: doSetCourseName, placeholderText: 'Course name', isSaving: setCourseNameLoading }}/>)
     } else {
       return (<Typography className={classes.courseName} variant='h5' component='h1'>{props.course.name}</Typography>)
     }

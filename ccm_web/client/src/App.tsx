@@ -102,7 +102,7 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} course={course} setCourse={setCourse} />)} />
+            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
               return <Route key={feature.data.id} path={feature.route} component={feature.component} />
             })}
