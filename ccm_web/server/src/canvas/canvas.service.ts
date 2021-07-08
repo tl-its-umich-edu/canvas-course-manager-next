@@ -1,14 +1,18 @@
+import axios from 'axios'
 import CanvasRequestor from '@kth/canvas-api'
-import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { isCanvasErrorBody, TokenResponseBody } from './canvas.interfaces'
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
+import { isCanvasErrorBody, TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
+import { UserNotFoundError } from '../user/user.errors'
 import { UserService } from '../user/user.service'
 
 import { CanvasConfig } from '../config'
+import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -47,11 +51,26 @@ export class CanvasService {
     return `${this.url}/login/oauth2/auth?${searchParams.toString()}`
   }
 
-  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<boolean> {
+  static calculateExpiresAt (time: Date, expiresIn: number): Date {
+    // Use 95 percent of expiration period to guarantee expired tokens aren't used
+    const msTilExpire = expiresIn * 1000 * 0.95
+    logger.debug(`Milliseconds until token should be treated as expired: ${msTilExpire}`)
+    const expiresAt = new Date(time.getTime() + msTilExpire)
+    logger.debug(`Treat token as expired at ${expiresAt.toISOString()}`)
+    return expiresAt
+  }
+
+  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<void> {
     /*
     Make a call to the Canvas API to create token
     https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
     */
+
+    const user = await this.userService.findUserByLoginId(userLoginId)
+    if (user === null) {
+      logger.error(`User ${userLoginId} is not in the database.`)
+      throw new UserNotFoundError(userLoginId)
+    }
 
     const params = {
       grant_type: 'authorization_code',
@@ -60,62 +79,108 @@ export class CanvasService {
       redirect_uri: this.redirectURI,
       code: canvasCode
     }
-    const searchParams = new URLSearchParams(params)
 
-    const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) return false
+    let data: TokenCodeResponseBody | undefined
+    const timeOfRequest = new Date()
 
-    let data: TokenResponseBody | undefined
     try {
-      const response = await this.httpService.post<TokenResponseBody>(
-        `${this.url}/login/oauth2/token?${searchParams.toString()}`
+      const response = await this.httpService.post<TokenCodeResponseBody>(
+        `${this.url}/login/oauth2/token`, params
       ).toPromise()
       logger.debug(`Status code: ${response.status}`)
-      if (response.status === HttpStatus.OK) {
-        data = response.data
-      } else {
-        logger.error(`Received unusual status code ${response.status}`)
-        logger.error(`Response body: ${JSON.stringify(response.data, null, 2)}`)
-      }
+      data = response.data
     } catch (error) {
-      logger.error(
-        'Error occurred while making request to Canvas for access token: ',
-        JSON.stringify(error, null, 2)
-      )
+      if (axios.isAxiosError(error) && error.response !== undefined) {
+        logger.error(`Received unusual status code ${error.response.status}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+      } else {
+        logger.error(
+          `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
+        )
+      }
+      throw new CanvasOAuthAPIError()
     }
-    if (data === undefined) return false
 
     // Create CanvasToken instance for user
-    let tokenCreated = false
+    const expiresAt = CanvasService.calculateExpiresAt(timeOfRequest, data.expires_in)
     try {
       await this.canvasTokenModel.create({
         userId: user.id,
         accessToken: data.access_token,
-        refreshToken: data.refresh_token
+        refreshToken: data.refresh_token,
+        expiresAt: expiresAt.toISOString()
       })
-      tokenCreated = true
       logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
     } catch (error) {
       logger.error(
-        'Error occurred while writing Canvas token data to the database: ',
-        JSON.stringify(error, null, 2)
+        `Error occurred while writing Canvas token data to the database: ${JSON.stringify(error, null, 2)}`
       )
+      throw new DatabaseError()
     }
-    return tokenCreated
   }
 
   async findToken (userLoginId: string): Promise<CanvasToken | null> {
     const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) throw new Error(`User with login ID ${userLoginId} was not found!`)
-
+    if (user === null) {
+      logger.error(`User ${userLoginId} is not in the database.`)
+      throw new UserNotFoundError(userLoginId)
+    }
     const token = user.canvasToken === undefined ? null : user.canvasToken
     return token
   }
 
-  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
-    const token = await this.findToken(userLoginId)
-    if (token === null) throw new Error(`User ${userLoginId} does not have a token!`)
+  async refreshToken (token: CanvasToken): Promise<CanvasToken> {
+    const params = {
+      grant_type: 'refresh_token',
+      client_id: this.clientId,
+      client_secret: this.secret,
+      refresh_token: token.refreshToken
+    }
 
+    let data: TokenRefreshResponseBody | undefined
+    const timeOfRequest = new Date()
+
+    try {
+      const response = await this.httpService.post<TokenRefreshResponseBody>(
+        `${this.url}/login/oauth2/token`, params
+      ).toPromise()
+      logger.debug(`Status code: ${response.status}`)
+      data = response.data
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response !== undefined) {
+        logger.error(`Received unusual status code ${error.response.status}`)
+        logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+      } else {
+        logger.error(
+          `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
+        )
+      }
+      throw new CanvasOAuthAPIError()
+    }
+
+    token.accessToken = data.access_token
+    const expiresAt = CanvasService.calculateExpiresAt(timeOfRequest, data.expires_in)
+    token.expiresAt = expiresAt.toISOString()
+    try {
+      await token.save()
+      return token
+    } catch (error) {
+      logger.error(
+        `Error occurred while saving CanvasToken with new accessToken: ${JSON.stringify(error, null, 2)}`
+      )
+      throw new DatabaseError()
+    }
+  }
+
+  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+    let token = await this.findToken(userLoginId)
+    if (token === null) throw new CanvasTokenNotFoundError(userLoginId)
+
+    const tokenExpired = token.isExpired()
+    if (tokenExpired) {
+      logger.debug('Token for user has expired; refreshing token...')
+      token = await this.refreshToken(token)
+    }
     const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
     return requestor
   }

@@ -1,36 +1,56 @@
-import { Globals, HelloMessageData } from './models/models'
+import { CanvasCourseBase } from './models/canvas'
+import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 export interface LtiProps {
   ltiKey: string | undefined
 }
 
-const createAuthHeaders = (key: string | undefined): RequestInit => {
+const initRequest = (key: string | undefined, headers: string[][] = []): RequestInit => {
   if (key !== undefined) {
+    headers.push(['Authorization', 'Bearer ' + key])
     return {
       credentials: 'include',
-      headers: { Authorization: 'Bearer ' + key }
+      headers: headers
     }
   }
   return {}
 }
 
-export const getHelloMessageData = async (key: string | undefined): Promise<HelloMessageData> => {
-  const params: RequestInit = {
-    method: 'GET',
-    ...createAuthHeaders(key)
-  }
-  const resp = await fetch('/api/hello', params)
+const getGet = (key: string | undefined): RequestInit => {
+  const request = initRequest(key)
+  request.method = 'GET'
+  return request
+}
+
+// This currently assumes all put requests have a JSON payload and receive a JSON response.
+const getPut = (key: string | undefined, body: string): RequestInit => {
+  const headers: string[][] = []
+  headers.push(['Content-Type', 'application/json'])
+  headers.push(['Accept', 'application/json'])
+  const request = initRequest(key, headers)
+  request.method = 'PUT'
+  request.body = body
+  return request
+}
+
+export const getCourse = async (key: string | undefined, courseId: number): Promise<CanvasCourseBase> => {
+  const request = getGet(key)
+  const resp = await fetch(`/api/course/${courseId}/name`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const setCourseName = async (key: string | undefined, courseId: number, newName: string): Promise<CanvasCourseBase> => {
+  const request = getPut(key, JSON.stringify({ newName: newName }))
+  const resp = await fetch(`/api/course/${courseId}/name`, request)
   await handleErrors(resp)
   return await resp.json()
 }
 
 export const getGlobals = async (key: string | undefined): Promise<Globals> => {
-  const params: RequestInit = {
-    method: 'GET',
-    ...createAuthHeaders(key)
-  }
-  const resp = await fetch('/api/globals', params)
+  const request = getGet(key)
+  const resp = await fetch('/api/globals', request)
   await handleErrors(resp)
   return await resp.json()
 }

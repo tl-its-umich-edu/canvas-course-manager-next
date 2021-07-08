@@ -66,12 +66,9 @@ export class CanvasController {
     }
 
     // Create token for user
-    const { userLoginId } = req.session.data
-    const tokenCreated = await this.canvasService.createTokenForUser(req.session.data.userLoginId, query.code)
-    if (!tokenCreated) {
-      throw new InternalServerErrorException(`An error occurred while creating a token for user ${userLoginId}.`)
-    }
+    const { ltiKey, userLoginId } = req.session.data
+    await this.canvasService.createTokenForUser(userLoginId, query.code)
 
-    res.redirect(`/?ltik=${req.session.data.ltiKey}`)
+    res.redirect(`/?ltik=${ltiKey}`)
   }
 }

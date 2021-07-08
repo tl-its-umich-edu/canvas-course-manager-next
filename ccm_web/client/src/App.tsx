@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Link as RouterLink, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
-import ConsumerTest from './components/ConsumerTest'
 import useGlobals from './hooks/useGlobals'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
+import { CanvasCourseBase } from './models/canvas'
+import usePromise from './hooks/usePromise'
+import { getCourse } from './api'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -32,8 +34,23 @@ function App (props: AppProps): JSX.Element {
   const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
 
-  const [globals, isAuthenticated, loading, error] = useGlobals(props.ltiKey)
-  if (isAuthenticated === undefined || loading) return <div className='App'><p>Loading...</p></div>
+  const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals(props.ltiKey)
+
+  const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
+  const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
+    async (ltiKey: string|undefined, courseId: number): Promise<CanvasCourseBase> => {
+      return await getCourse(ltiKey, courseId)
+    },
+    (value: CanvasCourseBase|undefined) => setCourse(value)
+  )
+
+  useEffect(() => {
+    if (globals !== undefined) {
+      void doLoadCourse(props.ltiKey, globals.course.id)
+    }
+  }, [globals])
+
+  if (isAuthenticated === undefined || isGlobalsLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
 
   if (error !== undefined) console.error(error)
   if (globals === undefined || !isAuthenticated) {
@@ -84,14 +101,13 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} />)} />
+            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
               return <Route key={feature.data.id} path={feature.route} component={feature.component} />
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
         </Router>
-        <ConsumerTest ltiKey={props.ltiKey} />
         {
           globals?.environment === 'development' && props.ltiKey !== undefined &&
             <Link href={`/swagger?token=${props.ltiKey}`}>Swagger UI</Link>

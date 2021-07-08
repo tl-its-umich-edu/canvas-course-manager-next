@@ -2,7 +2,7 @@ import { SessionData } from 'express-session'
 import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
-import { APIErrorData, Globals, HelloData } from './api.interfaces'
+import { APIErrorData, Globals } from './api.interfaces'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
@@ -13,12 +13,6 @@ const logger = baseLogger.child({ filePath: __filename })
 @Injectable()
 export class APIService {
   constructor (private readonly canvasService: CanvasService) {}
-
-  getHello (): HelloData {
-    return {
-      message: 'You successfully communicated with the backend server. Hooray!'
-    }
-  }
 
   getGlobals (sessionData: SessionData): Globals {
     return {

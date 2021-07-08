@@ -2,14 +2,12 @@ import React, { useRef, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Button, Grid, TextField } from '@material-ui/core'
 import { Edit as EditIcon } from '@material-ui/icons'
-import { useSnackbar } from 'notistack'
 import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
 interface InlineTextEditProps {
   text: string
   placeholderText: string
-  successMessage: string
-  failureMessage: string
+  isSaving: boolean
   save: (text: string) => Promise<void>
 }
 
@@ -39,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     fontSize: '24px'
   },
+  editIconDisabled: {
+    fontSize: '24px',
+    opacity: '75%'
+  },
   inputArea: {
     width: '500px'
   }
@@ -49,21 +51,16 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false)
   const [textValue, setTextValue] = useState(props.text)
   const [tempTextValue, setTempTextValue] = useState(props.text)
-
   const textInput = useRef(null)
-
-  const { enqueueSnackbar } = useSnackbar()
 
   const save = (): void => {
     setIsEditing(false)
     if (textValue === tempTextValue) return
     props.save(tempTextValue)
       .then(() => {
-        enqueueSnackbar(props.successMessage, { variant: 'success' })
         setTextValue(tempTextValue)
       })
       .catch(function () {
-        enqueueSnackbar(props.failureMessage, { variant: 'error' })
         cancel()
       })
   }
@@ -85,6 +82,14 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
     }
   }
 
+  const renderEditButton = (): JSX.Element => {
+    if (!props.isSaving) {
+      return (<EditIcon className={classes.editIcon} fontSize='inherit' onClick={toggleEdit}/>)
+    } else {
+      return (<EditIcon className={classes.editIconDisabled} fontSize='inherit'/>)
+    }
+  }
+
   return (
     <form className={classes.root} noValidate autoComplete="off">
       <Grid container className={classes.inputArea}>
@@ -92,13 +97,13 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
           <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 24 } }} ref={textInput} id="standard-basic" placeholder={props.placeholderText} value={tempTextValue} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempTextValue(e.target.value)} disabled={!isEditing}/>
         </Grid>
         {!isEditing
-          ? (<Grid item xs={4} className={classes.inputRow}><EditIcon className={classes.editIcon} fontSize='inherit' onClick={toggleEdit}/></Grid>)
+          ? (<Grid item xs={4} className={classes.inputRow}>{renderEditButton()}</Grid>)
           : (<Grid container item xs={12} sm={4} className={classes.inputRow}>
               <Grid item xs={6} sm={6} >
-                <Button disabled={textValue === tempTextValue} onClick={save}>Save</Button>
+                <Button disabled={textValue === tempTextValue || props.isSaving} onClick={save}>Save</Button>
               </Grid>
               <Grid item xs={6} sm={6} >
-                <Button onClick={cancel}>Cancel</Button>
+                <Button disabled={props.isSaving} onClick={cancel}>Cancel</Button>
               </Grid>
             </Grid>)
         }
