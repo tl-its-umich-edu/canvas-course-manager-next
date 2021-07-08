@@ -28,6 +28,7 @@ export interface CanvasCourseBase {
 
 export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
+  sections: object[]
 }
 
 interface CanvasError {
