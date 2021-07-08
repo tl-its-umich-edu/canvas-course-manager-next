@@ -47,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
-  console.log('InlineTextEdit')
   const classes = useStyles()
   const [isEditing, setIsEditing] = useState(false)
   const [textValue, setTextValue] = useState(props.text)
