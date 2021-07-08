@@ -93,7 +93,6 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
 
   return (
     <form className={classes.root} noValidate autoComplete="off">
-      Is Saving &quot;{props.isSaving.toString()}&quot;
       <Grid container className={classes.inputArea}>
         <Grid item xs={8} sm={8}>
           <TextField className={classes.inputRow} aria-readonly={false} onClick={toggleEdit} inputProps={{ style: { fontSize: 24 } }} ref={textInput} id="standard-basic" placeholder={props.placeholderText} value={tempTextValue} onKeyDown={(e) => keyPress(e.code)} onChange={(e) => setTempTextValue(e.target.value)} disabled={!isEditing}/>
