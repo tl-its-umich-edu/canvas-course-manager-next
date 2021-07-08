@@ -4,7 +4,6 @@ import { SnackbarProvider } from 'notistack'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
-import ConsumerTest from './components/ConsumerTest'
 import useGlobals from './hooks/useGlobals'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
@@ -109,7 +108,6 @@ function App (props: AppProps): JSX.Element {
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
         </Router>
-        <ConsumerTest ltiKey={props.ltiKey} />
         {
           globals?.environment === 'development' && props.ltiKey !== undefined &&
             <Link href={`/swagger?token=${props.ltiKey}`}>Swagger UI</Link>
