@@ -49,7 +49,7 @@ function App (props: AppProps): JSX.Element {
     if (globals !== undefined) {
       void doLoadCourse(props.ltiKey, globals.course.id)
     }
-  }, [isGlobalsLoading])
+  }, [globals])
 
   if (isAuthenticated === undefined || isGlobalsLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
 
