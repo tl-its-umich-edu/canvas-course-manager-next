@@ -8,7 +8,6 @@ declare module 'express-session' {
   }
 
   interface CustomData {
-    ltiKey: string
     userLoginId: string
     course: course
     isRootAdmin: boolean

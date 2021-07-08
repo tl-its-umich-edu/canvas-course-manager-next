@@ -1,5 +1,6 @@
 import path from 'path'
 
+import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import session from 'express-session'
 import { Sequelize } from 'sequelize-typescript'
@@ -18,7 +19,6 @@ const logger = baseLogger.child({ filePath: __filename })
 
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  app.enableCors({ credentials: true })
 
   const configService = app.get(ConfigService)
   const sequelize = app.get(Sequelize)
@@ -35,6 +35,9 @@ async function bootstrap (): Promise<void> {
 
   app.set('trust proxy', 1)
 
+  // TO DO: Use the same secret for session, jwt, cookies?
+  app.use(cookieParser(serverConfig.encryptionSecret))
+
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
@@ -42,7 +45,7 @@ async function bootstrap (): Promise<void> {
   app.use(
     session({
       store: sessionStore,
-      secret: serverConfig.sessionSecret,
+      secret: serverConfig.encryptionSecret,
       resave: false,
       saveUninitialized: false,
       proxy: true,

@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
 import {
-  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException
+  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
 } from '@nestjs/common'
 
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 
 import baseLogger from '../logger'
 
@@ -14,6 +15,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('redirectOAuth')
   async redirectToOAuth (
     @Req() req: Request, @Res() res: Response
@@ -25,12 +27,12 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    const { ltiKey, userLoginId } = req.session.data
+    const { userLoginId } = req.session.data
 
     const token = await this.canvasService.findToken(userLoginId)
     if (token !== null) {
       logger.debug(`User ${userLoginId} already has a CanvasToken record; redirecting to home page...`)
-      return res.redirect(`/?ltik=${ltiKey}`)
+      return res.redirect('/')
     }
 
     const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
@@ -38,10 +40,7 @@ export class CanvasController {
     res.redirect(fullURL)
   }
 
-  /*
-  Not behind ltijs authentication; this seems necessary, right?
-  See provider.whitelist in LTIService
-  */
+  @UseGuards(JwtAuthGuard)
   @Get('returnFromOAuth')
   async returnFromOAuth (
     @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery, @Req() req: Request, @Res() res: Response
@@ -65,10 +64,8 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    // Create token for user
-    const { ltiKey, userLoginId } = req.session.data
+    const { userLoginId } = req.session.data
     await this.canvasService.createTokenForUser(userLoginId, query.code)
-
-    res.redirect(`/?ltik=${ltiKey}`)
+    res.redirect('/')
   }
 }
