@@ -3,7 +3,7 @@ import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
-import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
+import { CanvasCourse, CanvasCourseBase, CanvasCourseSections } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
