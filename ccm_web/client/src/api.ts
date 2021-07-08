@@ -1,5 +1,5 @@
 import { CanvasCourseBase } from './models/canvas'
-import { Globals, HelloMessageData } from './models/models'
+import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 export interface LtiProps {
@@ -44,13 +44,6 @@ export const getCourse = async (key: string | undefined, courseId: number): Prom
 export const setCourseName = async (key: string | undefined, courseId: number, newName: string): Promise<CanvasCourseBase> => {
   const request = getPut(key, JSON.stringify({ newName: newName }))
   const resp = await fetch(`/api/course/${courseId}/name`, request)
-  await handleErrors(resp)
-  return await resp.json()
-}
-
-export const getHelloMessageData = async (key: string | undefined): Promise<HelloMessageData> => {
-  const request = getGet(key)
-  const resp = await fetch('/api/hello', request)
   await handleErrors(resp)
   return await resp.json()
 }
