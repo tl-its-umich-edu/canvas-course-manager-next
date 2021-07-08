@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography } from '@material-ui/core'
+import { useSnackbar } from 'notistack'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { LtiProps } from '../api'
+import { setCourseName as apiSetCourseName, LtiProps } from '../api'
 import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
+import { CanvasCourseBase } from '../models/canvas'
+import usePromise from '../hooks/usePromise'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,10 +33,34 @@ const useStyles = makeStyles((theme) => ({
 interface HomeProps extends LtiProps {
   ltiKey: string | undefined
   globals: Globals
+  course: CanvasCourseBase | undefined
+  getCourseError: Error | undefined
+  setCourse: (course: CanvasCourseBase|undefined) => void
 }
 
 function Home (props: HomeProps): JSX.Element {
+  const { enqueueSnackbar } = useSnackbar()
   const classes = useStyles()
+
+  const setCourseNameAsync = async (
+    newCourseName: string
+  ): Promise<CanvasCourseBase|undefined> => {
+    return await apiSetCourseName(props.ltiKey, props.globals.course.id, newCourseName)
+  }
+
+  const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(
+    setCourseNameAsync,
+    (course: CanvasCourseBase|undefined) => {
+      props.setCourse(course)
+      enqueueSnackbar('Course name saved', { variant: 'success' })
+    }
+  )
+
+  useEffect(() => {
+    if (setCourseNameError !== undefined) {
+      enqueueSnackbar('Error saving course name', { variant: 'error' })
+    }
+  }, [setCourseNameError])
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
     return (
@@ -61,18 +88,12 @@ function Home (props: HomeProps): JSX.Element {
   }
 
   const renderCourseRename = (): JSX.Element => {
-    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      const saveCourseName = async (courseName: string): Promise<void> => await new Promise<void>((resolve, reject) => {
-        console.log('saveCourseName ' + courseName)
-        if (courseName === 'reject') {
-          reject(new Error('Rejected as requested'))
-        } else {
-          return resolve()
-        }
-      })
-      return (<InlineTextEdit {...{ text: 'Course 123ABC', save: saveCourseName, placeholderText: 'Course name', successMessage: 'Saved', failureMessage: 'Error saving course name' }}/>)
+    if (props.course === undefined) {
+      return (<div className={classes.courseName}>Error getting course name</div>)
+    } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
+      return (<InlineTextEdit {...{ text: props.course.name, save: doSetCourseName, placeholderText: 'Course name', isSaving: setCourseNameLoading }}/>)
     } else {
-      return (<Typography className={classes.courseName} variant='h5' component='h1'>Course 123ABC</Typography>)
+      return (<Typography className={classes.courseName} variant='h5' component='h1'>{props.course.name}</Typography>)
     }
   }
 
