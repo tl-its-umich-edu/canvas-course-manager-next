@@ -7,7 +7,6 @@ import BulkSectionCreateUploadConfirmationTable, { Section } from '../components
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import { createSectionsProps } from '../models/feature'
-import { CCMComponentProps } from '../models/FeatureUIData'
 import usePromise from '../hooks/usePromise'
 import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
@@ -139,9 +138,7 @@ interface BulkSectionCreatePageStateData {
   schemaInvalidation: SectionsSchemaInvalidation[]
 }
 
-interface BulkSectionCreateProps extends CCMComponentProps {}
-
-function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
+function BulkSectionCreate (): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
@@ -154,7 +151,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
-    async () => await getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?'),
+    async () => await getCourseSections('TODO-CourseNumberFromProps?'),
     (value: string[]) => setExistingSectionNames(value.map(s => { return s.toUpperCase() }))
   )
 

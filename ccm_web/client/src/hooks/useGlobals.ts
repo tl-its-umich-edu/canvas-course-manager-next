@@ -5,7 +5,7 @@ import * as api from '../api'
 import { Globals } from '../models/models'
 
 /* Hook for fetching global data and checking whether user is authenticated. */
-function useGlobals (ltiKey: string | undefined): [
+function useGlobals (): [
   Globals | undefined,
   boolean | undefined,
   boolean,
@@ -13,7 +13,7 @@ function useGlobals (ltiKey: string | undefined): [
 ] {
   const [globals, setGlobals] = useState(undefined as Globals | undefined)
 
-  const getGlobals = async (): Promise<Globals> => await api.getGlobals(ltiKey)
+  const getGlobals = async (): Promise<Globals> => await api.getGlobals()
   const [doGetGlobals, getGlobalsLoading, getGlobalsError] = usePromise(
     getGlobals,
     (value: Globals) => setGlobals(value)
@@ -23,7 +23,7 @@ function useGlobals (ltiKey: string | undefined): [
   }, [])
 
   let isAuthenticated
-  if (ltiKey !== undefined && globals !== undefined) {
+  if (globals !== undefined) {
     isAuthenticated = true
   } else if (getGlobalsError !== undefined) {
     isAuthenticated = false

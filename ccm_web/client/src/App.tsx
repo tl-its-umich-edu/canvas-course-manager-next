@@ -26,27 +26,23 @@ interface TitleTypographyProps {
   to?: string
 }
 
-interface AppProps {
-  ltiKey: string | undefined
-}
-
-function App (props: AppProps): JSX.Element {
+function App (): JSX.Element {
   const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
 
-  const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals(props.ltiKey)
+  const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals()
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
-    async (ltiKey: string|undefined, courseId: number): Promise<CanvasCourseBase> => {
-      return await getCourse(ltiKey, courseId)
+    async (courseId: number): Promise<CanvasCourseBase> => {
+      return await getCourse(courseId)
     },
     (value: CanvasCourseBase|undefined) => setCourse(value)
   )
 
   useEffect(() => {
     if (globals !== undefined) {
-      void doLoadCourse(props.ltiKey, globals.course.id)
+      void doLoadCourse(globals.course.id)
     }
   }, [globals])
 
@@ -101,17 +97,14 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
+            <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
               return <Route key={feature.data.id} path={feature.route} component={feature.component} />
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
         </Router>
-        {
-          globals?.environment === 'development' && props.ltiKey !== undefined &&
-            <Link href={`/swagger?token=${props.ltiKey}`}>Swagger UI</Link>
-        }
+        {globals?.environment === 'development' && <Link href='/swagger'>Swagger UI</Link>}
       </SnackbarProvider>
     </div>
   )
