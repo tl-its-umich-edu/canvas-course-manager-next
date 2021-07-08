@@ -41,6 +41,10 @@ export interface CanvasCourse extends CanvasCourseBase {
   sections: object[]
 }
 
+export interface CanvasCourseSections extends CanvasCourseBase {
+  sections: object[]
+}
+
 // Errors
 
 interface CanvasError {
