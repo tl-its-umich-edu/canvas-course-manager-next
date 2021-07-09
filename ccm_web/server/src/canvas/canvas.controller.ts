@@ -6,6 +6,8 @@ import {
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { UserDec } from '../user/user.decorator'
+import { User } from '../user/user.model'
 
 import baseLogger from '../logger'
 
@@ -18,7 +20,7 @@ export class CanvasController {
   @UseGuards(JwtAuthGuard)
   @Get('redirectOAuth')
   async redirectToOAuth (
-    @Req() req: Request, @Res() res: Response
+    @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
     logger.debug('Pulling session data, checking for Canvas token, and redirecting to Canvas for OAuth...')
 
@@ -27,11 +29,8 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    const { userLoginId } = req.session.data
-
-    const token = await this.canvasService.findToken(userLoginId)
-    if (token !== null) {
-      logger.debug(`User ${userLoginId} already has a CanvasToken record; redirecting to home page...`)
+    if (user.canvasToken !== null) {
+      logger.debug(`User ${user.loginId} already has a CanvasToken record; redirecting to home page...`)
       return res.redirect('/')
     }
 
@@ -43,7 +42,8 @@ export class CanvasController {
   @UseGuards(JwtAuthGuard)
   @Get('returnFromOAuth')
   async returnFromOAuth (
-    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery, @Req() req: Request, @Res() res: Response
+    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,
+      @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
     logger.debug(`Session ID: ${req.sessionID}`)
@@ -64,8 +64,7 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    const { userLoginId } = req.session.data
-    await this.canvasService.createTokenForUser(userLoginId, query.code)
+    await this.canvasService.createTokenForUser(user, query.code)
     res.redirect('/')
   }
 }
