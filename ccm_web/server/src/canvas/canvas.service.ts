@@ -125,8 +125,7 @@ export class CanvasService {
       logger.error(`User ${userLoginId} is not in the database.`)
       throw new UserNotFoundError(userLoginId)
     }
-    const token = user.canvasToken === undefined ? null : user.canvasToken
-    return token
+    return user.canvasToken
   }
 
   async refreshToken (token: CanvasToken): Promise<CanvasToken> {
