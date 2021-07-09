@@ -22,16 +22,32 @@ const getSteps = (): string[] => {
   return ['Select', 'Upload', 'Review', 'Confirmation']
 }
 
+const getSelectContent = (): JSX.Element => {
+  return (<div>Select</div>)
+}
+
+const getUploadContent = (): JSX.Element => {
+  return (<div>Upload</div>)
+}
+
+const getReviewContent = (): JSX.Element => {
+  return (<div>Review</div>)
+}
+
+const getConfimationContent = (): JSX.Element => {
+  return (<div>Confirmation</div>)
+}
+
 const getStepContent = (stepIndex: number): JSX.Element => {
   switch (stepIndex) {
     case 0:
-      return (<div>Select</div>)
+      return getSelectContent()
     case 1:
-      return (<div>Upload</div>)
+      return getUploadContent()
     case 2:
-      return (<div>Review</div>)
+      return getReviewContent()
     default:
-      return (<div>Confirmation</div>)
+      return getConfimationContent()
   }
 }
 
