@@ -63,13 +63,6 @@ async function bootstrap (): Promise<void> {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Canvas Course Manager')
       .setDescription('CCM application API description and explorer')
-      .addBearerAuth({
-        type: 'http',
-        description: (
-          'The bearer token can be found in the "token" URL parameter' +
-          ' (use a browser tool to view the URL of the frame).'
-        )
-      })
       .build()
 
     const document = SwaggerModule.createDocument(app, swaggerConfig)
