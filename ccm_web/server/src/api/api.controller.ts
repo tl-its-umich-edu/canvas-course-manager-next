@@ -1,40 +1,42 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, HttpException, Param, ParseIntPipe, Put, Session
+  Body, Controller, Get, HttpException, Param, ParseIntPipe, Put, Session, UseGuards
 } from '@nestjs/common'
-import { ApiBearerAuth } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { CanvasCourseBase } from '../canvas/canvas.interfaces'
+import { UserDec } from '../user/user.decorator'
+import { User } from '../user/user.model'
 
-@ApiBearerAuth()
 @Controller('api')
 export class APIController {
   constructor (private readonly apiService: APIService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('globals')
-  getGlobals (@Session() session: SessionData): Globals {
-    return this.apiService.getGlobals(session)
+  getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
+    return this.apiService.getGlobals(user, session)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('course/:id/name')
   async getCourseName (
-    @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
+    @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
-    const { userLoginId } = session.data
-    const result = await this.apiService.getCourseName(userLoginId, courseId)
+    const result = await this.apiService.getCourseName(user, courseId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('course/:id/name')
   async putCourseName (
-    @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @Session() session: SessionData
+    @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
-    const { userLoginId } = session.data
-    const result = await this.apiService.putCourseName(userLoginId, courseId, courseNameDto.newName)
+    const result = await this.apiService.putCourseName(user, courseId, courseNameDto.newName)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
