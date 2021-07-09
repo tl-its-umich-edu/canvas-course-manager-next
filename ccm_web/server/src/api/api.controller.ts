@@ -8,6 +8,8 @@ import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { CanvasCourseBase } from '../canvas/canvas.interfaces'
+import { UserDec } from '../user/user.decorator'
+import { User } from '../user/user.model'
 
 @Controller('api')
 export class APIController {
@@ -15,17 +17,16 @@ export class APIController {
 
   @UseGuards(JwtAuthGuard)
   @Get('globals')
-  getGlobals (@Session() session: SessionData): Globals {
-    return this.apiService.getGlobals(session)
+  getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
+    return this.apiService.getGlobals(user, session)
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('course/:id/name')
   async getCourseName (
-    @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
+    @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
-    const { userLoginId } = session.data
-    const result = await this.apiService.getCourseName(userLoginId, courseId)
+    const result = await this.apiService.getCourseName(user, courseId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
@@ -33,10 +34,9 @@ export class APIController {
   @UseGuards(JwtAuthGuard)
   @Put('course/:id/name')
   async putCourseName (
-    @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @Session() session: SessionData
+    @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
-    const { userLoginId } = session.data
-    const result = await this.apiService.putCourseName(userLoginId, courseId, courseNameDto.newName)
+    const result = await this.apiService.putCourseName(user, courseId, courseNameDto.newName)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
