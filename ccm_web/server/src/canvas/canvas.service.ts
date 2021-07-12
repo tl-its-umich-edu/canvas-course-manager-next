@@ -3,6 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
+import { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
@@ -180,7 +181,8 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
+    const options: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] } }
+    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken, options)
     return requestor
   }
 }
