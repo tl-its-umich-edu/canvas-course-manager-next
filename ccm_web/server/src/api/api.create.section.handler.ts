@@ -11,9 +11,7 @@ export class CreateSectionApiHandler {
 
   async apiCreateSection (sectionName: string): Promise<CreateSectionsResponseObject> {
     try {
-      const fake = `courses/${this.courseId}/sections/ding/dong`
-      const real = `courses/${this.courseId}/sections`
-      const endpoint = Math.random() < 0.5 ? real : fake
+      const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)

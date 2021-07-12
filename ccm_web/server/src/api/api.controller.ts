@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
-import { HelloData, isAPIErrorData, Globals } from './api.interfaces'
+import { isAPIErrorData, Globals } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
@@ -14,11 +14,6 @@ import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 @Controller('api')
 export class APIController {
   constructor (private readonly apiService: APIService) {}
-
-  @Get('hello')
-  getHello (): HelloData {
-    return this.apiService.getHello()
-  }
 
   @Get('globals')
   getGlobals (@Session() session: SessionData): Globals {
