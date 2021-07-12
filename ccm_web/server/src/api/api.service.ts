@@ -1,18 +1,26 @@
 import { SessionData } from 'express-session'
-import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
-import { APIErrorData, Globals } from './api.interfaces'
+import { APIErrorData, CreateSectionReturnResponse, Globals, HelloData, handleAPIError } from './api.interfaces'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
+import { CreateSectionApiHandler } from './api.create.section.handler'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 @Injectable()
 export class APIService {
-  constructor (private readonly canvasService: CanvasService) {}
+  constructor (private readonly canvasService: CanvasService) {
+
+  }
+
+  getHello (): HelloData {
+    return {
+      message: 'You successfully communicated with the backend server. Hooray!'
+    }
+  }
 
   getGlobals (sessionData: SessionData): Globals {
     return {
@@ -22,18 +30,6 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       }
-    }
-  }
-
-  static handleAPIError (error: unknown): APIErrorData {
-    if (error instanceof HTTPError) {
-      const { statusCode, body } = error.response
-      logger.error(`Received unusual status code ${String(statusCode)}`)
-      logger.error(`Response body: ${JSON.stringify(body)}`)
-      return { statusCode, message: `Error(s) from Canvas: ${CanvasService.parseErrorBody(body)}` }
-    } else {
-      logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
-      return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
     }
   }
 
@@ -47,7 +43,9 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const apiError = handleAPIError(error)
+      logger.error(`Failed with ${apiError.statusCode} in getting  the course name due to ${apiError.message} `)
+      return apiError
     }
   }
 
@@ -65,7 +63,15 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const apiError = handleAPIError(error)
+      logger.error(`Failed with ${apiError.statusCode} updading course name due to ${apiError.message} `)
+      return apiError
     }
+  }
+
+  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CreateSectionReturnResponse> {
+    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
+    const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
+    return await createSectionsApiHandler.createSectionBase()
   }
 }
