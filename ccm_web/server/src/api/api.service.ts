@@ -41,8 +41,7 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}`
-      const queryParams = {'include[]': 'sections'}
-      // const queryParams = {include: 'sections', include: 'total_students'}
+      const queryParams = {'include[]': 'sections', 'include[]': 'total_students'}
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
       const response = await requestor.get<CanvasCourse>(endpoint, queryParams)
       logger.debug(`Received response with status code ${response.statusCode}`)
