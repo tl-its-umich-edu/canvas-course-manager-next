@@ -42,7 +42,7 @@ export class APIService {
     try {
       const endpoint = `courses/${courseId}`
       const queryString = require('query-string');
-      const queryParams = queryString.stringify({key: ['a', 'b']}, {arrayFormat: 'bracket'})
+      const queryParams = queryString.stringify({'include': ['sections', 'total_students']}, {arrayFormat: 'bracket'})
       // const queryParams = {'include[]=sections&include[]': 'total_students'} // Canvas API error
       // const queryParams = {'include[]': ['sections', 'total_students']} // Canvas API error
       // const queryParams = {'include[]': 'sections', 'include[]': 'total_students'} // TS error
