@@ -13,9 +13,7 @@ const logger = baseLogger.child({ filePath: __filename })
 
 @Injectable()
 export class APIService {
-  constructor (private readonly canvasService: CanvasService) {
-
-  }
+  constructor (private readonly canvasService: CanvasService) {}
 
   getGlobals (sessionData: SessionData): Globals {
     return {
