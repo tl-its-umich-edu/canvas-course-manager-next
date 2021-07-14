@@ -1,9 +1,4 @@
-import { HTTPError } from 'got'
 import { hasKeys } from '../typeUtils'
-
-export interface HelloData {
-  message: string
-}
 
 export interface Globals {
   environment: 'production' | 'development'
@@ -18,35 +13,31 @@ export interface APIErrorData {
   statusCode: number
   message: string
 }
-export interface CreateSectionsResponseObject extends APIErrorData {
-  sectionName: string
-}
-
 export interface CanvasSectionBase {
+  id: number
   name: string
 }
-
-export interface CreateSectionReturnResponse {
-  statusCode: number
-  message: Record<any, unknown>
+export interface createSectionError {
+  sectionName: string
+  message: string
 }
 
-export interface CreateSectionResponseData {
+export interface CreateSectionsAPIErrorData {
+  statusCode: number
+  errors: createSectionError[]
+}
+export interface CreateSectionTempDataStore {
   givenSections: number
   createdSections: number
+  allSuccess: CanvasSectionBase[]
   statusCode: number[]
-  error: Record<any, unknown>
+  errors: createSectionError[]
 }
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
   return hasKeys(value, ['statusCode', 'message'])
 }
 
-export function handleAPIError (error: unknown): APIErrorData {
-  if (error instanceof HTTPError) {
-    const { statusCode, statusMessage } = error.response
-    return { statusCode, message: `Error(s) from Canvas:  ${statusMessage as string}` }
-  } else {
-    return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
-  }
+export function isAPICreateSectionErrorData (value: unknown): value is CreateSectionsAPIErrorData {
+  return hasKeys(value, ['statusCode', 'errors'])
 }

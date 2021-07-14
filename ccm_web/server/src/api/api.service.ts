@@ -1,12 +1,13 @@
 import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 
-import { APIErrorData, CreateSectionReturnResponse, Globals, handleAPIError } from './api.interfaces'
+import { APIErrorData, CanvasSectionBase, CreateSectionsAPIErrorData, Globals } from './api.interfaces'
+import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
-import { CreateSectionApiHandler } from './api.create.section.handler'
+import { handleAPIError } from './api.utils'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -36,7 +37,6 @@ export class APIService {
       return { id: course.id, name: course.name }
     } catch (error) {
       const apiError = handleAPIError(error)
-      logger.error(`Failed with ${apiError.statusCode} in getting  the course name due to ${apiError.message} `)
       return apiError
     }
   }
@@ -56,12 +56,11 @@ export class APIService {
       return { id: course.id, name: course.name }
     } catch (error) {
       const apiError = handleAPIError(error)
-      logger.error(`Failed with ${apiError.statusCode} updading course name due to ${apiError.message} `)
       return apiError
     }
   }
 
-  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CreateSectionReturnResponse> {
+  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
     return await createSectionsApiHandler.createSectionBase()
