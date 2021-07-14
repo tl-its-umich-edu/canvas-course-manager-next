@@ -10,7 +10,7 @@ export function handleAPIError (error: unknown): APIErrorData {
     const { statusCode, statusMessage } = error.response
     logger.error(`Received unusual status code ${String(statusCode)}`)
     logger.error(`Response body: ${JSON.stringify(statusMessage)}`)
-    return { statusCode, message: `Error(s) from Canvas:  ${statusMessage as string}` }
+    return { statusCode, message: `Error(s) from Canvas: ${String(statusMessage)}` }
   } else {
     logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
     return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
