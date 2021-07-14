@@ -17,7 +17,8 @@ export interface CanvasSectionBase {
   id: number
   name: string
 }
-export interface createSectionError {
+
+export interface CreateSectionError {
   failedInput: string
   message: string
 }
