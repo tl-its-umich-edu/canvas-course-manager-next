@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
-import { isAPIErrorData, Globals } from './api.interfaces'
+import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
