@@ -2,12 +2,12 @@ import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, CanvasSectionBase, CreateSectionsAPIErrorData, Globals } from './api.interfaces'
+import { handleAPIError } from './api.utils'
 import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
-import { handleAPIError } from './api.utils'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -36,8 +36,7 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      const apiError = handleAPIError(error)
-      return apiError
+      return handleAPIError(error)
     }
   }
 
@@ -55,8 +54,7 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      const apiError = handleAPIError(error)
-      return apiError
+      return handleAPIError(error)
     }
   }
 
