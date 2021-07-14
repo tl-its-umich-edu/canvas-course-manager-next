@@ -37,7 +37,7 @@ export class APIService {
     }
   }
 
-  async getCourseSections (userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
+  async getCourseSections(userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}/sections`
