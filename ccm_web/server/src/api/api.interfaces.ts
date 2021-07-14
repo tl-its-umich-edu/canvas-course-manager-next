@@ -34,6 +34,7 @@ export interface CreateSectionReturnResponse {
   statusCode: number
   message: Record<any, unknown>
 }
+
 export interface CreateSectionResponseData{
   givenSections: number
   createdSections: number
