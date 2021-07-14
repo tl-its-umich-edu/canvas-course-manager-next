@@ -30,12 +30,12 @@ export interface CreateSectionError {
 
 export interface CreateSectionsAPIErrorData {
   statusCode: number
-  errors: createSectionError[]
+  errors: CreateSectionError[]
 }
 export interface CreateSectionTempDataStore {
   allSuccess: CanvasSectionBase[]
   statusCode: number[]
-  errors: createSectionError[]
+  errors: CreateSectionError[]
 }
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
