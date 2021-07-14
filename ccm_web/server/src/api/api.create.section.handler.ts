@@ -1,6 +1,6 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { CreateSectionTempDataStore, CanvasSectionBase, CreateSectionsAPIErrorData, APIErrorData, isAPICreateSectionErrorData } from './api.interfaces'
+import { CanvasSectionBase, CreateSectionsAPIErrorData, APIErrorData, isAPICreateSectionErrorData } from './api.interfaces'
 import { handleAPIError } from './api.utils'
 
 import baseLogger from '../logger'
@@ -34,25 +34,24 @@ export class CreateSectionApiHandler {
   }
 
   makeReturnResponseCreateSections (sectionsReturnRes: Array<CreateSectionsAPIErrorData | CanvasSectionBase>): CanvasSectionBase[] | CreateSectionsAPIErrorData {
-    const sectionsDataStore: CreateSectionTempDataStore = { successes: [], statusCodes: [], errors: [] }
+    const successes = []; const statusCodes = []; const errorsList = []
     for (const section of sectionsReturnRes) {
       if (isAPICreateSectionErrorData(section)) {
         const { statusCode, errors } = section
-        sectionsDataStore.errors.push(...errors)
-        sectionsDataStore.statusCodes.push(statusCode)
+        errorsList.push(...errors)
+        statusCodes.push(statusCode)
       } else {
-        sectionsDataStore.successes.push(section)
+        successes.push(section)
       }
     }
 
-    if (sectionsDataStore.successes.length === this.sections.length) {
-      return sectionsDataStore.successes
+    if (successes.length === this.sections.length) {
+      return successes
     } else {
-      const statusCodes = [...new Set(sectionsDataStore.statusCodes)]
-      const statusCode = [...new Set(sectionsDataStore.statusCodes)].length > 1 ? 400 : statusCodes[0]
+      const uniqueStatusCodes = [...new Set(statusCodes)]
       return {
-        statusCode: statusCode,
-        errors: sectionsDataStore.errors
+        statusCode: uniqueStatusCodes.length > 1 ? 400 : uniqueStatusCodes[0],
+        errors: errorsList
       }
     }
   }
