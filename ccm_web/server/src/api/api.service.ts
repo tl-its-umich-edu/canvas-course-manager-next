@@ -3,7 +3,7 @@ import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
-import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
+import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
@@ -34,6 +34,26 @@ export class APIService {
     } else {
       logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
       return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
+    }
+  }
+
+  async getCourseSections(userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
+    try {
+      const endpoint = `courses/${courseId}/sections`
+      const queryParams = {'include': ['total_students']} // use list for "include" values
+      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
+      const response = await requestor.get<CanvasCourseSection[]>(endpoint, queryParams)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      const sections = response.body.map(s => ({
+        'id': s.id,
+        'name': s.name,
+        'total_students': s.total_students
+      }))
+
+      return sections
+    } catch (error) {
+      return APIService.handleAPIError(error)
     }
   }
 
