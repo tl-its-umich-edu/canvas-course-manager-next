@@ -1,4 +1,3 @@
-// import { CanvasService } from '../canvas/canvas.service'
 import { HTTPError } from 'got'
 import { hasKeys } from '../typeUtils'
 
