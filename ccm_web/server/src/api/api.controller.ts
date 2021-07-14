@@ -7,7 +7,7 @@ import { ApiBearerAuth } from '@nestjs/swagger'
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
-import { CanvasCourseBase } from '../canvas/canvas.interfaces'
+import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
 
 @ApiBearerAuth()
 @Controller('api')
@@ -22,7 +22,7 @@ export class APIController {
   @Get('course/:id/sections')
   async getCourseSections (
     @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
-  ): Promise<CanvasCourseBase> {
+  ): Promise<CanvasCourseSection[]> {
     const { userLoginId } = session.data
     const result = await this.apiService.getCourseSections(userLoginId, courseId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
