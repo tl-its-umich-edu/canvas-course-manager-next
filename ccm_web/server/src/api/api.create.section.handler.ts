@@ -38,7 +38,7 @@ export class CreateSectionApiHandler {
     for (const section of sectionsReturnRes) {
       if (isAPICreateSectionErrorData(section)) {
         const { statusCode, errors } = section
-        sectionsDataStore.errors.push(errors[0])
+        sectionsDataStore.errors.push(...errors)
         sectionsDataStore.statusCodes.push(statusCode)
       } else {
         sectionsDataStore.successes.push(section)
