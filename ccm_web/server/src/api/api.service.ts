@@ -3,7 +3,7 @@ import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
-import { CanvasCourse, CanvasCourseBase, CanvasCourseSections } from '../canvas/canvas.interfaces'
+import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
@@ -37,13 +37,13 @@ export class APIService {
     }
   }
 
-  async getCourseSections (userLoginId: string, courseId: number): Promise<CanvasCourseSections | APIErrorData> {
+  async getCourseSections (userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}/sections`
-      const queryParams = {'include': ['total_students']}
+      const queryParams = {'include': ['total_students']} // use list for "include" values
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
-      const response = await requestor.get<object>(endpoint, queryParams)
+      const response = await requestor.get<CanvasCourseSection[]>(endpoint, queryParams)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const sections = response.body
 
