@@ -34,5 +34,5 @@ export interface CreateSectionsAPIErrorData {
 }
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKeys(value, ['statusCode', 'errors'])
+  return hasKeys(value, ['statusCode', 'message'])
 }
