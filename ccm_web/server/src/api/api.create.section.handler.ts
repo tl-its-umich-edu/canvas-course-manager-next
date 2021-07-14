@@ -18,7 +18,7 @@ export class CreateSectionApiHandler {
 
   async apiCreateSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
     try {
-      const endpoint = `courses/${this.courseId}/sections`
+      const endpoint = `courses/${this.courseId}/sections/ding`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sendings request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
@@ -27,7 +27,7 @@ export class CreateSectionApiHandler {
       return { id, name }
     } catch (error) {
       const errResponse: APIErrorData = handleAPIError(error)
-      return { statusCode: errResponse.statusCode, errors: [{ message: errResponse.message, sectionName: sectionName }] }
+      return { statusCode: errResponse.statusCode, errors: [{ message: errResponse.message, failedInput: sectionName }] }
     }
   }
 
@@ -47,7 +47,7 @@ export class CreateSectionApiHandler {
       return sectionsDataStore.allSuccess
     } else {
       const statusCodes = [...new Set(sectionsDataStore.statusCode)]
-      const statusCode = statusCodes.length > 1 ? 400 : statusCodes[0]
+      const statusCode = [...new Set(sectionsDataStore.statusCode)].length > 1 ? 400 : statusCodes[0]
       return {
         statusCode: statusCode,
         errors: sectionsDataStore.errors
