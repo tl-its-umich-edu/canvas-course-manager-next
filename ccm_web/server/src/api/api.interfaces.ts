@@ -27,8 +27,6 @@ export interface CreateSectionsAPIErrorData {
   errors: createSectionError[]
 }
 export interface CreateSectionTempDataStore {
-  givenSections: number
-  createdSections: number
   allSuccess: CanvasSectionBase[]
   statusCode: number[]
   errors: createSectionError[]
