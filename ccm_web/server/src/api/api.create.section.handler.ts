@@ -20,7 +20,7 @@ export class CreateSectionApiHandler {
 
   async apiCreateSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
     try {
-      const endpoint = `courses/${this.courseId}/sections/ding`
+      const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sendings request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
