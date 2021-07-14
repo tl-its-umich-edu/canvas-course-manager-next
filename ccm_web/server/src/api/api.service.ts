@@ -2,12 +2,12 @@ import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 
 import { handleAPIError } from './api.utils'
-import { APIErrorData, CreateSectionReturnResponse, Globals } from './api.interfaces'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+import { APIErrorData, CanvasSectionBase, CreateSectionsAPIErrorData, Globals } from './api.interfaces'
+import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
-import { CreateSectionApiHandler } from './api.create.section.handler'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -83,7 +83,7 @@ export class APIService {
     }
   }
 
-  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CreateSectionReturnResponse> {
+  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
     return await createSectionsApiHandler.createSectionBase()

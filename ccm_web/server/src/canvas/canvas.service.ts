@@ -19,6 +19,7 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
+const options: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'DELETE'] } }
 
 @Injectable()
 export class CanvasService {
@@ -181,7 +182,6 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    const options: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'OPTIONS', 'TRACE'] } }
     const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken, options)
     return requestor
   }

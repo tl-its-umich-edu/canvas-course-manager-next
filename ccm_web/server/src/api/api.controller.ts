@@ -4,11 +4,15 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData } from './api.interfaces'
+import { CanvasSectionBase, CreateSectionsAPIErrorData, Globals, isAPICreateSectionErrorData, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
+<<<<<<< HEAD
 import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+=======
+>>>>>>> Refactoring based on review comments
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
+import { CanvasCourseBase } from '../canvas/canvas.interfaces'
 
 @ApiBearerAuth()
 @Controller('api')
@@ -51,11 +55,11 @@ export class APIController {
   }
 
   @Post('course/:id/sections')
-  async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @Session() session: SessionData): Promise<any> {
+  async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @Session() session: SessionData): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
     const { userLoginId } = session.data
     const sections = createSectionsDto.sections
     const result = await this.apiService.createSections(userLoginId, courseId, sections)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (isAPICreateSectionErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 }
