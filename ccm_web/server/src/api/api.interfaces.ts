@@ -27,14 +27,9 @@ export interface CreateSectionsAPIErrorData {
   statusCode: number
   errors: CreateSectionError[]
 }
-export interface CreateSectionTempDataStore {
-  successes: CanvasSectionBase[]
-  statusCodes: number[]
-  errors: CreateSectionError[]
-}
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKeys(value, ['statusCode', 'message'])
+  return hasKeys(value, ['statusCode', 'errors'])
 }
 
 export function isAPICreateSectionErrorData (value: unknown): value is CreateSectionsAPIErrorData {
