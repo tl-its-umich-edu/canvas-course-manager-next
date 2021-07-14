@@ -31,7 +31,7 @@ export interface CreateSectionReturnResponse {
   message: Record<any, unknown>
 }
 
-export interface CreateSectionResponseData{
+export interface CreateSectionResponseData {
   givenSections: number
   createdSections: number
   statusCode: number[]
