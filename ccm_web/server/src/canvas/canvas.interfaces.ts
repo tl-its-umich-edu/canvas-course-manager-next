@@ -40,7 +40,9 @@ export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
 }
 
-export interface CanvasCourseSection extends CanvasCourseBase {
+export interface CanvasCourseSection {
+  id: number
+  name: string
   total_students: number
 }
 
