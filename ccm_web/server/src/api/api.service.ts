@@ -45,7 +45,11 @@ export class APIService {
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
       const response = await requestor.get<CanvasCourseSection[]>(endpoint, queryParams)
       logger.debug(`Received response with status code ${response.statusCode}`)
-      const sections = response.body
+      const sections = response.body.map(s => ({
+        'id': s.id,
+        'name': s.name,
+        'total_students': s.total_students
+      }))
 
       return sections
     } catch (error) {
