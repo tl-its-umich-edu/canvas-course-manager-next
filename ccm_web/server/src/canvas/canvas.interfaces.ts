@@ -38,11 +38,10 @@ export interface CanvasCourseBase {
 
 export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
-  sections: object[]
 }
 
-export interface CanvasCourseSections extends CanvasCourseBase {
-  sections: object[]
+export interface CanvasCourseSection extends CanvasCourseBase {
+  total_students: number
 }
 
 // Errors
