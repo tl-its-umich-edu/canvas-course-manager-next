@@ -18,9 +18,7 @@ export class CreateSectionApiHandler {
 
   async apiCreateSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
     try {
-      const fake = `courses/${this.courseId}/sections/dig/`
-      const real = `courses/${this.courseId}/sections`
-      const endpoint = Math.random() < 0.5 ? fake : real
+      const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sendings request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
@@ -34,19 +32,18 @@ export class CreateSectionApiHandler {
   }
 
   makeReturnResponseCreateSections (sectionsReturnRes: Array<CreateSectionsAPIErrorData | CanvasSectionBase>): CanvasSectionBase[] | CreateSectionsAPIErrorData {
-    const sectionsDataStore: CreateSectionTempDataStore = { createdSections: 0, givenSections: this.sections.length, allSuccess: [], statusCode: [], errors: [] }
+    const sectionsDataStore: CreateSectionTempDataStore = { allSuccess: [], statusCode: [], errors: [] }
     for (const section of sectionsReturnRes) {
       if (isAPICreateSectionErrorData(section)) {
         const { statusCode, errors } = section
         sectionsDataStore.errors.push(errors[0])
         sectionsDataStore.statusCode.push(statusCode)
       } else {
-        sectionsDataStore.createdSections++
         sectionsDataStore.allSuccess.push(section)
       }
     }
 
-    if (sectionsDataStore.createdSections === sectionsDataStore.givenSections) {
+    if (sectionsDataStore.allSuccess.length === this.sections.length) {
       return sectionsDataStore.allSuccess
     } else {
       const statusCodes = [...new Set(sectionsDataStore.statusCode)]
