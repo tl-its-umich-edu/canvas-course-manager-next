@@ -34,22 +34,22 @@ export class CreateSectionApiHandler {
   }
 
   makeReturnResponseCreateSections (sectionsReturnRes: Array<CreateSectionsAPIErrorData | CanvasSectionBase>): CanvasSectionBase[] | CreateSectionsAPIErrorData {
-    const sectionsDataStore: CreateSectionTempDataStore = { allSuccess: [], statusCode: [], errors: [] }
+    const sectionsDataStore: CreateSectionTempDataStore = { successes: [], statusCodes: [], errors: [] }
     for (const section of sectionsReturnRes) {
       if (isAPICreateSectionErrorData(section)) {
         const { statusCode, errors } = section
         sectionsDataStore.errors.push(errors[0])
-        sectionsDataStore.statusCode.push(statusCode)
+        sectionsDataStore.statusCodes.push(statusCode)
       } else {
-        sectionsDataStore.allSuccess.push(section)
+        sectionsDataStore.successes.push(section)
       }
     }
 
-    if (sectionsDataStore.allSuccess.length === this.sections.length) {
-      return sectionsDataStore.allSuccess
+    if (sectionsDataStore.successes.length === this.sections.length) {
+      return sectionsDataStore.successes
     } else {
-      const statusCodes = [...new Set(sectionsDataStore.statusCode)]
-      const statusCode = [...new Set(sectionsDataStore.statusCode)].length > 1 ? 400 : statusCodes[0]
+      const statusCodes = [...new Set(sectionsDataStore.statusCodes)]
+      const statusCode = [...new Set(sectionsDataStore.statusCodes)].length > 1 ? 400 : statusCodes[0]
       return {
         statusCode: statusCode,
         errors: sectionsDataStore.errors
