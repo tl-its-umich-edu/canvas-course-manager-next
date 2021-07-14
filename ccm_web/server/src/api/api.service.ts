@@ -40,20 +40,14 @@ export class APIService {
   async getCourseSections (userLoginId: string, courseId: number): Promise<CanvasCourseSections | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const courseEndpoint = `courses/${courseId}`
-      logger.debug(`Sending request to Canvas - Endpoint: ${courseEndpoint}; Method: GET`)
-      const courseResponse = await requestor.get<CanvasCourse>(courseEndpoint)
-      logger.debug(`Received response with status code ${courseResponse.statusCode}`)
-      const course = courseResponse.body
-
-      const sectionsEndpoint = `courses/${courseId}/sections`
+      const endpoint = `courses/${courseId}/sections`
       const queryParams = {'include': ['total_students']}
-      logger.debug(`Sending request to Canvas - Endpoint: ${sectionsEndpoint}; Method: GET`)
-      const sectionsResponse = await requestor.get<object>(sectionsEndpoint, queryParams)
-      logger.debug(`Received response with status code ${sectionsResponse.statusCode}`)
-      const courseSections = sectionsResponse.body
+      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
+      const response = await requestor.get<object>(endpoint, queryParams)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      const sections = response.body
 
-      return {id: course.id, name: course.name, sections: [courseSections]}
+      return sections
     } catch (error) {
       return APIService.handleAPIError(error)
     }
