@@ -51,7 +51,7 @@ export class CreateSectionApiHandler {
     const apiPromises = this.sections.map(async (section) => await this.apiCreateSection(section))
     const sectionsOrErrorDataObjs = await Promise.all(apiPromises)
     const stop = process.hrtime(start)
-    logger.info(`Time Taken to ${this.sections.length} create sections : ${(stop[0] * 1e9 + stop[1]) / 1e9} seconds`)
+    logger.debug(`Time taken to create ${this.sections.length} sections : ${(stop[0] * 1e9 + stop[1]) / 1e9} seconds`)
     return this.makeReturnResponseCreateSections(sectionsOrErrorDataObjs)
   }
 }
