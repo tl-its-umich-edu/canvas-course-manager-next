@@ -18,6 +18,7 @@ export interface APIErrorPayload {
   failedInput: string
   message: string
 }
+
 export interface APIErrorData {
   statusCode: number
   errors: APIErrorPayload[]
