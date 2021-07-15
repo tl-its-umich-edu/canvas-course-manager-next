@@ -32,12 +32,13 @@ export interface Globals {
   course: Course
 }
 
-export interface SingleError {
+export interface APIErrorPayload {
+  canvasStatusCode: number
   message: string
-  failedInput: string
+  failedInput: string | null
 }
 
-export interface ErrorObj {
+export interface APIErrorData {
   statusCode: number
-  errors: SingleError[]
+  errors: APIErrorPayload[]
 }

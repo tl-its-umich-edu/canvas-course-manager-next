@@ -8,15 +8,10 @@ export interface Globals {
     roles: string[]
   }
 }
-
-export interface APIErrorHandler {
-  statusCode: number
-  message: string
-}
-
 export interface APIErrorPayload {
-  failedInput: string
+  canvasStatusCode: number
   message: string
+  failedInput: string | null
 }
 
 export interface APIErrorData {
