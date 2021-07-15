@@ -18,7 +18,7 @@ export class CreateSectionApiHandler {
     this.courseId = courseId
   }
 
-  async apiCreateSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
+  async createSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
     try {
       const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
@@ -56,10 +56,11 @@ export class CreateSectionApiHandler {
     }
   }
 
-  async createSectionBase (): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
+  async createSections (): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
     const start = process.hrtime()
-    const apiPromises = this.sections.map(async (section) => await this.apiCreateSection(section))
+    const apiPromises = this.sections.map(async (section) => await this.createSection(section))
     const sectionsOrErrorDataObjs = await Promise.all(apiPromises)
+    // https://codezup.com/measure-execution-time-javascript-node-js/
     const stop = process.hrtime(start)
     logger.debug(`Time taken to create ${this.sections.length} sections: ${(stop[0] * 1e9 + stop[1]) / 1e9} seconds`)
     return this.makeReturnResponseCreateSections(sectionsOrErrorDataObjs)
