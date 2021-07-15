@@ -23,7 +23,7 @@ export class CreateSectionApiHandler {
       const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
-      logger.debug(`Sendings request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
+      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
       const response = await this.requestor.requestUrl<CanvasSectionBase>(endpoint, method, requestBody)
       const { id, name } = response.body
       return { id, name }
