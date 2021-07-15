@@ -13,6 +13,11 @@ See also:
 declare module '@kth/canvas-api' {
   import { Got, Response as GotResponse, Options as GotOptions, Method as GotSupportedMethod } from 'got'
 
+  // T here is the relevant Canvas entity; R is the type of each element in the array returned by toArray
+  interface AugmentedAsyncGenerator<T, R> extends AsyncGenerator<T> {
+    toArray: () => Promise<R[]>
+  }
+
   class CanvasAPI {
     constructor (apiUrl: string, apiToken: string, options?: GotOptions)
 
@@ -26,9 +31,13 @@ declare module '@kth/canvas-api' {
 
     sendSis<T> (endpoint: string, attachment: string, body?: Record<string, unknown>): Promise<GotResponse<T>>
 
-    listPaginated (endpoint: string, queryParams?: Record<string, unknown>, options?: GotOptions): string[]
+    listPaginated<T> (
+      endpoint: string, queryParams?: Record<string, unknown>, options?: GotOptions
+    ): AugmentedAsyncGenerator<T, T[]>
 
-    list (endpoint: string, queryParams?: Record<string, unknown>, options?: GotOptions): string[]
+    list<T> (
+      endpoint: string, queryParams?: Record<string, unknown>, options?: GotOptions
+    ): AugmentedAsyncGenerator<T, T>
   }
 
   export = CanvasAPI
