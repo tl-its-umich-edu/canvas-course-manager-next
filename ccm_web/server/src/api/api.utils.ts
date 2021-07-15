@@ -20,7 +20,6 @@ export function handleAPIError (error: unknown): APIErrorHandler {
 }
 
 export function parseErrorBody (body: unknown): string {
-  body = null
   if (body === null || body === undefined || String(body).startsWith('<!DOCTYPE html>')) return 'No response body was found.'
   if (!isCanvasErrorBody(body)) {
     return `Response body had unexpected shape: ${JSON.stringify(body)}`
