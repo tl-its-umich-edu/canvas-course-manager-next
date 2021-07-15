@@ -8,6 +8,7 @@ export interface Globals {
     roles: string[]
   }
 }
+
 export interface APIErrorHandler {
   statusCode: number
   message: string
