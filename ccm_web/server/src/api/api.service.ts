@@ -28,7 +28,7 @@ export class APIService {
   async getCourseName (userLoginId: string, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const endpoint = `courses/${courseId}/ding`
+      const endpoint = `courses/${courseId}`
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
       const response = await requestor.get<CanvasCourse>(endpoint)
       logger.debug(`Received response with status code ${response.statusCode}`)
@@ -43,7 +43,7 @@ export class APIService {
   async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const endpoint = `courses/${courseId}/datch`
+      const endpoint = `courses/${courseId}`
       const method = 'PUT'
       const requestBody = { course: { name: newName, course_code: newName } }
       logger.debug(
