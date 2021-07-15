@@ -42,13 +42,16 @@ export class APIService {
     try {
       const endpoint = `courses/${courseId}/sections`
       const queryParams = {'include': ['total_students']} // use list for "include" values
-      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
-      const response = await requestor.get<CanvasCourseSection[]>(endpoint, queryParams)
-      logger.debug(`Received response with status code ${response.statusCode}`)
-      const sections = response.body.map(s => ({
-        'id': s.id,
-        'name': s.name,
-        'total_students': s.total_students
+      // Commented lines for testing localTypes, remove eventually
+      // const listOfSectionLists = await requestor.listPaginated<CanvasCourseSection>(endpoint, queryParams).toArray()
+      // console.log(listOfSectionLists)
+      logger.debug(`Sending request to Canvas with pagination - Endpoint: ${endpoint}; Method: GET`)
+      const fullSections = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
+      logger.debug(fullSections)
+      const sections = fullSections.map(s => ({
+        id: s.id,
+        name: s.name,
+        total_students: s.total_students
       }))
 
       return sections
