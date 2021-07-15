@@ -31,6 +31,7 @@ export interface Globals {
   userLoginId: string
   course: Course
 }
+
 export interface SingleError {
   message: string
   failedInput: string
