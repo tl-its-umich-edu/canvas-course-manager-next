@@ -8,12 +8,19 @@ export interface Globals {
     roles: string[]
   }
 }
-
-export interface APIErrorData {
+export interface APIErrorHandler {
   statusCode: number
   message: string
 }
 
+export interface APIErrorPayload {
+  failedInput: string
+  message: string
+}
+export interface APIErrorData {
+  statusCode: number
+  errors: APIErrorPayload[]
+}
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKeys(value, ['statusCode', 'message'])
+  return hasKeys(value, ['statusCode', 'errors'])
 }

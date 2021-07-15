@@ -1,8 +1,8 @@
 import { SessionData } from 'express-session'
-import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
-import { APIErrorData, Globals } from './api.interfaces'
+import { APIErrorData, APIErrorHandler, Globals } from './api.interfaces'
+import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
@@ -25,36 +25,25 @@ export class APIService {
     }
   }
 
-  static handleAPIError (error: unknown): APIErrorData {
-    if (error instanceof HTTPError) {
-      const { statusCode, body } = error.response
-      logger.error(`Received unusual status code ${String(statusCode)}`)
-      logger.error(`Response body: ${JSON.stringify(body)}`)
-      return { statusCode, message: `Error(s) from Canvas: ${CanvasService.parseErrorBody(body)}` }
-    } else {
-      logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
-      return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
-    }
-  }
-
   async getCourseName (userLoginId: string, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const endpoint = `courses/${courseId}`
+      const endpoint = `courses/${courseId}/ding`
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
       const response = await requestor.get<CanvasCourse>(endpoint)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse: APIErrorHandler = handleAPIError(error)
+      return { statusCode: errResponse.statusCode, errors: [{ message: errResponse.message, failedInput: String(courseId) }] }
     }
   }
 
   async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const endpoint = `courses/${courseId}`
+      const endpoint = `courses/${courseId}/datch`
       const method = 'PUT'
       const requestBody = { course: { name: newName, course_code: newName } }
       logger.debug(
@@ -65,7 +54,8 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse: APIErrorHandler = handleAPIError(error)
+      return { statusCode: errResponse.statusCode, errors: [{ message: errResponse.message, failedInput: newName }] }
     }
   }
 }

@@ -3,6 +3,8 @@ Modified version of Remote Office Hours Queue implementation of custom errors an
 See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/assets/src/services/api.ts
 */
 
+import { ErrorObj } from '../models/models'
+
 /*
 Custom Error types
 */
@@ -48,7 +50,7 @@ const handleErrors = async (resp: Response): Promise<void> => {
       console.error(text)
       throw new NotFoundError()
     default:
-      text = (JSON.parse(await resp.text()) as Error).message
+      text = JSON.stringify((JSON.parse(await resp.text()) as ErrorObj).errors)
       throw new Error(text)
   }
 }

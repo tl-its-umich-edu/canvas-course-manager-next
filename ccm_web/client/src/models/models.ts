@@ -31,3 +31,12 @@ export interface Globals {
   userLoginId: string
   course: Course
 }
+export interface SingleError {
+  message: string
+  failedInput: string
+}
+
+export interface ErrorObj {
+  statusCode: number
+  errors: SingleError[]
+}
