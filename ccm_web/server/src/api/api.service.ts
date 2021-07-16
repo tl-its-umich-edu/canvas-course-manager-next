@@ -42,13 +42,12 @@ export class APIService {
     try {
       const endpoint = `courses/${courseId}/sections`
       const queryParams = {'include': ['total_students']} // use list for "include" values
-      // Commented lines for testing localTypes, remove eventually
-      // const listOfSectionLists = await requestor.listPaginated<CanvasCourseSection>(endpoint, queryParams).toArray()
-      // console.log(listOfSectionLists)
-      logger.debug(`Sending request to Canvas with pagination - Endpoint: ${endpoint}; Method: GET`)
-      const fullSections = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
-      logger.debug(fullSections)
-      const sections = fullSections.map(s => ({
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      // FIXME: list() should return promise, toArray() should be callable later
+      const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
+      // FIXME: no access to got Response; statusCode, etc. not available!
+      // logger.debug(`Received response with status code ${sectionsFull.statusCode}`) // broken
+      const sections = sectionsFull.map(s => ({
         id: s.id,
         name: s.name,
         total_students: s.total_students

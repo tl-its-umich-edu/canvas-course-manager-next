@@ -13,7 +13,7 @@ See also:
 declare module '@kth/canvas-api' {
   import { Got, Response as GotResponse, Options as GotOptions, Method as GotSupportedMethod } from 'got'
 
-  // T here is the relevant Canvas entity; R is the type of each element in the array returned by toArray
+  // T: Canvas entity; R: type of each array element returned by toArray
   interface AugmentedAsyncGenerator<T, R> extends AsyncGenerator<T> {
     toArray: () => Promise<R[]>
   }
