@@ -43,7 +43,8 @@ export class APIService {
 
       return sections
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 
