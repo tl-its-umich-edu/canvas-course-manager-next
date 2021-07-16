@@ -1,7 +1,7 @@
 import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 
-import { APIErrorData, APIErrorPayload, Globals } from './api.interfaces'
+import { APIErrorData, Globals } from './api.interfaces'
 import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -35,7 +35,7 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      const errResponse: APIErrorPayload = handleAPIError(error)
+      const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
@@ -43,7 +43,7 @@ export class APIService {
   async putCourseName (userLoginId: string, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
-      const endpoint = `courses/${courseId}`
+      const endpoint = `courses/${courseId}/datch`
       const method = 'PUT'
       const requestBody = { course: { name: newName, course_code: newName } }
       logger.debug(
@@ -54,7 +54,7 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      const errResponse: APIErrorPayload = handleAPIError(error, newName)
+      const errResponse = handleAPIError(error, newName)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
