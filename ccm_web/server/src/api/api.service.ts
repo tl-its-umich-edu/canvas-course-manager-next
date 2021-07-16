@@ -25,18 +25,6 @@ export class APIService {
     }
   }
 
-  static handleAPIError (error: unknown): APIErrorData {
-    if (error instanceof HTTPError) {
-      const { statusCode, body } = error.response
-      logger.error(`Received unusual status code ${String(statusCode)}`)
-      logger.error(`Response body: ${JSON.stringify(body)}`)
-      return { statusCode, message: `Error(s) from Canvas: ${CanvasService.parseErrorBody(body)}` }
-    } else {
-      logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
-      return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
-    }
-  }
-
   async getCourseSections(userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
