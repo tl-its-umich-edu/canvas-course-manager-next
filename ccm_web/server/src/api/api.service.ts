@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 
 import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
-import { APIErrorData, CanvasSectionBase, CreateSectionsAPIErrorData, Globals } from './api.interfaces'
+import { APIErrorData, Globals } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasService } from '../canvas/canvas.service'
 
@@ -26,11 +26,11 @@ export class APIService {
     }
   }
 
-  async getCourseSections(userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
+  async getCourseSections (userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}/sections`
-      const queryParams = { 'include': ['total_students'] } // use list for "include" values
+      const queryParams = { include: ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
       // FIXME: list() should return promise, toArray() should be callable later
       const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
@@ -83,7 +83,7 @@ export class APIService {
     }
   }
 
-  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
+  async createSections (userLoginId: string, course: number, sections: string[]): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
     return await createSectionsApiHandler.createSections()

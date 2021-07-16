@@ -18,21 +18,11 @@ export interface APIErrorData {
   statusCode: number
   errors: APIErrorPayload[]
 }
-export interface CanvasSectionBase {
+export interface CanvasCourseSection {
   id: number
   name: string
 }
 
-export interface CreateSectionError {
-  failedInput: string
-  message: string
-}
-
-export interface CreateSectionsAPIErrorData {
-  statusCode: number
-  errors: CreateSectionError[]
-}
-
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKeys(value, ['statusCode', 'message'])
+  return hasKeys(value, ['statusCode', 'errors'])
 }

@@ -1,6 +1,6 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { CanvasSectionBase, CreateSectionsAPIErrorData, APIErrorData, isAPICreateSectionErrorData } from './api.interfaces'
+import { APIErrorData, CanvasCourseSection, isAPIErrorData } from './api.interfaces'
 import { handleAPIError } from './api.utils'
 
 import baseLogger from '../logger'
@@ -18,25 +18,25 @@ export class CreateSectionApiHandler {
     this.courseId = courseId
   }
 
-  async createSection (sectionName: string): Promise<CanvasSectionBase | CreateSectionsAPIErrorData> {
+  async createSection (sectionName: string): Promise<CanvasCourseSection | APIErrorData> {
     try {
       const endpoint = `courses/${this.courseId}/sections`
       const method = 'POST'
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
-      const response = await this.requestor.requestUrl<CanvasSectionBase>(endpoint, method, requestBody)
+      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
       const { id, name } = response.body
       return { id, name }
     } catch (error) {
-      const errResponse: APIErrorData = handleAPIError(error)
-      return { statusCode: errResponse.statusCode, errors: [{ message: errResponse.message, failedInput: sectionName }] }
+      const errResponse = handleAPIError(error, sectionName)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 
-  makeReturnResponseCreateSections (sectionsReturnRes: Array<CreateSectionsAPIErrorData | CanvasSectionBase>): CanvasSectionBase[] | CreateSectionsAPIErrorData {
+  makeReturnResponseCreateSections (sectionsReturnRes: Array<APIErrorData | CanvasCourseSection>): CanvasCourseSection[] | APIErrorData {
     const successes = []; const statusCodes = []; const errorsList = []
     for (const section of sectionsReturnRes) {
-      if (isAPICreateSectionErrorData(section)) {
+      if (isAPIErrorData(section)) {
         const { statusCode, errors } = section
         errorsList.push(...errors)
         statusCodes.push(statusCode)
@@ -50,13 +50,13 @@ export class CreateSectionApiHandler {
     } else {
       const uniqueStatusCodes = [...new Set(statusCodes)]
       return {
-        statusCode: uniqueStatusCodes.length > 1 ? 400 : uniqueStatusCodes[0],
+        statusCode: uniqueStatusCodes.length > 1 ? 502 : uniqueStatusCodes[0],
         errors: errorsList
       }
     }
   }
 
-  async createSections (): Promise<CanvasSectionBase[] | CreateSectionsAPIErrorData> {
+  async createSections (): Promise<CanvasCourseSection[] | APIErrorData> {
     const start = process.hrtime()
     const apiPromises = this.sections.map(async (section) => await this.createSection(section))
     const sectionsOrErrorDataObjs = await Promise.all(apiPromises)
