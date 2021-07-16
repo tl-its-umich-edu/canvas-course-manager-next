@@ -1,9 +1,9 @@
 import { SessionData } from 'express-session'
-import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+import { handleAPIError } from './api.utils'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
@@ -69,7 +69,8 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 
@@ -87,7 +88,8 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse = handleAPIError(error, newName)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 }

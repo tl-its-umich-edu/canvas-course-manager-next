@@ -3,6 +3,8 @@ Modified version of Remote Office Hours Queue implementation of custom errors an
 See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/assets/src/services/api.ts
 */
 
+import { APIErrorData, APIErrorPayload } from '../models/models'
+
 /*
 Custom Error types
 */
@@ -31,9 +33,20 @@ class NotFoundError extends Error {
   }
 }
 
+class DefaultError extends Error {
+  public name = 'DefaultError'
+  errors: APIErrorPayload[]
+
+  constructor (errors: APIErrorPayload[]) {
+    super('Received one or more errors associated with this request from Canvas')
+    this.errors = errors
+  }
+}
+
 const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
   let text: string
+  let err: APIErrorPayload[]
   switch (resp.status) {
     case 401:
       text = await resp.text()
@@ -48,8 +61,8 @@ const handleErrors = async (resp: Response): Promise<void> => {
       console.error(text)
       throw new NotFoundError()
     default:
-      text = (JSON.parse(await resp.text()) as Error).message
-      throw new Error(text)
+      err = (JSON.parse(await resp.text()) as APIErrorData).errors
+      throw new DefaultError(err)
   }
 }
 
