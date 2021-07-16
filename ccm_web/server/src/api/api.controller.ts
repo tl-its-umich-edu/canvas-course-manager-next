@@ -20,10 +20,10 @@ export class APIController {
   }
 
   @Get('course/:id/sections')
-  async getCourseSections(
-      @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
+  async getCourseSections (
+    @Param('id', ParseIntPipe) courseId: number, @Session() session: SessionData
   ): Promise<CanvasCourseSection[]> {
-    const {userLoginId} = session.data
+    const { userLoginId } = session.data
     const result = await this.apiService.getCourseSections(userLoginId, courseId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
