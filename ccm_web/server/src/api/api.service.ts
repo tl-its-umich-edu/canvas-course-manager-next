@@ -1,8 +1,8 @@
 import { SessionData } from 'express-session'
-import { HTTPError } from 'got'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
+import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
@@ -25,18 +25,6 @@ export class APIService {
     }
   }
 
-  static handleAPIError (error: unknown): APIErrorData {
-    if (error instanceof HTTPError) {
-      const { statusCode, body } = error.response
-      logger.error(`Received unusual status code ${String(statusCode)}`)
-      logger.error(`Response body: ${JSON.stringify(body)}`)
-      return { statusCode, message: `Error(s) from Canvas: ${CanvasService.parseErrorBody(body)}` }
-    } else {
-      logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
-      return { statusCode: 500, message: 'A non-HTTP error occurred while communicating with Canvas.' }
-    }
-  }
-
   async getCourseName (userLoginId: string, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
@@ -47,7 +35,8 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 
@@ -65,7 +54,8 @@ export class APIService {
       const course = response.body
       return { id: course.id, name: course.name }
     } catch (error) {
-      return APIService.handleAPIError(error)
+      const errResponse = handleAPIError(error, newName)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 }

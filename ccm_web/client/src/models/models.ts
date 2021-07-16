@@ -31,3 +31,14 @@ export interface Globals {
   userLoginId: string
   course: Course
 }
+
+export interface APIErrorPayload {
+  canvasStatusCode: number
+  message: string
+  failedInput: string | null
+}
+
+export interface APIErrorData {
+  statusCode: number
+  errors: APIErrorPayload[]
+}
