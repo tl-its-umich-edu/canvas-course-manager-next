@@ -29,7 +29,7 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}/sections`
-      const queryParams = {'include': ['total_students']} // use list for "include" values
+      const queryParams = { 'include': ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
       // FIXME: list() should return promise, toArray() should be callable later
       const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
