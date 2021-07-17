@@ -2,8 +2,8 @@ import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 
 import { APIErrorData, Globals } from './api.interfaces'
+import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
 import { handleAPIError } from './api.utils'
-import { CanvasCourse, CanvasCourseBase } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
@@ -22,6 +22,29 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       }
+    }
+  }
+
+  async getCourseSections(userLoginId: string, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
+    try {
+      const endpoint = `courses/${courseId}/sections`
+      const queryParams = { 'include': ['total_students'] } // use list for "include" values
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      // FIXME: list() should return promise, toArray() should be callable later
+      const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
+      // FIXME: no access to got Response; statusCode, etc. not available!
+      // logger.debug(`Received response with status code ${sectionsFull.statusCode}`) // broken
+      const sections = sectionsFull.map(s => ({
+        id: s.id,
+        name: s.name,
+        total_students: s.total_students
+      }))
+
+      return sections
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
   }
 
