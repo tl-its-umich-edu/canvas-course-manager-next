@@ -18,10 +18,6 @@ export interface APIErrorData {
   statusCode: number
   errors: APIErrorPayload[]
 }
-export interface CanvasCourseSection {
-  id: number
-  name: string
-}
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
   return hasKeys(value, ['statusCode', 'errors'])
