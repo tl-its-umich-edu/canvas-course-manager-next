@@ -1,4 +1,4 @@
-import { CanvasCourseBase } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
@@ -55,18 +55,15 @@ export const getGlobals = async (key: string | undefined): Promise<Globals> => {
   return await resp.json()
 }
 
-const delay = async (ms: number): Promise<void> => {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), ms))
-}
+// usage:
+//   const data = await delay(nnnn).then(() => {return something})
+// const delay = async (ms: number): Promise<void> => {
+//   await new Promise<void>(resolve => setTimeout(() => resolve(), ms))
+// }
 
-// This is a placeholder for a real implementation (I mean, obviously :D)
-export const getCourseSections = async (key: string | undefined, courseId: string): Promise<string[]> => {
-  const sections = await delay(2000).then(() => {
-    if (Math.random() * 3 > 1) {
-      return (['AAAA', 'BBBB'])
-    } else {
-      return new Promise<string[]>((resolve, reject) => { reject(new Error('Error retrieving course section information.')) })
-    }
-  })
-  return sections
+export const getCourseSections = async (key: string | undefined, courseId: number): Promise<CanvasCourseSection[]> => {
+  const request = getGet(key)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
+  await handleErrors(resp)
+  return await resp.json()
 }

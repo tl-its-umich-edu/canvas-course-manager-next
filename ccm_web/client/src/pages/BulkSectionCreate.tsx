@@ -11,6 +11,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import usePromise from '../hooks/usePromise'
 import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
+import { CanvasCourseSection } from '../models/canvas'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -154,8 +155,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
-    async () => await getCourseSections(props.ltiKey, 'TODO-CourseNumberFromProps?'),
-    (value: string[]) => setExistingSectionNames(value.map(s => { return s.toUpperCase() }))
+    async () => await getCourseSections(props.ltiKey, props.globals.course.id),
+    (value: CanvasCourseSection[]) => setExistingSectionNames(value.map(s => { return s.name.toUpperCase() }))
   )
 
   useEffect(() => {
@@ -415,7 +416,7 @@ Section 001`
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
-                <Button variant="outlined" onClick={(e) => resetPageState()}>Do Something</Button>
+                <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
               </Paper>
             </Grid>
           </Box>
