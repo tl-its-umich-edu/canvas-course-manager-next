@@ -18,6 +18,7 @@ export interface APIErrorData {
   statusCode: number
   errors: APIErrorPayload[]
 }
+
 export function isAPIErrorData (value: unknown): value is APIErrorData {
   return hasKeys(value, ['statusCode', 'errors'])
 }
