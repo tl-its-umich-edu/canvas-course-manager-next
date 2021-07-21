@@ -52,6 +52,7 @@ export class APIController {
     return result
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('course/:id/sections')
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections
