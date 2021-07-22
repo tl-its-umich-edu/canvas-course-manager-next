@@ -23,8 +23,9 @@ const logger = baseLogger.child({ filePath: __filename })
       ignoreEnvFile: true,
       isGlobal: true
     }),
+    UserModule,
     LTIModule,
-    APIModule,
+    AuthModule,
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -40,9 +41,8 @@ const logger = baseLogger.child({ filePath: __filename })
         define: { underscored: true } // Included here to ensure session table uses snake_case
       })
     }),
-    UserModule,
     CanvasModule,
-    AuthModule
+    APIModule
   ],
   providers: [UserService]
 })

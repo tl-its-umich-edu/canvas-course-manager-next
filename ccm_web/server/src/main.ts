@@ -67,6 +67,17 @@ async function bootstrap (): Promise<void> {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Canvas Course Manager')
       .setDescription('CCM application API description and explorer')
+      .addSecurity(
+        'CSRF-Token', {
+          type: 'apiKey',
+          name: 'CSRF-Token',
+          in: 'header',
+          description: (
+            'POST and PUT requests need to include a CSRF-Token header. ' +
+            'The token can be found in the "csrfToken" URL parameter. ' +
+            '(use a browser tool to view the URL of the frame).'
+          )
+        })
       .build()
 
     const document = SwaggerModule.createDocument(app, swaggerConfig)

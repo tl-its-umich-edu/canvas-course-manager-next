@@ -1,20 +1,11 @@
+import Cookies from 'js-cookie'
 import { CanvasCourseBase, CanvasCourseSection } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
 
-// TO DO: Look at how this can be repurposed for CSRF
-// const initRequest = (key: string | undefined, headers: string[][] = []): RequestInit => {
-//   if (key !== undefined) {
-//     headers.push(['Authorization', 'Bearer ' + key])
-//     return {
-//       credentials: 'include',
-//       headers: headers
-//     }
-//   }
-//   return { headers }
-// }
+export const getCSRFToken = (): string | undefined => Cookies.get('CSRF-Token')
 
 const getGet = (): RequestInit => {
   const request: RequestInit = {}
@@ -24,6 +15,8 @@ const getGet = (): RequestInit => {
 
 const getPost = (body: string): RequestInit => {
   const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const csrfToken = getCSRFToken()
+  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
   const request: RequestInit = { headers }
   request.method = 'POST'
   request.body = body
@@ -33,6 +26,8 @@ const getPost = (body: string): RequestInit => {
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (body: string): RequestInit => {
   const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const csrfToken = getCSRFToken()
+  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
   const request: RequestInit = { headers }
   request.method = 'PUT'
   request.body = body
@@ -73,4 +68,10 @@ export const addCourseSections = async (courseId: number, sectionNames: string[]
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
+}
+
+export const setCSRFTokenCookie = async (): Promise<void> => {
+  const request = getGet()
+  const resp = await fetch('/auth/csrfToken', request)
+  await handleErrors(resp)
 }

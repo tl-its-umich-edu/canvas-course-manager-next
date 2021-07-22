@@ -5,10 +5,9 @@ import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
 import { AuthService } from '../auth/auth.service'
-import { AccessToken } from '../auth/auth.interfaces'
 
 import baseLogger from '../logger'
-import { DatabaseConfig, LTIConfig, ServerConfig } from '../config'
+import { DatabaseConfig, LTIConfig } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -30,7 +29,6 @@ export class LTIService implements BeforeApplicationShutdown {
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
     const ltiConfig = this.configService.get('lti') as LTIConfig
-    const serverConfig = this.configService.get('server') as ServerConfig
 
     logger.info('Initializng ltijs as middleware')
 
@@ -68,14 +66,13 @@ export class LTIService implements BeforeApplicationShutdown {
       const roles = customLTIVariables.roles as string
       const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
 
-      let jwtToken: AccessToken
       try {
-        jwtToken = await this.authService.loginLTI({
+        await this.authService.loginLTI({
           firstName: token.userInfo.given_name,
           lastName: token.userInfo.family_name,
           email: token.userInfo.email,
           loginId: loginId
-        })
+        }, res)
       } catch (e) {
         logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
         return createLaunchErrorResponse(res)
@@ -96,9 +93,6 @@ export class LTIService implements BeforeApplicationShutdown {
           logger.error('Failed to save session data due to error: ', err)
           return createLaunchErrorResponse(res)
         }
-        res.cookie('jwt', jwtToken.access_token, {
-          httpOnly: true, secure: true, domain: serverConfig.domain, sameSite: 'none', signed: true
-        })
         return res.redirect('/canvas/redirectOAuth')
       })
     })

@@ -4,13 +4,13 @@ import { SnackbarProvider } from 'notistack'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
+import { getCourse, getCSRFToken } from './api'
 import useGlobals from './hooks/useGlobals'
+import usePromise from './hooks/usePromise'
+import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
-import { CanvasCourseBase } from './models/canvas'
-import usePromise from './hooks/usePromise'
-import { getCourse } from './api'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -30,7 +30,7 @@ function App (): JSX.Element {
   const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
 
-  const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals()
+  const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
@@ -46,9 +46,10 @@ function App (): JSX.Element {
     }
   }, [globals])
 
-  if (isAuthenticated === undefined || isGlobalsLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
+  if (isAuthenticated === undefined || isLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
 
-  if (error !== undefined) console.error(error)
+  if (globalsError !== undefined) console.error(globalsError)
+  if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
   if (globals === undefined || !isAuthenticated) {
     return (
       <div className='App'>
@@ -104,7 +105,10 @@ function App (): JSX.Element {
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
         </Router>
-        {globals?.environment === 'development' && <Link href='/swagger'>Swagger UI</Link>}
+        {
+          globals?.environment === 'development' &&
+          <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+        }
       </SnackbarProvider>
     </div>
   )

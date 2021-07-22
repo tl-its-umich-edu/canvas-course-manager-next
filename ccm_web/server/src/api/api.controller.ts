@@ -2,6 +2,7 @@ import { SessionData } from 'express-session'
 import {
   Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Session, UseGuards
 } from '@nestjs/common'
+import { ApiSecurity } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
@@ -42,6 +43,7 @@ export class APIController {
     return result
   }
 
+  @ApiSecurity('CSRF-Token')
   @UseGuards(JwtAuthGuard)
   @Put('course/:id/name')
   async putCourseName (
@@ -52,6 +54,7 @@ export class APIController {
     return result
   }
 
+  @ApiSecurity('CSRF-Token')
   @UseGuards(JwtAuthGuard)
   @Post('course/:id/sections')
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
