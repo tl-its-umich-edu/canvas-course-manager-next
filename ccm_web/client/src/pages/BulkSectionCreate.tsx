@@ -1,8 +1,8 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
-import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { CloudDone as CloudDoneIcon, CheckCircle } from '@material-ui/icons'
 import ErrorIcon from '@material-ui/icons/Error'
 import React, { useEffect, useState } from 'react'
-import { getCourseSections } from '../api'
+import { addCourseSections, getCourseSections } from '../api'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
@@ -20,6 +20,11 @@ const useStyles = makeStyles((theme) => ({
     '& button': {
       margin: 5
     }
+  },
+  confirmContainer: {
+    position: 'relative',
+    zIndex: 0,
+    textAlign: 'center'
   },
   uploadContainer: {
     position: 'relative',
@@ -125,13 +130,34 @@ const useAPIErrorStyles = makeStyles((theme) => ({
   }
 }))
 
+const useSuccessStyles = makeStyles((theme) => ({
+  card: {
+    textAlign: 'center'
+  },
+  cardContent: {
+  },
+  cardFooter: {
+    display: 'block',
+    backgroundColor: '#F7F7F7',
+    textAlign: 'center'
+  },
+  cardFooterText: {
+    textAlign: 'center'
+  },
+  icon: {
+    color: '#306430',
+    width: 100,
+    height: 100
+  }
+}))
+
 enum BulkSectionCreatePageState {
   LoadingExistingSectionNames,
   LoadingExistingSectionNamesFailed,
   Upload,
   InvalidUpload,
   Confirm,
-  Done
+  Success
 }
 
 interface BulkSectionCreatePageStateData {
@@ -148,6 +174,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
   const apiErrorClasses = useAPIErrorStyles()
+  const successClasses = useSuccessStyles()
 
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.LoadingExistingSectionNames, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
@@ -158,14 +185,26 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     async () => await getCourseSections(props.ltiKey, props.globals.course.id),
     (value: CanvasCourseSection[]) => setExistingSectionNames(value.map(s => { return s.name.toUpperCase() }))
   )
+  useEffect(() => {
+    setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+  }, [getCanvasSectionDataError])
 
   useEffect(() => {
     void doLoadCanvasSectionData()
   }, [])
 
+  const [doSaveCanvasSectionData, isSaveCanvasSectionDataLoading, getSaveCanvasSectionDataError] = usePromise(
+    async () => await addCourseSections(props.ltiKey, props.globals.course.id, sectionNames),
+    (newSections: CanvasCourseSection[]) => {
+      const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
+      setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])
+      setPageState({ state: BulkSectionCreatePageState.Success, schemaInvalidation: [], rowInvalidations: [] })
+    }
+  )
+
   useEffect(() => {
     setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
-  }, [getCanvasSectionDataError])
+  }, [getSaveCanvasSectionDataError])
 
   class DuplicateExistingSectionRowsValidator implements SectionRowsValidator {
     validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
@@ -275,6 +314,14 @@ Section 001`
     return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
   }
 
+  const renderLoadingText = (): JSX.Element => {
+    if (isExistingSectionsLoading) {
+      return (<Typography>Loading Section Information</Typography>)
+    } else {
+      return (<Typography>Saving Section Information</Typography>)
+    }
+  }
+
   const renderFileUpload = (): JSX.Element => {
     return <div className={classes.uploadContainer}>
       <Grid container>
@@ -288,7 +335,7 @@ Section 001`
             <CircularProgress color="inherit" />
           </Grid>
           <Grid item xs={12}>
-          <Typography>Loading Section Information</Typography>
+          {renderLoadingText()}
           </Grid>
         </Grid>
       </Backdrop>
@@ -402,7 +449,7 @@ Section 001`
 
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
-      <div>
+      <div className={classes.confirmContainer}>
         {renderCSVFileName()}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
@@ -417,10 +464,21 @@ Section 001`
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
+                <Button variant="outlined" onClick={async () => await doSaveCanvasSectionData()}>Sumbit</Button>
               </Paper>
             </Grid>
           </Box>
         </Grid>
+        <Backdrop className={classes.backdrop} open={isSaveCanvasSectionDataLoading}>
+        <Grid container>
+          <Grid item xs={12}>
+            <CircularProgress color="inherit" />
+          </Grid>
+          <Grid item xs={12}>
+          {renderLoadingText()}
+          </Grid>
+        </Grid>
+      </Backdrop>
       </div>)
   }
 
@@ -428,6 +486,19 @@ Section 001`
     return sectionNames.map((name, i) => { return { rowNumber: i + 1, sectionName: name } })
   }
 
+  const renderSuccess = (): JSX.Element => {
+    return (
+      <Card className={successClasses.card} variant="outlined">
+        <CardContent className={successClasses.cardContent}>
+          <CheckCircle className={successClasses.icon} fontSize='large'/>
+          <Typography>New sections have been added!</Typography>
+        </CardContent>
+        <CardActions className={successClasses.cardFooter}>
+          See your sections in the Canvas Setting
+        </CardActions>
+      </Card>
+    )
+  }
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
       case BulkSectionCreatePageState.LoadingExistingSectionNames:
@@ -440,8 +511,8 @@ Section 001`
         return renderInvalidUpload()
       case BulkSectionCreatePageState.Confirm:
         return renderConfirm(sectionNamesToSection(sectionNames))
-      case BulkSectionCreatePageState.Done:
-        return (<div>DONE</div>)
+      case BulkSectionCreatePageState.Success:
+        return renderSuccess()
       default:
         return <div>?</div>
     }

@@ -23,6 +23,16 @@ const getGet = (key: string | undefined): RequestInit => {
   return request
 }
 
+const getPost = (key: string | undefined, body: string): RequestInit => {
+  const headers: string[][] = []
+  headers.push(['Content-Type', 'application/json'])
+  headers.push(['Accept', 'application/json'])
+  const request = initRequest(key, headers)
+  request.method = 'POST'
+  request.body = body
+  return request
+}
+
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (key: string | undefined, body: string): RequestInit => {
   const headers: string[][] = []
@@ -63,6 +73,15 @@ export const getGlobals = async (key: string | undefined): Promise<Globals> => {
 
 export const getCourseSections = async (key: string | undefined, courseId: number): Promise<CanvasCourseSection[]> => {
   const request = getGet(key)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const addCourseSections = async (key: string | undefined, courseId: number, sectionNames: string[]): Promise<CanvasCourseSection[]> => {
+  console.log('addCourseSections')
+  const body = JSON.stringify({ sections: sectionNames })
+  const request = getPost(key, body)
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
