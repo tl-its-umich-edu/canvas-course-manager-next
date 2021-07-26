@@ -13,17 +13,16 @@ import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfac
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
+@UseGuards(JwtAuthGuard)
 @Controller('api')
 export class APIController {
   constructor (private readonly apiService: APIService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('globals')
   getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
     return this.apiService.getGlobals(user, session)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('course/:id/sections')
   async getCourseSections (
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
@@ -33,7 +32,6 @@ export class APIController {
     return result
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('course/:id/name')
   async getCourseName (
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
@@ -44,7 +42,6 @@ export class APIController {
   }
 
   @ApiSecurity('CSRF-Token')
-  @UseGuards(JwtAuthGuard)
   @Put('course/:id/name')
   async putCourseName (
     @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @UserDec() user: User
@@ -55,7 +52,6 @@ export class APIController {
   }
 
   @ApiSecurity('CSRF-Token')
-  @UseGuards(JwtAuthGuard)
   @Post('course/:id/sections')
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections

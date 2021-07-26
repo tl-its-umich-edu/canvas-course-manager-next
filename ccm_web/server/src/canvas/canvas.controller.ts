@@ -13,11 +13,11 @@ import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
+@UseGuards(JwtAuthGuard)
 @Controller('canvas')
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('redirectOAuth')
   async redirectToOAuth (
     @Req() req: Request, @Res() res: Response, @UserDec() user: User
@@ -39,7 +39,6 @@ export class CanvasController {
     res.redirect(fullURL)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('returnFromOAuth')
   async returnFromOAuth (
     @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,

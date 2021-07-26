@@ -4,11 +4,11 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { AuthService } from './auth.service'
 
+@UseGuards(JwtAuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor (private readonly authService: AuthService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('csrfToken')
   async setCSRFTokenCookie (
     @Req() req: Request, @Res({ passthrough: true }) res: Response
