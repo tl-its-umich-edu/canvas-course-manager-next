@@ -6,7 +6,8 @@ export interface ServerConfig {
   port: number
   domain: string
   logLevel: LogLevel
-  encryptionSecret: string
+  cookieSecret: string
+  tokenSecret: string
 }
 
 export interface LTIConfig {
@@ -73,7 +74,8 @@ export function validateConfig (env: Record<string, unknown>): Config {
       port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
       domain: validate<string>('DOMAIN', env.DOMAIN, isString),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
-      encryptionSecret: validate<string>('ENCRYPTION_SECRET', env.ENCRYPTION_SECRET, isString, 'ENCRYPTIONSECRET')
+      tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, 'TOKENSECRET'),
+      cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, 'COOKIESECRET')
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),

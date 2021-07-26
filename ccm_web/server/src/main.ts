@@ -39,8 +39,7 @@ async function bootstrap (): Promise<void> {
 
   app.set('trust proxy', 1)
 
-  // TO DO: Use the same secret for session, jwt, cookies?
-  app.use(cookieParser(serverConfig.encryptionSecret))
+  app.use(cookieParser(serverConfig.cookieSecret))
 
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
@@ -49,7 +48,7 @@ async function bootstrap (): Promise<void> {
   app.use(
     session({
       store: sessionStore,
-      secret: serverConfig.encryptionSecret,
+      secret: serverConfig.cookieSecret,
       resave: false,
       saveUninitialized: false,
       proxy: true,

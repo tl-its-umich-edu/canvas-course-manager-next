@@ -18,9 +18,9 @@ import { UserModule } from '../user/user.module'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('server.encryptionSecret'),
-        // TO DO: Do we need to figure out how to handle expiration?
-        signOptions: { expiresIn: '1 day' }
+        secret: configService.get<string>('server.tokenSecret'),
+        // JWT tokens will expire after 24 hours.
+        signOptions: { expiresIn: 60 * 60 * 24 }
       })
     })
   ],

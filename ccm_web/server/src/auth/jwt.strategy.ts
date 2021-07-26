@@ -24,13 +24,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         return null
       },
       ignoreExpiration: false,
-      secretOrKey: configService.get('server.encryptionSecret') as string
+      secretOrKey: configService.get('server.tokenSecret') as string
     })
   }
 
   async validate (payload: JwtPayload): Promise<User> {
     const { username, sub } = payload
     const user = await this.userService.findUserByLoginId(payload.username)
+    // Handling these errors out of abundance of caution
     if (user === null) throw new UserNotFoundError(username)
     if (user.id !== sub) throw new Error('Database ID of User is different from the one in the JWT payload!')
     return user
