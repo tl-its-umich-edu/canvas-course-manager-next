@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import {
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
 } from '@nestjs/common'
+import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
@@ -18,6 +19,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}
 
+  @ApiExcludeEndpoint()
   @Get('redirectOAuth')
   async redirectToOAuth (
     @Req() req: Request, @Res() res: Response, @UserDec() user: User
@@ -39,6 +41,7 @@ export class CanvasController {
     res.redirect(fullURL)
   }
 
+  @ApiExcludeEndpoint()
   @Get('returnFromOAuth')
   async returnFromOAuth (
     @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,
