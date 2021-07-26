@@ -12,7 +12,7 @@ Resource(s):
 */
 
 @Catch()
-export class CSRFErrorFilter<T extends MaybeCSRFError> extends BaseExceptionFilter {
+export class CSRFExceptionFilter<T extends MaybeCSRFError> extends BaseExceptionFilter {
   catch (exception: T, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>()
     if (exception.code === 'EBADCSRFTOKEN') {

@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport'
 
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { CSRFErrorFilter } from './csrf.error.filter'
+import { CSRFExceptionFilter } from './csrf.exception.filter'
 import { CSRFProtectionMiddleware } from './csrf.middleware'
 import { JwtStrategy } from './jwt.strategy'
 import { UserModule } from '../user/user.module'
@@ -30,7 +30,7 @@ import { UserModule } from '../user/user.module'
     JwtStrategy,
     {
       provide: 'APP_FILTER',
-      useClass: CSRFErrorFilter
+      useClass: CSRFExceptionFilter
     }
   ],
   exports: [AuthService, JwtModule]
