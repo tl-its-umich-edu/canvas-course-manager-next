@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import request from 'supertest'
 import { AppModule } from './../src/app.module'
+import cookieParser from 'cookie-parser'
 
 describe('APIController (e2e)', () => {
   let app: INestApplication
@@ -12,25 +13,17 @@ describe('APIController (e2e)', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
+    app.use(cookieParser('SOME_COOKIE_SECRET'))
+    app.useGlobalPipes(new ValidationPipe())
+
     await app.init()
   })
 
-  it('/api/globals (GET)', async () => {
+  it('/api/globals (GET) - Fails when unauthenticated', async () => {
     return await request(app.getHttpServer())
       .get('/api/globals')
       .expect(401)
-      .expect(
-        {
-          status: 401,
-          error: 'Unauthorized',
-          details:
-            {
-              description: 'No Ltik or ID Token found.',
-              message: 'NO_LTIK_OR_IDTOKEN_FOUND',
-              bodyReceived: {}
-            }
-        }
-      )
+      .expect({ statusCode: 401, message: 'Unauthorized' })
   })
 
   afterEach(async () => await app.close(), 10000)
