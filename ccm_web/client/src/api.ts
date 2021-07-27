@@ -79,7 +79,6 @@ export const getCourseSections = async (key: string | undefined, courseId: numbe
 }
 
 export const addCourseSections = async (key: string | undefined, courseId: number, sectionNames: string[]): Promise<CanvasCourseSection[]> => {
-  console.log('addCourseSections')
   const body = JSON.stringify({ sections: sectionNames })
   const request = getPost(key, body)
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)

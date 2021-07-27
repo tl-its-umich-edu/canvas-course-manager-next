@@ -1,6 +1,5 @@
 import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
-import { CloudDone as CloudDoneIcon, CheckCircle } from '@material-ui/icons'
-import ErrorIcon from '@material-ui/icons/Error'
+import { CloudDone as CloudDoneIcon, CheckCircle, Error as ErrorIcon, Warning } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
 import { addCourseSections, getCourseSections } from '../api'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
@@ -12,6 +11,7 @@ import usePromise from '../hooks/usePromise'
 import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import { CanvasCourseSection } from '../models/canvas'
+import { APIErrorPayload, IDefaultError } from '../models/models'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,8 +80,11 @@ const useRowLevelErrorStyles = makeStyles((theme) => ({
     paddingLeft: 10,
     paddingRight: 10
   },
-  dialogIcon: {
-    color: 'red'
+  errorIcon: {
+    color: '#3F648E'
+  },
+  warningIcon: {
+    color: '#e2cf2a'
   }
 }))
 
@@ -103,7 +106,7 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
     }
   },
   dialogIcon: {
-    color: 'red'
+    color: '#3F648E'
   }
 }))
 
@@ -126,7 +129,7 @@ const useAPIErrorStyles = makeStyles((theme) => ({
     }
   },
   dialogIcon: {
-    color: 'red'
+    color: '#3F648E'
   }
 }))
 
@@ -157,7 +160,13 @@ enum BulkSectionCreatePageState {
   Upload,
   InvalidUpload,
   Confirm,
-  Success
+  CreateSectionsSuccess,
+  CreateSectionsError
+}
+
+enum ErrorType {
+  Error,
+  Warning
 }
 
 interface BulkSectionCreatePageStateData {
@@ -198,12 +207,26 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
       setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])
-      setPageState({ state: BulkSectionCreatePageState.Success, schemaInvalidation: [], rowInvalidations: [] })
+      setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidation: [], rowInvalidations: [] })
     }
   )
 
+  const convertErrorsToRowInvalidations = (apiError: APIErrorPayload[]): SectionsRowInvalidation[] => {
+    const invalidations: SectionsRowInvalidation[] = []
+    if (apiError !== undefined) {
+      apiError.forEach(e => {
+        invalidations.push({ message: '"' + (e.failedInput !== null ? e.failedInput : 'UNKNOWN') + '" ' + e.message, rowNumber: e.failedInput !== null ? sectionNames.indexOf(e.failedInput) + 1 : -1, type: InvalidationType.Error })
+      })
+    }
+    return invalidations
+  }
+
   useEffect(() => {
-    setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+    if (getSaveCanvasSectionDataError !== undefined) {
+      const errors = (getSaveCanvasSectionDataError as unknown as IDefaultError).errors
+      const rowInvalidations = convertErrorsToRowInvalidations(errors)
+      setPageState({ state: BulkSectionCreatePageState.CreateSectionsError, schemaInvalidation: [], rowInvalidations: rowInvalidations })
+    }
   }, [getSaveCanvasSectionDataError])
 
   class DuplicateExistingSectionRowsValidator implements SectionRowsValidator {
@@ -371,7 +394,15 @@ Section 001`
     return <Button color='primary' component="span" onClick={() => { resetPageState(); void doLoadCanvasSectionData() }}>Try again</Button>
   }
 
-  const renderRowLevelErrors = (invalidations: SectionsRowInvalidation[]): JSX.Element => {
+  const renderErrorIcon = (errorType: ErrorType): JSX.Element => {
+    if (errorType === ErrorType.Error) {
+      return (<ErrorIcon className={rowLevelErrorClasses.errorIcon} fontSize='large'/>)
+    } else {
+      return (<Warning className={rowLevelErrorClasses.warningIcon} fontSize='large'/>)
+    }
+  }
+
+  const renderRowLevelErrors = (invalidations: SectionsRowInvalidation[], title: string, errorType: ErrorType): JSX.Element => {
     return (
       <div>
         {renderCSVFileName()}
@@ -384,8 +415,8 @@ Section 001`
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
               <Paper role='alert'>
-                <Typography>Review your CSV file</Typography>
-                <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
+                <Typography>{title}</Typography>
+                {renderErrorIcon(errorType)}
                 <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
               </Paper>
             </Grid>
@@ -419,7 +450,7 @@ Section 001`
     let rowLevelErrors: JSX.Element | undefined
     let schemaLevelErrors: JSX.Element | undefined
     if (pageState.rowInvalidations.length > 0) {
-      rowLevelErrors = renderRowLevelErrors(pageState.rowInvalidations)
+      rowLevelErrors = renderRowLevelErrors(pageState.rowInvalidations, 'Review your CSV file', ErrorType.Error)
     }
     if (pageState.schemaInvalidation.length > 0) {
       const schemaErrors: JSX.Element[] = pageState.schemaInvalidation.map((invalidation, i) => {
@@ -430,6 +461,18 @@ Section 001`
     return (
       <div>
         {schemaLevelErrors !== undefined && schemaLevelErrors}
+        {rowLevelErrors !== undefined && rowLevelErrors}
+      </div>
+    )
+  }
+
+  const renderPartialSuccess = (): JSX.Element => {
+    let rowLevelErrors: JSX.Element | undefined
+    if (pageState.rowInvalidations.length > 0) {
+      rowLevelErrors = renderRowLevelErrors(pageState.rowInvalidations, 'Some errors occurred', ErrorType.Warning)
+    }
+    return (
+      <div>
         {rowLevelErrors !== undefined && rowLevelErrors}
       </div>
     )
@@ -511,8 +554,10 @@ Section 001`
         return renderInvalidUpload()
       case BulkSectionCreatePageState.Confirm:
         return renderConfirm(sectionNamesToSection(sectionNames))
-      case BulkSectionCreatePageState.Success:
+      case BulkSectionCreatePageState.CreateSectionsSuccess:
         return renderSuccess()
+      case BulkSectionCreatePageState.CreateSectionsError:
+        return renderPartialSuccess()
       default:
         return <div>?</div>
     }

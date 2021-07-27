@@ -42,3 +42,7 @@ export interface APIErrorData {
   statusCode: number
   errors: APIErrorPayload[]
 }
+
+export interface IDefaultError {
+  errors: APIErrorPayload[]
+}
