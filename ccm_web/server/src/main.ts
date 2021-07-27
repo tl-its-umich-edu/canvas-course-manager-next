@@ -73,7 +73,7 @@ async function bootstrap (): Promise<void> {
           in: 'header',
           description: (
             'POST and PUT requests need to include a CSRF-Token header. ' +
-            'The token can be found in the "csrfToken" URL parameter. ' +
+            'The token can be found in the "csrfToken" URL parameter ' +
             '(use a browser tool to view the URL of the frame).'
           )
         })

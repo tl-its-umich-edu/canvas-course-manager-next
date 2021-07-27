@@ -22,7 +22,7 @@ export class UserService {
   /*
   The created variable will return a non-null value for MySQL, but the return type on
   the upsert method is Promise<[User, boolean | null]>, so Typescript is requiring a null check.
-  So here the null is changed to false to escape the type validation errors.
+  We check explicitly for true to determine if it was created (otherwise it was updated).
   */
   async upsertUser (userToUpsert: UserToUpsert): Promise<User> {
     try {
