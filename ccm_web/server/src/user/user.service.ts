@@ -27,7 +27,7 @@ export class UserService {
   async upsertUser (userToUpsert: UserToUpsert): Promise<User> {
     try {
       const [record, created] = await this.userModel.upsert({ ...userToUpsert })
-      const howChanged = (created ?? false) ? 'created' : 'updated'
+      const howChanged = created === true ? 'created' : 'updated'
       logger.info(`User ${record.loginId} was ${howChanged} in 'user' table.`)
       return record
     } catch (error) {
