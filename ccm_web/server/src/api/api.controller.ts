@@ -60,7 +60,7 @@ export class APIController {
     return result
   }
 
-  @Post('course/:id/sections')
+  @Post('sections/:id/enroll')
   async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @Session() session: SessionData): Promise<CanvasCourseSection[]> {
     const { userLoginId } = session.data
     const users = sectionUsersData.users
