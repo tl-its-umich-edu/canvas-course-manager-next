@@ -39,7 +39,8 @@ const useStyles = makeStyles((theme) => ({
   fileNameContainer: {
     marginBottom: 15,
     paddingLeft: 10,
-    paddingRight: 10
+    paddingRight: 10,
+    textAlign: 'left'
   },
   fileName: {
     color: '#3F648E',
@@ -492,9 +493,9 @@ Section 001`
 
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
-      <div>
+      <div className={classes.confirmContainer}>
         {renderCSVFileName()}
-        <Grid container className={classes.confirmContainer}>
+        <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>
               <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
