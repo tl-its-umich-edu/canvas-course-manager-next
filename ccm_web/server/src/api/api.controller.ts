@@ -9,6 +9,7 @@ import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
+import {SectionUsersDto} from "./dtos/api.section.users.dto";
 
 @ApiBearerAuth()
 @Controller('api')
@@ -55,6 +56,15 @@ export class APIController {
     const { userLoginId } = session.data
     const sections = createSectionsDto.sections
     const result = await this.apiService.createSections(userLoginId, courseId, sections)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @Post('course/:id/sections')
+  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @Session() session: SessionData): Promise<CanvasCourseSection[]> {
+    const { userLoginId } = session.data
+    const users = sectionUsersData.users
+    const result = await this.apiService.enrollSectionUsers(userLoginId, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
