@@ -92,7 +92,7 @@ export class APIService {
 
   async enrollSectionUsers (userLoginId: string, sectionId: number, users: string[]): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
-    const createSectionsApiHandler = new EnrollSectionUsersApiHandler(requestor, users, sectionId)
-    return await createSectionsApiHandler.createSections()
+    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, users, sectionId)
+    return await enrollmentHandler.enrollUsers()
   }
 }
