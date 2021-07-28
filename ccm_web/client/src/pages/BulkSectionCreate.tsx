@@ -492,9 +492,9 @@ Section 001`
 
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
-      <div className={classes.confirmContainer}>
+      <div>
         {renderCSVFileName()}
-        <Grid container>
+        <Grid container className={classes.confirmContainer}>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>
               <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
