@@ -46,6 +46,13 @@ export interface CanvasCourseSection {
   total_students?: number
 }
 
+export interface CanvasEnrollment {
+  id: number
+  course_id: number
+  course_section_id: number
+  user_id: number
+}
+
 // Errors
 
 interface CanvasError {
