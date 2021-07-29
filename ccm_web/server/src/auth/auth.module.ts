@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
@@ -35,7 +35,7 @@ import { UserModule } from '../user/user.module'
   ],
   exports: [AuthService, JwtModule]
 })
-export class AuthModule {
+export class AuthModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
     consumer.apply(CSRFProtectionMiddleware).forRoutes('/')
   }

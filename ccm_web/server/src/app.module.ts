@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common'
+import helmet from 'helmet'
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 
@@ -46,4 +47,15 @@ const logger = baseLogger.child({ filePath: __filename })
   ],
   providers: [UserService]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure (consumer: MiddlewareConsumer): void {
+    consumer.apply(helmet())
+    // Exclude ltijs routes, which are already protected by helmet
+      .exclude(
+        { path: '/lti', method: RequestMethod.POST },
+        { path: '/lti', method: RequestMethod.GET },
+        '/lti/(.*)'
+      )
+      .forRoutes('*')
+  }
+}
