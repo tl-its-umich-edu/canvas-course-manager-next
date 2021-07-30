@@ -19,12 +19,15 @@ export class EnrollSectionUsersApiHandler {
     this.sectionId = sectionId
   }
 
-  makeEnrollmentResponse (enrollmentResult: Array<APIErrorData | CanvasEnrollment>): CanvasEnrollment[] | APIErrorData {
-    const errors = [], statusCodes: Set<number> = new Set(), successes = []
-      for (const enrollment of enrollmentResult) {
+  makeResponse (enrollmentResult: Array<APIErrorData | CanvasEnrollment>): CanvasEnrollment[] | APIErrorData {
+    const failures = [], statusCodes: Set<number> = new Set(), successes = []
+    for (const enrollment of enrollmentResult) {
       if (isAPIErrorData(enrollment)) {
-        const { statusCode, error } = enrollment
-        errors.push(...error)
+        const {
+          statusCode,
+          errors
+        } = enrollment
+        failures.push(...errors)
         statusCodes.add(statusCode)
       } else {
         successes.push(enrollment)
@@ -36,7 +39,7 @@ export class EnrollSectionUsersApiHandler {
     } else {
       return {
         statusCode: statusCodes.size > 1 ? 502 : [...statusCodes][0],
-        error: errors
+        errors: failures
       }
     }
   }
