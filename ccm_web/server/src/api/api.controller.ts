@@ -7,7 +7,7 @@ import { ApiBearerAuth } from '@nestjs/swagger'
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
-import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import {SectionUsersDto} from "./dtos/api.section.users.dto";
 
@@ -61,7 +61,7 @@ export class APIController {
   }
 
   @Post('sections/:id/enroll')
-  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @Session() session: SessionData): Promise<CanvasCourseSection[]> {
+  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @Session() session: SessionData): Promise<CanvasEnrollment[]> {
     const { userLoginId } = session.data
     const users = sectionUsersData.users
     const result = await this.apiService.enrollSectionUsers(userLoginId, sectionId, users)
