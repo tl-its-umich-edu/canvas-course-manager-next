@@ -2,6 +2,7 @@ import path from 'path'
 
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import session from 'express-session'
+import morgan from 'morgan'
 import { Sequelize } from 'sequelize-typescript'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -26,6 +27,9 @@ async function bootstrap (): Promise<void> {
   baseLogger.level = serverConfig.logLevel
 
   const isDev = process.env.NODE_ENV !== 'production'
+
+  const stream = { write: (message: string) => { logger.info(message.trim()) } }
+  app.use(morgan('combined', { stream: stream }))
 
   const staticPath = path.join(
     path.join(__dirname, '..', '..'),
