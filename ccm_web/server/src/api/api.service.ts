@@ -9,6 +9,7 @@ import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
 import {EnrollSectionUsersApiHandler} from "./api.enroll.section.users.handler";
+import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -88,7 +89,7 @@ export class APIService {
     return await createSectionsApiHandler.createSections()
   }
 
-  async enrollSectionUsers (userLoginId: string, sectionId: number, users: string[]): Promise<CanvasEnrollment[] | APIErrorData> {
+  async enrollSectionUsers (userLoginId: string, sectionId: number, users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
     const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, users, sectionId)
     return await enrollmentHandler.enrollUsers()
