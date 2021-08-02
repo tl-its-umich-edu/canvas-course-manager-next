@@ -8,7 +8,7 @@ import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasService } from '../canvas/canvas.service'
 
 import baseLogger from '../logger'
-import {EnrollSectionUsersApiHandler} from "./api.enroll.section.users.handler";
+import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
