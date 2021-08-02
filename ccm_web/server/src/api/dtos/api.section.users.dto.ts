@@ -3,13 +3,13 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class SectionUserDto {
   @IsNotEmpty()
-  user: string
+  loginId: string
 
   @IsNotEmpty()
   role: string
 
-  constructor (user: string, role: string) {
-    this.user = user
+  constructor (loginId: string, role: string) {
+    this.loginId = loginId
     this.role = role
   }
 }
