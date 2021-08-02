@@ -156,13 +156,13 @@ const useSuccessStyles = makeStyles((theme) => ({
 }))
 
 enum BulkSectionCreatePageState {
-  LoadingExistingSectionNames,
+  UploadPending,
   LoadingExistingSectionNamesFailed,
-  Upload,
   InvalidUpload,
-  Confirm,
+  Submit,
   CreateSectionsSuccess,
-  CreateSectionsError
+  CreateSectionsError,
+  Saving
 }
 
 enum ErrorType {
@@ -186,31 +186,46 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const apiErrorClasses = useAPIErrorStyles()
   const successClasses = useSuccessStyles()
 
-  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.LoadingExistingSectionNames, schemaInvalidation: [], rowInvalidations: [] })
+  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
     async () => await getCourseSections(props.ltiKey, props.globals.course.id),
-    (value: CanvasCourseSection[]) => setExistingSectionNames(value.map(s => { return s.name.toUpperCase() }))
+    (value: CanvasCourseSection[]) => {
+      const es = value.map(s => { return s.name.toUpperCase() })
+      setExistingSectionNames(es)
+    }
   )
   useEffect(() => {
     setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
   }, [getCanvasSectionDataError])
 
   useEffect(() => {
-    void doLoadCanvasSectionData()
-  }, [])
+    if (pageState.state === BulkSectionCreatePageState.Saving) {
+      const serverInvalidations = doServerValidation()
+      if (serverInvalidations.length !== 0) {
+        handleRowLevelInvalidationError(serverInvalidations)
+      } else {
+        void doSaveCanvasSectionData()
+      }
+    }
+  }, [existingSectionNames])
 
   const [doSaveCanvasSectionData, isSaveCanvasSectionDataLoading, getSaveCanvasSectionDataError] = usePromise(
     async () => await addCourseSections(props.ltiKey, props.globals.course.id, sectionNames),
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
-      setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidation: [], rowInvalidations: [] })
+      setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])
     }
   )
+
+  const submit = async (): Promise<void> => {
+    setPageState({ state: BulkSectionCreatePageState.Saving, schemaInvalidation: [], rowInvalidations: [] })
+    void doLoadCanvasSectionData()
+  }
 
   const convertErrorsToRowInvalidations = (apiError: APIErrorPayload[]): SectionsRowInvalidation[] => {
     const invalidations: SectionsRowInvalidation[] = []
@@ -258,11 +273,26 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   }
 
   useEffect(() => {
-    parseUpload(file)
+    if (file === undefined) {
+      resetPageState()
+    } else {
+      parseFile(file)
+    }
   }, [file])
 
+  useEffect(() => {
+    if (sectionNames.length > 0) {
+      const clientInvalidations = doClientValidation()
+      if (clientInvalidations.length !== 0) {
+        handleRowLevelInvalidationError(clientInvalidations)
+      } else {
+        setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidation: [], rowInvalidations: [] })
+      }
+    }
+  }, [sectionNames])
+
   const resetPageState = (): void => {
-    setPageState({ state: BulkSectionCreatePageState.Upload, schemaInvalidation: [], rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   }
 
   const handleSchemaError = (schemaInvalidations: SectionsSchemaInvalidation[]): void => {
@@ -275,14 +305,10 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
 
   const handleParseSuccess = (sectionNames: string[]): void => {
     setSectionNames(sectionNames)
-    setPageState({ state: BulkSectionCreatePageState.Confirm, schemaInvalidation: [], rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidation: [], rowInvalidations: [] })
   }
 
-  const parseUpload = (file: File|undefined): void => {
-    if (file === undefined) {
-      resetPageState()
-      return
-    }
+  const parseFile = (file: File): void => {
     file.text().then(t => {
       let lines = t.split(/[\r\n]+/).map(line => { return line.trim() })
       // An empty file will resultin 1 line
@@ -303,25 +329,28 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
       if (hasHeader(lines)) {
         lines = lines.slice(1)
       }
-
-      const rowInvalidations: SectionsRowInvalidation[] = []
-
-      const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
-      rowInvalidations.push(...duplicateNamesInFileValidator.validate(lines))
-
-      const duplicatesNamesInCanvasValidator: DuplicateExistingSectionRowsValidator = new DuplicateExistingSectionRowsValidator()
-      rowInvalidations.push(...duplicatesNamesInCanvasValidator.validate(lines))
-
-      if (rowInvalidations.length !== 0) {
-        handleRowLevelInvalidationError(rowInvalidations)
-        return
-      }
-
       handleParseSuccess(lines)
     }).catch(e => {
       // TODO Not sure how to produce this error in real life
       handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
     })
+  }
+
+  const doClientValidation = (): SectionsRowInvalidation[] => {
+    const rowInvalidations: SectionsRowInvalidation[] = []
+
+    const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
+    rowInvalidations.push(...duplicateNamesInFileValidator.validate(sectionNames))
+
+    return rowInvalidations
+  }
+
+  const doServerValidation = (): SectionsRowInvalidation[] => {
+    const rowInvalidations: SectionsRowInvalidation[] = []
+    const duplicatesNamesInCanvasValidator: DuplicateExistingSectionRowsValidator = new DuplicateExistingSectionRowsValidator()
+    rowInvalidations.push(...duplicatesNamesInCanvasValidator.validate(sectionNames))
+
+    return rowInvalidations
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -508,7 +537,7 @@ Section 001`
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Button variant="outlined" onClick={async () => await doSaveCanvasSectionData()}>Sumbit</Button>
+                <Button variant="outlined" onClick={async () => await submit()}>Sumbit</Button>
               </Paper>
             </Grid>
           </Box>
@@ -545,15 +574,14 @@ Section 001`
   }
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
-      case BulkSectionCreatePageState.LoadingExistingSectionNames:
+      case BulkSectionCreatePageState.UploadPending:
         return renderUpload()
       case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
         return renderAPIError()
-      case BulkSectionCreatePageState.Upload:
-        return renderUpload()
       case BulkSectionCreatePageState.InvalidUpload:
         return renderInvalidUpload()
-      case BulkSectionCreatePageState.Confirm:
+      case BulkSectionCreatePageState.Submit:
+      case BulkSectionCreatePageState.Saving:
         return renderConfirm(sectionNamesToSection(sectionNames))
       case BulkSectionCreatePageState.CreateSectionsSuccess:
         return renderSuccess()
