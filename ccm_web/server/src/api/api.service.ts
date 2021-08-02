@@ -37,13 +37,11 @@ export class APIService {
       const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
       // FIXME: no access to got Response; statusCode, etc. not available!
       // logger.debug(`Received response with status code ${sectionsFull.statusCode}`) // broken
-      const sections = sectionsFull.map(s => ({
+      return sectionsFull.map(s => ({
         id: s.id,
         name: s.name,
         total_students: s.total_students
       }))
-
-      return sections
     } catch (error) {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
