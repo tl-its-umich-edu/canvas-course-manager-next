@@ -5,15 +5,16 @@ import { handleAPIError } from './api.utils'
 
 import baseLogger from '../logger'
 import { CanvasEnrollment } from '../canvas/canvas.interfaces'
+import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 export class EnrollSectionUsersApiHandler {
   requestor: CanvasRequestor
-  users: string[]
+  users: SectionUserDto[]
   sectionId: number
 
-  constructor (requestor: CanvasRequestor, users: string[], sectionId: number) {
+  constructor (requestor: CanvasRequestor, users: SectionUserDto[], sectionId: number) {
     this.requestor = requestor
     this.users = users
     this.sectionId = sectionId
@@ -44,11 +45,11 @@ export class EnrollSectionUsersApiHandler {
     }
   }
 
-  async enrollUser (userLoginId: string): Promise<CanvasEnrollment | APIErrorData> {
+  async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = 'POST'
-      const body = { enrollment: { user_id: userLoginId } }
+      const body = { enrollment: { user_id: user.loginId, role: user.role } }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
       const {
@@ -64,7 +65,7 @@ export class EnrollSectionUsersApiHandler {
         user_id
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, userLoginId)
+      const errorResponse = handleAPIError(error, String(user))
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
