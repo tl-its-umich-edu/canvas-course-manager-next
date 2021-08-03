@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsNotEmpty, ValidateNested } from 'class-validator'
+import { ArrayMaxSize, IsIn, IsNotEmpty, ValidateNested } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 /*
@@ -12,11 +12,8 @@ export class SectionUserDto {
   @IsNotEmpty()
   loginId: string
 
-  /*
-   FIXME: Allow only valid Canvas type names
-   StudentEnrollment, TeacherEnrollment, TaEnrollment, ObserverEnrollment, DesignerEnrollment
-   */
   @IsNotEmpty()
+  @IsIn(['StudentEnrollment', 'TeacherEnrollment', 'TaEnrollment', 'ObserverEnrollment', 'DesignerEnrollment'])
   type: string
 
   constructor (loginId: string, type: string) {
