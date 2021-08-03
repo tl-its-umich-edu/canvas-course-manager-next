@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsNotEmpty, MaxLength } from 'class-validator'
+import { ArrayMaxSize, IsNotEmpty, ValidateNested } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 /*
@@ -6,6 +6,7 @@ FIXME: Swagger UI doesn't show `SectionUserDto` properties.
 Maybe that means this nested class isn't initialized properly and the
 validator might not use this class at all.
  */
+
 // FIXME: Check that this catches errors in the data.
 export class SectionUserDto {
   @IsNotEmpty()
@@ -25,6 +26,7 @@ export class SectionUsersDto {
   @ApiProperty({ type: [SectionUserDto] })
   @IsNotEmpty({ each: true })
   @ArrayMaxSize(400)
+  @ValidateNested()
   users: SectionUserDto[]
 
   constructor (users: SectionUserDto[]) {
