@@ -1,5 +1,6 @@
-import { ArrayMaxSize, IsIn, IsNotEmpty, ValidateNested } from 'class-validator'
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsNotEmpty, ValidateNested } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 
 /*
  FIXME: Swagger UI doesn't show `SectionUserDto` properties.
@@ -26,9 +27,11 @@ export class SectionUserDto {
 
 export class SectionUsersDto {
   @ApiProperty({ type: [SectionUserDto] })
-  @IsNotEmpty({ each: true })
+  @IsArray()
+  @ArrayMinSize(1)
   @ArrayMaxSize(400)
-  @ValidateNested()
+  @ValidateNested({ each: true })
+  @Type(() => SectionUserDto)
   users: SectionUserDto[]
 
   constructor (users: SectionUserDto[]) {
