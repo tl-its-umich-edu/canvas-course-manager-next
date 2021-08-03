@@ -9,9 +9,11 @@ import { ApiProperty } from '@nestjs/swagger'
 
 // FIXME: Check that this catches errors in the data.
 export class SectionUserDto {
+  @ApiProperty()
   @IsNotEmpty()
   loginId: string
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsIn(['StudentEnrollment', 'TeacherEnrollment', 'TaEnrollment', 'ObserverEnrollment', 'DesignerEnrollment'])
   type: string
