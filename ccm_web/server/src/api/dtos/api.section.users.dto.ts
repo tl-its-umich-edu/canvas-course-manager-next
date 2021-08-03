@@ -2,9 +2,9 @@ import { ArrayMaxSize, IsNotEmpty, ValidateNested } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 /*
-FIXME: Swagger UI doesn't show `SectionUserDto` properties.
-Maybe that means this nested class isn't initialized properly and the
-validator might not use this class at all.
+ FIXME: Swagger UI doesn't show `SectionUserDto` properties.
+ Maybe that means this nested class isn't initialized properly and the
+ validator might not use this class at all.
  */
 
 // FIXME: Check that this catches errors in the data.
@@ -12,13 +12,16 @@ export class SectionUserDto {
   @IsNotEmpty()
   loginId: string
 
-  // FIXME: Allow only valid Canvas role names
+  /*
+   FIXME: Allow only valid Canvas type names
+   StudentEnrollment, TeacherEnrollment, TaEnrollment, ObserverEnrollment, DesignerEnrollment
+   */
   @IsNotEmpty()
-  role: string
+  type: string
 
-  constructor (loginId: string, role: string) {
+  constructor (loginId: string, type: string) {
     this.loginId = loginId
-    this.role = role
+    this.type = type
   }
 }
 

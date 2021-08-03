@@ -49,7 +49,7 @@ export class EnrollSectionUsersApiHandler {
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = 'POST'
-      const body = { enrollment: { user_id: user.loginId, role: user.role } }
+      const body = { enrollment: { user_id: user.loginId, type: user.type } }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
       const {
