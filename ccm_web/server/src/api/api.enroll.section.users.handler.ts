@@ -56,13 +56,15 @@ export class EnrollSectionUsersApiHandler {
         id,
         course_id,
         course_section_id,
-        user_id
+        user_id,
+        type
       } = response.body
       return {
         id,
         course_id,
         course_section_id,
-        user_id
+        user_id,
+        type
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, String(user))
