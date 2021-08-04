@@ -48,11 +48,16 @@ export class EnrollSectionUsersApiHandler {
     }
   }
 
+  async getUser (loginId: string): unknown {
+    // TODO: Look up `user_id` based on provided `user.loginId` (uniqname)
+  }
+
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
     try {
+      const canvasUser = await this.getUser(user.loginId)
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = 'POST'
-      const body = { enrollment: { user_id: user.loginId, type: user.type } }
+      const body = { enrollment: { user_id: canvasUser.user_id, type: user.type } }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
       const {
