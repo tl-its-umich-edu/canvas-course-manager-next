@@ -58,8 +58,8 @@ export class EnrollSectionUsersApiHandler {
       const {
         id,
         course_id, // eslint-disable-line
-        course_section_id, // eslint-disable-line naming-convention
-        user_id, // eslint-disable-line naming-convention
+        course_section_id, // eslint-disable-line
+        user_id, // eslint-disable-line
         type
       } = response.body
       return {
