@@ -63,12 +63,6 @@ export const getGlobals = async (key: string | undefined): Promise<Globals> => {
   return await resp.json()
 }
 
-// usage:
-//   const data = await delay(nnnn).then(() => {return something})
-// const delay = async (ms: number): Promise<void> => {
-//   await new Promise<void>(resolve => setTimeout(() => resolve(), ms))
-// }
-
 export const getCourseSections = async (key: string | undefined, courseId: number): Promise<CanvasCourseSection[]> => {
   const request = getGet(key)
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
