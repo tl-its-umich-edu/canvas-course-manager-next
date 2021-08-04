@@ -192,8 +192,8 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
     async () => await getCourseSections(props.ltiKey, props.globals.course.id),
     (value: CanvasCourseSection[]) => {
-      const es = value.map(s => { return s.name.toUpperCase() })
-      setExistingSectionNames(es)
+      const existingSuggestions = value.map(s => { return s.name.toUpperCase() })
+      setExistingSectionNames(existingSuggestions)
     }
   )
   useEffect(() => {
