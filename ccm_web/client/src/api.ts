@@ -6,6 +6,8 @@ export interface LtiProps {
   ltiKey: string | undefined
 }
 
+const jsonMimeType = 'application/json'
+
 const initRequest = (key: string | undefined, headers: string[][] = []): RequestInit => {
   if (key !== undefined) {
     headers.push(['Authorization', 'Bearer ' + key])
@@ -24,8 +26,7 @@ const getGet = (key: string | undefined): RequestInit => {
 }
 
 const getPost = (key: string | undefined, body: string): RequestInit => {
-  const jsonType: string = 'application/json'
-  const headers: string[][] = [['Content-Type', jsonType], ['Accept', jsonType]]
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initRequest(key, headers)
   request.method = 'POST'
   request.body = body
@@ -34,9 +35,7 @@ const getPost = (key: string | undefined, body: string): RequestInit => {
 
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (key: string | undefined, body: string): RequestInit => {
-  const headers: string[][] = []
-  headers.push(['Content-Type', 'application/json'])
-  headers.push(['Accept', 'application/json'])
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initRequest(key, headers)
   request.method = 'PUT'
   request.body = body
