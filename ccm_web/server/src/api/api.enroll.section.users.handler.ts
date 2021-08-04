@@ -57,7 +57,7 @@ export class EnrollSectionUsersApiHandler {
       const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
       const {
         id,
-        course_id, // eslint-disable-line naming-convention
+        course_id, // eslint-disable-line
         course_section_id, // eslint-disable-line naming-convention
         user_id, // eslint-disable-line naming-convention
         type
