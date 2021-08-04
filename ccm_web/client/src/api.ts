@@ -24,9 +24,8 @@ const getGet = (key: string | undefined): RequestInit => {
 }
 
 const getPost = (key: string | undefined, body: string): RequestInit => {
-  const headers: string[][] = []
-  headers.push(['Content-Type', 'application/json'])
-  headers.push(['Accept', 'application/json'])
+  const jsonType: string = 'application/json'
+  const headers: string[][] = [['Content-Type', jsonType], ['Accept', jsonType]]
   const request = initRequest(key, headers)
   request.method = 'POST'
   request.body = body
