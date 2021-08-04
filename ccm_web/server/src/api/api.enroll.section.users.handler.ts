@@ -21,7 +21,10 @@ export class EnrollSectionUsersApiHandler {
   }
 
   makeResponse (enrollmentResult: Array<APIErrorData | CanvasEnrollment>): CanvasEnrollment[] | APIErrorData {
-    const failures = [], statusCodes: Set<number> = new Set(), successes = []
+    const failures = []
+    const statusCodes: Set<number> = new Set()
+    const successes = []
+
     for (const enrollment of enrollmentResult) {
       if (isAPIErrorData(enrollment)) {
         const {
