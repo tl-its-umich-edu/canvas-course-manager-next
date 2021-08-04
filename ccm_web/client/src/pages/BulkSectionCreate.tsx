@@ -138,8 +138,6 @@ const useSuccessStyles = makeStyles((theme) => ({
   card: {
     textAlign: 'center'
   },
-  cardContent: {
-  },
   cardFooter: {
     display: 'block',
     backgroundColor: '#F7F7F7',
@@ -562,7 +560,7 @@ Section 001`
   const renderSuccess = (): JSX.Element => {
     return (
       <Card className={successClasses.card} variant="outlined">
-        <CardContent className={successClasses.cardContent}>
+        <CardContent>
           <CheckCircle className={successClasses.icon} fontSize='large'/>
           <Typography>New sections have been added!</Typography>
         </CardContent>
