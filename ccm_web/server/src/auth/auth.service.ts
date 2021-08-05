@@ -8,26 +8,22 @@ import { UserService } from '../user/user.service'
 
 @Injectable()
 export class AuthService {
-  readonly maxAgeInSec: number
   readonly commonCookieOptions: CookieOptions
-  readonly protectedCookieOptions: CookieOptions
 
   constructor (
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService
   ) {
-    this.maxAgeInSec = configService.get('server.maxAgeInSec') as number
-    this.commonCookieOptions = { secure: true, sameSite: 'none' }
-    this.protectedCookieOptions = { httpOnly: true, signed: true }
+    this.commonCookieOptions = {
+      secure: true,
+      sameSite: 'none',
+      maxAge: (configService.get('server.maxAgeInSec') as number) * 1000
+    }
   }
 
   setJWTCookie (res: Response, jwtToken: string): void {
-    res.cookie('jwt', jwtToken, {
-      ...this.commonCookieOptions,
-      ...this.protectedCookieOptions,
-      maxAge: this.maxAgeInSec * 1000
-    })
+    res.cookie('jwt', jwtToken, { ...this.commonCookieOptions, httpOnly: true, signed: true })
   }
 
   async loginLTI (userData: UserToUpsert, res: Response): Promise<void> {

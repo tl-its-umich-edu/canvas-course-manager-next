@@ -16,9 +16,6 @@ export class AuthController {
     @Req() req: Request, @Res({ passthrough: true }) res: Response
   ): Promise<void> {
     // Cookie options deliberately include defaults of httpOnly false and signed false.
-    res.cookie('CSRF-Token', req.csrfToken(), {
-      ...this.authService.commonCookieOptions,
-      maxAge: this.authService.maxAgeInSec * 1000
-    })
+    res.cookie('CSRF-Token', req.csrfToken(), this.authService.commonCookieOptions)
   }
 }
