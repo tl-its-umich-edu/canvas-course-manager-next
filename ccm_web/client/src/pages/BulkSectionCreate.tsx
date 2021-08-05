@@ -535,7 +535,7 @@ Section 001`
               <Paper role='status'>
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-                <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
+                <Typography>Your file is valid!  If this looks correct, click "Submit" to proceed.</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
                 <Button variant="outlined" disabled={isSubmitting()} onClick={async () => await submit()}>Sumbit</Button>
               </Paper>
