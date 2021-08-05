@@ -1,10 +1,10 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError } from './api.utils'
+import { handleAPIError, HttpMethod } from './api.utils'
 
 import baseLogger from '../logger'
-import { CanvasEnrollment } from '../canvas/canvas.interfaces'
+import { CanvasEnrollment, CanvasUser } from '../canvas/canvas.interfaces'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -48,31 +48,48 @@ export class EnrollSectionUsersApiHandler {
     }
   }
 
-  async getUser (loginId: string): unknown {
-    // TODO: Look up `user_id` based on provided `user.loginId` (uniqname)
+  async getUserByLoginId (loginId: string): Promise<CanvasUser | APIErrorData> {
+    try {
+      const endpoint = 'accounts/1/users' // FIXME: parametrize account ID
+      const queryParams = { search_term: `${loginId}@umich.edu` } // FIXME: parameterize email domain
+      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; queryParams: "${JSON.stringify(queryParams)}"`)
+      const response = await this.requestor.get<CanvasUser>(endpoint)
+
+      return { id: 384537, login_id: 'canvasa' } // FIXME: replace with real value
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return {
+        statusCode: errResponse.canvasStatusCode,
+        errors: [errResponse]
+      }
+    }
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
     try {
-      const canvasUser = await this.getUser(user.loginId)
-      const endpoint = `sections/${this.sectionId}/enrollments`
-      const method = 'POST'
-      const body = { enrollment: { user_id: canvasUser.user_id, type: user.type } }
-      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-      const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
-      const {
-        id,
-        course_id, // eslint-disable-line
-        course_section_id, // eslint-disable-line
-        user_id, // eslint-disable-line
-        type
-      } = response.body
-      return {
-        id,
-        course_id,
-        course_section_id,
-        user_id,
-        type
+      const canvasUser = await this.getUserByLoginId(user.loginId)
+      if (isAPIErrorData(canvasUser)) {
+        throw canvasUser // FIXME: is this the best action?
+      } else {
+        const endpoint = `sections/${this.sectionId}/enrollments`
+        const method = HttpMethod.Post
+        const body = { enrollment: { user_id: canvasUser.id, type: user.type } }
+        logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
+        const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
+        const {
+          id,
+          course_id, // eslint-disable-line
+          course_section_id, // eslint-disable-line
+          user_id, // eslint-disable-line
+          type
+        } = response.body
+        return {
+          id,
+          course_id,
+          course_section_id,
+          user_id,
+          type
+        }
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, String(user))
