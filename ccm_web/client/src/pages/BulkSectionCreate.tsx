@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import { CloudDone as CloudDoneIcon, CheckCircle, Error as ErrorIcon, Warning } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
 import { addCourseSections, getCourseSections } from '../api'
