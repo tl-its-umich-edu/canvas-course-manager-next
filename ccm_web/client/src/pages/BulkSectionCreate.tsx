@@ -235,7 +235,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     const invalidations: SectionsRowInvalidation[] = []
     if (apiError !== undefined) {
       apiError.forEach(e => {
-        invalidations.push({ message: '"' + (e.failedInput !== null ? e.failedInput : 'UNKNOWN') + '" ' + e.message, rowNumber: e.failedInput !== null ? sectionNames.indexOf(e.failedInput) + 1 : -1, type: InvalidationType.Error })
+        invalidations.push({ message: `"${e.failedInput !== null ? e.failedInput : 'UNKNOWN'}" ${e.message}`, rowNumber: e.failedInput !== null ? sectionNames.indexOf(e.failedInput) + 1 : -1, type: InvalidationType.Error })
       })
     }
     return invalidations
