@@ -1,10 +1,12 @@
-import { CanvasCourseBase } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 export interface LtiProps {
   ltiKey: string | undefined
 }
+
+const jsonMimeType = 'application/json'
 
 const initRequest = (key: string | undefined, headers: string[][] = []): RequestInit => {
   if (key !== undefined) {
@@ -23,11 +25,17 @@ const getGet = (key: string | undefined): RequestInit => {
   return request
 }
 
+const getPost = (key: string | undefined, body: string): RequestInit => {
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const request = initRequest(key, headers)
+  request.method = 'POST'
+  request.body = body
+  return request
+}
+
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (key: string | undefined, body: string): RequestInit => {
-  const headers: string[][] = []
-  headers.push(['Content-Type', 'application/json'])
-  headers.push(['Accept', 'application/json'])
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initRequest(key, headers)
   request.method = 'PUT'
   request.body = body
@@ -55,18 +63,17 @@ export const getGlobals = async (key: string | undefined): Promise<Globals> => {
   return await resp.json()
 }
 
-const delay = async (ms: number): Promise<void> => {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), ms))
+export const getCourseSections = async (key: string | undefined, courseId: number): Promise<CanvasCourseSection[]> => {
+  const request = getGet(key)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
+  await handleErrors(resp)
+  return await resp.json()
 }
 
-// This is a placeholder for a real implementation (I mean, obviously :D)
-export const getCourseSections = async (key: string | undefined, courseId: string): Promise<string[]> => {
-  const sections = await delay(2000).then(() => {
-    if (Math.random() * 3 > 1) {
-      return (['AAAA', 'BBBB'])
-    } else {
-      return new Promise<string[]>((resolve, reject) => { reject(new Error('Error retrieving course section information.')) })
-    }
-  })
-  return sections
+export const addCourseSections = async (key: string | undefined, courseId: number, sectionNames: string[]): Promise<CanvasCourseSection[]> => {
+  const body = JSON.stringify({ sections: sectionNames })
+  const request = getPost(key, body)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
+  await handleErrors(resp)
+  return await resp.json()
 }

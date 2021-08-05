@@ -1,5 +1,6 @@
 import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 
 import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
@@ -13,11 +14,12 @@ const logger = baseLogger.child({ filePath: __filename })
 
 @Injectable()
 export class APIService {
-  constructor (private readonly canvasService: CanvasService) {}
+  constructor (private readonly canvasService: CanvasService, private readonly configService: ConfigService) {}
 
   getGlobals (sessionData: SessionData): Globals {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      canvasURL: this.configService.get('canvas.instanceURL') as string,
       userLoginId: sessionData.data.userLoginId,
       course: {
         id: sessionData.data.course.id,
