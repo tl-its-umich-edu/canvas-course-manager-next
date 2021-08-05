@@ -505,11 +505,7 @@ Section 001`
     if (pageState.rowInvalidations.length > 0) {
       rowLevelErrors = renderRowLevelErrors(pageState.rowInvalidations, 'Some errors occurred', ErrorType.Warning)
     }
-    return (
-      <div>
-        {rowLevelErrors !== undefined && rowLevelErrors}
-      </div>
-    )
+    return <div>{rowLevelErrors !== undefined && rowLevelErrors}</div>
   }
 
   const renderAPIError = (): JSX.Element => {
