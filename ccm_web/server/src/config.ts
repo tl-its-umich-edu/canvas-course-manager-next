@@ -8,6 +8,7 @@ export interface ServerConfig {
   logLevel: LogLevel
   cookieSecret: string
   tokenSecret: string
+  maxAgeInSec: number
 }
 
 export interface LTIConfig {
@@ -75,7 +76,8 @@ export function validateConfig (env: Record<string, unknown>): Config {
       domain: validate<string>('DOMAIN', env.DOMAIN, isString),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, 'TOKENSECRET'),
-      cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, 'COOKIESECRET')
+      cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, 'COOKIESECRET'),
+      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', Number(env.MAX_AGE_IN_SEC), isNumber, (24 * 60 * 60))
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),

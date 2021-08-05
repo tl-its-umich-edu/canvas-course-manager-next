@@ -1,7 +1,8 @@
 import csurf from 'csurf'
-import { Request, RequestHandler, Response, NextFunction } from 'express'
-import { ConfigService } from '@nestjs/config'
+import { NextFunction, Request, RequestHandler, Response } from 'express'
 import { Injectable, NestMiddleware } from '@nestjs/common'
+
+import { AuthService } from './auth.service'
 
 /*
 Wrapper for csurf so that it can be installed after LTI middleware (which uses POSTs)
@@ -12,14 +13,13 @@ See https://www.npmjs.com/package/csurf
 export class CSRFProtectionMiddleware implements NestMiddleware {
   csurf: RequestHandler
 
-  constructor (private readonly configService: ConfigService) {
+  constructor (private readonly authService: AuthService) {
     this.csurf = csurf({
       cookie: {
-        domain: configService.get<string>('server.domain'),
-        secure: true,
-        sameSite: 'none',
-        signed: true,
-        httpOnly: true
+        ...this.authService.commonCookieOptions,
+        ...this.authService.protectedCookieOptions,
+        // csurf uses seconds for maxAge, instead of milliseconds like Express.
+        maxAge: this.authService.maxAgeInSec
       }
     })
   }
