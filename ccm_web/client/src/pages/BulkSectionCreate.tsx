@@ -537,7 +537,7 @@ Section 001`
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Button variant="outlined" disabled={isSubmitting()} onClick={async () => await submit()}>Submit</Button>
+                <Button variant="outlined" disabled={isSubmitting()} onClick={submit}>Submit</Button>
               </Paper>
             </Grid>
           </Box>
