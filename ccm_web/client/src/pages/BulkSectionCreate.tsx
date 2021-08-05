@@ -1,4 +1,4 @@
-import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import {Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import { CloudDone as CloudDoneIcon, CheckCircle, Error as ErrorIcon, Warning } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
 import { addCourseSections, getCourseSections } from '../api'
@@ -560,6 +560,8 @@ Section 001`
   }
 
   const renderSuccess = (): JSX.Element => {
+    const { canvasURL, course } = props.globals
+    const settingsURL = `${canvasURL}/courses/${course.id}/settings`
     return (
       <Card className={successClasses.card} variant="outlined">
         <CardContent>
@@ -567,7 +569,7 @@ Section 001`
           <Typography>New sections have been added!</Typography>
         </CardContent>
         <CardActions className={successClasses.cardFooter}>
-          See your sections in the Canvas Setting
+          See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
         </CardActions>
       </Card>
     )

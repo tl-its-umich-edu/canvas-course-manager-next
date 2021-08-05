@@ -28,6 +28,7 @@ export interface Course {
 
 export interface Globals {
   environment: 'production' | 'development'
+  canvasURL: string
   userLoginId: string
   course: Course
 }
