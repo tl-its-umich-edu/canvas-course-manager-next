@@ -54,6 +54,11 @@ export interface CanvasEnrollment {
   type: string
 }
 
+export interface CanvasUser {
+  id: number
+  login_id: string
+}
+
 // Errors
 
 interface CanvasError {
