@@ -197,7 +197,9 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     }
   )
   useEffect(() => {
-    setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+    if (getCanvasSectionDataError !== undefined) {
+      setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+    }
   }, [getCanvasSectionDataError])
 
   useEffect(() => {
@@ -365,10 +367,10 @@ Section 001`
     return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
   }
 
-  const renderLoadingText = (): JSX.Element => {
+  const renderLoadingText = (): JSX.Element | undefined => {
     if (isExistingSectionsLoading) {
       return (<Typography>Loading Section Information</Typography>)
-    } else {
+    } else if (isSaveCanvasSectionDataLoading) {
       return (<Typography>Saving Section Information</Typography>)
     }
   }
@@ -419,7 +421,7 @@ Section 001`
 
   const renderTryAgainButton = (): JSX.Element => {
     // eslint-disable-next-line no-void
-    return <Button color='primary' component="span" onClick={() => { resetPageState(); void doLoadCanvasSectionData() }}>Try again</Button>
+    return <Button color='primary' component="span" onClick={() => { resetPageState() }}>Try again</Button>
   }
 
   const renderErrorIcon = (errorType: ErrorType): JSX.Element => {
