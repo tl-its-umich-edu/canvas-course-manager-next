@@ -222,6 +222,10 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
     }
   )
 
+  const isSubmitting = (): boolean => {
+    return (isExistingSectionsLoading || isSaveCanvasSectionDataLoading)
+  }
+
   const submit = async (): Promise<void> => {
     setPageState({ state: BulkSectionCreatePageState.Saving, schemaInvalidation: [], rowInvalidations: [] })
     void doLoadCanvasSectionData()
@@ -537,7 +541,7 @@ Section 001`
                 <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct proceed with download</Typography>
                 <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Button variant="outlined" onClick={async () => await submit()}>Sumbit</Button>
+                <Button variant="outlined" disabled={isSubmitting()} onClick={async () => await submit()}>Sumbit</Button>
               </Paper>
             </Grid>
           </Box>
