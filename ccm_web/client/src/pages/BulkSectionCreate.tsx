@@ -1,4 +1,4 @@
-import {Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import { CloudDone as CloudDoneIcon, CheckCircle, Error as ErrorIcon, Warning } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
 import { addCourseSections, getCourseSections } from '../api'
@@ -174,9 +174,7 @@ interface BulkSectionCreatePageStateData {
   schemaInvalidation: SectionsSchemaInvalidation[]
 }
 
-interface BulkSectionCreateProps extends CCMComponentProps {}
-
-function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
+function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
@@ -190,7 +188,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
-    async () => await getCourseSections(props.ltiKey, props.globals.course.id),
+    async () => await getCourseSections(props.globals.course.id),
     (value: CanvasCourseSection[]) => {
       const existingSuggestions = value.map(s => { return s.name.toUpperCase() })
       setExistingSectionNames(existingSuggestions)
@@ -214,7 +212,7 @@ function BulkSectionCreate (props: BulkSectionCreateProps): JSX.Element {
   }, [existingSectionNames])
 
   const [doSaveCanvasSectionData, isSaveCanvasSectionDataLoading, getSaveCanvasSectionDataError] = usePromise(
-    async () => await addCourseSections(props.ltiKey, props.globals.course.id, sectionNames),
+    async () => await addCourseSections(props.globals.course.id, sectionNames),
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidation: [], rowInvalidations: [] })

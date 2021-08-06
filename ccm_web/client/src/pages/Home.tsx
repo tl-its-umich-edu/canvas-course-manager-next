@@ -6,7 +6,7 @@ import { useSnackbar } from 'notistack'
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { setCourseName as apiSetCourseName, LtiProps } from '../api'
+import { setCourseName as apiSetCourseName } from '../api'
 import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
@@ -30,8 +30,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface HomeProps extends LtiProps {
-  ltiKey: string | undefined
+interface HomeProps {
   globals: Globals
   course: CanvasCourseBase | undefined
   getCourseError: Error | undefined
@@ -45,7 +44,7 @@ function Home (props: HomeProps): JSX.Element {
   const setCourseNameAsync = async (
     newCourseName: string
   ): Promise<CanvasCourseBase|undefined> => {
-    return await apiSetCourseName(props.ltiKey, props.globals.course.id, newCourseName)
+    return await apiSetCourseName(props.globals.course.id, newCourseName)
   }
 
   const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(
