@@ -27,3 +27,13 @@ Notes for implementing issue #108.
     * Type  
 
           StudentEnrollment
+
+Weird log results:
+
+```txt
+ccm_web     | 2021-08-06T16:48:17.091Z - api.enroll.section.users.handler.ts - debug - Sending request to Canvas endpoint: "accounts/1/users"; queryParams: "{"search_term":"studenta@umich.edu"}"
+ccm_web     | 2021-08-06T16:48:22.734Z - api.enroll.section.users.handler.ts - debug - Received response with status code 200
+ccm_web     | 2021-08-06T16:48:22.735Z - api.utils.ts - error - An error occurred while making a request to Canvas: {}
+ccm_web     | 2021-08-06T16:48:22.735Z - api.utils.ts - error - An error occurred while making a request to Canvas: {"statusCode":500,"errors":[{"canvasStatusCode":500,"message":"A non-HTTP error occurred while communicating with Canvas.","failedInput":null}]}
+ccm_web     | 2021-08-06T16:48:22.735Z - api.enroll.section.users.handler.ts - debug - Time elapsed to enroll (1) users: (5) seconds
+```
