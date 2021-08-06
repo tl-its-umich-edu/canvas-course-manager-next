@@ -56,12 +56,13 @@ export class EnrollSectionUsersApiHandler {
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; queryParams: "${JSON.stringify(queryParams)}"`)
       const response = await this.requestor.get<CanvasUser>(endpoint)
       logger.debug(`Received response with status code ${response.statusCode}`)
-      logger.debug(`Received response ${JSON.stringify(response)}`)
 
       // TODO: logic here to filter multiple responses to find one with exact `login_id`
 
       return { id: 384537, login_id: 'canvasa' } // FIXME: replace with real value
     } catch (error) {
+      logger.debug(error)
+      // FIXME: This also catches non-Canvas errors in above block
       const errResponse = handleAPIError(error)
       return {
         statusCode: errResponse.canvasStatusCode,
