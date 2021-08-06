@@ -53,11 +53,16 @@ export class EnrollSectionUsersApiHandler {
       const endpoint = 'accounts/1/users' // FIXME: parametrize account ID
       // According to API docs, search by email may only work for admins…
       const queryParams = { search_term: `${loginId}@umich.edu` } // FIXME: parameterize email domain
+
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; queryParams: "${JSON.stringify(queryParams)}"`)
-      const response = await this.requestor.get<CanvasUser>(endpoint)
-      logger.debug(`Received response with status code ${response.statusCode}`)
+      // FIXME: list() should return promise, toArray() should be callable later
+      const usersAll = await this.requestor.list<CanvasUser>(endpoint).toArray()
 
       // TODO: logic here to filter multiple responses to find one with exact `login_id`
+      const user = usersAll.map(u => ({
+        id: u.id,
+        login_id: u.login_id
+      }))
 
       return { id: 384537, login_id: 'canvasa' } // FIXME: replace with real value
     } catch (error) {
