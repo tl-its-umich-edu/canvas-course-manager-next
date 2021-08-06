@@ -63,7 +63,8 @@ async function bootstrap (): Promise<void> {
       cookie: {
         domain: serverConfig.domain,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        maxAge: serverConfig.maxAgeInSec * 1000
       }
     })
   )

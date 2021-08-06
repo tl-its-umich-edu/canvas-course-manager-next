@@ -7,6 +7,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { SessionGuard } from '../auth/session.guard'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
@@ -14,7 +15,7 @@ import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('canvas')
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}

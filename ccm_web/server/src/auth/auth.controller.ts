@@ -4,8 +4,9 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { AuthService } from './auth.service'
+import { SessionGuard } from './session.guard'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('auth')
 export class AuthController {
   constructor (private readonly authService: AuthService) {}
