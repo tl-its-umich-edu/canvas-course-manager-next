@@ -34,10 +34,8 @@ export class APIService {
       const endpoint = `courses/${courseId}/sections`
       const queryParams = { include: ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      // FIXME: list() should return promise, toArray() should be callable later
       const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
-      // FIXME: no access to got Response; statusCode, etc. not available!
-      // logger.debug(`Received response with status code ${sectionsFull.statusCode}`) // broken
+      logger.debug('Received response (status code unknown)')
       return sectionsFull.map(s => ({
         id: s.id,
         name: s.name,
