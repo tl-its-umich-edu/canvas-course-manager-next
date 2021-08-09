@@ -33,7 +33,11 @@ class NotFoundError extends Error {
   }
 }
 
-class DefaultError extends Error {
+interface IDefaultError {
+  errors: APIErrorPayload[]
+}
+
+class DefaultError extends Error implements IDefaultError {
   public name = 'DefaultError'
   errors: APIErrorPayload[]
 

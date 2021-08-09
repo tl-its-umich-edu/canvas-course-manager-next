@@ -4,9 +4,10 @@ import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
+import { AuthService } from '../auth/auth.service'
+
 import baseLogger from '../logger'
 import { DatabaseConfig, LTIConfig } from '../config'
-import { UserService } from '../user/user.service'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -23,7 +24,7 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService, private readonly userService: UserService) {}
+  constructor (private readonly configService: ConfigService, private readonly authService: AuthService) {}
 
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db') as DatabaseConfig
@@ -43,16 +44,14 @@ export class LTIService implements BeforeApplicationShutdown {
       { plugin: dbPlugin },
       {
         // Reserved routes
-        appRoute: '/lti',
-        loginRoute: '/lti/login',
-        keysetRoute: '/lti/keys',
+        appRoute: '/',
+        loginRoute: '/login',
+        keysetRoute: '/keys',
         // Set secure to true if the testing platform is in a different domain and https is being used
         // Set sameSite to 'None' if the testing platform is in a different domain and https is being used
         cookies: { secure: true, sameSite: 'None' }
       }
     )
-
-    provider.whitelist('/canvas/returnFromOAuth')
 
     // Redirect to the Canvas token check and OAuth workflow after a successful launch
     provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
@@ -66,35 +65,24 @@ export class LTIService implements BeforeApplicationShutdown {
       const courseId = customLTIVariables.course_id as number
       const roles = customLTIVariables.roles as string
       const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
+
       try {
-        const [record, created] = await this.userService.upsertUser({
+        await this.authService.loginLTI({
           firstName: token.userInfo.given_name,
           lastName: token.userInfo.family_name,
           email: token.userInfo.email,
           loginId: loginId
-        })
-
-        /*
-        created variable will return non-null value for MySQL, but the return type on upsert method is Promise<[User, boolean|null]>
-        so Typescript is mandating a null check. So here the null is changed to false to escape the type validation errors.
-        */
-        logger.info(
-          `User ${record.loginId} was ${
-            (created ?? false) ? 'created' : 'updated'
-          } in 'user' table`
-        )
+        }, res)
       } catch (e) {
         logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
         return createLaunchErrorResponse(res)
       }
-
       // More data will be added to the session here later
       const course = {
         id: courseId,
         roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
       }
       const sessionData = {
-        ltiKey: res.locals.ltik as string, // Asserting ltik is not undefined, since launch was successful
         userLoginId: loginId,
         course: course,
         isRootAdmin: isRootAdmin
@@ -105,7 +93,7 @@ export class LTIService implements BeforeApplicationShutdown {
           logger.error('Failed to save session data due to error: ', err)
           return createLaunchErrorResponse(res)
         }
-        return provider.redirect(res, '/canvas/redirectOAuth')
+        return res.redirect('/canvas/redirectOAuth')
       })
     })
 

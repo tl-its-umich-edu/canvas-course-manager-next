@@ -2,6 +2,7 @@ import { hasKeys } from '../typeUtils'
 
 export interface Globals {
   environment: 'production' | 'development'
+  canvasURL: string
   userLoginId: string
   course: {
     id: number

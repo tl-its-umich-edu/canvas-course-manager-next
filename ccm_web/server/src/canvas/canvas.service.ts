@@ -9,8 +9,7 @@ import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
-import { UserNotFoundError } from '../user/user.errors'
-import { UserService } from '../user/user.service'
+import { User } from '../user/user.model'
 
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
@@ -31,7 +30,6 @@ export class CanvasService {
   constructor (
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly userService: UserService,
     @InjectModel(CanvasToken)
     private readonly canvasTokenModel: typeof CanvasToken
   ) {
@@ -62,18 +60,11 @@ export class CanvasService {
     return expiresAt
   }
 
-  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<void> {
+  async createTokenForUser (user: User, canvasCode: string): Promise<void> {
     /*
     Make a call to the Canvas API to create token
     https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
     */
-
-    const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) {
-      logger.error(`User ${userLoginId} is not in the database.`)
-      throw new UserNotFoundError(userLoginId)
-    }
-
     const params = {
       grant_type: 'authorization_code',
       client_id: this.clientId,
@@ -112,22 +103,13 @@ export class CanvasService {
         refreshToken: data.refresh_token,
         expiresAt: expiresAt.toISOString()
       })
-      logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
+      logger.info(`CanvasToken record successfully created for user ${user.loginId}.`)
     } catch (error) {
       logger.error(
         `Error occurred while writing Canvas token data to the database: ${JSON.stringify(error, null, 2)}`
       )
       throw new DatabaseError()
     }
-  }
-
-  async findToken (userLoginId: string): Promise<CanvasToken | null> {
-    const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) {
-      logger.error(`User ${userLoginId} is not in the database.`)
-      throw new UserNotFoundError(userLoginId)
-    }
-    return user.canvasToken
   }
 
   async refreshToken (token: CanvasToken): Promise<CanvasToken> {
@@ -173,10 +155,10 @@ export class CanvasService {
     }
   }
 
-  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
-    let token = await this.findToken(userLoginId)
-    if (token === null) throw new CanvasTokenNotFoundError(userLoginId)
+  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+    if (user.canvasToken === null) throw new CanvasTokenNotFoundError(user.loginId)
 
+    let token = user.canvasToken
     const tokenExpired = token.isExpired()
     if (tokenExpired) {
       logger.debug('Token for user has expired; refreshing token...')

@@ -20,15 +20,22 @@ export class UserService {
   ) {}
 
   /*
-  The User object for MySQL dialect always returns boolean value for `created` variable,
-  but not with other DB dialects. To avoid TypeScript errors including boolean | null
-  https://sequelize.org/master/class/lib/model.js~Model.html#static-method-upsert
+  The created variable will return a non-null value for MySQL, but the return type on
+  the upsert method is Promise<[User, boolean | null]>, so Typescript is requiring a null check.
+  We check explicitly for true to determine if it was created (otherwise it was updated).
   */
-  async upsertUser (userToUpsert: UserToUpsert): Promise<[User, boolean | null]> {
-    const [record, created] = await this.userModel.upsert({
-      ...userToUpsert
-    })
-    return [record, created]
+  async upsertUser (userToUpsert: UserToUpsert): Promise<User> {
+    try {
+      const [record, created] = await this.userModel.upsert({ ...userToUpsert })
+      const howChanged = created === true ? 'created' : 'updated'
+      logger.info(`User ${record.loginId} was ${howChanged} in 'user' table.`)
+      return record
+    } catch (error) {
+      logger.error(
+        `An error occurred while creating or updating a User record in the database: ${JSON.stringify(error, null, 2)}`
+      )
+      throw new DatabaseError()
+    }
   }
 
   async findUserByLoginId (loginId: string): Promise<User | null> {
