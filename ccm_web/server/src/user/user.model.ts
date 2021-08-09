@@ -45,5 +45,5 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   loginId!: string
 
   @HasOne(() => CanvasToken)
-  canvasToken?: CanvasToken
+  canvasToken!: CanvasToken | null
 }

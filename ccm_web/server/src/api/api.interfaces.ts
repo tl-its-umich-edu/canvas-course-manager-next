@@ -2,18 +2,24 @@ import { hasKeys } from '../typeUtils'
 
 export interface Globals {
   environment: 'production' | 'development'
+  canvasURL: string
   userLoginId: string
   course: {
     id: number
     roles: string[]
   }
 }
+export interface APIErrorPayload {
+  canvasStatusCode: number
+  message: string
+  failedInput: string | null
+}
 
 export interface APIErrorData {
   statusCode: number
-  message: string
+  errors: APIErrorPayload[]
 }
 
 export function isAPIErrorData (value: unknown): value is APIErrorData {
-  return hasKeys(value, ['statusCode', 'message'])
+  return hasKeys(value, ['statusCode', 'errors'])
 }

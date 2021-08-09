@@ -3,13 +3,13 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
+import { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
-import { isCanvasErrorBody, TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
+import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
-import { UserNotFoundError } from '../user/user.errors'
-import { UserService } from '../user/user.service'
+import { User } from '../user/user.model'
 
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
@@ -18,6 +18,7 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
+const requestorOptions: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'DELETE'] } }
 
 @Injectable()
 export class CanvasService {
@@ -29,7 +30,6 @@ export class CanvasService {
   constructor (
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly userService: UserService,
     @InjectModel(CanvasToken)
     private readonly canvasTokenModel: typeof CanvasToken
   ) {
@@ -60,18 +60,11 @@ export class CanvasService {
     return expiresAt
   }
 
-  async createTokenForUser (userLoginId: string, canvasCode: string): Promise<void> {
+  async createTokenForUser (user: User, canvasCode: string): Promise<void> {
     /*
     Make a call to the Canvas API to create token
     https://canvas.instructure.com/doc/api/file.oauth_endpoints.html#post-login-oauth2-token
     */
-
-    const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) {
-      logger.error(`User ${userLoginId} is not in the database.`)
-      throw new UserNotFoundError(userLoginId)
-    }
-
     const params = {
       grant_type: 'authorization_code',
       client_id: this.clientId,
@@ -110,23 +103,13 @@ export class CanvasService {
         refreshToken: data.refresh_token,
         expiresAt: expiresAt.toISOString()
       })
-      logger.info(`CanvasToken record successfully created for user ${userLoginId}.`)
+      logger.info(`CanvasToken record successfully created for user ${user.loginId}.`)
     } catch (error) {
       logger.error(
         `Error occurred while writing Canvas token data to the database: ${JSON.stringify(error, null, 2)}`
       )
       throw new DatabaseError()
     }
-  }
-
-  async findToken (userLoginId: string): Promise<CanvasToken | null> {
-    const user = await this.userService.findUserByLoginId(userLoginId)
-    if (user === null) {
-      logger.error(`User ${userLoginId} is not in the database.`)
-      throw new UserNotFoundError(userLoginId)
-    }
-    const token = user.canvasToken === undefined ? null : user.canvasToken
-    return token
   }
 
   async refreshToken (token: CanvasToken): Promise<CanvasToken> {
@@ -172,22 +155,16 @@ export class CanvasService {
     }
   }
 
-  async createRequestorForUser (userLoginId: string, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
-    let token = await this.findToken(userLoginId)
-    if (token === null) throw new CanvasTokenNotFoundError(userLoginId)
+  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+    if (user.canvasToken === null) throw new CanvasTokenNotFoundError(user.loginId)
 
+    let token = user.canvasToken
     const tokenExpired = token.isExpired()
     if (tokenExpired) {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken)
+    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken, requestorOptions)
     return requestor
-  }
-
-  static parseErrorBody (body: unknown): string {
-    if (body === null || body === undefined) return 'No response body was found.'
-    if (!isCanvasErrorBody(body)) return `Response body had unexpected shape: ${JSON.stringify(body)}`
-    return body.errors.map(e => e.message).join(' ')
   }
 }
