@@ -55,14 +55,16 @@ export class EnrollSectionUsersApiHandler {
       const queryParams = { search_term: `${loginId}@umich.edu` } // FIXME: parameterize email domain
 
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; queryParams: "${JSON.stringify(queryParams)}"`)
-      // FIXME: list() should return promise, toArray() should be callable later
       const usersAll = await this.requestor.list<CanvasUser>(endpoint).toArray()
+      logger.debug('Received response (status code unknown)')
 
-      // TODO: logic here to filter multiple responses to find one with exact `login_id`
-      const user = usersAll.map(u => ({
+      const users = usersAll.map(u => ({
         id: u.id,
         login_id: u.login_id
       }))
+      // TODO: logic here to filter multiple responses to find one with exact `login_id`
+
+      logger.debug([...users.entries()])
 
       return { id: 384537, login_id: 'canvasa' } // FIXME: replace with real value
     } catch (error) {
