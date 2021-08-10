@@ -78,7 +78,7 @@ export class EnrollSectionUsersApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, String(user))
+      const errorResponse = handleAPIError(error, JSON.stringify(user))
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
