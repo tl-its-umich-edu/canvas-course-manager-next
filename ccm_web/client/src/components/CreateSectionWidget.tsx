@@ -20,7 +20,6 @@ function CreateSectionWidget (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   return (
     <>
-    {/* <form className={classes.root} noValidate autoComplete="off"> */}
     <Grid container>
       <Grid item xs={9}>
         <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic"/>
@@ -31,7 +30,6 @@ function CreateSectionWidget (props: CCMComponentProps): JSX.Element {
         </Button>
       </Grid>
     </Grid>
-    {/* </form> */}
     </>
   )
 }

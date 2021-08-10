@@ -1,6 +1,10 @@
 import { Button, createStyles, makeStyles, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { getCourseSections } from '../api'
 import CreateSectionWidget from '../components/CreateSectionWidget'
+import SectionSelectorWidget from '../components/SectionSelectorWidget'
+import usePromise from '../hooks/usePromise'
+import { CanvasCourseSection } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
@@ -33,6 +37,19 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
 
+  const [sections, setSections] = useState<CanvasCourseSection[]|undefined>(undefined)
+
+  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+    async () => await getCourseSections(props.globals.course.id),
+    (value: CanvasCourseSection[]) => {
+      setSections(value)
+    }
+  )
+
+  useEffect(() => {
+    void doLoadCanvasSectionData()
+  }, [])
+
   const getSteps = (): string[] => {
     return ['Select', 'Upload', 'Review', 'Confirmation']
   }
@@ -43,6 +60,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       <>
         <div className={classes.createSetctionWidget}><CreateSectionWidget {...props}/></div>
         <Typography variant='subtitle1'>Or select one available section to add users</Typography>
+        <SectionSelectorWidget sections={sections !== undefined ? sections : []}></SectionSelectorWidget>
       </>
     )
   }
