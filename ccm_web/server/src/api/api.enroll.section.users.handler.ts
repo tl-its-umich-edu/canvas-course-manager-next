@@ -4,7 +4,7 @@ import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod } from './api.utils'
 
 import baseLogger from '../logger'
-import { CanvasEnrollment, CanvasUser } from '../canvas/canvas.interfaces'
+import { CanvasEnrollment } from '../canvas/canvas.interfaces'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -44,36 +44,6 @@ export class EnrollSectionUsersApiHandler {
       return {
         statusCode: statusCodes.size > 1 ? 502 : [...statusCodes][0],
         errors: failures
-      }
-    }
-  }
-
-  async getUserByLoginId (loginId: string): Promise<CanvasUser | APIErrorData> {
-    try {
-      const endpoint = 'accounts/1/users' // FIXME: parametrize account ID
-      // According to API docs, search by email may only work for admins…
-      const queryParams = { search_term: `${loginId}@umich.edu` } // FIXME: parameterize email domain
-
-      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; queryParams: "${JSON.stringify(queryParams)}"`)
-      const usersAll = await this.requestor.list<CanvasUser>(endpoint).toArray()
-      logger.debug('Received response (status code unknown)')
-
-      const users = usersAll.map(u => ({
-        id: u.id,
-        login_id: u.login_id
-      }))
-      // TODO: logic here to filter multiple responses to find one with exact `login_id`
-
-      logger.debug([...users.entries()])
-
-      return { id: 384537, login_id: 'canvasa' } // FIXME: replace with real value
-    } catch (error) {
-      logger.debug(error)
-      // FIXME: This also catches non-Canvas errors in above block
-      const errResponse = handleAPIError(error)
-      return {
-        statusCode: errResponse.canvasStatusCode,
-        errors: [errResponse]
       }
     }
   }
