@@ -57,7 +57,8 @@ export class EnrollSectionUsersApiHandler {
           // 'sis_login_id:' prefix per...
           // https://canvas.instructure.com/doc/api/file.object_ids.html
           user_id: `sis_login_id:${user.loginId}`,
-          type: user.type
+          type: user.type,
+          enrollment_state: 'active',
         }
       }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
