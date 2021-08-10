@@ -50,29 +50,31 @@ export class EnrollSectionUsersApiHandler {
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
     try {
-      const canvasUser = await this.getUserByLoginId(user.loginId)
-      if (isAPIErrorData(canvasUser)) {
-        throw canvasUser // FIXME: is this the best action?
-      } else {
-        const endpoint = `sections/${this.sectionId}/enrollments`
-        const method = HttpMethod.Post
-        const body = { enrollment: { user_id: canvasUser.id, type: user.type } }
-        logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-        const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
-        const {
-          id,
-          course_id, // eslint-disable-line
-          course_section_id, // eslint-disable-line
-          user_id, // eslint-disable-line
-          type
-        } = response.body
-        return {
-          id,
-          course_id,
-          course_section_id,
-          user_id,
-          type
+      const endpoint = `sections/${this.sectionId}/enrollments`
+      const method = HttpMethod.Post
+      const body = {
+        enrollment: {
+          // 'sis_login_id:' prefix per...
+          // https://canvas.instructure.com/doc/api/file.object_ids.html
+          user_id: `sis_login_id:${user.loginId}`,
+          type: user.type
         }
+      }
+      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
+      const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
+      const {
+        id,
+        course_id, // eslint-disable-line
+        course_section_id, // eslint-disable-line
+        user_id, // eslint-disable-line
+        type
+      } = response.body
+      return {
+        id,
+        course_id,
+        course_section_id,
+        user_id,
+        type
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, String(user))
