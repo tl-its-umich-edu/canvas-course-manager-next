@@ -17,9 +17,10 @@ export function handleAPIError (error: unknown, input?: string): APIErrorPayload
   const failedInput = input === undefined ? null : input
   if (error instanceof HTTPError) {
     const { statusCode, body } = error.response
-    const bodyText = `${parseErrorBody(body)}`
-    logger.error(`Response body: ${bodyText}`)
-    logger.error(`Received unusual status code ${String(statusCode)}`)
+    const bodyText = parseErrorBody(body)
+    logger.error(`Received error status code: (${String(statusCode)})`)
+    logger.error(`Response body: (${bodyText})`)
+    logger.error(`Failed input: (${failedInput})`)
     return { canvasStatusCode: statusCode, message: bodyText, failedInput: failedInput }
   } else {
     logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
