@@ -8,9 +8,9 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 export enum HttpMethod {
-  Get = "GET",
-  Post = "POST",
-  Put = "PUT",
+  Get = 'GET',
+  Post = 'POST',
+  Put = 'PUT',
 }
 
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {
