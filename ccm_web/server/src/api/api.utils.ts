@@ -20,7 +20,7 @@ export function handleAPIError (error: unknown, input?: string): APIErrorPayload
     const bodyText = parseErrorBody(body)
     logger.error(`Received error status code: (${String(statusCode)})`)
     logger.error(`Response body: (${bodyText})`)
-    logger.error(`Failed input: (${failedInput || ''})`)
+    logger.error(`Failed input: (${failedInput ?? ''})`)
     return { canvasStatusCode: statusCode, message: bodyText, failedInput: failedInput }
   } else {
     logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
