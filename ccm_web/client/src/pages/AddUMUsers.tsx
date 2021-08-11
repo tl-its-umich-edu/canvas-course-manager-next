@@ -1,4 +1,4 @@
-import { Button, createStyles, makeStyles, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, createStyles, Grid, makeStyles, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { getCourseSections } from '../api'
 import CreateSectionWidget from '../components/CreateSectionWidget'
@@ -17,6 +17,11 @@ const useStyles = makeStyles((theme: Theme) =>
     backButton: {
       marginRight: theme.spacing(1)
     },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+      position: 'absolute'
+    },
     instructions: {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
@@ -24,8 +29,16 @@ const useStyles = makeStyles((theme: Theme) =>
     createSetctionWidget: {
       width: '500px'
     },
+    sectionSelectionContainer: {
+      position: 'relative',
+      zIndex: 0,
+      textAlign: 'center',
+      minHeight: '300px',
+      maxHeight: '400px'
+    },
     stepper: {
-      textAlign: 'center'
+      textAlign: 'center',
+      paddingTop: '20px'
     }
   })
 )
@@ -54,12 +67,28 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
+  const setSelectedCourse = (course: CanvasCourseSection|undefined): void => {
+    console.log('Selected ' + course?.name)
+  }
+
   const getSelectContent = (): JSX.Element => {
     return (
       <>
         <div className={classes.createSetctionWidget}><CreateSectionWidget {...props}/></div>
         <Typography variant='subtitle1'>Or select one available section to add users</Typography>
-        <SectionSelectorWidget sections={sections !== undefined ? sections : []}></SectionSelectorWidget>
+        <div className={classes.sectionSelectionContainer}>
+          <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} setSelectedCourse={setSelectedCourse}></SectionSelectorWidget>
+          <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}>
+                <CircularProgress color="inherit" />
+              </Grid>
+              <Grid item xs={12}>
+                Loading sections
+              </Grid>
+            </Grid>
+          </Backdrop>
+        </div>
       </>
     )
   }
