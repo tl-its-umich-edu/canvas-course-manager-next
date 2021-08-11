@@ -59,7 +59,7 @@ export class EnrollSectionUsersApiHandler {
           user_id: `sis_login_id:${user.loginId}`,
           type: user.type,
           enrollment_state: 'active',
-          notify: false,
+          notify: false
         }
       }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
