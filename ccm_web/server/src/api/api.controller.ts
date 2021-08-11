@@ -64,6 +64,7 @@ export class APIController {
   }
 
   @Post('sections/:id/enroll')
+  @ApiSecurity('CSRF-Token')
   async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
     const users: SectionUserDto[] = sectionUsersData.users
     const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
