@@ -90,9 +90,9 @@ export class APIService {
     return await createSectionsApiHandler.createSections()
   }
 
-  async enrollSectionUsers (userLoginId: string, sectionId: number, users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
-    const requestor = await this.canvasService.createRequestorForUser(userLoginId, '/api/v1/')
-    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, users, sectionId)
+  async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, sectionUsers, sectionId)
     return await enrollmentHandler.enrollUsers()
   }
 }

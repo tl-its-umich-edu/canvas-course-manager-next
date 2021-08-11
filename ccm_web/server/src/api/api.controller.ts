@@ -7,7 +7,9 @@ import { ApiSecurity } from '@nestjs/swagger'
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment
+} from '../canvas/canvas.interfaces'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -62,10 +64,9 @@ export class APIController {
   }
 
   @Post('sections/:id/enroll')
-  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @Session() session: SessionData): Promise<CanvasEnrollment[]> {
-    const { userLoginId } = session.data
+  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
     const users: SectionUserDto[] = sectionUsersData.users
-    const result = await this.apiService.enrollSectionUsers(userLoginId, sectionId, users)
+    const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
