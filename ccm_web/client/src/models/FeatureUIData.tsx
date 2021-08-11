@@ -10,10 +10,11 @@ import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, Ext
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
-import { LtiProps } from '../api'
-import { RoleEnum } from './models'
+import { Globals, RoleEnum } from './models'
 
-export interface CCMComponentProps extends LtiProps {}
+export interface CCMComponentProps {
+  globals: Globals
+}
 
 interface FeatureUIGroup {
   id: string

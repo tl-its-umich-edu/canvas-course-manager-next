@@ -1,22 +1,28 @@
 import { Request, Response } from 'express'
 import {
-  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException
+  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
 } from '@nestjs/common'
+import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { UserDec } from '../user/user.decorator'
+import { User } from '../user/user.model'
 
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
+@UseGuards(JwtAuthGuard)
 @Controller('canvas')
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}
 
+  @ApiExcludeEndpoint()
   @Get('redirectOAuth')
   async redirectToOAuth (
-    @Req() req: Request, @Res() res: Response
+    @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
     logger.debug('Pulling session data, checking for Canvas token, and redirecting to Canvas for OAuth...')
 
@@ -25,12 +31,9 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    const { ltiKey, userLoginId } = req.session.data
-
-    const token = await this.canvasService.findToken(userLoginId)
-    if (token !== null) {
-      logger.debug(`User ${userLoginId} already has a CanvasToken record; redirecting to home page...`)
-      return res.redirect(`/?ltik=${ltiKey}`)
+    if (user.canvasToken !== null) {
+      logger.debug(`User ${user.loginId} already has a CanvasToken record; redirecting to home page...`)
+      return res.redirect('/')
     }
 
     const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
@@ -38,13 +41,11 @@ export class CanvasController {
     res.redirect(fullURL)
   }
 
-  /*
-  Not behind ltijs authentication; this seems necessary, right?
-  See provider.whitelist in LTIService
-  */
+  @ApiExcludeEndpoint()
   @Get('returnFromOAuth')
   async returnFromOAuth (
-    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery, @Req() req: Request, @Res() res: Response
+    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,
+      @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
     logger.debug(`Session ID: ${req.sessionID}`)
@@ -65,10 +66,7 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    // Create token for user
-    const { ltiKey, userLoginId } = req.session.data
-    await this.canvasService.createTokenForUser(userLoginId, query.code)
-
-    res.redirect(`/?ltik=${ltiKey}`)
+    await this.canvasService.createTokenForUser(user, query.code)
+    res.redirect('/')
   }
 }

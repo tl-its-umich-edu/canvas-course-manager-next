@@ -4,13 +4,13 @@ import { SnackbarProvider } from 'notistack'
 import { Breadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'
 
+import { getCourse, getCSRFToken } from './api'
 import useGlobals from './hooks/useGlobals'
+import usePromise from './hooks/usePromise'
+import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
-import { CanvasCourseBase } from './models/canvas'
-import usePromise from './hooks/usePromise'
-import { getCourse } from './api'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -26,33 +26,30 @@ interface TitleTypographyProps {
   to?: string
 }
 
-interface AppProps {
-  ltiKey: string | undefined
-}
-
-function App (props: AppProps): JSX.Element {
+function App (): JSX.Element {
   const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
 
-  const [globals, isAuthenticated, isGlobalsLoading, error] = useGlobals(props.ltiKey)
+  const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
-    async (ltiKey: string|undefined, courseId: number): Promise<CanvasCourseBase> => {
-      return await getCourse(ltiKey, courseId)
+    async (courseId: number): Promise<CanvasCourseBase> => {
+      return await getCourse(courseId)
     },
     (value: CanvasCourseBase|undefined) => setCourse(value)
   )
 
   useEffect(() => {
     if (globals !== undefined) {
-      void doLoadCourse(props.ltiKey, globals.course.id)
+      void doLoadCourse(globals.course.id)
     }
   }, [globals])
 
-  if (isAuthenticated === undefined || isGlobalsLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
+  if (isAuthenticated === undefined || isLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
 
-  if (error !== undefined) console.error(error)
+  if (globalsError !== undefined) console.error(globalsError)
+  if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
   if (globals === undefined || !isAuthenticated) {
     return (
       <div className='App'>
@@ -101,16 +98,16 @@ function App (props: AppProps): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home globals={globals} ltiKey={props.ltiKey} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
+            <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={feature.component} />
+              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} />}/>
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
         </Router>
         {
-          globals?.environment === 'development' && props.ltiKey !== undefined &&
-            <Link href={`/swagger?token=${props.ltiKey}`}>Swagger UI</Link>
+          globals?.environment === 'development' &&
+          <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
         }
       </SnackbarProvider>
     </div>

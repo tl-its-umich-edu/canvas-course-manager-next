@@ -1,5 +1,6 @@
 import path from 'path'
 
+import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import session from 'express-session'
 import morgan from 'morgan'
@@ -19,7 +20,6 @@ const logger = baseLogger.child({ filePath: __filename })
 
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  app.enableCors({ credentials: true })
 
   const configService = app.get(ConfigService)
   const sequelize = app.get(Sequelize)
@@ -39,6 +39,8 @@ async function bootstrap (): Promise<void> {
 
   app.set('trust proxy', 1)
 
+  app.use(cookieParser(serverConfig.cookieSecret))
+
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
@@ -46,7 +48,7 @@ async function bootstrap (): Promise<void> {
   app.use(
     session({
       store: sessionStore,
-      secret: serverConfig.sessionSecret,
+      secret: serverConfig.cookieSecret,
       resave: false,
       saveUninitialized: false,
       proxy: true,
@@ -64,13 +66,17 @@ async function bootstrap (): Promise<void> {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Canvas Course Manager')
       .setDescription('CCM application API description and explorer')
-      .addBearerAuth({
-        type: 'http',
-        description: (
-          'The bearer token can be found in the "token" URL parameter' +
-          ' (use a browser tool to view the URL of the frame).'
-        )
-      })
+      .addSecurity(
+        'CSRF-Token', {
+          type: 'apiKey',
+          name: 'CSRF-Token',
+          in: 'header',
+          description: (
+            'POST and PUT requests need to include a CSRF-Token header. ' +
+            'The token can be found in the "csrfToken" URL parameter ' +
+            '(use a browser tool to view the URL of the frame).'
+          )
+        })
       .build()
 
     const document = SwaggerModule.createDocument(app, swaggerConfig)

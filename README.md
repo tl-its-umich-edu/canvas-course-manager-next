@@ -248,19 +248,22 @@ and install `@nestjs/cli` globally on your machine if you want to use the tool.
 
 When in development mode (i.e. the `NODE_ENV` environment variable's value is `development`),
 the application generates [OpenAPI](https://www.openapis.org/) documentation and an explorer for
-the API endpoints using recommended [Nest patterns](https://docs.nestjs.com/openapi/introduction) and
+the API endpoints using a [Nest](https://docs.nestjs.com/openapi/introduction) package and
 [Swagger](https://swagger.io/).
 
 To access and use the Swagger UI, launch the application from a course in Canvas,
 then click on the "Swagger UI" link in the application interface's footer.
 This will take you to the Swagger page where you can view the documented API endpoints.
+Requests can also be made against the API using the "Try it out" functionality.
 
-However, to execute requests using Swagger, you need to authenticate using a Bearer token.
-The token is currently made available as a URL parameter called `token`, which you can see and copy
-by using a browser tool to view the frame's source.
+However, to execute `PUT` and `POST` requests using Swagger, you will need to provide a CSRF token
+(`GET` requests do not need this token).
+The current CSRF token is currently made available as a URL parameter called `csrfToken`,
+which you can see and copy by using a browser tool to view the frame's source.
 Once the token is obtained, in the Swagger UI, click the "Authorize" button, paste the token in the popup field,
 and then click "Authorize" to complete the process.
-Subsequent requests made using the "Try it out" functionality will pass the token in the proper header.
+Subsequent requests made using the Swagger UI to routes requiring the CSRF token
+will include the value you provided in the proper header.
 
 ### Production
 
