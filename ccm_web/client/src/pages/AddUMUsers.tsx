@@ -54,7 +54,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (value: CanvasCourseSection[]) => {
-      setSections(value)
+      setSections(value.sort((a, b) => { return a.name.localeCompare(b.name) }))
     }
   )
 
