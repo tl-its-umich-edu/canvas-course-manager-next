@@ -43,10 +43,19 @@ export interface Config {
 
 const logger = baseLogger.child({ filePath: __filename })
 
-const isString = (v: unknown): v is string => typeof v === 'string'
+// Tests if an unknown value is a non-empty string
+const isString = (v: unknown): v is string => typeof v === 'string' && v.length > 0
+
+// Tests if an unknown value is a number and not NaN
 const isNumber = (v: unknown): v is number => typeof v === 'number' && !isNaN(v)
+
+// Tests if an unknown value is one of four allowed string log levels
 const isLogLevel = (v: unknown): v is LogLevel => {
   return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
+}
+
+const prepNumber = (value: string | undefined): number | undefined => {
+  return (value === undefined) ? undefined : Number(value)
 }
 
 function validate<T> (
@@ -57,14 +66,16 @@ function validate<T> (
 ): T {
   const errorBase = 'Exception while loading configuration: '
   if (check(value)) return value
-  if (fallback !== undefined) {
-    logger.info(`Value ${String(value)} for ${key} is invalid; using fallback ${String(fallback)}`)
+  if (value === undefined && fallback !== undefined) {
+    logger.info(`Value for ${key} was undefined; using fallback ${String(fallback)}`)
     return fallback
   }
   throw (Error(errorBase + `Value ${String(value)} for ${key} is not valid`))
 }
 
-export function validateConfig (env: Record<string, unknown>): Config {
+export function validateConfig (): Config {
+  const { env } = process
+
   let server
   let lti
   let canvas
@@ -72,12 +83,12 @@ export function validateConfig (env: Record<string, unknown>): Config {
 
   try {
     server = {
-      port: validate<number>('PORT', Number(env.PORT), isNumber, 4000),
+      port: validate<number>('PORT', prepNumber(env.PORT), isNumber, 4000),
       domain: validate<string>('DOMAIN', env.DOMAIN, isString),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, 'TOKENSECRET'),
       cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, 'COOKIESECRET'),
-      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', Number(env.MAX_AGE_IN_SEC), isNumber, (24 * 60 * 60))
+      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, (24 * 60 * 60))
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
@@ -94,7 +105,7 @@ export function validateConfig (env: Record<string, unknown>): Config {
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString),
-      port: validate<number>('DB_PORT', Number(env.DB_PORT), isNumber, 3306),
+      port: validate<number>('DB_PORT', prepNumber(env.DB_PORT), isNumber, 3306),
       name: validate<string>('DB_NAME', env.DB_NAME, isString),
       user: validate<string>('DB_USER', env.DB_USER, isString),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString)

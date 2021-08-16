@@ -5,7 +5,7 @@ import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-const databaseConfig = validateConfig(process.env).db
+const databaseConfig = validateConfig().db
 
 const sequelize = new Sequelize(
   databaseConfig.name,
