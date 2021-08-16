@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemText, makeStyles, Paper } from '@material-ui/core'
+import { List, ListItem, ListItemText, makeStyles } from '@material-ui/core'
 import React, { useEffect } from 'react'
 import { CanvasCourseSection } from '../models/canvas'
 

@@ -49,12 +49,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
 
-  const [sections, setSections] = useState<CanvasCourseSection[]|undefined>(undefined)
+  const [sections, setSections] = useState<CanvasCourseSection[]>([])
+
+  const updateSections = (sections: CanvasCourseSection[]): void => {
+    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+  }
 
   const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
-    (value: CanvasCourseSection[]) => {
-      setSections(value.sort((a, b) => { return a.name.localeCompare(b.name) }))
+    (sections: CanvasCourseSection[]) => {
+      updateSections(sections)
     }
   )
 
@@ -71,10 +75,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     console.log('Selected ' + course?.name)
   }
 
+  const sectionCreated = (newSection: CanvasCourseSection): void => {
+    const newArray = sections.concat(newSection)
+    console.log(newArray)
+    updateSections(sections.concat(newSection))
+  }
+
   const getSelectContent = (): JSX.Element => {
     return (
       <>
-        <div className={classes.createSetctionWidget}><CreateSectionWidget {...props}/></div>
+        <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
         <Typography variant='subtitle1'>Or select one available section to add users</Typography>
         <div className={classes.sectionSelectionContainer}>
           <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} setSelectedCourse={setSelectedCourse}></SectionSelectorWidget>
