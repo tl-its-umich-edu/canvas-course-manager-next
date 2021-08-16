@@ -19,14 +19,16 @@ import baseLogger from './logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 async function bootstrap (): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  const isDev = process.env.NODE_ENV !== 'production'
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: !isDev ? ['warn', 'error'] : undefined
+  })
 
   const configService = app.get(ConfigService)
   const sequelize = app.get(Sequelize)
   const serverConfig = configService.get('server') as ServerConfig
   baseLogger.level = serverConfig.logLevel
-
-  const isDev = process.env.NODE_ENV !== 'production'
 
   const stream = { write: (message: string) => { logger.info(message.trim()) } }
   app.use(morgan('combined', { stream: stream }))
@@ -83,9 +85,19 @@ async function bootstrap (): Promise<void> {
     SwaggerModule.setup('swagger', app, document)
   }
 
+  if (!isDev) {
+    process.on('SIGINT', function () {
+      app.close()
+        .then(() => logger.info('The application shut down gracefully.'))
+        .catch(() => logger.error('The application failed to shut down gracefully.'))
+    })
+  }
+
+  const hostname = isDev ? 'localhost' : serverConfig.domain
+
   await app.listen(
     serverConfig.port,
-    () => logger.info(`Server started on localhost and port ${serverConfig.port}`)
+    () => logger.info(`Server started on ${hostname} and port ${serverConfig.port}`)
   )
 }
 
