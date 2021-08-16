@@ -3,7 +3,7 @@
 # - https://dev.to/chrsgrrtt/dockerising-a-next-js-project-1ck5
 
 # Base stage
-FROM node:14-slim AS ccm-base
+FROM node:14-slim AS base
 WORKDIR /base/
 COPY package*.json ./
 RUN npm install
@@ -13,17 +13,17 @@ ARG PORT
 EXPOSE ${PORT}
 
 # Build stage (build client and compile server to JS)
-FROM ccm-base AS ccm-build
+FROM node:14-slim AS build
 WORKDIR /build/
-COPY --from=ccm-base /base ./
+COPY --from=base /base ./
 RUN npm run build
 
 # Prod stage
-FROM node:14-slim AS ccm-prod
+FROM node:14-slim AS prod
 ENV NODE_ENV=production
 WORKDIR /app
 
-COPY --from=ccm-base /base/package.json \
+COPY --from=base /base/package.json \
     /base/package-lock.json \
     /base/start.sh /base/ecosystem.config.js \
     ./
@@ -31,7 +31,7 @@ RUN npm install --production
 
 RUN npm install pm2@5.1.0 -g
 
-COPY --from=ccm-build /build/dist/ ./
+COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
