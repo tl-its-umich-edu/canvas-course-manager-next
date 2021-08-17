@@ -35,6 +35,8 @@ RUN npm install --production
 RUN npm install pm2@5.1.0 -g
 COPY --from=build /build/dist/ ./
 
+# Change HOME so that .pm2 files can be written to file system
+ENV HOME=/app/
 ARG PORT
 EXPOSE ${PORT}
 CMD ["sh", "-c", "./start.sh"]
