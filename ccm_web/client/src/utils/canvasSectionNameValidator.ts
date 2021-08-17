@@ -13,7 +13,7 @@ interface IValidator {
 class DuplicateSectionNameValidator implements IValidator {
   validate = (sections: CanvasCourseSection[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
     if (sections.map(s => s.name).filter(n => n.localeCompare(sectionName) === 0).length > 0) {
-      return { reason: 'Section name already used in this course: "' + sectionName }
+      return { reason: `Section name already used in this course: "${sectionName}"` }
     }
     return undefined
   }

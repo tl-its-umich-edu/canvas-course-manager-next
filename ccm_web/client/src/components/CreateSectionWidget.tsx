@@ -5,6 +5,7 @@ import { addCourseSections } from '../api'
 import { CanvasCourseSection } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvaCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
+import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,7 +28,7 @@ export interface CreateSectionWidgetProps extends CCMComponentProps {
 function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
-  const [newSectionName, setNewSectionName] = useState<string|undefined>(undefined)
+  const [newSectionName, setNewSectionName] = useState<string>('')
   const nameValidator = new CanvaCoursesSectionNameValidator(props.globals.course)
 
   const newSectionNameChanged = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -43,7 +44,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
 
   const createSection = (): void => {
     console.log('createSection')
-    if (newSectionName === undefined) {
+    if (newSectionName.trim().length === 0) {
       return
     }
 
@@ -51,26 +52,43 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
       if (errors.length === 0) {
         addCourseSections(props.globals.course.id, [newSectionName])
           .then(newSections => {
+            console.log('newSections')
             props.onSectionCreated(newSections[0])
-          }).catch(e => {
-            console.log('error adding section')
+            setNewSectionName('')
+          }).catch(() => {
+            enqueueSnackbar('Error adding section', {
+              variant: 'error'
+            })
           })
       } else {
         errorAlert(errors)
       }
-    }).catch(error => {
-      console.log('error validating course section name ' + error)
+    }).catch(() => {
+      enqueueSnackbar('Error validating section name', {
+        variant: 'error'
+      })
     })
+  }
+
+  const isCreateDisabled = (): boolean => {
+    return newSectionName.trim().length === 0
+  }
+
+  const keyDown = (e: KeyboardEvent): void => {
+    if (isCreateDisabled()) return
+    if (e.code === CODE_RETURN || e.code === CODE_NUMPAD_ENTER) {
+      createSection()
+    }
   }
 
   return (
     <>
     <Grid container>
       <Grid item xs={9}>
-        <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged}/>
+        <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={keyDown}/>
       </Grid>
       <Grid item>
-        <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={newSectionName === undefined}>
+        <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={isCreateDisabled()}>
           Create
         </Button>
       </Grid>
