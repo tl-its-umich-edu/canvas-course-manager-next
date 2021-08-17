@@ -29,6 +29,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
   const [newSectionName, setNewSectionName] = useState<string>('')
+  const [isCreating, setIsCreating] = useState(false)
   const nameValidator = new CanvaCoursesSectionNameValidator(props.globals.course)
 
   const newSectionNameChanged = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -47,7 +48,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     if (newSectionName.trim().length === 0) {
       return
     }
-
+    setIsCreating(true)
     nameValidator.validateSectionName(newSectionName).then(errors => {
       if (errors.length === 0) {
         addCourseSections(props.globals.course.id, [newSectionName])
@@ -67,16 +68,18 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
       enqueueSnackbar('Error validating section name', {
         variant: 'error'
       })
+    }).finally(() => {
+      setIsCreating(false)
     })
   }
 
   const isCreateDisabled = (): boolean => {
-    return newSectionName.trim().length === 0
+    return isCreating || newSectionName.trim().length === 0
   }
 
-  const keyDown = (e: KeyboardEvent): void => {
+  const keyDown = (code: string): void => {
     if (isCreateDisabled()) return
-    if (e.code === CODE_RETURN || e.code === CODE_NUMPAD_ENTER) {
+    if (code === CODE_RETURN || code === CODE_NUMPAD_ENTER) {
       createSection()
     }
   }
@@ -85,7 +88,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     <>
     <Grid container>
       <Grid item xs={9}>
-        <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={keyDown}/>
+        <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
       </Grid>
       <Grid item>
         <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={isCreateDisabled()}>
