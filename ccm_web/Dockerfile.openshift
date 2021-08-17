@@ -20,14 +20,11 @@ COPY --from=build \
     /build/ecosystem.config.js \
     ./
 RUN npm install --production
-
 RUN npm install pm2@5.1.0 -g
-
 COPY --from=build /build/dist/ ./
 
 ARG PORT
 EXPOSE ${PORT}
-
 CMD ["sh", "-c", "./start.sh"]
 
 # Done!
