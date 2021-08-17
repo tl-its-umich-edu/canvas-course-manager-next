@@ -6,5 +6,5 @@ export interface CanvasCourseBase {
 export interface CanvasCourseSection {
   id: number
   name: string
-  total_students?: number
+  total_students: number
 }
