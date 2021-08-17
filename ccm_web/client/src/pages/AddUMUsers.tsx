@@ -2,6 +2,8 @@ import { Backdrop, Button, CircularProgress, createStyles, Grid, makeStyles, Ste
 import React, { useEffect, useState } from 'react'
 import { getCourseSections } from '../api'
 import CreateSectionWidget from '../components/CreateSectionWidget'
+import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
+import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection } from '../models/canvas'
@@ -29,16 +31,25 @@ const useStyles = makeStyles((theme: Theme) =>
     createSetctionWidget: {
       width: '500px'
     },
+    sectionSelectButton: {
+      float: 'right'
+    },
     sectionSelectionContainer: {
-      position: 'relative',
-      zIndex: 0,
-      textAlign: 'center',
-      minHeight: '300px',
-      maxHeight: '400px'
+
+      // position: 'relative',
+      // zIndex: 0,
+      // textAlign: 'center',
+      // minHeight: '300px',
+      // maxHeight: '400px'
     },
     stepper: {
       textAlign: 'center',
       paddingTop: '20px'
+    },
+    uploadContainer: {
+      position: 'relative',
+      zIndex: 0,
+      textAlign: 'center'
     }
   })
 )
@@ -71,9 +82,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
-  const setSelectedCourse = (course: CanvasCourseSection|undefined): void => {
-    console.log('Selected ' + course?.name)
-  }
+  const [selectedCourse, setSelectedCourse] = useState<CanvasCourseSection|undefined>(undefined)
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newArray = sections.concat(newSection)
@@ -87,7 +96,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
         <Typography variant='subtitle1'>Or select one available section to add users</Typography>
         <div className={classes.sectionSelectionContainer}>
-          <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} setSelectedCourse={setSelectedCourse}></SectionSelectorWidget>
+          <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} selectionUpdated={setSelectedCourse}></SectionSelectorWidget>
+          <div>
+            <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedCourse === undefined} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+          </div>
           <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
             <Grid container>
               <Grid item xs={12}>
@@ -103,8 +115,52 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     )
   }
 
+  const renderUploadHeader = (): JSX.Element => {
+    const fileData =
+`uniqname1 StudentEnrollment
+uniqname2 TeacherEnrollment`
+    const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
+      bodyText: "Your file should include the user's uniquname and their role",
+      fileData: fileData,
+      fileName: 'bulk_enroll.csv',
+      linkText: 'Download an example',
+      titleText: 'Upload your CSV File'
+    }
+    return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
+  }
+
+  const uploadComplete = (): void => {
+
+  }
+
+  const renderFileUpload = (): JSX.Element => {
+    return <div className={classes.uploadContainer}>
+      <Grid container>
+        <Grid item xs={12}>
+          <FileUpload onUploadComplete={uploadComplete}></FileUpload>
+        </Grid>
+      </Grid>
+      {/* <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+        <Grid container>
+          <Grid item xs={12}>
+            <CircularProgress color="inherit" />
+          </Grid>
+          <Grid item xs={12}>
+          {renderLoadingText()}
+          </Grid>
+        </Grid>
+      </Backdrop> */}
+    </div>
+  }
+
   const getUploadContent = (): JSX.Element => {
-    return (<div>Upload</div>)
+    return (
+    <div>
+      {renderUploadHeader()}
+      <br/>
+      {renderFileUpload()}
+    </div>
+    )
   }
 
   const getReviewContent = (): JSX.Element => {
@@ -162,7 +218,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
             : (
                 <div>
                   {getStepContent(activeStep)}
-                  <div className={classes.stepper}>
+                  {/* <div className={classes.stepper}>
                     <Button
                       disabled={activeStep === 0}
                       onClick={handleBack}
@@ -173,7 +229,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
                     <Button variant="contained" color="primary" onClick={handleNext}>
                       {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               )}
         </div>

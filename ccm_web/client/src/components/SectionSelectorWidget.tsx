@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
 interface ISectionSelectorWidgetProps {
   sections: CanvasCourseSection[]
   height: number
-  setSelectedCourse: (section: CanvasCourseSection|undefined) => void
+  selectionUpdated: (section: CanvasCourseSection|undefined) => void
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -26,7 +26,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   useEffect(() => {
-    props.setSelectedCourse(selectedIndex !== undefined ? props.sections[selectedIndex] : undefined)
+    props.selectionUpdated(selectedIndex !== undefined ? props.sections[selectedIndex] : undefined)
   }, [selectedIndex])
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
