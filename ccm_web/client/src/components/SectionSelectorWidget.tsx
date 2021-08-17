@@ -32,7 +32,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
-      <List className={classes.root} style={{ maxHeight: props.height }}>
+      <List className={classes.root} style={{ maxHeight: props.height, minHeight: props.height }}>
         {props.sections.map((section, index) => {
           return (<ListItem divider key={section.id} button selected={selectedIndex === index} onClick={(event) => handleListItemClick(event, index)}>
             <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} users`}></ListItemText>
