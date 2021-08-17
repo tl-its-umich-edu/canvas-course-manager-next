@@ -27,7 +27,7 @@ export class CreateSectionApiHandler {
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
       const { id, name } = response.body
-      return { id, name }
+      return { id, name, total_students: 0 }
     } catch (error) {
       const errResponse = handleAPIError(error, sectionName)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
