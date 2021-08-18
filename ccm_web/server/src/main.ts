@@ -87,18 +87,21 @@ async function bootstrap (): Promise<void> {
 
   if (!isDev) {
     process.on('SIGINT', function () {
+      logger.info('SIGINT signal received; shutting down...')
       app.close()
         .then(() => logger.info('The application shut down gracefully.'))
         .catch(() => logger.error('The application failed to shut down gracefully.'))
     })
   }
 
-  const hostname = isDev ? 'localhost' : serverConfig.domain
+  const hostname = '0.0.0.0'
 
   await app.listen(
-    serverConfig.port,
+    serverConfig.port, hostname,
     () => logger.info(`Server started on ${hostname} and port ${serverConfig.port}`)
   )
+  logger.info('ip?')
+  logger.info(await app.getUrl())
 }
 
 bootstrap()

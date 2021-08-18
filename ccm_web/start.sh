@@ -8,4 +8,4 @@ echo "Checking initialization and config before clustering"
 node server/src/init.js
 
 echo "Starting pm2 cluster"
-pm2-runtime ecosystem.config.js
+exec pm2-runtime ecosystem.config.js
