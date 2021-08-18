@@ -85,23 +85,12 @@ async function bootstrap (): Promise<void> {
     SwaggerModule.setup('swagger', app, document)
   }
 
-  if (!isDev) {
-    process.on('SIGINT', function () {
-      logger.info('SIGINT signal received; shutting down...')
-      app.close()
-        .then(() => logger.info('The application shut down gracefully.'))
-        .catch(() => logger.error('The application failed to shut down gracefully.'))
-    })
-  }
-
-  const hostname = '0.0.0.0'
+  app.enableShutdownHooks(['SIGINT'])
 
   await app.listen(
-    serverConfig.port, hostname,
-    () => logger.info(`Server started on ${hostname} and port ${serverConfig.port}`)
+    serverConfig.port,
+    () => logger.info(`Server started on 0.0.0.0 and port ${serverConfig.port}`)
   )
-  logger.info('ip?')
-  logger.info(await app.getUrl())
 }
 
 bootstrap()
