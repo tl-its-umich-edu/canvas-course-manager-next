@@ -1,6 +1,9 @@
-import { Backdrop, Button, CircularProgress, createStyles, Grid, makeStyles, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
+import CloudDoneIcon from '@material-ui/icons/CloudDone'
+
 import { getCourseSections } from '../api'
+import BulkEnrollUMUserConfirmationTable, { IAddUMUser } from '../components/BulkEnrollUMUserConfirmationTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
@@ -24,6 +27,21 @@ const useStyles = makeStyles((theme: Theme) =>
       color: '#fff',
       position: 'absolute'
     },
+    confirmContainer: {
+      position: 'relative',
+      zIndex: 0,
+      textAlign: 'center'
+    },
+    fileNameContainer: {
+      marginBottom: 15,
+      paddingLeft: 10,
+      paddingRight: 10,
+      textAlign: 'left'
+    },
+    fileName: {
+      color: '#3F648E',
+      fontFamily: 'monospace'
+    },
     instructions: {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
@@ -36,11 +54,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     sectionSelectionContainer: {
 
-      // position: 'relative',
-      // zIndex: 0,
-      // textAlign: 'center',
-      // minHeight: '300px',
-      // maxHeight: '400px'
+      position: 'relative',
+      zIndex: 0,
+      textAlign: 'center',
+      minHeight: '300px',
+      maxHeight: '400px'
     },
     stepper: {
       textAlign: 'center',
@@ -50,6 +68,19 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'relative',
       zIndex: 0,
       textAlign: 'center'
+    },
+    dialog: {
+      textAlign: 'center',
+      marginBottom: 15,
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    table: {
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    dialogIcon: {
+      color: '#3F648E'
     }
   })
 )
@@ -61,6 +92,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [activeStep, setActiveStep] = useState(0)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [file, setFile] = useState<File|undefined>(undefined)
+  const [users, setUsers] = useState<IAddUMUser[]|undefined>(undefined)
+  const [isAddingUsers, setIsAddingUsers] = useState<boolean>(false)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
@@ -77,6 +111,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     void doLoadCanvasSectionData()
   }, [])
 
+  useEffect(() => {
+    if (file === undefined) {
+      // ?
+    } else {
+      parseFile(file)
+    }
+  }, [file])
+
   const getSteps = (): string[] => {
     return ['Select', 'Upload', 'Review', 'Confirmation']
   }
@@ -88,6 +130,63 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     const newArray = sections.concat(newSection)
     console.log(newArray)
     updateSections(sections.concat(newSection))
+  }
+
+  interface IParseError {
+    rowNumber: number
+    error: string
+  }
+
+  const isValidRole = (role: string): boolean => {
+    return true
+  }
+
+  const handleParseSuccess = (users: IAddUMUser[]): void => {
+    console.log('handleParseSuccess')
+    setUsers(users)
+    setActiveStep(2)
+  }
+
+  const parseFile = (file: File): void => {
+    console.log('parseFile')
+    file.text().then(t => {
+      let lines = t.split(/[\r\n]+/).map(line => { return line.trim() })
+      // An empty file will resultin 1 line
+      if (lines.length > 0 && lines[0].length === 0) {
+        lines = lines.slice(1)
+      }
+
+      const headerParts = lines[0].split(',')
+      if (headerParts.length !== 2) {
+        console.log('Invalid header')
+        return
+      } else if ('ROLE'.localeCompare(headerParts[0]) !== 0 || 'UNIQNAME'.localeCompare(headerParts[1]) !== 0) {
+        console.log('Invalid header')
+        return
+      }
+
+      lines = lines.slice(1)
+
+      const users: IAddUMUser[] = []
+      const errors: IParseError[] = []
+      lines.forEach((line, i) => {
+        const parts = line.split(',')
+        if (parts.length !== 2) {
+          errors.push({ rowNumber: i + 1, error: 'Invalid column count' })
+        } else {
+          if (isValidRole(parts[0])) {
+            users.push({ rowNumber: i + 1, uniqname: parts[1], role: parts[0] })
+          } else {
+            errors.push({ rowNumber: i + 1, error: `Invalid role '${parts[0]}'` })
+          }
+        }
+      })
+
+      handleParseSuccess(users)
+    }).catch(e => {
+      // TODO Not sure how to produce this error in real life
+      console.log('error parsing file')
+    })
   }
 
   const getSelectContent = (): JSX.Element => {
@@ -117,8 +216,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`uniqname1 StudentEnrollment
-uniqname2 TeacherEnrollment`
+`ROLE,UNIQNAME
+student,studenta
+teacher,usera
+ta,userb
+observer,userc
+designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       bodyText: "Your file should include the user's uniquname and their role",
       fileData: fileData,
@@ -129,8 +232,8 @@ uniqname2 TeacherEnrollment`
     return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
   }
 
-  const uploadComplete = (): void => {
-
+  const uploadComplete = (file: File): void => {
+    setFile(file)
   }
 
   const renderFileUpload = (): JSX.Element => {
@@ -164,11 +267,65 @@ uniqname2 TeacherEnrollment`
   }
 
   const getReviewContent = (): JSX.Element => {
-    return (<div>Review</div>)
+    if (users !== undefined) {
+      return (renderConfirm(users))
+    } else {
+      return (<div>Error</div>)
+    }
+  }
+
+  const renderCSVFileName = (): JSX.Element => {
+    if (file !== undefined) {
+      return (
+        <h5 className={classes.fileNameContainer}>
+          <Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography>
+        </h5>
+      )
+    } else {
+      return <></>
+    }
+  }
+
+  const renderConfirm = (users: IAddUMUser[]): JSX.Element => {
+    return (
+      <div className={classes.confirmContainer}>
+        {renderCSVFileName()}
+        <Grid container>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={classes.table}>
+              <BulkEnrollUMUserConfirmationTable users={users} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3} className={classes.dialog}>
+              <Paper role='status'>
+                <Typography>Review your CSV file</Typography>
+                <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
+                <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
+                <Button variant="outlined" >Cancel</Button>
+                <Button variant="outlined" >Submit</Button>
+              </Paper>
+            </Grid>
+          </Box>
+        </Grid>
+        <Backdrop className={classes.backdrop} open={isAddingUsers}>
+        <Grid container>
+          <Grid item xs={12}>
+            <CircularProgress color="inherit" />
+          </Grid>
+          <Grid item xs={12}>
+          Loading...
+          </Grid>
+        </Grid>
+      </Backdrop>
+      </div>)
   }
 
   const getConfimationContent = (): JSX.Element => {
-    return (<div>Confirmation</div>)
+    return (
+    <div>
+      <BulkEnrollUMUserConfirmationTable users={users ?? []}/>
+    </div>)
   }
 
   const getStepContent = (stepIndex: number): JSX.Element => {
