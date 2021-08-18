@@ -41,6 +41,6 @@ RUN chmod -R g+rw /app/
 ENV HOME=/app/
 ARG PORT
 EXPOSE ${PORT}
-CMD ["sh", "-c", "./start.sh"]
+ENTRYPOINT ["./start.sh"]
 
 # Done!
