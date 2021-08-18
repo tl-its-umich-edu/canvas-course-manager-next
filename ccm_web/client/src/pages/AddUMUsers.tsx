@@ -1,6 +1,6 @@
 import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import { CloudDone as CloudDoneIcon, Error as ErrorIcon } from '@material-ui/icons'
 
 import { getCourseSections } from '../api'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUser } from '../components/BulkEnrollUMUserConfirmationTable'
@@ -9,9 +9,11 @@ import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../co
 import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSection, canvasRoles } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
+import { UNIQNAME_REGEX } from '../models/models'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -81,6 +83,19 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogIcon: {
       color: '#3F648E'
+    },
+    parseErrorDialog: {
+      textAlign: 'center',
+      marginBottom: 15,
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    parseErrorTable: {
+      paddingLeft: 10,
+      paddingRight: 10
+    },
+    parseErrorIcon: {
+      color: '#3F648E'
     }
   })
 )
@@ -88,12 +103,19 @@ const useStyles = makeStyles((theme: Theme) =>
 interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
+  enum States {
+    SelectSection = 0,
+    UploadCSV = 1,
+    ReviewCSV = 2
+  }
+
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
   const [file, setFile] = useState<File|undefined>(undefined)
   const [users, setUsers] = useState<IAddUMUser[]|undefined>(undefined)
+  const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
   const [isAddingUsers, setIsAddingUsers] = useState<boolean>(false)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
@@ -132,19 +154,26 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     updateSections(sections.concat(newSection))
   }
 
-  interface IParseError {
-    rowNumber: number
-    error: string
+  const isValidRole = (role: string): boolean => {
+    return canvasRoles.map(canvasRole => { return canvasRole.clientName.localeCompare(role, 'en', { sensitivity: 'base' }) === 0 }).filter(value => { return value }).length > 0
   }
 
-  const isValidRole = (role: string): boolean => {
-    return true
+  const isValidUniqname = (uniqname: string): boolean => {
+    return uniqname.match(UNIQNAME_REGEX) !== null
   }
 
   const handleParseSuccess = (users: IAddUMUser[]): void => {
     console.log('handleParseSuccess')
     setUsers(users)
-    setActiveStep(2)
+    setErrors(undefined)
+    setActiveStep(States.ReviewCSV)
+  }
+
+  const handleParseFailure = (errors: ValidationError[]): void => {
+    console.log('handleParseFailure')
+    setUsers(undefined)
+    setErrors(errors)
+    setActiveStep(States.ReviewCSV)
   }
 
   const parseFile = (file: File): void => {
@@ -158,31 +187,37 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
       const headerParts = lines[0].split(',')
       if (headerParts.length !== 2) {
-        console.log('Invalid header')
+        handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
         return
       } else if ('ROLE'.localeCompare(headerParts[0]) !== 0 || 'UNIQNAME'.localeCompare(headerParts[1]) !== 0) {
-        console.log('Invalid header')
+        handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
         return
       }
 
       lines = lines.slice(1)
 
       const users: IAddUMUser[] = []
-      const errors: IParseError[] = []
+      const errors: ValidationError[] = []
       lines.forEach((line, i) => {
         const parts = line.split(',')
         if (parts.length !== 2) {
-          errors.push({ rowNumber: i + 1, error: 'Invalid column count' })
+          errors.push({ rowNumber: i + 1, message: 'Invalid column count' })
         } else {
-          if (isValidRole(parts[0])) {
-            users.push({ rowNumber: i + 1, uniqname: parts[1], role: parts[0] })
+          if (!isValidRole(parts[0])) {
+            errors.push({ rowNumber: i + 1, message: `Invalid role '${parts[0]}'` })
+          } else if (!isValidUniqname(parts[1])) {
+            errors.push({ rowNumber: i + 1, message: `Invalid uniqname '${parts[1]}'` })
           } else {
-            errors.push({ rowNumber: i + 1, error: `Invalid role '${parts[0]}'` })
+            users.push({ rowNumber: i + 1, uniqname: parts[1], role: parts[0] })
           }
         }
       })
 
-      handleParseSuccess(users)
+      if (errors.length === 0) {
+        handleParseSuccess(users)
+      } else {
+        handleParseFailure(errors)
+      }
     }).catch(e => {
       // TODO Not sure how to produce this error in real life
       console.log('error parsing file')
@@ -269,8 +304,10 @@ designer,userd`
   const getReviewContent = (): JSX.Element => {
     if (users !== undefined) {
       return (renderConfirm(users))
+    } else if (errors !== undefined) {
+      return (renderErrors(errors))
     } else {
-      return (<div>Error</div>)
+      return (<div>?</div>)
     }
   }
 
@@ -321,11 +358,51 @@ designer,userd`
       </div>)
   }
 
-  const getConfimationContent = (): JSX.Element => {
+  const setStateUpload = (): void => {
+    setUsers(undefined)
+    setErrors(undefined)
+    setActiveStep(States.UploadCSV)
+  }
+
+  const renderUploadAgainButton = (): JSX.Element => {
+    return <Button color='primary' component="span" onClick={() => setStateUpload()}>Upload again</Button>
+  }
+
+  const renderErrors = (errors: ValidationError[]): JSX.Element => {
     return (
-    <div>
-      <BulkEnrollUMUserConfirmationTable users={users ?? []}/>
-    </div>)
+      <div>
+        {renderCSVFileName()}
+        <Grid container justify='flex-start'>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={classes.parseErrorTable} >
+              <ValidationErrorTable invalidations={errors} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3} className={classes.parseErrorDialog}>
+              <Paper role='alert'>
+                <Typography>Review  your CSV file</Typography>
+                <ErrorIcon className={classes.parseErrorIcon} fontSize='large'/>
+                <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
+              </Paper>
+            </Grid>
+          </Box>
+        </Grid>
+      </div>)
+  }
+
+  const getConfimationContent = (): JSX.Element => {
+    return (<div>What??</div>)
+    // if (errors === undefined) {
+    //   return (
+    //   <div>
+    //     <BulkEnrollUMUserConfirmationTable users={users ?? []}/>
+    //   </div>)
+    // } else {
+    //   return (
+
+    //   )
+    // }
   }
 
   const getStepContent = (stepIndex: number): JSX.Element => {

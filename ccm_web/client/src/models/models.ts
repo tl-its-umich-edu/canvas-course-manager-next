@@ -47,3 +47,5 @@ export interface APIErrorData {
 export interface IDefaultError {
   errors: APIErrorPayload[]
 }
+
+export const UNIQNAME_REGEX = '^[a-zA-z]{3,8}$'
