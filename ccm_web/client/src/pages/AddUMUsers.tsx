@@ -96,6 +96,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     parseErrorIcon: {
       color: '#3F648E'
+    },
+    sectionLoadErrorIcon: {
+      color: '#3F648E'
+    },
+    sectionLoadError: {
+      textAlign: 'center'
     }
   })
 )
@@ -225,28 +231,37 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const getSelectContent = (): JSX.Element => {
-    return (
-      <>
-        <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
-        <Typography variant='subtitle1'>Or select one available section to add users</Typography>
-        <div className={classes.sectionSelectionContainer}>
-          <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} selectionUpdated={setSelectedCourse}></SectionSelectorWidget>
-          <div>
-            <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedCourse === undefined} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+    if (getCanvasSectionDataError === undefined) {
+      return (
+        <>
+          <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+          <Typography variant='subtitle1'>Or select one available section to add users</Typography>
+          <div className={classes.sectionSelectionContainer}>
+            <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} selectionUpdated={setSelectedCourse}></SectionSelectorWidget>
+            <div>
+              <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedCourse === undefined} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+            </div>
+            <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <CircularProgress color="inherit" />
+                </Grid>
+                <Grid item xs={12}>
+                  Loading sections
+                </Grid>
+              </Grid>
+            </Backdrop>
           </div>
-          <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}>
-                <CircularProgress color="inherit" />
-              </Grid>
-              <Grid item xs={12}>
-                Loading sections
-              </Grid>
-            </Grid>
-          </Backdrop>
-        </div>
-      </>
-    )
+        </>
+      )
+    } else {
+      return (
+        <Paper className={classes.sectionLoadError} role='alert'>
+          <Typography>Error loading sections</Typography>
+          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
+        </Paper>
+      )
+    }
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -416,14 +431,6 @@ designer,userd`
       default:
         return getConfimationContent()
     }
-  }
-
-  const handleNext = (): void => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1)
-  }
-
-  const handleBack = (): void => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
   }
 
   const handleReset = (): void => {
