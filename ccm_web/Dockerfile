@@ -35,10 +35,10 @@ RUN npm install --production
 RUN npm install pm2@5.1.0 -g
 COPY --from=build /build/dist/ ./
 # Let members of root group write to /app/
-RUN chmod -R g+rw /app/
+# RUN chmod -R g+rw /app/
 
 # Change HOME so that .pm2 files are written in /app/
-ENV HOME=/app/
+# ENV HOME=/app/
 ARG PORT
 EXPOSE ${PORT}
 ENTRYPOINT ["./start.sh"]
