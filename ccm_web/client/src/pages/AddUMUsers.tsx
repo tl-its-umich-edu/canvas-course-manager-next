@@ -241,7 +241,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           <div className={classes.sectionSelectionContainer}>
             <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
             <div>
-              {selectedSections.length}
               <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedSections.length === 0} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
             </div>
             <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
