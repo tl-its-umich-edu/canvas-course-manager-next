@@ -90,7 +90,7 @@ export class EnrollSectionUsersApiHandler {
   async enrollUsers (): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = this.users.map(user => this.enrollUser(user))
+    const apiPromises = this.users.map(async (user) => await this.enrollUser(user))
     const enrollmentResponses = await Promise.all(apiPromises)
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to enroll (${this.users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
