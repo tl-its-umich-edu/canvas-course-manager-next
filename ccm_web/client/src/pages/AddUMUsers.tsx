@@ -152,12 +152,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
-  const [selectedCourse, setSelectedCourse] = useState<CanvasCourseSection|undefined>(undefined)
+  const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newArray = sections.concat(newSection)
     console.log(newArray)
+    // TODO set new section as selected
     updateSections(sections.concat(newSection))
+    // setSelectedSections([newSection])
   }
 
   const isValidRole = (role: string): boolean => {
@@ -237,9 +239,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
           <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget height={400} sections={sections !== undefined ? sections : []} selectionUpdated={setSelectedCourse}></SectionSelectorWidget>
+            <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
             <div>
-              <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedCourse === undefined} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+              {selectedSections.length}
+              <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedSections.length === 0} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
             </div>
             <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
               <Grid container>
