@@ -48,4 +48,4 @@ export interface IDefaultError {
   errors: APIErrorPayload[]
 }
 
-export const UNIQNAME_REGEX = '^[a-zA-z]{3,8}$'
+export const UNIQNAME_REGEX = '^[a-zA-Z]{3,8}$'
