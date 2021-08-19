@@ -13,7 +13,9 @@ import { CanvasCourseSection, canvasRoles } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
-import { UNIQNAME_REGEX } from '../models/models'
+
+const USER_ROLE_TEXT = 'Role'
+const USER_ID_TEXT = 'Login ID'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -163,8 +165,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     return canvasRoles.map(canvasRole => { return canvasRole.clientName.localeCompare(role, 'en', { sensitivity: 'base' }) === 0 }).filter(value => { return value }).length > 0
   }
 
-  const isValidUniqname = (uniqname: string): boolean => {
-    return uniqname.match(UNIQNAME_REGEX) !== null
+  const isValidLoginID = (loginID: string): boolean => {
+    return true
+    // return uniqname.match(UNIQNAME_REGEX) !== null
   }
 
   const handleParseSuccess = (users: IAddUMUser[]): void => {
@@ -191,7 +194,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       if (headerParts.length !== 2) {
         handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
         return
-      } else if ('ROLE'.localeCompare(headerParts[0]) !== 0 || 'UNIQNAME'.localeCompare(headerParts[1]) !== 0) {
+      } else if (USER_ROLE_TEXT.localeCompare(headerParts[0], 'en', { sensitivity: 'base' }) !== 0 || USER_ID_TEXT.localeCompare(headerParts[1], 'en', { sensitivity: 'base' }) !== 0) {
         handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
         return
       }
@@ -206,11 +209,11 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           errors.push({ rowNumber: i + 1, message: 'Invalid column count' })
         } else {
           if (!isValidRole(parts[0])) {
-            errors.push({ rowNumber: i + 1, message: `Invalid role '${parts[0]}'` })
-          } else if (!isValidUniqname(parts[1])) {
-            errors.push({ rowNumber: i + 1, message: `Invalid uniqname '${parts[1]}'` })
+            errors.push({ rowNumber: i + 1, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
+          } else if (!isValidLoginID(parts[1])) {
+            errors.push({ rowNumber: i + 1, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
           } else {
-            users.push({ rowNumber: i + 1, uniqname: parts[1], role: parts[0] })
+            users.push({ rowNumber: i + 1, loginID: parts[1], role: parts[0] })
           }
         }
       })
@@ -262,14 +265,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`ROLE,UNIQNAME
+`${USER_ROLE_TEXT.toUpperCase()},${USER_ID_TEXT.toUpperCase()}
 student,studenta
 teacher,usera
 ta,userb
 observer,userc
 designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: "Your file should include the user's uniquname and their role",
+      bodyText: `Your file should include the user's ${USER_ID_TEXT.toLocaleLowerCase()} and their ${USER_ROLE_TEXT.toLocaleLowerCase()}`,
       fileData: fileData,
       fileName: 'bulk_enroll.csv',
       linkText: 'Download an example',
@@ -289,16 +292,6 @@ designer,userd`
           <FileUpload onUploadComplete={uploadComplete}></FileUpload>
         </Grid>
       </Grid>
-      {/* <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
-        <Grid container>
-          <Grid item xs={12}>
-            <CircularProgress color="inherit" />
-          </Grid>
-          <Grid item xs={12}>
-          {renderLoadingText()}
-          </Grid>
-        </Grid>
-      </Backdrop> */}
     </div>
   }
 
