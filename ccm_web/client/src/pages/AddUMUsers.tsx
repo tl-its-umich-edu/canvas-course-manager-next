@@ -155,11 +155,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
-    const newArray = sections.concat(newSection)
-    console.log(newArray)
-    // TODO set new section as selected
     updateSections(sections.concat(newSection))
-    // setSelectedSections([newSection])
+    setSelectedSections([newSection])
   }
 
   const isValidRole = (role: string): boolean => {
@@ -171,21 +168,18 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const handleParseSuccess = (users: IAddUMUser[]): void => {
-    console.log('handleParseSuccess')
     setUsers(users)
     setErrors(undefined)
     setActiveStep(States.ReviewCSV)
   }
 
   const handleParseFailure = (errors: ValidationError[]): void => {
-    console.log('handleParseFailure')
     setUsers(undefined)
     setErrors(errors)
     setActiveStep(States.ReviewCSV)
   }
 
   const parseFile = (file: File): void => {
-    console.log('parseFile')
     file.text().then(t => {
       let lines = t.split(/[\r\n]+/).map(line => { return line.trim() })
       // An empty file will resultin 1 line
