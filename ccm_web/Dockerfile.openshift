@@ -26,7 +26,7 @@ COPY --from=build /build/dist/ ./
 # RUN chmod -R g+rw /app/
 
 # Change HOME so that .pm2 files are written in /app/
-# ENV HOME=/app/
+ENV PM2_HOME=/tmp/
 ARG PORT
 EXPOSE ${PORT}
 ENTRYPOINT ["./start.sh"]

@@ -9,7 +9,6 @@ module.exports = {
     autorestart: true,
     max_memory_restart: '1G',
     out_file: '/dev/null',
-    error_file: '/dev/null',
-    pid_file: '/tmp/app.pid'
+    error_file: '/dev/null'
   }
 }
