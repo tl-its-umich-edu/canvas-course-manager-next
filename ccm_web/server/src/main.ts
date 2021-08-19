@@ -85,7 +85,7 @@ async function bootstrap (): Promise<void> {
     SwaggerModule.setup('swagger', app, document)
   }
 
-  app.enableShutdownHooks(['SIGINT'])
+  if (!isDev) app.enableShutdownHooks(['SIGINT'])
 
   await app.listen(
     serverConfig.port,
