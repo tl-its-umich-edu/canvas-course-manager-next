@@ -18,7 +18,31 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
-const requestorOptions: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'DELETE'] } }
+const requestorOptions: GotOptions = {
+  retry: {
+    limit: 2,
+    methods: ['POST', 'GET', 'PUT', 'DELETE']
+    // statusCodes: [403]
+  },
+  hooks: {
+    beforeRequest: [
+      options => {
+        logger.debug('👹👹👹👹 beforeRequest 👹👹👹👹')
+      }
+    ],
+    beforeRetry: [
+      ( options, error, retryCount) => {
+        logger.debug(`♻♻♻♻ beforeRetry ♻♻♻♻ [${retryCount}]: ${error?.code}`)
+      }
+    ],
+    beforeError: [
+      error => {
+        logger.debug('⚠️⚠️⚠️⚠️ beforeError ⚠️⚠️⚠️⚠️')
+        return error
+      }
+    ]
+  }
+}
 
 @Injectable()
 export class CanvasService {
