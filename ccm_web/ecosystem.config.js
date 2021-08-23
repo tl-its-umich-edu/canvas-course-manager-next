@@ -10,7 +10,7 @@ module.exports = {
     exec_mode: 'cluster',
     instances: 'max',
     autorestart: true,
-    max_memory_restart: '1G',
+    max_memory_restart: process.env.PM2_MEM_LIMIT || '1G',
     out_file: '/dev/null',
     error_file: '/dev/null'
   }]
