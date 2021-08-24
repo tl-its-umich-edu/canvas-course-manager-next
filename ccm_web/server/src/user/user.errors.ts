@@ -10,3 +10,13 @@ export class UserNotFoundError extends Error {
     this.date = new Date()
   }
 }
+
+export class RequestWithoutUserError extends Error {
+  date: Date
+  public name = 'RequestWithoutUserError'
+
+  constructor () {
+    super('The Request does not have a User record attached to it.')
+    this.date = new Date()
+  }
+}
