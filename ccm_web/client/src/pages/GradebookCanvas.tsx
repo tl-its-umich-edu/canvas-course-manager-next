@@ -184,7 +184,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const handleNoLetterGradesError = (): void => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings`
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href={settingsURL} target='_new' rel='noopener'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href={settingsURL} target='_parent' rel='noopener'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
   }
 
   const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
