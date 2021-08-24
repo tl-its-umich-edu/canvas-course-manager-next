@@ -43,11 +43,11 @@ export interface Config {
 
 const logger = baseLogger.child({ filePath: __filename })
 
-// Tests if an unknown value is a non-empty string
-const isString = (v: unknown): v is string => typeof v === 'string' && v.length > 0
+const isString = (v: unknown): v is string => typeof v === 'string'
+const isNotEmpty = (v: string): boolean => v.length > 0
 
-// Tests if an unknown value is a number and not NaN
-const isNumber = (v: unknown): v is number => typeof v === 'number' && !isNaN(v)
+const isNumber = (v: unknown): v is number => typeof v === 'number'
+const isNotNan = (v: number): boolean => !isNaN(v)
 
 // Tests if an unknown value is one of four allowed string log levels
 const isLogLevel = (v: unknown): v is LogLevel => {
@@ -61,16 +61,27 @@ const prepNumber = (value: string | undefined): number | undefined => {
 function validate<T> (
   key: string,
   value: unknown,
-  check: (v: unknown) => v is T,
+  checkType: (v: unknown) => v is T,
+  extraChecks: Array<(v: T) => boolean>,
   fallback?: T
 ): T {
   const errorBase = 'Exception while loading configuration: '
-  if (check(value)) return value
+  const runExtraChecks = (v: T): boolean => extraChecks.map(c => c(v)).every(r => r)
   if (value === undefined && fallback !== undefined) {
-    logger.info(`Value for ${key} was undefined; using fallback ${String(fallback)}`)
+    const fallbackBase = `Value for ${key} was undefined; `
+    if (extraChecks.length > 0) {
+      if (!runExtraChecks(fallback)) {
+        throw new Error(errorBase + fallbackBase + `fallback "${String(fallback)}" did not pass extra checks.`)
+      }
+    }
+    logger.info(fallbackBase + `using fallback ${String(fallback)}`)
     return fallback
   }
-  throw (Error(errorBase + `Value ${String(value)} for ${key} is not valid`))
+  if (checkType(value)) {
+    if (extraChecks.length === 0) return value
+    if (runExtraChecks(value)) return value
+  }
+  throw new Error(errorBase + `Value "${String(value)}" for ${key} is not valid`)
 }
 
 export function validateConfig (): Config {
@@ -83,32 +94,32 @@ export function validateConfig (): Config {
 
   try {
     server = {
-      port: validate<number>('PORT', prepNumber(env.PORT), isNumber, 4000),
-      domain: validate<string>('DOMAIN', env.DOMAIN, isString),
-      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, 'debug'),
-      tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, 'TOKENSECRET'),
-      cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, 'COOKIESECRET'),
-      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, (24 * 60 * 60))
+      port: validate<number>('PORT', prepNumber(env.PORT), isNumber, [isNotNan], 4000),
+      domain: validate<string>('DOMAIN', env.DOMAIN, isString, [isNotEmpty]),
+      logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, [], 'debug'),
+      tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, [isNotEmpty], 'TOKENSECRET'),
+      cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'COOKIESECRET'),
+      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan], (24 * 60 * 60))
     }
     lti = {
-      encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, 'LTIKEY'),
-      clientID: validate<string>('LTI_CLIENT_ID', env.LTI_CLIENT_ID, isString),
-      platformURL: validate<string>('LTI_PLATFORM_URL', env.LTI_PLATFORM_URL, isString),
-      authEnding: validate<string>('LTI_AUTH_ENDING', env.LTI_AUTH_ENDING, isString),
-      tokenEnding: validate<string>('LTI_TOKEN_ENDING', env.LTI_TOKEN_ENDING, isString),
-      keysetEnding: validate<string>('LTI_KEYSET_ENDING', env.LTI_KEYSET_ENDING, isString)
+      encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, [isNotEmpty], 'LTIKEY'),
+      clientID: validate<string>('LTI_CLIENT_ID', env.LTI_CLIENT_ID, isString, [isNotEmpty]),
+      platformURL: validate<string>('LTI_PLATFORM_URL', env.LTI_PLATFORM_URL, isString, [isNotEmpty]),
+      authEnding: validate<string>('LTI_AUTH_ENDING', env.LTI_AUTH_ENDING, isString, [isNotEmpty]),
+      tokenEnding: validate<string>('LTI_TOKEN_ENDING', env.LTI_TOKEN_ENDING, isString, [isNotEmpty]),
+      keysetEnding: validate<string>('LTI_KEYSET_ENDING', env.LTI_KEYSET_ENDING, isString, [isNotEmpty])
     }
     canvas = {
-      instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString),
-      apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString),
-      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString)
+      instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
+      apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
+      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty])
     }
     db = {
-      host: validate<string>('DB_HOST', env.DB_HOST, isString),
-      port: validate<number>('DB_PORT', prepNumber(env.DB_PORT), isNumber, 3306),
-      name: validate<string>('DB_NAME', env.DB_NAME, isString),
-      user: validate<string>('DB_USER', env.DB_USER, isString),
-      password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString)
+      host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
+      port: validate<number>('DB_PORT', prepNumber(env.DB_PORT), isNumber, [isNotNan], 3306),
+      name: validate<string>('DB_NAME', env.DB_NAME, isString, [isNotEmpty]),
+      user: validate<string>('DB_USER', env.DB_USER, isString, [isNotEmpty]),
+      password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString, [isNotEmpty])
     }
   } catch (error) {
     logger.error(error)
