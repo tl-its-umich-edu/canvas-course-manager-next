@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, Error as ErrorIcon } from '@material-ui/icons'
 
 import { getCourseSections } from '../api'
-import BulkEnrollUMUserConfirmationTable, { IAddUMUser } from '../components/BulkEnrollUMUserConfirmationTable'
+import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
@@ -118,13 +118,13 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const classes = useStyles()
-  const [activeStep, setActiveStep] = useState(0)
+  const [activeStep, setActiveStep] = useState(States.SelectSection)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
   const [file, setFile] = useState<File|undefined>(undefined)
-  const [users, setUsers] = useState<IAddUMUser[]|undefined>(undefined)
+  const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
-  const [isAddingUsers, setIsAddingUsers] = useState<boolean>(false)
+  const [isAddingEnrollments, setIsAddingEnrollments] = useState<boolean>(false)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
@@ -166,18 +166,20 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const isValidLoginID = (loginID: string): boolean => {
-    return true
     // return uniqname.match(UNIQNAME_REGEX) !== null
+    // Don't apply any validation here, just pass anything through
+    // Flag this function for deletion in 3.. 2.. 1...
+    return true
   }
 
-  const handleParseSuccess = (users: IAddUMUser[]): void => {
-    setUsers(users)
+  const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
+    setEnrollments(enrollments)
     setErrors(undefined)
     setActiveStep(States.ReviewCSV)
   }
 
   const handleParseFailure = (errors: ValidationError[]): void => {
-    setUsers(undefined)
+    setEnrollments(undefined)
     setErrors(errors)
     setActiveStep(States.ReviewCSV)
   }
@@ -201,7 +203,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
       lines = lines.slice(1)
 
-      const users: IAddUMUser[] = []
+      const enrollments: IAddUMUserEnrollment[] = []
       const errors: ValidationError[] = []
       lines.forEach((line, i) => {
         const parts = line.split(',')
@@ -213,13 +215,13 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           } else if (!isValidLoginID(parts[1])) {
             errors.push({ rowNumber: i + 1, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
           } else {
-            users.push({ rowNumber: i + 1, loginID: parts[1], role: parts[0] })
+            enrollments.push({ rowNumber: i + 1, loginID: parts[1], role: parts[0] })
           }
         }
       })
 
       if (errors.length === 0) {
-        handleParseSuccess(users)
+        handleParseSuccess(enrollments)
       } else {
         handleParseFailure(errors)
       }
@@ -306,8 +308,8 @@ designer,userd`
   }
 
   const getReviewContent = (): JSX.Element => {
-    if (users !== undefined) {
-      return (renderConfirm(users))
+    if (enrollments !== undefined) {
+      return (renderConfirm(enrollments))
     } else if (errors !== undefined) {
       return (renderErrors(errors))
     } else {
@@ -327,14 +329,14 @@ designer,userd`
     }
   }
 
-  const renderConfirm = (users: IAddUMUser[]): JSX.Element => {
+  const renderConfirm = (enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
         {renderCSVFileName()}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={classes.table}>
-              <BulkEnrollUMUserConfirmationTable users={users} />
+              <BulkEnrollUMUserConfirmationTable enrollments={enrollments} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
@@ -349,7 +351,7 @@ designer,userd`
             </Grid>
           </Box>
         </Grid>
-        <Backdrop className={classes.backdrop} open={isAddingUsers}>
+        <Backdrop className={classes.backdrop} open={isAddingEnrollments}>
         <Grid container>
           <Grid item xs={12}>
             <CircularProgress color="inherit" />
@@ -363,7 +365,7 @@ designer,userd`
   }
 
   const setStateUpload = (): void => {
-    setUsers(undefined)
+    setEnrollments(undefined)
     setErrors(undefined)
     setActiveStep(States.UploadCSV)
   }
@@ -395,18 +397,8 @@ designer,userd`
       </div>)
   }
 
-  const getConfimationContent = (): JSX.Element => {
-    return (<div>What??</div>)
-    // if (errors === undefined) {
-    //   return (
-    //   <div>
-    //     <BulkEnrollUMUserConfirmationTable users={users ?? []}/>
-    //   </div>)
-    // } else {
-    //   return (
-
-    //   )
-    // }
+  const getShouldNotHappenContent = (): JSX.Element => {
+    return (<div>Unexpected step</div>)
   }
 
   const getStepContent = (stepIndex: number): JSX.Element => {
@@ -418,12 +410,12 @@ designer,userd`
       case 2:
         return getReviewContent()
       default:
-        return getConfimationContent()
+        return getShouldNotHappenContent()
     }
   }
 
   const handleReset = (): void => {
-    setActiveStep(0)
+    setActiveStep(States.SelectSection)
   }
 
   return (
@@ -448,18 +440,6 @@ designer,userd`
             : (
                 <div>
                   {getStepContent(activeStep)}
-                  {/* <div className={classes.stepper}>
-                    <Button
-                      disabled={activeStep === 0}
-                      onClick={handleBack}
-                      className={classes.backButton}
-                    >
-                      Back
-                    </Button>
-                    <Button variant="contained" color="primary" onClick={handleNext}>
-                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                    </Button>
-                  </div> */}
                 </div>
               )}
         </div>
