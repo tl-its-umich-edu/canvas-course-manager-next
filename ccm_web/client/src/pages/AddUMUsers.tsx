@@ -343,7 +343,7 @@ designer,userd`
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button variant="outlined" >Cancel</Button>
+                <Button variant="outlined" onClick={setStateUpload}>Cancel</Button>
                 <Button variant="outlined" >Submit</Button>
               </Paper>
             </Grid>
