@@ -44,7 +44,6 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   }
 
   const createSection = (): void => {
-    console.log('createSection')
     if (newSectionName.trim().length === 0) {
       return
     }
@@ -53,7 +52,6 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
       if (errors.length === 0) {
         addCourseSections(props.globals.course.id, [newSectionName])
           .then(newSections => {
-            console.log('newSections')
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
           }).catch(() => {
