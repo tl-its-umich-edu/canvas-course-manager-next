@@ -54,8 +54,9 @@ const isLogLevel = (v: unknown): v is LogLevel => {
   return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
 }
 
-const prepNumber = (value: string | undefined): number | undefined => {
-  return (value === undefined) ? undefined : Number(value)
+// Handles some edge cases and casts all other values using Number
+const prepNumber = (value: string | undefined): string | number | undefined => {
+  return (value === undefined) ? undefined : value.trim() === '' ? value : Number(value)
 }
 
 function validate<T> (
