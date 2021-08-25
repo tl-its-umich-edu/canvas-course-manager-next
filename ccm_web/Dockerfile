@@ -5,6 +5,7 @@
 # Base stage
 FROM node:14-slim AS base
 WORKDIR /base/
+
 COPY package*.json ./
 RUN npm install
 COPY . .
@@ -13,8 +14,9 @@ ARG PORT
 EXPOSE ${PORT}
 
 # Build stage (build client and compile server to JS)
-FROM base AS build
+FROM node:14-slim AS build
 WORKDIR /build/
+
 COPY --from=base /base ./
 RUN npm run build
 
@@ -23,13 +25,20 @@ FROM node:14-slim AS prod
 ENV NODE_ENV=production
 WORKDIR /app
 
-COPY --from=base /base/package.json /base/package-lock.json /base/start.sh ./
+COPY --from=base \
+    /base/package.json \
+    /base/package-lock.json \
+    /base/start.sh \
+    /base/ecosystem.config.js \
+    ./
 RUN npm install --production
-
+RUN npm install pm2@5.1.0 -g
 COPY --from=build /build/dist/ ./
 
+# Set PM2_HOME so that .pm2 files are written in /tmp/
+ENV PM2_HOME=/tmp/.pm2
 ARG PORT
 EXPOSE ${PORT}
-CMD ["sh", "-c", "./start.sh"]
+ENTRYPOINT ["./start.sh"]
 
 # Done!

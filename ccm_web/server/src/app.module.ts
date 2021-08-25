@@ -20,7 +20,7 @@ const logger = baseLogger.child({ filePath: __filename })
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validate: validateConfig,
+      load: [validateConfig],
       ignoreEnvFile: true,
       isGlobal: true
     }),
