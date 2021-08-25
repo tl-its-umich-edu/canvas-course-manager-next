@@ -31,7 +31,7 @@ const requestorOptions: GotOptions = {
       }
     ],
     beforeRetry: [
-      ( options, error, retryCount) => {
+      (options, error, retryCount) => {
         logger.debug(`♻♻♻♻ beforeRetry ♻♻♻♻ [${retryCount}]: ${error?.code}`)
       }
     ],
