@@ -97,7 +97,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingRight: 10
     },
     parseErrorIcon: {
-      color: '#3F648E'
+      color: 'red'
     },
     sectionLoadErrorIcon: {
       color: '#3F648E'
