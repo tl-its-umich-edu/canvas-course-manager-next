@@ -21,8 +21,8 @@ type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 const requestorOptions: GotOptions = {
   retry: {
     limit: 2,
-    methods: ['POST', 'GET', 'PUT', 'DELETE']
-    // statusCodes: [403]
+    methods: ['POST', 'GET', 'PUT', 'DELETE'],
+    statusCodes: [403]
   },
   hooks: {
     beforeRequest: [
