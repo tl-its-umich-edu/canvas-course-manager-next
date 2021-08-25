@@ -10,6 +10,7 @@ import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { canvasGradebookFormatterProps } from '../models/feature'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
+import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,7 +123,7 @@ interface DownloadData {
   fileName: string
 }
 
-function ConvertCanvasGradebook (): JSX.Element {
+function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
@@ -181,7 +182,9 @@ function ConvertCanvasGradebook (): JSX.Element {
   }
 
   const handleNoLetterGradesError = (): void => {
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_new' rel='noopener'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
+    const { canvasURL, course } = props.globals
+    const settingsURL = `${canvasURL}/courses/${course.id}/settings#course_grading_standard_enabled`
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href={settingsURL} target='_parent'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
   }
 
   const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
