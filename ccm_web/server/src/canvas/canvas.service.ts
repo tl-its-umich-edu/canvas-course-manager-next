@@ -27,17 +27,23 @@ const requestorOptions: GotOptions = {
   hooks: {
     beforeRequest: [
       options => {
-        logger.debug('👹👹👹👹 beforeRequest 👹👹👹👹')
+        logger.debug('beforeRequest')
+      }
+    ],
+    afterResponse: [
+      (response, retryWithMergedOptions) => {
+        logger.debug(`afterResponse — "x-rate-limit-remaining": "${response.headers['x-rate-limit-remaining']}"; "x-request-cost": "${response.headers['x-request-cost']}"`)
+        return response;
       }
     ],
     beforeRetry: [
       (options, error, retryCount) => {
-        logger.debug(`♻♻♻♻ beforeRetry ♻♻♻♻ [${retryCount}]: ${error?.code}`)
+        logger.debug(`beforeRetry [${retryCount}]: ${error?.code}`)
       }
     ],
     beforeError: [
       error => {
-        logger.debug('⚠️⚠️⚠️⚠️ beforeError ⚠️⚠️⚠️⚠️')
+        logger.debug('beforeError')
         return error
       }
     ]
