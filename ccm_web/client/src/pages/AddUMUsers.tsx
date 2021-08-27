@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
       float: 'right'
     },
     sectionSelectionContainer: {
-
+      paddingTop: '10px',
       position: 'relative',
       zIndex: 0,
       textAlign: 'center',
