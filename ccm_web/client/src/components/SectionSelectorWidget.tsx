@@ -84,7 +84,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           <List className={classes.root} style={{ maxHeight: props.height, minHeight: props.height }}>
             {filteredSections.map((section, index) => {
               return (<ListItem divider key={section.id} button selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
-                <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} users`}></ListItemText>
+                <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} students`}></ListItemText>
               </ListItem>)
             })}
           </List>
