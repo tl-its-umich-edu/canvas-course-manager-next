@@ -1,4 +1,4 @@
-import { Grid, List, ListItem, ListItemText, makeStyles, TextField } from '@material-ui/core'
+import { Button, Grid, List, ListItem, ListItemText, makeStyles, TextField } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection } from '../models/canvas'
 
@@ -61,21 +61,30 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setSectionFilterText(event.target.value)
   }
 
+  const clearSearch = (): void => {
+    setSectionFilterText('')
+  }
+
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
       <Grid container>
-        <Grid className={classes.searchContainer} item xs={12}>
-          <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' />
+        <Grid item container className={classes.searchContainer} xs={12}>
+          <Grid item xs={10}>
+            <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' />
+          </Grid>
+          <Grid item xs={2}>
+            <Button variant='contained' disableElevation onClick={clearSearch} disabled={sectionFilterText.length === 0}>Clear</Button>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
-        <List className={classes.root} style={{ maxHeight: props.height, minHeight: props.height }}>
-          {filteredSections.map((section, index) => {
-            return (<ListItem divider key={section.id} button selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
-              <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} users`}></ListItemText>
-            </ListItem>)
-          })}
-        </List>
+          <List className={classes.root} style={{ maxHeight: props.height, minHeight: props.height }}>
+            {filteredSections.map((section, index) => {
+              return (<ListItem divider key={section.id} button selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
+                <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} users`}></ListItemText>
+              </ListItem>)
+            })}
+          </List>
         </Grid>
       </Grid>
     </>
