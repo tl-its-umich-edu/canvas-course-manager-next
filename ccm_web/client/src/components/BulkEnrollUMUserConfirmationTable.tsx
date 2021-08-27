@@ -21,7 +21,7 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
   { id: 'loginID', label: 'Login ID', minWidth: 100 },
-  { id: 'role', label: 'Section Name', minWidth: 100 }
+  { id: 'role', label: 'Role', minWidth: 100 }
 ]
 
 function BulkEnrollUMUserConfirmationTable (props: BulkEnrollUMUserConfirmationTableProps): JSX.Element {
