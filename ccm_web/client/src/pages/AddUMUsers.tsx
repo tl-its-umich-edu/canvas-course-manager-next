@@ -61,7 +61,6 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'relative',
       zIndex: 0,
       textAlign: 'center',
-      minHeight: '300px',
       maxHeight: '400px'
     },
     stepper: {

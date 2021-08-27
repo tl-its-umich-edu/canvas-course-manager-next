@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection } from '../models/canvas'
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    overflow: 'auto'
+  listContainer: {
+    overflow: 'auto',
+    marginBottom: '5px'
   },
   searchContainer: {
     textAlign: 'left'
@@ -81,7 +82,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
         </Grid>
         <Grid item xs={12}>
-          <List className={classes.root} style={{ maxHeight: props.height, minHeight: props.height }}>
+          <List className={classes.listContainer} style={{ maxHeight: props.height }}>
             {filteredSections.map((section, index) => {
               return (<ListItem divider key={section.id} button selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
                 <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} students`}></ListItemText>
