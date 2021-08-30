@@ -402,11 +402,11 @@ designer,userd`
 
   const getStepContent = (stepIndex: number): JSX.Element => {
     switch (stepIndex) {
-      case 0:
+      case States.SelectSection:
         return getSelectContent()
-      case 1:
+      case States.UploadCSV:
         return getUploadContent()
-      case 2:
+      case States.ReviewCSV:
         return getReviewContent()
       default:
         return getShouldNotHappenContent()
