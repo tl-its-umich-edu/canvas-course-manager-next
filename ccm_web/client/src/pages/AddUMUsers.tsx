@@ -273,7 +273,7 @@ designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       bodyText: `Your file should include the user's ${USER_ID_TEXT.toLocaleLowerCase()} and their ${USER_ROLE_TEXT.toLocaleLowerCase()}`,
       fileData: fileData,
-      fileName: 'bulk_enroll.csv',
+      fileName: 'bulk_um_enroll.csv',
       linkText: 'Download an example',
       titleText: 'Upload your CSV File'
     }
