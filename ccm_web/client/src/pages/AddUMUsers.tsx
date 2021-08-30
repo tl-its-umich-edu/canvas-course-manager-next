@@ -207,14 +207,15 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       lines.forEach((line, i) => {
         const parts = line.split(',')
         if (parts.length !== 2) {
-          errors.push({ rowNumber: i + 1, message: 'Invalid column count' })
+          errors.push({ rowNumber: i + 2, message: 'Invalid column count' })
         } else {
           if (!isValidRole(parts[0])) {
-            errors.push({ rowNumber: i + 1, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
+            console.log('error')
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
           } else if (!isValidLoginID(parts[1])) {
-            errors.push({ rowNumber: i + 1, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
           } else {
-            enrollments.push({ rowNumber: i + 1, loginID: parts[1], role: parts[0] })
+            enrollments.push({ rowNumber: i + 2, loginID: parts[1], role: parts[0] })
           }
         }
       })
