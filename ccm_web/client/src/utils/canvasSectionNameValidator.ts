@@ -19,7 +19,7 @@ class DuplicateSectionNameValidator implements IValidator {
   }
 }
 
-export class CanvaCoursesSectionNameValidator {
+export class CanvasCoursesSectionNameValidator {
   course: Course
   _this = this
   validators: IValidator[] = [new DuplicateSectionNameValidator()]

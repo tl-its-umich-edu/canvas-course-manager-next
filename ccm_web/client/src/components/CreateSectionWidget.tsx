@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack'
 import { addCourseSections } from '../api'
 import { CanvasCourseSection } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { CanvaCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
+import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
 import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
 
 const useStyles = makeStyles((theme) => ({
@@ -30,7 +30,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const [newSectionName, setNewSectionName] = useState<string>('')
   const [isCreating, setIsCreating] = useState(false)
-  const nameValidator = new CanvaCoursesSectionNameValidator(props.globals.course)
+  const nameValidator = new CanvasCoursesSectionNameValidator(props.globals.course)
 
   const newSectionNameChanged = (event: ChangeEvent<HTMLInputElement>): void => {
     setNewSectionName(event.target.value)
