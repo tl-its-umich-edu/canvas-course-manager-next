@@ -210,7 +210,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           errors.push({ rowNumber: i + 2, message: 'Invalid column count' })
         } else {
           if (!isValidRole(parts[0])) {
-            console.log('error')
             errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
           } else if (!isValidLoginID(parts[1])) {
             errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
