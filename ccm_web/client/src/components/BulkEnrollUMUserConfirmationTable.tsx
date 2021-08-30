@@ -27,7 +27,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 function BulkEnrollUMUserConfirmationTable (props: BulkEnrollUMUserConfirmationTableProps): JSX.Element {
   const [page, setPage] = useState<number>(0)
 
-  const tableRows = props.enrollments.sort((a, b) => a.loginID.localeCompare(b.loginID))
+  const tableRows = props.enrollments
 
   return <ConfirmationTable<IAddUMUserEnrollment> {...{ tableRows, columns, page, setPage }} />
 }
