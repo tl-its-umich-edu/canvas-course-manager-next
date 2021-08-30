@@ -141,9 +141,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }, [])
 
   useEffect(() => {
-    if (file === undefined) {
-      // ?
-    } else {
+    if (file !== undefined) {
       parseFile(file)
     }
   }, [file])
