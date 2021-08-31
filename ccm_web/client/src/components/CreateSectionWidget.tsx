@@ -13,8 +13,7 @@ const useStyles = makeStyles((theme) => ({
     height: 200
   },
   input: {
-    width: '100%',
-    paddingRight: '2px'
+    width: '100%'
   },
   button: {
     width: '100%'
@@ -84,7 +83,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
 
   return (
     <>
-    <Grid container>
+    <Grid container spacing={2}>
       <Grid item xs={9}>
         <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
       </Grid>
