@@ -1,6 +1,6 @@
-import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { CloudDone as CloudDoneIcon, Error as ErrorIcon } from '@material-ui/icons'
+import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
 
 import { getCourseSections } from '../api'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
@@ -103,6 +103,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     sectionLoadError: {
       textAlign: 'center'
+    },
+    newSectionHint: {
+      display: 'flex'
     }
   })
 )
@@ -232,6 +235,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     if (getCanvasSectionDataError === undefined) {
       return (
         <>
+          <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Create a new section to add users'><HelpIcon fontSize='small'/></Tooltip></div>
           <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
           <div className={classes.sectionSelectionContainer}>
