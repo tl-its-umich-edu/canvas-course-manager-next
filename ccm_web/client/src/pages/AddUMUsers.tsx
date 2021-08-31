@@ -1,6 +1,7 @@
 import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
+import { useSnackbar } from 'notistack'
 
 import { getCourseSections } from '../api'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
@@ -122,6 +123,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const classes = useStyles()
+  const { enqueueSnackbar } = useSnackbar()
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
@@ -229,7 +231,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       }
     }).catch(e => {
       // TODO Not sure how to produce this error in real life
-      console.log('error parsing file')
+      enqueueSnackbar('Error parsing file', {
+        variant: 'error'
+      })
     })
   }
 
