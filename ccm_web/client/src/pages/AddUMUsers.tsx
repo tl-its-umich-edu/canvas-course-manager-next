@@ -130,7 +130,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
-  const [isAddingEnrollments, setIsAddingEnrollments] = useState<boolean>(false)
+  const [isAddingEnrollments] = useState<boolean>(false)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
