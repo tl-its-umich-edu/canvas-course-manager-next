@@ -57,7 +57,6 @@ const useStyles = makeStyles((theme: Theme) =>
       float: 'right'
     },
     sectionSelectionContainer: {
-      paddingTop: '10px',
       position: 'relative',
       zIndex: 0,
       textAlign: 'center',
@@ -106,6 +105,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     newSectionHint: {
       display: 'flex'
+    },
+    createSectionContainer: {
+      paddingBottom: '20px'
     }
   })
 )
@@ -235,8 +237,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     if (getCanvasSectionDataError === undefined) {
       return (
         <>
-          <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Create a new section to add users'><HelpIcon fontSize='small'/></Tooltip></div>
-          <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+          <div className={classes.createSectionContainer}>
+            <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Create a new section to add users'><HelpIcon fontSize='small'/></Tooltip></div>
+            <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+          </div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
           <div className={classes.sectionSelectionContainer}>
             <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
