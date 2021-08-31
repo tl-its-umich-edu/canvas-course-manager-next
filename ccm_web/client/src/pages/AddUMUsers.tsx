@@ -238,7 +238,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       return (
         <>
           <div className={classes.createSectionContainer}>
-            <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a unique name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
+            <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a distinct name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
             <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
           </div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
