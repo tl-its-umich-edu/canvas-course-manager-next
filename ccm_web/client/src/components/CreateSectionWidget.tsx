@@ -85,7 +85,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     <>
     <Grid container spacing={2}>
       <Grid item xs={9}>
-        <TextField className={classes.input} size='small' label='New Section Name' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
+        <TextField className={classes.input} size='small' label='input the name of the new section' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
       </Grid>
       <Grid item>
         <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={isCreateDisabled()}>
