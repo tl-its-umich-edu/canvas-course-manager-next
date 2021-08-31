@@ -19,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
   breadcrumbContainer: {
     paddingLeft: 25,
     paddingTop: 25
+  },
+  swaggerLink: {
+    display: 'block',
+    clear: 'both'
   }
 }))
 
@@ -107,7 +111,11 @@ function App (): JSX.Element {
         </Router>
         {
           globals?.environment === 'development' &&
-          <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+          (
+            <div className={classes.swaggerLink}>
+              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+            </div>
+          )
         }
       </SnackbarProvider>
     </div>
