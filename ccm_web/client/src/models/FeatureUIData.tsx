@@ -10,6 +10,7 @@ import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, Ext
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
+import AddUMUsers from '../pages/AddUMUsers'
 import { Globals, RoleEnum } from './models'
 
 export interface CCMComponentProps {
@@ -61,7 +62,7 @@ const createSectionsCardProps: FeatureUIProps = {
 const addUMUsersCardProps: FeatureUIProps = {
   data: addUMUsersProps,
   icon: <PersonAddIcon fontSize='large' />,
-  component: MergeSections,
+  component: AddUMUsers,
   route: '/add-um-users'
 }
 
