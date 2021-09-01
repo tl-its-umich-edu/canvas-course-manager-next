@@ -1,8 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Error as ErrorIcon } from '@material-ui/icons'
+
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
+import SectionSelectorWidget from '../components/SectionSelectorWidget'
+import { CanvasCourseSection } from '../models/canvas'
+import { getCourseSections } from '../api'
+import usePromise from '../hooks/usePromise'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,6 +21,23 @@ const useStyles = makeStyles((theme) => ({
   selectSections: {
     // flexGrow: 1
     // width: '100%'
+  },
+  sectionSelectionContainer: {
+    position: 'relative',
+    zIndex: 0,
+    textAlign: 'center',
+    maxHeight: '400px'
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    position: 'absolute'
+  },
+  sectionLoadErrorIcon: {
+    color: '#3F648E'
+  },
+  sectionLoadError: {
+    textAlign: 'center'
   }
 }))
 
@@ -25,6 +48,23 @@ enum PageState {
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
+  const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
+
+  const updateSections = (sections: CanvasCourseSection[]): void => {
+    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+  }
+
+  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+    async () => await getCourseSections(props.globals.course.id),
+    (sections: CanvasCourseSection[]) => {
+      updateSections(sections)
+    }
+  )
+
+  useEffect(() => {
+    void doLoadCanvasSectionData()
+  }, [])
 
   const renderComponent = (): JSX.Element => {
     switch (pageState) {
@@ -35,17 +75,46 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   }
 
+  // const getSelectSections = (): JSX.Element => {
+  //   return (
+  //     <Grid className={classes.selectSections} container spacing={2}>
+  //       <Grid container item sm={12} md>
+  //       <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
+  //       </Grid>
+  //       <Grid container item sm={12} md>
+  //         <Paper>Prepared to merge</Paper>
+  //       </Grid>
+  //     </Grid>
+  //   )
+  // }
+
   const getSelectSections = (): JSX.Element => {
-    return (
-      <Grid className={classes.selectSections} container spacing={2}>
-        <Grid container item sm={12} md>
-          <Paper>Sections</Paper>
-        </Grid>
-        <Grid container item sm={12} md>
-          <Paper>Prepared to merge</Paper>
-        </Grid>
-      </Grid>
-    )
+    if (getCanvasSectionDataError === undefined) {
+      return (
+        <>
+          <div className={classes.sectionSelectionContainer}>
+            <SectionSelectorWidget height={400} multiSelect={true} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
+            <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <CircularProgress color="inherit" />
+                </Grid>
+                <Grid item xs={12}>
+                  Loading sections
+                </Grid>
+              </Grid>
+            </Backdrop>
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <Paper className={classes.sectionLoadError} role='alert'>
+          <Typography>Error loading sections</Typography>
+          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
+        </Paper>
+      )
+    }
   }
 
   return (
