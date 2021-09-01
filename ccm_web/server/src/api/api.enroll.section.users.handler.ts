@@ -49,6 +49,10 @@ export class EnrollSectionUsersApiHandler {
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
+    const enrollLoginId = user.loginId
+      .replace(/@umich\.edu$/i, '')
+      .replace('@', '+')
+
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = HttpMethod.Post
@@ -56,7 +60,7 @@ export class EnrollSectionUsersApiHandler {
         enrollment: {
           // 'sis_login_id:' prefix per...
           // https://canvas.instructure.com/doc/api/file.object_ids.html
-          user_id: `sis_login_id:${user.loginId}`,
+          user_id: `sis_login_id:${enrollLoginId}`,
           type: user.type,
           enrollment_state: 'active',
           notify: false
