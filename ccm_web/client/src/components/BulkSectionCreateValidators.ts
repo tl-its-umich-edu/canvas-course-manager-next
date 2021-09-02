@@ -83,7 +83,7 @@ class SectionNameTooLongValidator implements SectionRowsValidator {
     sectionNames.forEach((sectionName, row) => {
       console.log('Line length: ' + sectionName.trim().length.toString())
       if (sectionName.trim().length > 255) {
-        invalidations.push({ message: 'Section name too long', rowNumber: row + 2, type: InvalidationType.Error })
+        invalidations.push({ message: 'Section name must be 255 characters or less', rowNumber: row + 2, type: InvalidationType.Error })
       }
     })
     return invalidations

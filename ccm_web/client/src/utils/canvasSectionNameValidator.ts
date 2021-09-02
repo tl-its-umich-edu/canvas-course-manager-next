@@ -22,7 +22,7 @@ class DuplicateSectionNameValidator implements IValidator {
 class SectionNameTooLongValidator implements IValidator {
   validate = (sections: CanvasCourseSection[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
     if (sectionName.length > 255) {
-      return { reason: 'Section name too long.' }
+      return { reason: 'Section name must be 255 characters or less' }
     }
     return undefined
   }
