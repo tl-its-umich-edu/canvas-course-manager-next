@@ -89,5 +89,18 @@ class EmptySectionNameValidator implements SectionRowsValidator {
   }
 }
 
+class SectionNameTooLongValidator implements SectionRowsValidator {
+  validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
+    const invalidations: SectionsRowInvalidation[] = []
+    sectionNames.forEach((sectionName, row) => {
+      console.log('Line length: ' + sectionName.trim().length.toString())
+      if (sectionName.trim().length > 255) {
+        invalidations.push({ message: 'Section name must be 255 characters or less', rowNumber: row + 2, type: InvalidationType.Error })
+      }
+    })
+    return invalidations
+  }
+}
+
 export type { SectionsSchemaInvalidation, SectionsRowInvalidation, SectionRowsValidator, SectionsSchemaValidator }
-export { InvalidationType, SectionNameHeaderValidator, DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader }
+export { InvalidationType, SectionNameHeaderValidator, DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator, hasHeader }
