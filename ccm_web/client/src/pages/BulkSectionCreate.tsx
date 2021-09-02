@@ -333,7 +333,6 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
       }
       handleParseSuccess(lines)
     }).catch(e => {
-      console.log(e)
       // TODO Not sure how to produce this error in real life
       handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
     })
