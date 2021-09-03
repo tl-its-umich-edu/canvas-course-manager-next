@@ -25,8 +25,7 @@ const useStyles = makeStyles((theme) => ({
   sectionSelectionContainer: {
     position: 'relative',
     zIndex: 0,
-    textAlign: 'center',
-    maxHeight: '400px'
+    textAlign: 'center'
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -48,22 +47,38 @@ enum PageState {
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
-  const [sections, setSections] = useState<CanvasCourseSection[]>([])
-  const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
 
-  const updateSections = (sections: CanvasCourseSection[]): void => {
-    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+  const [unstagedSections, setUnstagedSections] = useState<CanvasCourseSection[]>([])
+  const [stagedSections, setStagedSections] = useState<CanvasCourseSection[]>([])
+
+  const [selectedUnstagedSections, setSelectedUnstagedSections] = useState<CanvasCourseSection[]>([])
+  const [selectedStagedSections, setSelectedStagedSections] = useState<CanvasCourseSection[]>([])
+
+  const updateUnstagedSections = (sections: CanvasCourseSection[]): void => {
+    setUnstagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
   }
 
-  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+  const [doLoadUnstagedSectionData, isUnstagedSectionsLoading, loadUnstagedSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      updateSections(sections)
+      updateUnstagedSections(sections)
+    }
+  )
+
+  const updateStagedSections = (sections: CanvasCourseSection[]): void => {
+    setStagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+  }
+
+  const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
+    async () => await Promise.resolve([{id: 0, name: 'Fake Section', total_students: 123 }]),
+    (sections: CanvasCourseSection[]) => {
+      updateStagedSections(sections)
     }
   )
 
   useEffect(() => {
-    void doLoadCanvasSectionData()
+    void doLoadUnstagedSectionData()
+    void doLoadStagedSectionData()
   }, [])
 
   const renderComponent = (): JSX.Element => {
@@ -75,26 +90,13 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  // const getSelectSections = (): JSX.Element => {
-  //   return (
-  //     <Grid className={classes.selectSections} container spacing={2}>
-  //       <Grid container item sm={12} md>
-  //       <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
-  //       </Grid>
-  //       <Grid container item sm={12} md>
-  //         <Paper>Prepared to merge</Paper>
-  //       </Grid>
-  //     </Grid>
-  //   )
-  // }
-
-  const getSelectSections = (): JSX.Element => {
-    if (getCanvasSectionDataError === undefined) {
+  const getSelectSectionsUnstaged = (): JSX.Element => {
+    if (loadUnstagedSectionsError === undefined) {
       return (
         <>
-          <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget height={400} multiSelect={true} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
-            <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+          <div>
+            <SectionSelectorWidget height={400} search={'None'} multiSelect={true} sections={unstagedSections !== undefined ? unstagedSections : []} selectedSections={selectedUnstagedSections} selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
+            <Backdrop className={classes.backdrop} open={isUnstagedSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
                   <CircularProgress color="inherit" />
@@ -115,6 +117,51 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         </Paper>
       )
     }
+  }
+
+  const getSelectSectionsStaged = (): JSX.Element => {
+    if (loadStagedSectionsError === undefined) {
+      return (
+        <>
+          <div>
+            <SectionSelectorWidget height={400} search={'None'} multiSelect={true} sections={stagedSections !== undefined ? stagedSections : []} selectedSections={selectedStagedSections} selectionUpdated={setSelectedStagedSections}></SectionSelectorWidget>
+            <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <CircularProgress color="inherit" />
+                </Grid>
+                <Grid item xs={12}>
+                  Loading sections
+                </Grid>
+              </Grid>
+            </Backdrop>
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <Paper className={classes.sectionLoadError} role='alert'>
+          <Typography>Error loading sections</Typography>
+          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
+        </Paper>
+      )
+    }
+  }
+
+  const getSelectSections = (): JSX.Element => {
+    return (
+      <>
+        <Grid className={classes.sectionSelectionContainer} container spacing={5}>
+          <Grid item xs={12} sm={6}>
+            {getSelectSectionsUnstaged()}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            {getSelectSectionsStaged()}
+          </Grid>
+        </Grid>
+
+      </>
+    )
   }
 
   return (

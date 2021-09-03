@@ -22,6 +22,7 @@ interface ISectionSelectorWidgetProps {
   height: number
   multiSelect: boolean
   selectionUpdated: (section: CanvasCourseSection[]) => void
+  search: 'None' | 'Hidden' | true
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -78,7 +79,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   return (
     <>
       <Grid container>
-        <Grid item container className={classes.searchContainer} xs={12}>
+        <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
         </Grid>
         <Grid item xs={12}>
