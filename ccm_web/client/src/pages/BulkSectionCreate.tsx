@@ -6,7 +6,7 @@ import BulkSectionCreateUploadConfirmationTable, { Section } from '../components
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
+import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionNameTooLongValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
@@ -343,6 +343,8 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
     const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
     rowInvalidations.push(...duplicateNamesInFileValidator.validate(sectionNames))
+    const sectionNamesTooLongValidator: SectionNameTooLongValidator = new SectionNameTooLongValidator()
+    rowInvalidations.push(...sectionNamesTooLongValidator.validate(sectionNames))
 
     return rowInvalidations
   }
