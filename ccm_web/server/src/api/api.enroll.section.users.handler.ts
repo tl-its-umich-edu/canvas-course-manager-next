@@ -1,7 +1,7 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError, HttpMethod } from './api.utils'
+import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 
 import baseLogger from '../logger'
 import { CanvasEnrollment } from '../canvas/canvas.interfaces'
@@ -18,34 +18,6 @@ export class EnrollSectionUsersApiHandler {
     this.requestor = requestor
     this.users = users
     this.sectionId = sectionId
-  }
-
-  makeResponse (enrollmentResult: Array<APIErrorData | CanvasEnrollment>): CanvasEnrollment[] | APIErrorData {
-    const failures = []
-    const statusCodes: Set<number> = new Set()
-    const successes = []
-
-    for (const enrollment of enrollmentResult) {
-      if (isAPIErrorData(enrollment)) {
-        const {
-          statusCode,
-          errors
-        } = enrollment
-        failures.push(...errors)
-        statusCodes.add(statusCode)
-      } else {
-        successes.push(enrollment)
-      }
-    }
-
-    if (successes.length === this.users.length) {
-      return successes
-    } else {
-      return {
-        statusCode: statusCodes.size > 1 ? 502 : [...statusCodes][0],
-        errors: failures
-      }
-    }
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
@@ -98,6 +70,6 @@ export class EnrollSectionUsersApiHandler {
     const enrollmentResponses = await Promise.all(apiPromises)
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to enroll (${this.users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
-    return this.makeResponse(enrollmentResponses)
+    return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
 }
