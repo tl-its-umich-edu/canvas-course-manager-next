@@ -1,6 +1,6 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { APIErrorData, isAPIErrorData } from './api.interfaces'
+import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 
 import baseLogger from '../logger'

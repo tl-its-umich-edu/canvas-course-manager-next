@@ -56,7 +56,7 @@ export function makeResponse<T extends CanvasEntity> (multipleResults: Array<API
     }
   }
 
-  if (failures.length == 0) {
+  if (failures.length === 0) {
     return successes
   } else {
     return {

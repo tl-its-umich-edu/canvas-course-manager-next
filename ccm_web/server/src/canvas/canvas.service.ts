@@ -32,13 +32,13 @@ const requestorOptions: GotOptions = {
     ],
     afterResponse: [
       (response, retryWithMergedOptions) => {
-        logger.debug(`afterResponse — "x-rate-limit-remaining": "${response.headers['x-rate-limit-remaining']}"; "x-request-cost": "${response.headers['x-request-cost']}"`)
-        return response;
+        logger.debug(`afterResponse — "x-rate-limit-remaining": "${response.headers['x-rate-limit-remaining'] || ''}"; "x-request-cost": "${response.headers['x-request-cost'] || ''}"`)
+        return response
       }
     ],
     beforeRetry: [
       (options, error, retryCount) => {
-        logger.debug(`beforeRetry [${retryCount}]: ${error?.code}`)
+        logger.debug(`beforeRetry [${retryCount}]: error.code: "${error?.code || ''}"`)
       }
     ],
     beforeError: [
