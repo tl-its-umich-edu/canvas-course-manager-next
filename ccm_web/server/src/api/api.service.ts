@@ -6,12 +6,12 @@ import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
 import { APIErrorData, Globals } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
+import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
+import { SectionUserDto } from './dtos/api.section.users.dto'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
 
 import baseLogger from '../logger'
-import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
-import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
