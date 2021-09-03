@@ -1,4 +1,4 @@
-import { Grid, List, ListItem, ListItemText, makeStyles, TextField } from '@material-ui/core'
+import { Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core'
 import ClearIcon from '@material-ui/icons/Clear'
 import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection } from '../models/canvas'
@@ -13,6 +13,13 @@ const useStyles = makeStyles((theme) => ({
   },
   searchTextField: {
     width: '100%'
+  },
+  title: {
+    textAlign: 'left',
+    display: 'flex',
+    justifyContent: 'center',
+    alignContent: 'center',
+    flexDirection: 'column'
   }
 }))
 
@@ -23,6 +30,7 @@ interface ISectionSelectorWidgetProps {
   multiSelect: boolean
   selectionUpdated: (section: CanvasCourseSection[]) => void
   search: 'None' | 'Hidden' | true
+  title?: string
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -31,6 +39,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [sectionFilterText, setSectionFilterText] = useState<string>('')
   const [filteredSections, setFilteredSections] = useState<CanvasCourseSection[]>(props.sections)
 
+  const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
+
   useEffect(() => {
     if (sectionFilterText.length === 0) {
       setFilteredSections(props.sections)
@@ -38,6 +48,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       setFilteredSections(props.sections.filter(p => { return p.name.toUpperCase().includes(sectionFilterText.toUpperCase()) }))
     }
   }, [sectionFilterText, props.sections])
+
+  useEffect(() => {
+    setIsSelectAllChecked(props.sections.length > 0 && props.selectedSections.length === props.sections.length)
+  }, [props.selectedSections])
 
   const handleListItemClick = (
     sectionId: number
@@ -53,6 +67,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         newSelections = [filteredSections.filter(s => { return s.id === sectionId })[0]]
       }
     }
+
     props.selectionUpdated(newSelections)
   }
 
@@ -75,12 +90,36 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (<ClearIcon onClick={clearSearch}/>)
     }
   }
+
+  const handleSelectAllClicked = (): void => {
+    setIsSelectAllChecked(!isSelectAllChecked)
+    props.selectionUpdated(!isSelectAllChecked ? props.sections : [])
+  }
+
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
       <Grid container>
         <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
+        </Grid>
+        <Grid item container>
+          <Grid item xs={12} sm={8} className={classes.title}><Typography style={{ visibility: props.title !== undefined ? 'visible' : 'hidden' }}>{props.title}</Typography></Grid>
+          <Grid item xs={12} sm={4}>
+            <FormGroup row style={{ visibility: props.multiSelect ? 'visible' : 'hidden' }}>
+              <FormControlLabel
+              control={
+                  <Checkbox
+                    checked={isSelectAllChecked}
+                    onChange={handleSelectAllClicked}
+                    name="selectAllUnstagedCB"
+                    color="primary"
+                  />
+                }
+                label="Select All"
+              />
+            </FormGroup>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <List className={classes.listContainer} style={{ maxHeight: props.height }}>
