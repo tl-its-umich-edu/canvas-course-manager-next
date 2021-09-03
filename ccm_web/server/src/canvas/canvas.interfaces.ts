@@ -54,6 +54,8 @@ export interface CanvasEnrollment {
   type: string
 }
 
+export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
+
 // Errors
 
 interface CanvasError {
