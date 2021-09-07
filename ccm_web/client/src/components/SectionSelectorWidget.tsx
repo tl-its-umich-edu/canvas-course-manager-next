@@ -23,9 +23,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+export interface SelectableCanvasCourseSection extends CanvasCourseSection {
+  locked: boolean
+}
+
 interface ISectionSelectorWidgetProps {
-  sections: CanvasCourseSection[]
-  selectedSections: CanvasCourseSection[]
+  sections: SelectableCanvasCourseSection[]
+  selectedSections: SelectableCanvasCourseSection[]
   height: number
   multiSelect: boolean
   selectionUpdated: (section: CanvasCourseSection[]) => void
@@ -37,7 +41,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const classes = useStyles()
 
   const [sectionFilterText, setSectionFilterText] = useState<string>('')
-  const [filteredSections, setFilteredSections] = useState<CanvasCourseSection[]>(props.sections)
+  const [filteredSections, setFilteredSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
 
@@ -50,7 +54,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }, [sectionFilterText, props.sections])
 
   useEffect(() => {
-    setIsSelectAllChecked(props.sections.length > 0 && props.selectedSections.length === props.sections.length)
+    setIsSelectAllChecked(props.sections.length > 0 && props.selectedSections.length === props.sections.filter(s => { return !s.locked }).length)
   }, [props.selectedSections])
 
   const handleListItemClick = (
@@ -93,7 +97,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const handleSelectAllClicked = (): void => {
     setIsSelectAllChecked(!isSelectAllChecked)
-    props.selectionUpdated(!isSelectAllChecked ? props.sections : [])
+    props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !s.locked }) : [])
   }
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
@@ -124,7 +128,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         <Grid item xs={12}>
           <List className={classes.listContainer} style={{ maxHeight: props.height }}>
             {filteredSections.map((section, index) => {
-              return (<ListItem divider key={section.id} button selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
+              return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
                 <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} students`}></ListItemText>
               </ListItem>)
             })}
