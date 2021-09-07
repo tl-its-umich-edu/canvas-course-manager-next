@@ -91,8 +91,15 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const stageSections = (): void => {
-    setStagedSections(stagedSections.concat(selectedUnstagedSections.map(s => { return { ...s, locked: false } })))
-    setUnstagedSections(unstagedSections.filter(s => { return !selectedUnstagedSections.includes(s) }))
+    setStagedSections(stagedSections.concat(selectedUnstagedSections).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setUnstagedSections(unstagedSections.filter(s => { return !selectedUnstagedSections.includes(s) }).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setSelectedUnstagedSections([])
+  }
+
+  const unStageSections = (): void => {
+    setUnstagedSections(unstagedSections.concat(selectedStagedSections).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setStagedSections(stagedSections.filter(s => { return !selectedStagedSections.includes(s) }).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setSelectedStagedSections([])
   }
 
   const getSelectSectionsUnstaged = (): JSX.Element => {
@@ -132,7 +139,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       return (
         <>
           <div>
-            <SectionSelectorWidget height={400} search={'None'} multiSelect={true} sections={stagedSections !== undefined ? stagedSections : []} selectedSections={selectedStagedSections} selectionUpdated={setSelectedStagedSections}></SectionSelectorWidget>
+            <Button variant="contained" color="primary" onClick={unStageSections} disabled={selectedStagedSections.length === 0}>
+              Undo
+            </Button>
+            <SectionSelectorWidget height={400} title={'Prepared to merge'} search={'None'} multiSelect={true} sections={stagedSections !== undefined ? stagedSections : []} selectedSections={selectedStagedSections} selectionUpdated={setSelectedStagedSections}></SectionSelectorWidget>
             <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>

@@ -32,7 +32,7 @@ interface ISectionSelectorWidgetProps {
   selectedSections: SelectableCanvasCourseSection[]
   height: number
   multiSelect: boolean
-  selectionUpdated: (section: CanvasCourseSection[]) => void
+  selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
   search: 'None' | 'Hidden' | true
   title?: string
 }
@@ -53,8 +53,14 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     }
   }, [sectionFilterText, props.sections])
 
+  const selectableSections = (): SelectableCanvasCourseSection[] => {
+    const s = props.sections.filter(s => { return !s.locked })
+    return s
+  }
+
   useEffect(() => {
-    setIsSelectAllChecked(props.sections.length > 0 && props.selectedSections.length === props.sections.filter(s => { return !s.locked }).length)
+    console.debug(`SectionSelectorWidget ${props.title ?? ''} selectedSections changed`)
+    setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
   }, [props.selectedSections])
 
   const handleListItemClick = (
