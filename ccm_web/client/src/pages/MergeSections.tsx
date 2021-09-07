@@ -70,7 +70,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
-    async () => await Promise.resolve([{ id: 0, name: 'Fake Section', total_students: 123 }]),
+    async () => await Promise.resolve([{ id: 0, name: 'Already Merged Section', total_students: 123 }]),
     (sections: CanvasCourseSection[]) => {
       updateStagedSections(sections)
     }

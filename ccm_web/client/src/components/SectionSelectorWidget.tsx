@@ -126,6 +126,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                     color="primary"
                   />
                 }
+                disabled={selectableSections().length === 0}
                 label="Select All"
               />
             </FormGroup>
