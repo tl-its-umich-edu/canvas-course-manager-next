@@ -20,11 +20,21 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignContent: 'center',
     flexDirection: 'column'
+  },
+  srOnly: {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0,0,0,0)',
+    border: '0'
   }
 }))
 
 export interface SelectableCanvasCourseSection extends CanvasCourseSection {
-  locked: boolean
+  locked?: boolean
 }
 
 interface ISectionSelectorWidgetProps {
@@ -54,7 +64,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }, [sectionFilterText, props.sections])
 
   const selectableSections = (): SelectableCanvasCourseSection[] => {
-    const s = props.sections.filter(s => { return !s.locked })
+    const s = props.sections.filter(s => { return !(s.locked ?? false) })
     return s
   }
 
@@ -103,18 +113,25 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const handleSelectAllClicked = (): void => {
     setIsSelectAllChecked(!isSelectAllChecked)
-    props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !s.locked }) : [])
+    props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
   }
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
+      <span aria-live='polite' className={classes.srOnly}>{props.selectedSections.length} selected</span>
       <Grid container>
         <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
         </Grid>
         <Grid item container>
-          <Grid item xs={12} sm={8} className={classes.title}><Typography style={{ visibility: props.title !== undefined ? 'visible' : 'hidden' }}>{props.title}</Typography></Grid>
+          <Grid item xs={12} sm={8} className={classes.title}>
+            <Typography style={{ visibility: props.title !== undefined ? 'visible' : 'hidden' }}>{props.title}
+              <span hidden={props.selectedSections.length === 0}>
+                ({props.selectedSections.length})
+              </span>
+            </Typography>
+          </Grid>
           <Grid item xs={12} sm={4}>
             <FormGroup row style={{ visibility: props.multiSelect ? 'visible' : 'hidden' }}>
               <FormControlLabel
