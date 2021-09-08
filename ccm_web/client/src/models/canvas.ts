@@ -7,6 +7,7 @@ export interface CanvasCourseSection {
   id: number
   name: string
   total_students: number
+  course_name?: string
 }
 
 export interface CanvasRole {

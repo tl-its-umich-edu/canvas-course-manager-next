@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     clip: 'rect(0,0,0,0)',
     border: '0'
+  },
+  inline: {
+    display: 'inline'
   }
 }))
 
@@ -45,6 +48,7 @@ interface ISectionSelectorWidgetProps {
   selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
   search: 'None' | 'Hidden' | true
   title?: string
+  showCourseName?: boolean
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -116,6 +120,34 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
   }
 
+  const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
+    if (props.showCourseName ?? false) {
+      return (
+        <ListItemText primary={section.name}
+          secondary={
+            <React.Fragment>
+              <Typography
+                component="span"
+                variant="body2"
+                className={classes.inline}
+                color="textPrimary"
+              >
+                {section.course_name}
+              </Typography>
+              <span style={{ float: 'right' }}>
+                {`${section.total_students ?? '?'} students`}
+              </span>
+            </React.Fragment>
+        }>
+        </ListItemText>
+      )
+    } else {
+      return (
+        <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} students`}></ListItemText>
+      )
+    }
+  }
+
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -153,7 +185,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           <List className={classes.listContainer} style={{ maxHeight: props.height }}>
             {filteredSections.map((section, index) => {
               return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
-                <ListItemText primary={section.name} secondary={`${section.total_students ?? '?'} students`}></ListItemText>
+                {listItemText(section)}
               </ListItem>)
             })}
           </List>

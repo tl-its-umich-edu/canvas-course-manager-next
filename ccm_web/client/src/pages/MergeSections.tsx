@@ -110,7 +110,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             <Button variant="contained" color="primary" onClick={stageSections} disabled={selectedUnstagedSections.length === 0}>
               Add
             </Button>
-            <SectionSelectorWidget height={400} title={'Sections I teach'} search={'None'} multiSelect={true} sections={unstagedSections !== undefined ? unstagedSections : []} selectedSections={selectedUnstagedSections} selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
+            <SectionSelectorWidget height={400} title={'Sections I teach'} search={'None'} multiSelect={true} showCourseName={true} sections={unstagedSections !== undefined ? unstagedSections : []} selectedSections={selectedUnstagedSections} selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
             <Backdrop className={classes.backdrop} open={isUnstagedSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
