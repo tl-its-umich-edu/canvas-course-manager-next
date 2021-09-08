@@ -159,7 +159,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     } else {
       return (
         <Paper className={classes.sectionLoadError} role='alert'>
-          <Typography>Error loading sections</Typography>
+          <Typography>Error loading merged sections</Typography>
           <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
         </Paper>
       )
@@ -169,11 +169,11 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getSelectSections = (): JSX.Element => {
     return (
       <>
-        <Grid className={classes.sectionSelectionContainer} container spacing={5}>
-          <Grid item xs={12} sm={6}>
+        <Grid container spacing={5}>
+          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
             {getSelectSectionsUnstaged()}
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
             {getSelectSectionsStaged()}
           </Grid>
         </Grid>
