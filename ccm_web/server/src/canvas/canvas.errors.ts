@@ -20,3 +20,13 @@ export class CanvasTokenNotFoundError extends Error {
     this.date = new Date()
   }
 }
+
+export class InvalidTokenRefreshError extends Error {
+  date: Date
+  public name = 'InvalidTokenRefreshError'
+
+  constructor () {
+    super('A token refresh failed because of an invalid token.')
+    this.date = new Date()
+  }
+}

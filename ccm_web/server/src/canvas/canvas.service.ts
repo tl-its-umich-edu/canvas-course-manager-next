@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 import { Options as GotOptions } from 'got'
 
-import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
@@ -147,8 +147,8 @@ export class CanvasService {
       if (axios.isAxiosError(error) && error.response !== undefined) {
         const { status, data } = error.response
         if (status === HttpStatus.BAD_REQUEST && typeof data?.error === 'string' && data.error === 'invalid_request') {
-          logger.warn('Existing token was found to be invalid; deleting token...')
-          await this.deleteTokenForUser(token.user)
+          logger.warn('Existing token was found to be invalid')
+          throw new InvalidTokenRefreshError()
         } else {
           logger.error(`Received unusual status code ${error.response.status}`)
           logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
