@@ -21,6 +21,10 @@ export class APIService {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
       canvasURL: this.configService.get('canvas.instanceURL') as string,
+      user: {
+        loginId: user.loginId,
+        hasCanvasToken: user.canvasToken !== null
+      },
       userLoginId: user.loginId,
       course: {
         id: sessionData.data.course.id,
