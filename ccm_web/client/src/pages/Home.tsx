@@ -56,7 +56,7 @@ function Home (props: HomeProps): JSX.Element {
     }
   )
 
-  const unauthorized = hasUnauthorized([setCourseNameError])
+  const unauthorized = hasUnauthorized([props.getCourseError, setCourseNameError])
   useEffect(() => {
     if (setCourseNameError !== undefined && !unauthorized) {
       enqueueSnackbar('Error saving course name', { variant: 'error' })
