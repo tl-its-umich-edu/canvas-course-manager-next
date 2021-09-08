@@ -151,7 +151,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
-      <span aria-live='polite' className={classes.srOnly}>{props.selectedSections.length} selected</span>
+      <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>{props.selectedSections.length} section{props.selectedSections.length === 1 ? '' : 's' } selected</span>
       <Grid container>
         <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
