@@ -11,6 +11,7 @@ import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
+import { hasUnauthorized } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,11 +56,14 @@ function Home (props: HomeProps): JSX.Element {
     }
   )
 
+  const unauthorized = hasUnauthorized([setCourseNameError])
   useEffect(() => {
-    if (setCourseNameError !== undefined) {
+    if (setCourseNameError !== undefined && !unauthorized) {
       enqueueSnackbar('Error saving course name', { variant: 'error' })
     }
   }, [setCourseNameError])
+
+  if (unauthorized) location.href = '/'
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
     return (

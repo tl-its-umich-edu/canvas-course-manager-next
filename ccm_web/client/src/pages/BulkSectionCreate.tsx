@@ -12,6 +12,7 @@ import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { APIErrorPayload, IDefaultError } from '../models/models'
+import { hasUnauthorized } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -292,6 +293,9 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
       }
     }
   }, [sectionNames])
+
+  const errors = [getCanvasSectionDataError, getSaveCanvasSectionDataError]
+  if (hasUnauthorized(errors)) location.href = '/'
 
   const resetPageState = (): void => {
     setPageState({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })

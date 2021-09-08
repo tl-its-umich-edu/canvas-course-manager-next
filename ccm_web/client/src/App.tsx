@@ -45,12 +45,14 @@ function App (): JSX.Element {
   )
 
   useEffect(() => {
-    if (globals !== undefined) {
+    if (globals?.user.hasCanvasToken === true) {
       void doLoadCourse(globals.course.id)
     }
   }, [globals])
 
-  if (isAuthenticated === undefined || isLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
+  const loading = <div className='App'><p>Loading...</p></div>
+
+  if (isAuthenticated === undefined || isLoading || isCourseLoading) return loading
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
@@ -60,6 +62,12 @@ function App (): JSX.Element {
         <p>You were not properly authenticated to the application.</p>
       </div>
     )
+  }
+
+  if (!globals.user.hasCanvasToken) {
+    // Initiate OAuth flow
+    location.href = '/canvas/redirectOAuth'
+    return loading
   }
 
   interface BreadcrumbProps {

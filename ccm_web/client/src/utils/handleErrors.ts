@@ -70,4 +70,9 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 }
 
-export default handleErrors
+const hasUnauthorized = (posErrors: Array<Error | undefined>): boolean => {
+  const unauthorized = posErrors.filter(e => e instanceof UnauthorizedError)
+  return unauthorized.length > 0
+}
+
+export { handleErrors as default, hasUnauthorized }
