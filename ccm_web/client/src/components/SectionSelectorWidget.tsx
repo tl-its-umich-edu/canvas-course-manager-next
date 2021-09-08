@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Button, Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core'
 import ClearIcon from '@material-ui/icons/Clear'
 import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection } from '../models/canvas'
@@ -33,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
   },
   inline: {
     display: 'inline'
+  },
+  checkBoxContainer: {
+    float: 'right',
+    textAlign: 'center'
   }
 }))
 
@@ -49,6 +53,7 @@ interface ISectionSelectorWidgetProps {
   search: 'None' | 'Hidden' | true
   title?: string
   showCourseName?: boolean
+  action?: {text: string, cb: () => void, disabled: boolean}
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -73,7 +78,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   useEffect(() => {
-    console.debug(`SectionSelectorWidget ${props.title ?? ''} selectedSections changed`)
     setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
   }, [props.selectedSections])
 
@@ -148,6 +152,20 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     }
   }
 
+  const actionButton = (): JSX.Element => {
+    if (props.action === undefined) {
+      return (<></>)
+    } else {
+      return (
+      <Grid item xs={12} sm={3}>
+        <Button style={{ float: 'right' }} variant="contained" color="primary" onClick={props.action.cb} disabled={props.action.disabled}>
+          {props.action?.text}
+        </Button>
+      </Grid>
+      )
+    }
+  }
+
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -157,15 +175,15 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
         </Grid>
         <Grid item container>
-          <Grid item xs={12} sm={8} className={classes.title}>
+          <Grid item xs={8} sm={6} className={classes.title}>
             <Typography style={{ visibility: props.title !== undefined ? 'visible' : 'hidden' }}>{props.title}
               <span hidden={props.selectedSections.length === 0}>
                 ({props.selectedSections.length})
               </span>
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormGroup row style={{ visibility: props.multiSelect ? 'visible' : 'hidden' }}>
+          <Grid item xs={4} sm={3}>
+            <FormGroup row style={{ visibility: props.multiSelect ? 'visible' : 'hidden' }} className={classes.checkBoxContainer}>
               <FormControlLabel
               control={
                   <Checkbox
@@ -180,6 +198,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               />
             </FormGroup>
           </Grid>
+          {actionButton()}
         </Grid>
         <Grid item xs={12}>
           <List className={classes.listContainer} style={{ maxHeight: props.height }}>
