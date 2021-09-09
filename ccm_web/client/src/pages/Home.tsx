@@ -56,14 +56,15 @@ function Home (props: HomeProps): JSX.Element {
     }
   )
 
-  const unauthorized = hasUnauthorized([props.getCourseError, setCourseNameError])
+  const errors = [props.getCourseError, setCourseNameError]
+
   useEffect(() => {
-    if (setCourseNameError !== undefined && !unauthorized) {
+    if (setCourseNameError !== undefined && !hasUnauthorized([setCourseNameError])) {
       enqueueSnackbar('Error saving course name', { variant: 'error' })
     }
   }, [setCourseNameError])
 
-  if (unauthorized) location.href = '/'
+  if (hasUnauthorized(errors)) location.href = '/'
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
     return (
