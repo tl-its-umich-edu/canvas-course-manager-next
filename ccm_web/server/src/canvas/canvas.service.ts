@@ -147,7 +147,7 @@ export class CanvasService {
       if (axios.isAxiosError(error) && error.response !== undefined) {
         const { status, data } = error.response
         if (status === HttpStatus.BAD_REQUEST && typeof data?.error === 'string' && data.error === 'invalid_request') {
-          logger.warn('Existing token was found to be invalid')
+          logger.warn('Discovered during refresh that existing token is now invalid.')
           throw new InvalidTokenRefreshError()
         } else {
           logger.error(`Received unusual status code ${error.response.status}`)

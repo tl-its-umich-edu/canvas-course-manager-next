@@ -1,11 +1,14 @@
 import { Request } from 'express'
-import { CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor, UnauthorizedException } from '@nestjs/common'
+import {
+  CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor,
+  UnauthorizedException
+} from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 
+import { InvalidTokenRefreshError } from './canvas.errors'
 import { CanvasService } from './canvas.service'
 import { RequestWithoutUserError } from '../user/user.errors'
-import { InvalidTokenRefreshError } from './canvas.errors'
 
 @Injectable()
 export class InvalidTokenInterceptor implements NestInterceptor {
