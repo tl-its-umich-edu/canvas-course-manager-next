@@ -1,24 +1,9 @@
-import { Button, Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, TextField, Typography } from '@material-ui/core'
+import { Button, Checkbox, FormControlLabel, FormGroup, Grid, GridSize, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 // import { ClearIcon, SortIcon } from '@material-ui/icons'
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
-
-/*
- Use Cases
-  Add UM Users
-    No header items
-  Merge
-    Instructor View
-      Title, Select All, Sort
-    Sub Account Admin
-      Search ( Course Name, Uniqname )
-      Title, Select All, Sort
-    Service Center
-      Search ( Course Name )
-      Title, Select All, Sort
-*/
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -55,11 +40,11 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
-  },
-  checkBoxContainer: {
-    float: 'right',
-    textAlign: 'center'
-  }
+  }//,
+  // checkBoxContainer: {
+  //   float: 'right'
+  //   // textAlign: 'center'
+  // }
 }))
 
 export interface SelectableCanvasCourseSection extends CanvasCourseSection {
@@ -73,7 +58,6 @@ interface ISectionSelectorWidgetProps {
   multiSelect: boolean
   selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
   search: 'None' | 'Hidden' | true
-  // title?: string
   showCourseName?: boolean
   action?: {text: string, cb: () => void, disabled: boolean}
   header?: {
@@ -185,7 +169,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (<></>)
     } else {
       return (
-      <Grid item xs={12} sm={3}>
+      <Grid item xs={getColumns('action', 'xs')} sm={getColumns('action', 'sm')} md={getColumns('action', 'md')}>
         <Button style={{ float: 'right' }} variant="contained" color="primary" onClick={props.action.cb} disabled={props.action.disabled}>
           {props.action?.text}
         </Button>
@@ -209,11 +193,66 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setAnchorSortEl(null)
   }
 
+  /*
+ Use Cases
+  Add UM Users
+    No header items
+  Merge
+    Instructor View
+      Title, Select All, Sort
+    Sub Account Admin
+      Search ( Course Name, Uniqname )
+      Title, Select All, Sort
+    Service Center
+      Search ( Course Name )
+      Title, Select All, Sort
+*/
+
+  const getColumns = (item: 'title'|'select all'|'sort'|'action', size: 'xs'|'sm'|'md'): GridSize => {
+    const hasSort = props.header?.sort !== undefined
+    switch (item) {
+      case 'title':
+        if (size === 'xs') {
+          return 12
+        } else if (size === 'sm') {
+          return 8
+        } else {
+          return hasSort ? 4 : 6
+        }
+      case 'select all':
+        if (size === 'xs') {
+          return 4
+        } else if (size === 'sm') {
+          return 4
+        } else {
+          return 3
+        }
+      case 'sort':
+        if (size === 'xs') {
+          return 4
+        } else if (size === 'sm') {
+          return 6
+        } else {
+          return 2
+        }
+      case 'action':
+        if (size === 'xs') {
+          return 4
+        } else if (size === 'sm') {
+          return hasSort ? 6 : 12
+        } else {
+          return 3
+        }
+      default:
+        return 12
+    }
+  }
+
   const sortButton = (): JSX.Element => {
-    if ((props.header != null) && props.header.sort?.sorters.length > 0) {
+    if (props.header?.sort !== undefined && props.header.sort?.sorters.length > 0) {
       return (
-        <Grid item xs={12} sm={3}>
-        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.length < 2}>
+        <Grid item xs={getColumns('sort', 'xs')} sm={getColumns('sort', 'sm')} md={getColumns('sort', 'md')}>
+        <Button style={{ float: 'left' }} aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.length < 2}>
           <SortIcon/>Sort
         </Button>
         <Menu
@@ -233,6 +272,15 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (<></>)
     }
   }
+
+  const checkboxStyle = (): Record<string, unknown> => {
+    const theme = useTheme()
+    const xs = useMediaQuery(theme.breakpoints.up('xs'))
+    return {
+      visibility: props.multiSelect ? 'visible' : 'hidden',
+      float: xs ? 'left' : 'right'
+    }
+  }
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -241,16 +289,16 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
           <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
         </Grid>
-        <Grid item container>
-          <Grid item xs={8} sm={6} className={classes.title}>
+        <Grid item container style={{ paddingLeft: '16px' }}>
+          <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
             <Typography style={{ visibility: props.header?.title !== undefined ? 'visible' : 'hidden' }}>{props.header?.title}
               <span hidden={props.selectedSections.length === 0}>
                 ({props.selectedSections.length})
               </span>
             </Typography>
           </Grid>
-          <Grid item xs={4} sm={3}>
-            <FormGroup row style={{ visibility: props.multiSelect ? 'visible' : 'hidden' }} className={classes.checkBoxContainer}>
+          <Grid item xs={getColumns('select all', 'xs')} sm={getColumns('select all', 'sm')} md={getColumns('select all', 'md')}>
+            <FormGroup row style={checkboxStyle()}>
               <FormControlLabel
               control={
                   <Checkbox
