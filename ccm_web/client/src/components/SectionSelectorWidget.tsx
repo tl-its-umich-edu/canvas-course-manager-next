@@ -31,8 +31,13 @@ const useStyles = makeStyles((theme) => ({
     clip: 'rect(0,0,0,0)',
     border: '0'
   },
-  inline: {
+  secondaryTypography: {
     display: 'inline'
+  },
+  overflowEllipsis: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   },
   checkBoxContainer: {
     float: 'right',
@@ -133,10 +138,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               <Typography
                 component="span"
                 variant="body2"
-                className={classes.inline}
+                className={classes.secondaryTypography}
                 color="textPrimary"
               >
-                {section.course_name}
+                <p className={classes.overflowEllipsis}>{section.course_name}</p>
               </Typography>
               <span style={{ float: 'right' }}>
                 {`${section.total_students ?? '?'} students`}

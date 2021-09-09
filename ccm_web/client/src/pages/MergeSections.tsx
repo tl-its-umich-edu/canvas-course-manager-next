@@ -61,7 +61,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const [doLoadUnstagedSectionData, isUnstagedSectionsLoading, loadUnstagedSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      updateUnstagedSections(sections)
+      // TODO Some temp stuff in here to populate course names -- get rid of the map
+      updateUnstagedSections(sections.map(s => { return { ...s, course_name: 'Course ' + Array(Math.floor(Math.random() * (128 - 8 + 1) + 8)).fill('x').join('') } }))
     }
   )
 
@@ -151,6 +152,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               title={'Prepared to merge'}
               search={'None'}
               multiSelect={true}
+              showCourseName={true}
               sections={stagedSections !== undefined ? stagedSections : []}
               selectedSections={selectedStagedSections}
               selectionUpdated={setSelectedStagedSections}></SectionSelectorWidget>
