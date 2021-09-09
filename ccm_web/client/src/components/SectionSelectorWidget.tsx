@@ -1,7 +1,26 @@
-import { Button, Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Button, Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, TextField, Typography } from '@material-ui/core'
+// import { ClearIcon, SortIcon } from '@material-ui/icons'
 import ClearIcon from '@material-ui/icons/Clear'
+import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
+
+/*
+ Use Cases
+  Add UM Users
+    No header items
+  Merge
+    Instructor View
+      Title, Select All, Sort
+    Sub Account Admin
+      Search ( Course Name, Uniqname )
+      Title, Select All, Sort
+    Service Center
+      Search ( Course Name )
+      Title, Select All, Sort
+
+
+*/
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -68,6 +87,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [filteredSections, setFilteredSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
+
+  const [anchorSortEl, setAnchorSortEl] = React.useState<null | HTMLElement>(null)
 
   useEffect(() => {
     if (sectionFilterText.length === 0) {
@@ -171,6 +192,39 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     }
   }
 
+  const handleSortMenuClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    setAnchorSortEl(event.currentTarget)
+  }
+
+  const handleSort = (event: React.MouseEvent<HTMLElement>, sorter: ICanvasCourseSectionSort): void => {
+    setAnchorSortEl(null)
+    setFilteredSections(sorter.sort(filteredSections))
+  }
+
+  const handleSortMenuClose = (): void => {
+    setAnchorSortEl(null)
+  }
+
+  const sortButton = (): JSX.Element => {
+    return (
+      <Grid item xs={12} sm={3}>
+      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.}>
+        <SortIcon/>Sort
+      </Button>
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorSortEl}
+        keepMounted
+        open={Boolean(anchorSortEl)}
+        onClose={handleSortMenuClose}
+      >
+        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_UserCount()) }}># of students</MenuItem>
+        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_AZ()) }}>A-Z</MenuItem>
+        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_ZA()) }}>Z-A</MenuItem>
+      </Menu>
+    </Grid>
+    )
+  }
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -203,6 +257,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               />
             </FormGroup>
           </Grid>
+          {sortButton()}
           {actionButton()}
         </Grid>
         <Grid item xs={12}>

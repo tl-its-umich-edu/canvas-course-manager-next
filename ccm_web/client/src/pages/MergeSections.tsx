@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon } from '@material-ui/icons'
 
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -71,7 +71,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
-    async () => await Promise.resolve([{ id: 0, name: 'Already Merged Section', total_students: 123 }]),
+    async () => await Promise.resolve([{ id: 0, course_name: 'Spelunking 101', name: 'Already Merged Section', total_students: 123 }]),
     (sections: CanvasCourseSection[]) => {
       updateStagedSections(sections)
     }
