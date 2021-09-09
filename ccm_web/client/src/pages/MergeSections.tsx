@@ -6,7 +6,7 @@ import { Error as ErrorIcon } from '@material-ui/icons'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
 import { getCourseSections } from '../api'
 import usePromise from '../hooks/usePromise'
 
@@ -54,6 +54,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const [selectedUnstagedSections, setSelectedUnstagedSections] = useState<SelectableCanvasCourseSection[]>([])
   const [selectedStagedSections, setSelectedStagedSections] = useState<SelectableCanvasCourseSection[]>([])
 
+  const [unstagedSectionsSort, setUnstagedSectionsSort] = useState<ICanvasCourseSectionSort>(new CanvasCourseSectionSort_AZ())
+
   const updateUnstagedSections = (sections: CanvasCourseSection[]): void => {
     setUnstagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }).map(s => { return { ...s, locked: false } }))
   }
@@ -92,14 +94,15 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const stageSections = (): void => {
-    setStagedSections(stagedSections.concat(selectedUnstagedSections).sort((a, b) => { return a.name.localeCompare(b.name) }))
-    setUnstagedSections(unstagedSections.filter(s => { return !selectedUnstagedSections.includes(s) }).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setStagedSections(stagedSections.concat(selectedUnstagedSections))
+    setUnstagedSections(unstagedSectionsSort.sort(unstagedSections.filter(s => { return !selectedUnstagedSections.includes(s) })))
     setSelectedUnstagedSections([])
   }
 
   const unStageSections = (): void => {
-    setUnstagedSections(unstagedSections.concat(selectedStagedSections).sort((a, b) => { return a.name.localeCompare(b.name) }))
-    setStagedSections(stagedSections.filter(s => { return !selectedStagedSections.includes(s) }).sort((a, b) => { return a.name.localeCompare(b.name) }))
+    console.debug(unstagedSectionsSort.description)
+    setUnstagedSections(unstagedSectionsSort.sort(unstagedSections.concat(selectedStagedSections)))
+    setStagedSections(stagedSections.filter(s => { return !selectedStagedSections.includes(s) }))
     setSelectedStagedSections([])
   }
 
@@ -111,7 +114,17 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             <SectionSelectorWidget
               action={{ text: 'Merge', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
               height={400}
-              title={'Sections I teach'}
+              header={{
+                title: 'Sections I teach',
+                sort: {
+                  sortChanged: setUnstagedSectionsSort,
+                  sorters: [
+                    { func: new CanvasCourseSectionSort_UserCount(), text: '# of students' },
+                    { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
+                    { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
+                  ]
+                }
+              }}
               search={'None'}
               multiSelect={true}
               showCourseName={true}
@@ -149,7 +162,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             <SectionSelectorWidget
               action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
               height={400}
-              title={'Prepared to merge'}
+              header={{ title: 'Prepared to merge' }}
               search={'None'}
               multiSelect={true}
               showCourseName={true}

@@ -24,10 +24,12 @@ export const canvasRoles: CanvasRole[] = [
 ]
 
 export interface ICanvasCourseSectionSort {
+  description: string
   sort: (sections: CanvasCourseSection[]) => CanvasCourseSection[]
 }
 
 export class CanvasCourseSectionSort_AZ implements ICanvasCourseSectionSort {
+  description = 'Sort alphabetically A to Z'
   sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     return sections.sort((a, b) => {
       return (a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
@@ -36,6 +38,7 @@ export class CanvasCourseSectionSort_AZ implements ICanvasCourseSectionSort {
 }
 
 export class CanvasCourseSectionSort_ZA implements ICanvasCourseSectionSort {
+  description = 'Sort alphabetically Z to A'
   sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     const sorter = new CanvasCourseSectionSort_AZ()
     return sorter.sort(sections).reverse()
@@ -43,6 +46,7 @@ export class CanvasCourseSectionSort_ZA implements ICanvasCourseSectionSort {
 }
 
 export class CanvasCourseSectionSort_UserCount implements ICanvasCourseSectionSort {
+  description = 'Sort by number of users, descending'
   sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     return sections.sort((a, b) => {
       return (b.total_students - a.total_students)

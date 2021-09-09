@@ -3,7 +3,7 @@ import { Button, Checkbox, FormControlLabel, FormGroup, Grid, List, ListItem, Li
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
-import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
 
 /*
  Use Cases
@@ -18,8 +18,6 @@ import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSor
     Service Center
       Search ( Course Name )
       Title, Select All, Sort
-
-
 */
 
 const useStyles = makeStyles((theme) => ({
@@ -75,9 +73,13 @@ interface ISectionSelectorWidgetProps {
   multiSelect: boolean
   selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
   search: 'None' | 'Hidden' | true
-  title?: string
+  // title?: string
   showCourseName?: boolean
   action?: {text: string, cb: () => void, disabled: boolean}
+  header?: {
+    title: string
+    sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string}>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
+  }
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -198,6 +200,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const handleSort = (event: React.MouseEvent<HTMLElement>, sorter: ICanvasCourseSectionSort): void => {
     setAnchorSortEl(null)
+    console.debug('sort changed')
+    props.header?.sort?.sortChanged(sorter)
     setFilteredSections(sorter.sort(filteredSections))
   }
 
@@ -206,24 +210,28 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const sortButton = (): JSX.Element => {
-    return (
-      <Grid item xs={12} sm={3}>
-      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.}>
-        <SortIcon/>Sort
-      </Button>
-      <Menu
-        id="simple-menu"
-        anchorEl={anchorSortEl}
-        keepMounted
-        open={Boolean(anchorSortEl)}
-        onClose={handleSortMenuClose}
-      >
-        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_UserCount()) }}># of students</MenuItem>
-        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_AZ()) }}>A-Z</MenuItem>
-        <MenuItem onClick={(e) => { handleSort(e, new CanvasCourseSectionSort_ZA()) }}>Z-A</MenuItem>
-      </Menu>
-    </Grid>
-    )
+    if ((props.header != null) && props.header.sort?.sorters.length > 0) {
+      return (
+        <Grid item xs={12} sm={3}>
+        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.length < 2}>
+          <SortIcon/>Sort
+        </Button>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorSortEl}
+          keepMounted
+          open={Boolean(anchorSortEl)}
+          onClose={handleSortMenuClose}
+        >
+          {props.header?.sort?.sorters.map((sort, index) => {
+            return (<MenuItem key={index} onClick={(e) => { handleSort(e, sort.func) }}>{sort.text}</MenuItem>)
+          })}
+        </Menu>
+      </Grid>
+      )
+    } else {
+      return (<></>)
+    }
   }
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
@@ -235,7 +243,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         </Grid>
         <Grid item container>
           <Grid item xs={8} sm={6} className={classes.title}>
-            <Typography style={{ visibility: props.title !== undefined ? 'visible' : 'hidden' }}>{props.title}
+            <Typography style={{ visibility: props.header?.title !== undefined ? 'visible' : 'hidden' }}>{props.header?.title}
               <span hidden={props.selectedSections.length === 0}>
                 ({props.selectedSections.length})
               </span>
