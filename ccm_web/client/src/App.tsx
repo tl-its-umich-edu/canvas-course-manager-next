@@ -11,6 +11,7 @@ import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
+import ResponsiveHelper from './components/ResponsiveHelper'
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -112,8 +113,13 @@ function App (): JSX.Element {
         {
           globals?.environment === 'development' &&
           (
-            <div className={classes.swaggerLink}>
-              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+            <div>
+              <div className={classes.swaggerLink}>
+                <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+              </div>
+              <div style={{ position: 'fixed', right: '25px', top: '25px' }}>
+                <ResponsiveHelper/>
+              </div>
             </div>
           )
         }

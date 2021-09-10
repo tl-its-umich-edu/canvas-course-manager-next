@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Backdrop, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon } from '@material-ui/icons'
 
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -25,7 +25,10 @@ const useStyles = makeStyles((theme) => ({
   sectionSelectionContainer: {
     position: 'relative',
     zIndex: 0,
-    textAlign: 'center'
+    textAlign: 'center',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#EEEEEE'
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -37,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
   },
   sectionLoadError: {
     textAlign: 'center'
+  },
+  submitButton: {
+    float: 'right'
   }
 }))
 
@@ -112,7 +118,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         <>
           <div>
             <SectionSelectorWidget
-              action={{ text: 'Merge', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
+              action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
               height={400}
               header={{
                 title: 'Sections I teach',
@@ -192,10 +198,18 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   }
 
+  const submit = (): void => {
+    console.log('Submit')
+  }
+
+  const canMerge = (): boolean => {
+    return stagedSections.filter(s => { return !(s.locked ?? false) }).length > 0
+  }
+
   const getSelectSections = (): JSX.Element => {
     return (
       <>
-        <Grid container spacing={5}>
+        <Grid container spacing={5} style={{ marginBottom: '0px', marginTop: '0px' }}>
           <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
             {getSelectSectionsUnstaged()}
           </Grid>
@@ -203,7 +217,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             {getSelectSectionsStaged()}
           </Grid>
         </Grid>
-
+        <Button className={classes.submitButton} onClick={submit} variant='contained' color='primary' disabled={!canMerge()}>Go Merge</Button>
       </>
     )
   }

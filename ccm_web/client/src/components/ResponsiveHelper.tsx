@@ -8,8 +8,8 @@ function ResponsiveHelper (): JSX.Element {
   const lg = useMediaQuery(theme.breakpoints.up('lg'))
 
   return (
-    <div>
-      <p>Size {lg ? 'lg' : md ? 'md' : sm ? 'sm' : 'xs'}</p>
+    <div style={{ backgroundColor: 'rgba(255, 203, 5, 0.2)' }}>
+      <p>{lg ? 'lg' : md ? 'md' : sm ? 'sm' : 'xs'}</p>
     </div>
   )
 }

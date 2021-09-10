@@ -40,11 +40,10 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
-  }//,
-  // checkBoxContainer: {
-  //   float: 'right'
-  //   // textAlign: 'center'
-  // }
+  },
+  header: {
+    backgroundColor: '#F8F8F8'
+  }
 }))
 
 export interface SelectableCanvasCourseSection extends CanvasCourseSection {
@@ -286,46 +285,48 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     <>
       <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>{props.selectedSections.length} section{props.selectedSections.length === 1 ? '' : 's' } selected</span>
       <Grid container>
-        <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
-          <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
-        </Grid>
-        <Grid item container style={{ paddingLeft: '16px' }}>
-          <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
-            <Typography style={{ visibility: props.header?.title !== undefined ? 'visible' : 'hidden' }}>{props.header?.title}
-              <span hidden={props.selectedSections.length === 0}>
-                ({props.selectedSections.length})
-              </span>
-            </Typography>
+        <Grid className={classes.header} container item xs={12}>
+          <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
+            <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
           </Grid>
-          <Grid item xs={getColumns('select all', 'xs')} sm={getColumns('select all', 'sm')} md={getColumns('select all', 'md')}>
-            <FormGroup row style={checkboxStyle()}>
-              <FormControlLabel
-              control={
-                  <Checkbox
-                    checked={isSelectAllChecked}
-                    onChange={handleSelectAllClicked}
-                    name="selectAllUnstagedCB"
-                    color="primary"
-                  />
-                }
-                disabled={selectableSections().length === 0}
-                label="Select All"
-              />
-            </FormGroup>
+          <Grid item container style={{ paddingLeft: '16px' }}>
+            <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
+              <Typography variant='h6' style={{ visibility: props.header?.title !== undefined ? 'visible' : 'hidden' }}>{props.header?.title}
+                <span hidden={props.selectedSections.length === 0}>
+                  ({props.selectedSections.length})
+                </span>
+              </Typography>
+            </Grid>
+            <Grid item xs={getColumns('select all', 'xs')} sm={getColumns('select all', 'sm')} md={getColumns('select all', 'md')}>
+              <FormGroup row style={checkboxStyle()}>
+                <FormControlLabel
+                control={
+                    <Checkbox
+                      checked={isSelectAllChecked}
+                      onChange={handleSelectAllClicked}
+                      name="selectAllUnstagedCB"
+                      color="primary"
+                    />
+                  }
+                  disabled={selectableSections().length === 0}
+                  label="Select All"
+                />
+              </FormGroup>
+            </Grid>
+            {sortButton()}
+            {actionButton()}
           </Grid>
-          {sortButton()}
-          {actionButton()}
         </Grid>
-        <Grid item xs={12}>
-          <List className={classes.listContainer} style={{ maxHeight: props.height }}>
-            {filteredSections.map((section, index) => {
-              return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
-                {listItemText(section)}
-              </ListItem>)
-            })}
-          </List>
-        </Grid>
+      <Grid item xs={12}>
+        <List className={classes.listContainer} style={{ maxHeight: props.height }}>
+          {filteredSections.map((section, index) => {
+            return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
+              {listItemText(section)}
+            </ListItem>)
+          })}
+        </List>
       </Grid>
+    </Grid>
     </>
   )
 }
