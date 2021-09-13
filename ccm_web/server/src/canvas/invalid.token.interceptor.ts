@@ -6,7 +6,7 @@ import {
 import { Observable } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 
-import { InvalidTokenRefreshError } from './canvas.errors'
+import { CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { CanvasService } from './canvas.service'
 import { RequestWithoutUserError } from '../user/user.errors'
 
@@ -21,6 +21,9 @@ export class InvalidTokenInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       catchError(async (err) => {
+        if (err instanceof CanvasTokenNotFoundError) {
+          throw new UnauthorizedException('The tool does not have a Canvas token for you.')
+        }
         // Other unauthorized cases related to JWT or sessions will be caught by guards.
         if (
           err instanceof InvalidTokenRefreshError ||
@@ -28,8 +31,8 @@ export class InvalidTokenInterceptor implements NestInterceptor {
         ) {
           await this.canvasService.deleteTokenForUser(user)
           throw new UnauthorizedException(
-            'The Canvas token was invalid and has been deleted; ' +
-            "the user's integration for the tool in Canvas may have been removed."
+            'Your Canvas token was invalid and has been deleted; ' +
+            'your integration for the tool in Canvas may have been removed.'
           )
         }
         throw err
