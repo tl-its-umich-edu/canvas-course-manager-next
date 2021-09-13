@@ -15,6 +15,7 @@ export enum RoleEnum {
   'Teacher' = 'TeacherEnrollment',
   'Tool installer' = 'Tool Installer (by ITS Approval only)',
   'Subaccount admin' = 'Sub-Account Admin',
+  'Support Consultant' = 'Support Consultant'
   // These roles are currently not used, but they could be
   // 'Observer' = 'Observer',
   // 'Participant' = 'Participant',
