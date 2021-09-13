@@ -9,6 +9,7 @@ import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../compone
 import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
 import { getCourseSections } from '../api'
 import usePromise from '../hooks/usePromise'
+import { RoleEnum } from '../models/models'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,6 +89,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   useEffect(() => {
     void doLoadUnstagedSectionData()
     void doLoadStagedSectionData()
+    console.log(JSON.stringify(props.globals))
   }, [])
 
   const renderComponent = (): JSX.Element => {
@@ -97,6 +99,18 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       default:
         return <div>?</div>
     }
+  }
+
+  const isTeacher = (): boolean => {
+    return props.globals.course.roles.includes(RoleEnum.Teacher)
+  }
+
+  const isSubAccountAdmin = (): boolean => {
+    return props.globals.course.roles.includes(RoleEnum['Subaccount admin'])
+  }
+
+  const isAccountAdmin = (): boolean => {
+    return props.globals.course.roles.includes(RoleEnum['Account Admin'])
   }
 
   const stageSections = (): void => {
@@ -131,7 +145,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                   ]
                 }
               }}
-              search={'None'}
+              search={ isSubAccountAdmin() || isAccountAdmin() ? true : 'None'}
               multiSelect={true}
               showCourseName={true}
               sections={unstagedSections !== undefined ? unstagedSections : []}
@@ -169,7 +183,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
               height={400}
               header={{ title: 'Prepared to merge' }}
-              search={'None'}
+              search={ isSubAccountAdmin() || isAccountAdmin() ? 'Hidden' : 'None'}
               multiSelect={true}
               showCourseName={true}
               sections={stagedSections !== undefined ? stagedSections : []}

@@ -117,7 +117,7 @@ function App (): JSX.Element {
               <div className={classes.swaggerLink}>
                 <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
               </div>
-              <div style={{ position: 'fixed', right: '25px', top: '25px' }}>
+              <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
                 <ResponsiveHelper/>
               </div>
             </div>

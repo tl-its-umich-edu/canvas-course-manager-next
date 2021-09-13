@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControlLabel, FormGroup, Grid, GridSize, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid, GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 // import { ClearIcon, SortIcon } from '@material-ui/icons'
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
@@ -39,7 +39,8 @@ const useStyles = makeStyles((theme) => ({
   overflowEllipsis: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    textOverflow: 'ellipsis'
+    textOverflow: 'ellipsis',
+    display: 'block'
   },
   header: {
     backgroundColor: '#F8F8F8'
@@ -122,9 +123,31 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setSectionFilterText('')
   }
 
+  const [age, setAge] = React.useState('')
+  const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
+    setAge(event.target.value as string)
+  }
+
+  const getSearchTypeAdornment = (): JSX.Element => {
+    return (
+    <FormControl>
+        <InputLabel id="demo-simple-select-label">Sort By</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={age}
+          onChange={handleChange}
+        >
+          <MenuItem value={10}>Uniqname</MenuItem>
+          <MenuItem value={20}>Course Name</MenuItem>
+        </Select>
+      </FormControl>
+    )
+  }
+
   const getSearchTextFieldEndAdornment = (hasText: boolean): JSX.Element => {
     if (!hasText) {
-      return (<></>)
+      return (getSearchTypeAdornment())
     } else {
       return (<ClearIcon onClick={clearSearch}/>)
     }
@@ -147,7 +170,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 className={classes.secondaryTypography}
                 color="textPrimary"
               >
-                <p className={classes.overflowEllipsis}>{section.course_name}</p>
+                <span className={classes.overflowEllipsis}>{section.course_name}</span>
               </Typography>
               <span style={{ float: 'right' }}>
                 {`${section.total_students ?? '?'} students`}
@@ -200,10 +223,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     Instructor View
       Title, Select All, Sort
     Sub Account Admin
-      Search ( Course Name, Uniqname )
+      Search ( Course Name )
       Title, Select All, Sort
     Service Center
-      Search ( Course Name )
+      Search ( Course Name, Uniqname )
       Title, Select All, Sort
 */
 
