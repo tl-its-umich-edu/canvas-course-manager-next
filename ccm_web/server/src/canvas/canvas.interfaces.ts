@@ -8,7 +8,8 @@ export interface OAuthGoodResponseQuery {
 }
 export interface OAuthErrorResponseQuery {
   error: string
-  error_description: string
+  error_description?: string
+  state?: string
 }
 
 interface TokenBaseResponseBody {
@@ -88,5 +89,5 @@ export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
 }
 
 export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
-  return hasKeys(value, ['error']) && hasKeys(value, ['error_description'])
+  return hasKeys(value, ['error'])
 }

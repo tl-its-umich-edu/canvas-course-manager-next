@@ -51,9 +51,15 @@ export class CanvasController {
     logger.debug(`Session ID: ${req.sessionID}`)
     logger.debug(JSON.stringify(req.session, null, 2))
 
+    logger.debug(JSON.stringify(query))
+    logger.debug(isOAuthErrorResponseQuery(query))
+
     if (isOAuthErrorResponseQuery(query)) {
-      logger.error(`Canvas OAuth failed  due to ${query.error}. ${query.error_description}`)
-      throw new InternalServerErrorException(query.error_description)
+      logger.error(`Canvas OAuth failed due to ${query.error}: ${String(query.error_description)}`)
+      const message = query.error_description !== undefined
+        ? query.error_description
+        : 'Canvas OAuth error was sent without a description.'
+      throw new InternalServerErrorException(message)
     }
 
     if (req.sessionID !== query.state) {
