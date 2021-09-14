@@ -56,6 +56,11 @@ export class CanvasController {
 
     if (isOAuthErrorResponseQuery(query)) {
       logger.error(`Canvas OAuth failed due to ${query.error}: ${String(query.error_description)}`)
+      if (query.error === 'access_denied') {
+        logger.debug('User rejected Canvas OAuth; sending them back to application root...')
+        res.redirect('/')
+      }
+
       const message = query.error_description !== undefined
         ? query.error_description
         : 'Canvas OAuth error was sent without a description.'
