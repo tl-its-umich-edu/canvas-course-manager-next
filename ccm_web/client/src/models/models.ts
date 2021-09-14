@@ -22,7 +22,7 @@ export enum RoleEnum {
 }
 
 export interface User {
-  loginid: string
+  loginId: string
   hasCanvasToken: boolean
 }
 
