@@ -22,7 +22,12 @@ export class InvalidTokenInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError(async (err) => {
         if (err instanceof CanvasTokenNotFoundError) {
-          throw new UnauthorizedException('The tool does not have a Canvas token for you.')
+          throw new UnauthorizedException({
+            statusCode: 401,
+            message: 'Unauthorized',
+            error: 'The tool does not have a Canvas token for you.',
+            action: 'redirect'
+          })
         }
         // Other unauthorized cases related to JWT or sessions will be caught by guards.
         if (
@@ -30,10 +35,15 @@ export class InvalidTokenInterceptor implements NestInterceptor {
           (err instanceof HttpException && err.getStatus() === HttpStatus.UNAUTHORIZED)
         ) {
           await this.canvasService.deleteTokenForUser(user)
-          throw new UnauthorizedException(
-            'Your Canvas token was invalid and has been deleted; ' +
-            'your integration for the tool in Canvas may have been removed.'
-          )
+          throw new UnauthorizedException({
+            statusCode: 401,
+            message: 'Unauthorized',
+            error: (
+              'Your Canvas token was invalid and has been deleted; ' +
+              'your integration for the tool in Canvas may have been removed.'
+            ),
+            action: 'redirect'
+          })
         }
         throw err
       })

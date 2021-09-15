@@ -50,11 +50,16 @@ class DefaultError extends Error implements IDefaultError {
 const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
   let text: string
+  let errBody: Record<string, unknown>
   let err: APIErrorPayload[]
   switch (resp.status) {
     case 401:
       text = await resp.text()
       console.error(text)
+      errBody = JSON.parse(text)
+      if (errBody.action === 'redirect') {
+        location.href = '/'
+      }
       throw new UnauthorizedError()
     case 403:
       text = await resp.text()
@@ -70,9 +75,4 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 }
 
-const hasUnauthorized = (posErrors: Array<Error | undefined>): boolean => {
-  const unauthorized = posErrors.filter(e => e instanceof UnauthorizedError)
-  return unauthorized.length > 0
-}
-
-export { handleErrors as default, hasUnauthorized }
+export default handleErrors

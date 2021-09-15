@@ -7,7 +7,6 @@ import { addCourseSections } from '../api'
 import { CanvasCourseSection } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
-import { hasUnauthorized } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,22 +54,14 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
           .then(newSections => {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
-          }).catch((e: Error) => {
-            if (hasUnauthorized([e])) {
-              location.href = '/'
-            } else {
-              enqueueSnackbar('Error adding section', { variant: 'error' })
-            }
+          }).catch((e) => {
+            enqueueSnackbar('Error adding section', { variant: 'error' })
           })
       } else {
         errorAlert(errors)
       }
     }).catch((e: Error) => {
-      if (hasUnauthorized([e])) {
-        location.href = '/'
-      } else {
-        enqueueSnackbar('Error validating section name', { variant: 'error' })
-      }
+      enqueueSnackbar('Error validating section name', { variant: 'error' })
     }).finally(() => {
       setIsCreating(false)
     })

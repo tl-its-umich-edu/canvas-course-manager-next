@@ -14,7 +14,6 @@ import { CanvasCourseSection, canvasRoles } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
-import { hasUnauthorized } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -143,9 +142,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       updateSections(sections)
     }
   )
-
-  const apiErrors = [getCanvasSectionDataError]
-  if (hasUnauthorized(apiErrors)) location.href = '/'
 
   useEffect(() => {
     void doLoadCanvasSectionData()
