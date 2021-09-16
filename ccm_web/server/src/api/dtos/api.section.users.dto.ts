@@ -7,14 +7,7 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-
-export enum UserEnrollmentType {
-  DesignerEnrollment = 'DesignerEnrollment',
-  ObserverEnrollment = 'ObserverEnrollment',
-  StudentEnrollment = 'StudentEnrollment',
-  TaEnrollment = 'TaEnrollment',
-  TeacherEnrollment = 'TeacherEnrollment'
-}
+import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
 
 export class SectionUserDto {
   @ApiProperty()
