@@ -29,7 +29,9 @@ const requestorOptions: GotOptions = {
   retry: {
     limit: 2,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    statusCodes: [403]
+    // TODO: After got@12 upgrade, replace following list with something like…
+    // got.defaultInternals.retry.statusCodes.concat(403)
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
   },
   hooks: {
     beforeRequest: [
