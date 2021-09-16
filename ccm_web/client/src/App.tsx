@@ -10,6 +10,7 @@ import usePromise from './hooks/usePromise'
 import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
+import redirect from './utils/redirect'
 import './App.css'
 
 const useStyles = makeStyles((theme) => ({
@@ -66,7 +67,7 @@ function App (): JSX.Element {
 
   if (!globals.user.hasCanvasToken) {
     // Initiate OAuth flow
-    location.href = '/canvas/redirectOAuth'
+    redirect('/canvas/redirectOAuth')
     return loading
   }
 

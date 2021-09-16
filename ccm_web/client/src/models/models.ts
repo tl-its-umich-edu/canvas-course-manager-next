@@ -46,6 +46,9 @@ export interface APIErrorPayload {
 
 export interface APIErrorData {
   statusCode: number
+  message?: string
+  redirect?: true
+  error?: string
   errors: APIErrorPayload[]
 }
 
