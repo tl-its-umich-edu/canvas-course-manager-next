@@ -1,6 +1,6 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Session, UseGuards
+  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards
 } from '@nestjs/common'
 import { ApiSecurity } from '@nestjs/swagger'
 
@@ -58,5 +58,32 @@ export class APIController {
     const result = await this.apiService.createSections(user, courseId, sections)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
+  }
+
+  @ApiSecurity('CSRF-Token')
+  @Get('course/:id/sections/merged')
+  async mergedSections (@Param('id', ParseIntPipe) courseId: number, @UserDec() user: User): Promise<CanvasCourseSection[]> {
+    const result = await this.apiService.getMergedSections(user, courseId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @ApiSecurity('CSRF-Token')
+  @Get('course/:id/sections/search')
+  async searchSections (@Param('id', ParseIntPipe) courseId: number,
+    @Query('uniqname') uniqname: string,
+    @Query('coursename') courseName: string,
+    @UserDec() user: User): Promise<CanvasCourseSection[]> {
+    if (courseName !== undefined) {
+      const result = await this.apiService.getCourseSectionsByCourseName(user, courseId, courseName)
+      if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+      return result
+    } else if (uniqname !== undefined) {
+      const result = await this.apiService.getCourseSectionsByUniqname(user, courseId, uniqname)
+      if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+      return result
+    } else {
+      throw new HttpException('Invalid section search parameter', 400)
+    }
   }
 }

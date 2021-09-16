@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 
 import { handleAPIError } from './api.utils'
 import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
-import { APIErrorData, Globals } from './api.interfaces'
+import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
@@ -90,5 +90,29 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
     return await createSectionsApiHandler.createSections()
+  }
+
+  // TODO hack just return all course sections
+  async getTeacherSections (user: User, course: number): Promise<CanvasCourseSection[] | APIErrorData> {
+    return await this.getCourseSections(user, course)
+  }
+
+  // TODO hack
+  async getMergedSections (user: User, course: number): Promise<CanvasCourseSection[] | APIErrorData> {
+    return await Promise.resolve([{ id: 0, course_name: 'Spelunking 101', name: 'Already Merged Section', total_students: 123 }])
+  }
+
+  // TODO hack just search by section name
+  async getCourseSectionsByCourseName (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
+    const result = await this.getTeacherSections(user, course)
+    if (isAPIErrorData(result)) return result
+    return result.filter(c => { return c.name.split('').some(s => s.localeCompare(searchText, 'en', { sensitivity: 'base' }) === 0) })
+  }
+
+  // TODO hack just search by section name
+  async getCourseSectionsByUniqname (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
+    const result = await this.getTeacherSections(user, course)
+    if (isAPIErrorData(result)) return result
+    return result.filter(c => { return c.name.split('').some(s => s.localeCompare(searchText, 'en', { sensitivity: 'base' }) === 0) })
   }
 }
