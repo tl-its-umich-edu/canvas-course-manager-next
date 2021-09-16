@@ -14,10 +14,17 @@ import { User } from '../user/user.model'
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
+import { IncomingHttpHeaders } from 'http'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
+
+interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
+  'x-rate-limit-remaining'?: string
+  'x-request-cost'?: string
+}
+
 const requestorOptions: GotOptions = {
   retry: {
     limit: 2,
@@ -32,13 +39,14 @@ const requestorOptions: GotOptions = {
     ],
     afterResponse: [
       (response, retryWithMergedOptions) => {
-        logger.debug(`afterResponse — "x-rate-limit-remaining": "${response.headers['x-rate-limit-remaining'] || ''}"; "x-request-cost": "${response.headers['x-request-cost'] || ''}"`)
+        const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
+        logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
         return response
       }
     ],
     beforeRetry: [
       (options, error, retryCount) => {
-        logger.debug(`beforeRetry [${retryCount}]: error.code: "${error?.code}"`)
+        logger.debug(`beforeRetry [${String(retryCount)}]: error.code: "${String(error?.code)}"`)
       }
     ],
     beforeError: [
