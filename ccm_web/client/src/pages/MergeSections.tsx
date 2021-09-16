@@ -7,7 +7,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
-import { getCourseSections } from '../api'
+import { getCourseSections, getMergedSections, searchSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 
@@ -51,6 +51,14 @@ enum PageState {
   SelectSections = 0
 }
 
+export interface ISectionSearcher {
+  name: string
+  search: (searchString: string) => void
+}
+
+// TODO for dev testing remove
+const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
+
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
@@ -80,14 +88,43 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
-    async () => await Promise.resolve([{ id: 0, course_name: 'Spelunking 101', name: 'Already Merged Section', total_students: 123 }]),
+    async () => await getMergedSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateStagedSections(sections)
     }
   )
 
+  class UniqnameSearcher implements ISectionSearcher {
+    name = 'Uniqname'
+    search = (searchString: string): void => {
+      console.log(`${this.name} search ${searchString}`)
+      searchSections(props.globals.course.id, 'uniqname', searchString).then(sections => {
+        setUnstagedSections(sections)
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+
+  class CourseNameSearcher implements ISectionSearcher {
+    name = 'Course Name'
+    search = (searchString: string): void => {
+      console.log(`${this.name} search ${searchString}`)
+      searchSections(props.globals.course.id, 'coursename', searchString).then(sections => {
+        setUnstagedSections(sections)
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+
   useEffect(() => {
-    void doLoadUnstagedSectionData()
+    if (!isAccountAdmin() && !isSubAccountAdmin()) {
+      void doLoadUnstagedSectionData()
+    }
+  }, [])
+
+  useEffect(() => {
     void doLoadStagedSectionData()
     console.log(JSON.stringify(props.globals))
   }, [])
@@ -102,14 +139,23 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const isTeacher = (): boolean => {
+    if (OVERRIDE_ROLE !== undefined) {
+      return OVERRIDE_ROLE === RoleEnum.Teacher
+    }
     return props.globals.course.roles.includes(RoleEnum.Teacher)
   }
 
   const isSubAccountAdmin = (): boolean => {
+    if (OVERRIDE_ROLE !== undefined) {
+      return OVERRIDE_ROLE === RoleEnum['Subaccount admin']
+    }
     return props.globals.course.roles.includes(RoleEnum['Subaccount admin'])
   }
 
   const isAccountAdmin = (): boolean => {
+    if (OVERRIDE_ROLE !== undefined) {
+      return OVERRIDE_ROLE === RoleEnum['Account Admin']
+    }
     return props.globals.course.roles.includes(RoleEnum['Account Admin'])
   }
 
@@ -145,7 +191,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                   ]
                 }
               }}
-              search={ isSubAccountAdmin() || isAccountAdmin() ? true : 'None'}
+              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(), new UniqnameSearcher()] : 'None'}
               multiSelect={true}
               showCourseName={true}
               sections={unstagedSections !== undefined ? unstagedSections : []}

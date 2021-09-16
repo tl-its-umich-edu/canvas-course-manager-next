@@ -8,8 +8,8 @@ import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
-
 import baseLogger from '../logger'
+import { localeIncludes } from '../localeIncludes'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -106,13 +106,13 @@ export class APIService {
   async getCourseSectionsByCourseName (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
     const result = await this.getTeacherSections(user, course)
     if (isAPIErrorData(result)) return result
-    return result.filter(c => { return c.name.split('').some(s => s.localeCompare(searchText, 'en', { sensitivity: 'base' }) === 0) })
+    return result.filter(c => { return localeIncludes(c.name, searchText) })
   }
 
   // TODO hack just search by section name
   async getCourseSectionsByUniqname (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
     const result = await this.getTeacherSections(user, course)
     if (isAPIErrorData(result)) return result
-    return result.filter(c => { return c.name.split('').some(s => s.localeCompare(searchText, 'en', { sensitivity: 'base' }) === 0) })
+    return result.filter(c => { return localeIncludes(c.name, searchText) })
   }
 }

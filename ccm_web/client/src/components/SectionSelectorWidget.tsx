@@ -4,6 +4,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
 import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
+import { ISectionSearcher } from '../pages/MergeSections'
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -44,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     backgroundColor: '#F8F8F8'
+  },
+  searchEndAdnornment: {
+    width: '200px'
   }
 }))
 
@@ -57,7 +61,7 @@ interface ISectionSelectorWidgetProps {
   height: number
   multiSelect: boolean
   selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
-  search: 'None' | 'Hidden' | true
+  search: 'None' | 'Hidden' | ISectionSearcher[]
   showCourseName?: boolean
   action?: {text: string, cb: () => void, disabled: boolean}
   header?: {
@@ -75,6 +79,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
 
   const [anchorSortEl, setAnchorSortEl] = React.useState<null | HTMLElement>(null)
+
+  const [searcher, setSearcher] = React.useState<ISectionSearcher | undefined>(props.search !== 'Hidden' && props.search !== 'None' ? (props.search)[0] : undefined)
+  const [searchTextFieldLabel, setSearchTextFieldLabel] = React.useState<string | undefined>(props.search !== 'Hidden' && props.search !== 'None' ? `Search By ${(props.search)[0].name}` : undefined)
 
   useEffect(() => {
     if (sectionFilterText.length === 0) {
@@ -116,37 +123,45 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const searchChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSectionFilterText(event.target.value)
+    if (searcher === undefined) {
+      setSectionFilterText(event.target.value)
+    } else {
+      setSectionFilterText(event.target.value)
+      searcher.search(event.target.value)
+    }
   }
 
   const clearSearch = (): void => {
     setSectionFilterText('')
   }
 
-  const [age, setAge] = React.useState('')
+  // TODO Debounce
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
-    setAge(event.target.value as string)
+    const sort = event.target.value as string
+    setSearcher((props.search as ISectionSearcher[]).filter(searcher => { return searcher.name === sort })[0])
+    setSearchTextFieldLabel(`Search by ${sort}`)
   }
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
-    <FormControl>
-        <InputLabel id="demo-simple-select-label">Sort By</InputLabel>
+    <FormControl className={classes.searchEndAdnornment}>
+        <InputLabel id="demo-simple-select-label">Search By</InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={age}
+          value={searcher?.name}
           onChange={handleChange}
         >
-          <MenuItem value={10}>Uniqname</MenuItem>
-          <MenuItem value={20}>Course Name</MenuItem>
+          {(props.search as ISectionSearcher[]).map((searcher, index) => {
+            return <MenuItem key={index} value={searcher.name}>{searcher.name}</MenuItem>
+          })}
         </Select>
       </FormControl>
     )
   }
 
   const getSearchTextFieldEndAdornment = (hasText: boolean): JSX.Element => {
-    if (!hasText) {
+    if (!hasText && props.search !== 'Hidden' && props.search !== 'None') {
       return (getSearchTypeAdornment())
     } else {
       return (<ClearIcon onClick={clearSearch}/>)
@@ -303,6 +318,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       float: xs ? 'left' : 'right'
     }
   }
+
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -310,7 +326,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           <Grid item container className={classes.searchContainer} style={props.search === 'None' ? { display: 'none' } : props.search === 'Hidden' ? { visibility: 'hidden' } : {}} xs={12}>
-            <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label='Search Sections' variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
+            <TextField className={classes.searchTextField} onChange={searchChange} value={sectionFilterText} id='textField_Search' size='small' label={searchTextFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionFilterText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
             <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
