@@ -22,7 +22,7 @@ export function handleAPIError (error: unknown, input?: string): APIErrorPayload
     const bodyText = parseErrorBody(body)
     logger.error(`Received error status code: (${String(statusCode)})`)
     logger.error(`Response body: (${bodyText})`)
-    logger.error(`Failed input: (${failedInput ?? ''})`)
+    logger.error(`Failed input: (${String(failedInput)})`)
     return { canvasStatusCode: statusCode, message: bodyText, failedInput: failedInput }
   } else {
     logger.error(`An error occurred while making a request to Canvas: ${JSON.stringify(error)}`)
@@ -45,10 +45,7 @@ export function makeResponse<T extends CanvasEntity> (multipleResults: Array<API
 
   for (const result of multipleResults) {
     if (isAPIErrorData(result)) {
-      const {
-        statusCode,
-        errors
-      } = result
+      const { statusCode, errors } = result
       failures.push(...errors)
       statusCodes.add(statusCode)
     } else {
