@@ -46,6 +46,24 @@ export interface CanvasCourseSection {
   total_students: number
 }
 
+export enum UserEnrollmentType {
+  DesignerEnrollment = 'DesignerEnrollment',
+  ObserverEnrollment = 'ObserverEnrollment',
+  StudentEnrollment = 'StudentEnrollment',
+  TaEnrollment = 'TaEnrollment',
+  TeacherEnrollment = 'TeacherEnrollment'
+}
+
+export interface CanvasEnrollment {
+  id: number
+  course_id: number
+  course_section_id: number
+  user_id: number
+  type: UserEnrollmentType
+}
+
+export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
+
 // Errors
 
 interface CanvasError {

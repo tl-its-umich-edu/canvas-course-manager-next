@@ -8,8 +8,11 @@ import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
+import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
-import { CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment
+} from '../canvas/canvas.interfaces'
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
@@ -61,6 +64,16 @@ export class APIController {
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections
     const result = await this.apiService.createSections(user, courseId, sections)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
+  @Post('sections/:id/enroll')
+  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
+    const users: SectionUserDto[] = sectionUsersData.users
+    const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

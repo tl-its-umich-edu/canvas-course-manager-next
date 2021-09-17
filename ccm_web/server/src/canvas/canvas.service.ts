@@ -14,11 +14,51 @@ import { User } from '../user/user.model'
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
+import { IncomingHttpHeaders } from 'http'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
-const requestorOptions: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'DELETE'] } }
+
+interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
+  'x-rate-limit-remaining'?: string
+  'x-request-cost'?: string
+}
+
+const requestorOptions: GotOptions = {
+  retry: {
+    limit: 2,
+    methods: ['POST', 'GET', 'PUT', 'DELETE'],
+    // TODO: After got@12 upgrade, replace following list with something like…
+    // got.defaultInternals.retry.statusCodes.concat(403)
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
+  },
+  hooks: {
+    beforeRequest: [
+      options => {
+        logger.debug('beforeRequest')
+      }
+    ],
+    afterResponse: [
+      (response, retryWithMergedOptions) => {
+        const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
+        logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+        return response
+      }
+    ],
+    beforeRetry: [
+      (options, error, retryCount) => {
+        logger.debug(`beforeRetry [${String(retryCount)}]: error.code: "${String(error?.code)}"`)
+      }
+    ],
+    beforeError: [
+      error => {
+        logger.debug('beforeError')
+        return error
+      }
+    ]
+  }
+}
 
 @Injectable()
 export class CanvasService {
