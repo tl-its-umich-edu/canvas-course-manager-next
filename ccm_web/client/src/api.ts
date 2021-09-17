@@ -83,6 +83,13 @@ export const getMergedSections = async (courseId: number): Promise<CanvasCourseS
   return await resp.json()
 }
 
+export const getTeacherSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
+  const request = getGet()
+  const resp = await fetch(`/api/course/${courseId.toString()}/sections/instructed`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
 export const searchSections = async (courseId: number, searchType: 'uniqname' | 'coursename', searchText: string): Promise<CanvasCourseSection[]> => {
   const request = getGet()
   const resp = await fetch(`/api/course/${courseId.toString()}/sections/search?${searchType}=${searchText}`, request)
