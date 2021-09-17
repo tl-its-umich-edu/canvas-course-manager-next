@@ -3,6 +3,7 @@ Modified version of Remote Office Hours Queue implementation of custom errors an
 See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/assets/src/services/api.ts
 */
 
+import redirect from './redirect'
 import { APIErrorData, APIErrorPayload } from '../models/models'
 
 /*
@@ -50,11 +51,14 @@ class DefaultError extends Error implements IDefaultError {
 const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
   let text: string
-  let err: APIErrorPayload[]
+  let errorBody: APIErrorData
+  let canvasErrors: APIErrorPayload[]
   switch (resp.status) {
     case 401:
       text = await resp.text()
       console.error(text)
+      errorBody = JSON.parse(text)
+      if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
       text = await resp.text()
@@ -65,8 +69,8 @@ const handleErrors = async (resp: Response): Promise<void> => {
       console.error(text)
       throw new NotFoundError()
     default:
-      err = (JSON.parse(await resp.text()) as APIErrorData).errors
-      throw new DefaultError(err)
+      canvasErrors = (JSON.parse(await resp.text()) as APIErrorData).errors
+      throw new DefaultError(canvasErrors)
   }
 }
 

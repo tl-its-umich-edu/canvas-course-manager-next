@@ -22,6 +22,11 @@ export enum RoleEnum {
   // 'Student' = 'Student',
 }
 
+export interface User {
+  loginId: string
+  hasCanvasToken: boolean
+}
+
 export interface Course {
   id: number
   roles: RoleEnum[]
@@ -30,7 +35,7 @@ export interface Course {
 export interface Globals {
   environment: 'production' | 'development'
   canvasURL: string
-  userLoginId: string
+  user: User
   course: Course
 }
 
@@ -42,6 +47,9 @@ export interface APIErrorPayload {
 
 export interface APIErrorData {
   statusCode: number
+  message?: string
+  redirect?: true
+  error?: string
   errors: APIErrorPayload[]
 }
 
