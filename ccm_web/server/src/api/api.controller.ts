@@ -1,18 +1,19 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Session, UseGuards
+  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Session, UseGuards, UseInterceptors
 } from '@nestjs/common'
 import { ApiSecurity } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
-import {
-  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment
-} from '../canvas/canvas.interfaces'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment
+} from '../canvas/canvas.interfaces'
+import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
@@ -26,6 +27,7 @@ export class APIController {
     return this.apiService.getGlobals(user, session)
   }
 
+  @UseInterceptors(InvalidTokenInterceptor)
   @Get('course/:id/sections')
   async getCourseSections (
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
@@ -35,6 +37,7 @@ export class APIController {
     return result
   }
 
+  @UseInterceptors(InvalidTokenInterceptor)
   @Get('course/:id/name')
   async getCourseName (
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
@@ -44,6 +47,7 @@ export class APIController {
     return result
   }
 
+  @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Put('course/:id/name')
   async putCourseName (
@@ -54,6 +58,7 @@ export class APIController {
     return result
   }
 
+  @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('course/:id/sections')
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {

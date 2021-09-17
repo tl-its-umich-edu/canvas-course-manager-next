@@ -276,6 +276,12 @@ The file uses the same `.env` configuration file, so adjust any values there as 
 (see **Configuration** above for more info).
 Note that, at minimum, the database host needs to be changed to `ccm_db_prod`
 (since that is the name of the container).
+
+The repository also includes a `ccm_web/Dockerfile.openshift` file that is used
+for OpenShift deployments. It combines the "base" and "build" stages of the other
+`Dockerfile` and pulls base images from the OpenShift namespace, which are not subject
+to Docker Hub pull limits.
+
 ### Notice(s) regarding external code used
 
 This repository contains modified portions of the npm package

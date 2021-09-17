@@ -93,7 +93,7 @@ export class LTIService implements BeforeApplicationShutdown {
           logger.error('Failed to save session data due to error: ', err)
           return createLaunchErrorResponse(res)
         }
-        return res.redirect('/canvas/redirectOAuth')
+        return res.redirect('/')
       })
     })
 

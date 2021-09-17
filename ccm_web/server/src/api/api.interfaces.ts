@@ -3,6 +3,10 @@ import { hasKeys } from '../typeUtils'
 export interface Globals {
   environment: 'production' | 'development'
   canvasURL: string
+  user: {
+    loginId: string
+    hasCanvasToken: boolean
+  }
   userLoginId: string
   course: {
     id: number

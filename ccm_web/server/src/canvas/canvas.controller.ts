@@ -32,7 +32,7 @@ export class CanvasController {
     }
 
     if (user.canvasToken !== null) {
-      logger.debug(`User ${user.loginId} already has a CanvasToken record; redirecting to home page...`)
+      logger.warn(`User ${user.loginId} already has a CanvasToken record; redirecting to home page...`)
       return res.redirect('/')
     }
 

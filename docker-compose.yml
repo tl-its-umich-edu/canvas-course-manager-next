@@ -5,6 +5,7 @@ services:
   web:
     build:
       context: ./ccm_web/
+      dockerfile: ./Dockerfile
       args:
         - PORT=4000
       target: base

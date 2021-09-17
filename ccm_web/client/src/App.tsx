@@ -10,6 +10,7 @@ import usePromise from './hooks/usePromise'
 import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
+import redirect from './utils/redirect'
 import './App.css'
 
 const useStyles = makeStyles((theme) => ({
@@ -19,6 +20,10 @@ const useStyles = makeStyles((theme) => ({
   breadcrumbContainer: {
     paddingLeft: 25,
     paddingTop: 25
+  },
+  swaggerLink: {
+    display: 'block',
+    clear: 'both'
   }
 }))
 
@@ -41,12 +46,14 @@ function App (): JSX.Element {
   )
 
   useEffect(() => {
-    if (globals !== undefined) {
+    if (globals?.user.hasCanvasToken === true) {
       void doLoadCourse(globals.course.id)
     }
   }, [globals])
 
-  if (isAuthenticated === undefined || isLoading || isCourseLoading) return <div className='App'><p>Loading...</p></div>
+  const loading = <div className='App'><p>Loading...</p></div>
+
+  if (isAuthenticated === undefined || isLoading || isCourseLoading) return loading
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
@@ -56,6 +63,12 @@ function App (): JSX.Element {
         <p>You were not properly authenticated to the application.</p>
       </div>
     )
+  }
+
+  if (!globals.user.hasCanvasToken) {
+    // Initiate OAuth flow
+    redirect('/canvas/redirectOAuth')
+    return loading
   }
 
   interface BreadcrumbProps {
@@ -107,7 +120,11 @@ function App (): JSX.Element {
         </Router>
         {
           globals?.environment === 'development' &&
-          <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+          (
+            <div className={classes.swaggerLink}>
+              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+            </div>
+          )
         }
       </SnackbarProvider>
     </div>
