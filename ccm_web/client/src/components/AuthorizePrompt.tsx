@@ -15,10 +15,12 @@ export default function AuthorizePrompt (): JSX.Element {
   const classes = useStyles()
   return (
     <div className={classes.root}>
-      <Typography variant='h5' component='h1' gutterBottom>Canvas Integration</Typography>
+      <Typography variant='h5' component='h1' gutterBottom>Need to Authorize Canvas Integration</Typography>
       <Typography gutterBottom>
-        To use Canvas Course Manager, you must first authorize the tool to make requests to Canvas on your behalf.
-        To do so, click the &quot;Go to Canvas&quot; button below, which will redirect you to a Canvas prompt.
+        This tool is not integrated with Canvas.
+      </Typography>
+      <Typography gutterBottom>
+        Use the <b>GO TO AUTHORIZE PAGE button</b> to start the authorization process.
       </Typography>
       <Typography gutterBottom>
         <b>Note:</b> If you have done this before, it is likely that your integration was removed in Canvas.
@@ -28,9 +30,9 @@ export default function AuthorizePrompt (): JSX.Element {
         color='primary'
         variant='contained'
         href='/canvas/redirectOAuth'
-        aria-label='Authorize Canvas integration'
+        aria-label='Go to authorize page'
       >
-        Go to Canvas
+        GO TO AUTHORIZE PAGE
       </Button>
     </div>
   )
