@@ -59,12 +59,13 @@ export interface ISectionSearcher {
 }
 
 // TODO for dev testing remove
-const OVERRIDE_ROLE: RoleEnum | undefined = RoleEnum.Teacher
+const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
+  const [unsyncedUnstagedSections, setUnsyncedUnstagedSections] = useState<SelectableCanvasCourseSection[]>([])
   const [unstagedSections, setUnstagedSections] = useState<SelectableCanvasCourseSection[]>([])
   const [stagedSections, setStagedSections] = useState<SelectableCanvasCourseSection[]>([])
 
@@ -73,15 +74,18 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   const [unstagedSectionsSort, setUnstagedSectionsSort] = useState<ICanvasCourseSectionSort>(new CanvasCourseSectionSort_AZ())
 
-  const updateUnstagedSections = (sections: CanvasCourseSection[]): void => {
-    setUnstagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }).map(s => { return { ...s, locked: false } }))
-  }
+  useEffect(() => {
+    console.log('unsyncedUnstagedSections changed')
+    setUnstagedSections(
+      unsyncedUnstagedSections
+        .map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })
+        .sort((a, b) => { return a.name.localeCompare(b.name) }))
+  }, [unsyncedUnstagedSections])
 
   const [doLoadUnstagedSectionData, isUnstagedSectionsLoading, loadUnstagedSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      // TODO Some temp stuff in here to populate course names -- get rid of the map
-      updateUnstagedSections(sections.map(s => { return { ...s, course_name: 'Course ' + Array(Math.floor(Math.random() * (128 - 8 + 1) + 8)).fill('x').join('') } }))
+      setUnsyncedUnstagedSections(sections)
     }
   )
 
@@ -139,13 +143,13 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   const stageSections = (): void => {
     setStagedSections(stagedSections.concat(selectedUnstagedSections))
-    setUnstagedSections(unstagedSectionsSort.sort(unstagedSections.filter(s => { return !selectedUnstagedSections.includes(s) })))
+    setUnsyncedUnstagedSections(unstagedSections)
     setSelectedUnstagedSections([])
   }
 
   const unStageSections = (): void => {
     console.debug(unstagedSectionsSort.description)
-    setUnstagedSections(unstagedSectionsSort.sort(unstagedSections.concat(selectedStagedSections)))
+    setUnsyncedUnstagedSections(unstagedSections)
     setStagedSections(stagedSections.filter(s => { return !selectedStagedSections.includes(s) }))
     setSelectedStagedSections([])
   }
@@ -169,7 +173,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                   ]
                 }
               }}
-              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.globals.course.id, setUnstagedSections), new UniqnameSearcher(props.globals.course.id, setUnstagedSections)] : [new SectionNameSearcher(props.globals.course.id, setUnstagedSections)]}
+              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.globals.course.id, setUnsyncedUnstagedSections), new UniqnameSearcher(props.globals.course.id, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.globals.course.id, setUnsyncedUnstagedSections)]}
               multiSelect={true}
               showCourseName={true}
               sections={unstagedSections !== undefined ? unstagedSections : []}
