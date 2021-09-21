@@ -54,7 +54,7 @@ export class APIService {
     }
   }
 
-  async getCourseName (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
+  async getCourse (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     try {
       const endpoint = `courses/${courseId}`
@@ -62,7 +62,7 @@ export class APIService {
       const response = await requestor.get<CanvasCourse>(endpoint)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const course = response.body
-      return { id: course.id, name: course.name }
+      return { id: course.id, name: course.name, enrollment_term_id: course.enrollment_term_id }
     } catch (error) {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
@@ -81,7 +81,7 @@ export class APIService {
       const response = await requestor.requestUrl<CanvasCourse>(endpoint, method, requestBody)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const course = response.body
-      return { id: course.id, name: course.name }
+      return { id: course.id, name: course.name, enrollment_term_id: course.enrollment_term_id }
     } catch (error) {
       const errResponse = handleAPIError(error, newName)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }

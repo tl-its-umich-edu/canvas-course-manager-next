@@ -34,6 +34,7 @@ export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
 export interface CanvasCourseBase {
   id: number
   name: string
+  enrollment_term_id: number
 }
 
 export interface CanvasCourse extends CanvasCourseBase {

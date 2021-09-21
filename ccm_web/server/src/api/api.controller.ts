@@ -38,11 +38,11 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @Get('course/:id/name')
-  async getCourseName (
+  @Get('course/:id')
+  async getCourse (
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
-    const result = await this.apiService.getCourseName(user, courseId)
+    const result = await this.apiService.getCourse(user, courseId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
