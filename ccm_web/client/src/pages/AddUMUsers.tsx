@@ -247,7 +247,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           </div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
           <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget height={400} search='None' multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
+            <SectionSelectorWidget height={400} search={[]} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
             <div>
               <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedSections.length === 0} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
             </div>
