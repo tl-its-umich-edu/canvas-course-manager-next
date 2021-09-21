@@ -3,8 +3,10 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import { handleAPIError } from './api.utils'
-import { CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
-import { APIErrorData, Globals } from './api.interfaces'
+import {
+  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CourseWithSections
+} from '../canvas/canvas.interfaces'
+import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
 import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
 import { SectionUserDto } from './dtos/api.section.users.dto'
@@ -52,6 +54,36 @@ export class APIService {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
+  }
+
+  async getCourseSectionsInTermAsInstructor (
+    user: User, termId: number
+  ): Promise<CourseWithSections[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    let courses: CanvasCourse[] = []
+    try {
+      const endpoint = 'courses'
+      const queryParams = { enrollment_type: 'teacher' }
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      courses = await requestor.list<CanvasCourse>(endpoint, queryParams).toArray()
+      logger.debug('Received response (status code unknown)')
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+
+    const coursesInTerm = courses.filter(c => c.enrollment_term_id === termId).map(c => ({
+      id: c.id,
+      name: c.name,
+      enrollment_term_id: c.enrollment_term_id
+    }))
+    const coursesWithSections: CourseWithSections[] = []
+    for (const course of coursesInTerm) {
+      const result = await this.getCourseSections(user, course.id)
+      if (isAPIErrorData(result)) return result
+      coursesWithSections.push({ ...course, sections: result })
+    }
+    return coursesWithSections
   }
 
   async getCourse (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {

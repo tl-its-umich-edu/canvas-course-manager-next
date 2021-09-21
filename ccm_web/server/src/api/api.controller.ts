@@ -1,6 +1,6 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Session, UseGuards, UseInterceptors
+  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards, UseInterceptors
 } from '@nestjs/common'
 import { ApiSecurity } from '@nestjs/swagger'
 
@@ -11,7 +11,7 @@ import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment
+  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
@@ -64,6 +64,16 @@ export class APIController {
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections
     const result = await this.apiService.createSections(user, courseId, sections)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @Get('sections')
+  async getCourseSectionsInTermAsInstructor (
+    @UserDec() user: User, @Query('term_id', ParseIntPipe) termId: number
+  ): Promise<CourseWithSections[]> {
+    const result = await this.apiService.getCourseSectionsInTermAsInstructor(user, termId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

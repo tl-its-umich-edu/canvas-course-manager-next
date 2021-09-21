@@ -65,6 +65,12 @@ export interface CanvasEnrollment {
 
 export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
 
+// Composites
+
+export interface CourseWithSections extends CanvasCourseBase {
+  sections: CanvasCourseSection[]
+}
+
 // Errors
 
 interface CanvasError {
