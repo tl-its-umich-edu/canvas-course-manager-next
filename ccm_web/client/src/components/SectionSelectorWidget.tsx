@@ -74,6 +74,7 @@ interface ISectionSelectorWidgetProps {
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
   const classes = useStyles()
 
+  const [sectionSearcherText, setSectionSearcherText] = useState<string | undefined>(undefined)
   const [sectionSearchText, setSectionSearchText] = useState<string>('')
   const [sectionSearchTextDebounced, setSetctionSearchTextDebounced] = useDebounce<string | undefined>(undefined, 500)
   const [filteredSections, setFilteredSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
@@ -86,7 +87,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchTextFieldLabel, setSearchTextFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
 
   useEffect(() => {
-    console.log('props.sections updated')
     setFilteredSections(props.sections)
   }, [props.sections])
 
@@ -145,16 +145,24 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     if (!firstRender) {
-      console.log(`Search because search text ${String(props.header?.title)} '${String(sectionSearchTextDebounced)}'`)
+      console.log(`Search because sectionSearcherText ${String(props.header?.title)} '${String(sectionSearcherText)}'`)
       void search()
     } else {
       console.log('Search skipped on first render')
+    }
+  }, [sectionSearcherText])
+
+  useEffect(() => {
+    if (!firstRender) {
+      setSectionSearcherText(sectionSearchTextDebounced)
+    } else {
+      console.log('sectionSearchTextDebounced update skipped on first render')
     }
   }, [sectionSearchTextDebounced])
 
   const clearSearch = (): void => {
     setSectionSearchText('')
-    void search()
+    setSectionSearcherText(undefined)
   }
 
   // TODO Debounce
