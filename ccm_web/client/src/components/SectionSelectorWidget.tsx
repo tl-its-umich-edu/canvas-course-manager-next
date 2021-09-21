@@ -75,7 +75,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const classes = useStyles()
 
   const [sectionSearchText, setSectionSearchText] = useState<string>('')
-  const [sectionSearchTextDebounced, setSetctionSearchTextDebounced] = useDebounce<string>(sectionSearchText, 500)
+  const [sectionSearchTextDebounced, setSetctionSearchTextDebounced] = useDebounce<string | undefined>(undefined, 500)
   const [filteredSections, setFilteredSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
@@ -133,9 +133,23 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setSetctionSearchTextDebounced(event.target.value)
   }
 
+  const useFirstRender = (): boolean => {
+    const firstRender = React.useRef(true)
+    useEffect(() => {
+      firstRender.current = false
+    }, [])
+    return firstRender.current
+  }
+
+  const firstRender = useFirstRender()
+
   useEffect(() => {
-    console.log(`Search time ${sectionSearchTextDebounced}`)
-    void search()
+    if (!firstRender) {
+      console.log(`Search because search text ${String(props.header?.title)} '${String(sectionSearchTextDebounced)}'`)
+      void search()
+    } else {
+      console.log('Search skipped on first render')
+    }
   }, [sectionSearchTextDebounced])
 
   const clearSearch = (): void => {
@@ -179,8 +193,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const getSearchTextFieldEndAdornment = (hasText: boolean): JSX.Element => {
     if (!hasText && props.search.length > 1) {
       return (getSearchTypeAdornment())
-    } else {
+    } else if (sectionSearchText.length > 0) {
       return (<ClearIcon onClick={clearSearch}/>)
+    } else {
+      return (<></>)
     }
   }
 
@@ -342,7 +358,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           <Grid item container className={classes.searchContainer} style={props.search.length === 0 ? { display: 'none' } : {}} xs={12}>
-            <TextField className={classes.searchTextField} onChange={searchChange} value={sectionSearchText} id='textField_Search' size='small' label={searchTextFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionSearchText.length > 0) }}/>
+            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={sectionSearchText} id='textField_Search' size='small' label={searchTextFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionSearchText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
             <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>

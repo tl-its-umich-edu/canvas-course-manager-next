@@ -18,7 +18,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
   abstract searchImpl: (searchText: string) => Promise<void>
 
   search = async (searchString: string): Promise<void> => {
-    console.log(`${this.name} search ${searchString}`)
+    console.log(`${this.name} search '${searchString}'`)
     return await this.searchImpl(searchString)
   }
 }
@@ -29,7 +29,6 @@ export class UniqnameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<void> => {
-    console.log(`${this.name} searchImpl ${String(searchText)}`)
     if (searchText === undefined) {
       return
     }
@@ -47,7 +46,6 @@ export class CourseNameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<void> => {
-    console.log(`${this.name} searchImpl ${String(searchText)}`)
     if (searchText === undefined) {
       return
     }
@@ -65,7 +63,6 @@ export class SectionNameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<void> => {
-    console.log(`${this.name} searchImpl ${String(searchText)}`)
     getTeacherSections(this.courseId).then(sections => {
       this.setSections(sections.filter(s => { return localeIncludes(s.name, searchText) }))
     }).catch(error => {
