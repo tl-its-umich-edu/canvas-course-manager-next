@@ -105,6 +105,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     setInternalSections(props.sections)
+    setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
   }, [props.sections])
 
   useEffect(() => {
