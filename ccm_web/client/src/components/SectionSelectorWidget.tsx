@@ -175,11 +175,11 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }, [searchFieldTextDebounced])
 
   const clearSearch = (): void => {
+    props.selectionUpdated([])
     setSearchFieldText('')
     setSectionSearcherText(undefined)
   }
 
-  // TODO Debounce
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
     const sort = event.target.value as string
     setSearcher((props.search).filter(searcher => { return searcher.name === sort })[0])
@@ -188,6 +188,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const [search, isSearching, searchError] = usePromise(async () => {
     if (searcher !== undefined) {
+      props.selectionUpdated([])
       if (sectionSearcherText !== undefined) {
         console.log('search hook search')
         void searcher.search(sectionSearcherText)
