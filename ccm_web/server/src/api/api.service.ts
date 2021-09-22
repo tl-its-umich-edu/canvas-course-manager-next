@@ -86,36 +86,14 @@ export class APIService {
 
   async getCourse (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    try {
-      const endpoint = `courses/${courseId}`
-      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
-      const response = await requestor.get<CanvasCourse>(endpoint)
-      logger.debug(`Received response with status code ${response.statusCode}`)
-      const course = response.body
-      return { id: course.id, name: course.name, enrollment_term_id: course.enrollment_term_id }
-    } catch (error) {
-      const errResponse = handleAPIError(error)
-      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
-    }
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.getCourse()
   }
 
   async putCourseName (user: User, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    try {
-      const endpoint = `courses/${courseId}`
-      const method = 'PUT'
-      const requestBody = { course: { name: newName, course_code: newName } }
-      logger.debug(
-        `Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`
-      )
-      const response = await requestor.requestUrl<CanvasCourse>(endpoint, method, requestBody)
-      logger.debug(`Received response with status code ${response.statusCode}`)
-      const course = response.body
-      return { id: course.id, name: course.name, enrollment_term_id: course.enrollment_term_id }
-    } catch (error) {
-      const errResponse = handleAPIError(error, newName)
-      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
-    }
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.putCourse({ name: newName, course_code: newName })
   }
 
   async createSections (user: User, courseId: number, sections: string[]): Promise<CanvasCourseSection[] | APIErrorData> {

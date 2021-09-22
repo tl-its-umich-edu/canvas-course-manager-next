@@ -25,7 +25,35 @@ export class CourseApiHandler {
     }
   }
 
-  // TO DO: incorporate get and put course
+  async getCourse (): Promise<CanvasCourseBase | APIErrorData> {
+    try {
+      const endpoint = `courses/${this.courseId}`
+      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
+      const response = await this.requestor.get<CanvasCourse>(endpoint)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      return CourseApiHandler.slimCourse(response.body)
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+  }
+
+  async putCourse (courseData: Partial<CanvasCourse>): Promise<CanvasCourseBase | APIErrorData> {
+    try {
+      const endpoint = `courses/${this.courseId}`
+      const method = 'PUT'
+      const requestBody = { course: courseData }
+      logger.debug(
+        `Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`
+      )
+      const response = await this.requestor.requestUrl<CanvasCourse>(endpoint, method, requestBody)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      return CourseApiHandler.slimCourse(response.body)
+    } catch (error) {
+      const errResponse = handleAPIError(error, JSON.stringify(courseData))
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+  }
 
   async getSections (): Promise<CanvasCourseSection[] | APIErrorData> {
     try {
