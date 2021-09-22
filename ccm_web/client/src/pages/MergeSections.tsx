@@ -56,16 +56,19 @@ export interface ISectionSearcher {
   name: string
   preload: string | undefined
   search: (searchString: string) => Promise<void>
+  init: () => Promise<void>
 }
 
 // TODO for dev testing remove
-const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
+const OVERRIDE_ROLE: RoleEnum | undefined = RoleEnum.Teacher
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
+  // Updating untagedSections is done via setUnsyncedUnstagedSections so that the synchornizing of unstaged/staged sections can be done in useEffect
   const [unsyncedUnstagedSections, setUnsyncedUnstagedSections] = useState<SelectableCanvasCourseSection[]>([])
+  // setUnstagedSections should only be called from the effect on unsyncedUnstagedSections. Maybe this is a way to hide this
   const [unstagedSections, setUnstagedSections] = useState<SelectableCanvasCourseSection[]>([])
   const [stagedSections, setStagedSections] = useState<SelectableCanvasCourseSection[]>([])
 

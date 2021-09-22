@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid, GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Backdrop, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid, GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { useDebounce } from '@react-hook/debounce'
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
@@ -49,6 +49,19 @@ const useStyles = makeStyles((theme) => ({
   },
   searchEndAdnornment: {
     width: '200px'
+  },
+  sectionSelectionContainer: {
+    position: 'relative',
+    zIndex: 0,
+    textAlign: 'center',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#EEEEEE'
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    position: 'absolute'
   }
 }))
 
@@ -74,27 +87,28 @@ interface ISectionSelectorWidgetProps {
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
   const classes = useStyles()
 
+  // The the search text ultimately used when searching
   const [sectionSearcherText, setSectionSearcherText] = useState<string | undefined>(undefined)
-  const [sectionSearchText, setSectionSearchText] = useState<string>('')
-  const [sectionSearchTextDebounced, setSetctionSearchTextDebounced] = useDebounce<string | undefined>(undefined, 500)
-  const [filteredSections, setFilteredSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
+  // The text actually displayed in the search field
+  const [searchFieldText, setSearchFieldText] = useState<string>('')
+  // The debounced version of the text in the search field
+  // Changes here will be passed along to sectionSearcherText
+  const [searchFieldTextDebounced, setSearchFieldTextDebounced] = useDebounce<string | undefined>(undefined, 500)
+  const [internalSections, setInternalSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
 
   const [anchorSortEl, setAnchorSortEl] = React.useState<null | HTMLElement>(null)
 
   const [searcher, setSearcher] = React.useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
-  const [searchTextFieldLabel, setSearchTextFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
+  const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
 
   useEffect(() => {
-    setFilteredSections(props.sections)
+    setInternalSections(props.sections)
   }, [props.sections])
 
   useEffect(() => {
-    if ((searcher?.preload) != null) {
-      console.log(`preload ${searcher.name} '${searcher.preload}'`)
-      void searcher.search(searcher.preload)
-    }
+    searcher?.init()
   }, [])
 
   const selectableSections = (): SelectableCanvasCourseSection[] => {
@@ -115,9 +129,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       newSelections.splice(newSelections.indexOf(alreadySelected[0]), 1)
     } else {
       if (props.multiSelect) {
-        newSelections.push(filteredSections.filter(s => { return s.id === sectionId })[0])
+        newSelections.push(internalSections.filter(s => { return s.id === sectionId })[0])
       } else {
-        newSelections = [filteredSections.filter(s => { return s.id === sectionId })[0]]
+        newSelections = [internalSections.filter(s => { return s.id === sectionId })[0]]
       }
     }
 
@@ -129,8 +143,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const searchChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSectionSearchText(event.target.value)
-    setSetctionSearchTextDebounced(event.target.value)
+    setSearchFieldText(event.target.value)
+    setSearchFieldTextDebounced(event.target.value)
   }
 
   const useFirstRender = (): boolean => {
@@ -154,14 +168,14 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     if (!firstRender) {
-      setSectionSearcherText(sectionSearchTextDebounced)
+      setSectionSearcherText(searchFieldTextDebounced)
     } else {
       console.log('sectionSearchTextDebounced update skipped on first render')
     }
-  }, [sectionSearchTextDebounced])
+  }, [searchFieldTextDebounced])
 
   const clearSearch = (): void => {
-    setSectionSearchText('')
+    setSearchFieldText('')
     setSectionSearcherText(undefined)
   }
 
@@ -169,12 +183,18 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
     const sort = event.target.value as string
     setSearcher((props.search).filter(searcher => { return searcher.name === sort })[0])
-    setSearchTextFieldLabel(`Search by ${sort}`)
+    setSearchFieldLabel(`Search by ${sort}`)
   }
 
   const [search, isSearching, searchError] = usePromise(async () => {
     if (searcher !== undefined) {
-      searcher?.search(sectionSearchText)
+      if (sectionSearcherText !== undefined) {
+        console.log('search hook search')
+        void searcher.search(sectionSearcherText)
+      } else {
+        console.log('search hook init')
+        void searcher.init()
+      }
     }
     return null
   }
@@ -201,7 +221,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const getSearchTextFieldEndAdornment = (hasText: boolean): JSX.Element => {
     if (!hasText && props.search.length > 1) {
       return (getSearchTypeAdornment())
-    } else if (sectionSearchText.length > 0) {
+    } else if (searchFieldText.length > 0) {
       return (<ClearIcon onClick={clearSearch}/>)
     } else {
       return (<></>)
@@ -263,7 +283,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setAnchorSortEl(null)
     console.debug('sort changed')
     props.header?.sort?.sortChanged(sorter)
-    setFilteredSections(sorter.sort(filteredSections))
+    setInternalSections(sorter.sort(internalSections))
   }
 
   const handleSortMenuClose = (): void => {
@@ -329,7 +349,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (props.header?.sort !== undefined && props.header.sort?.sorters.length > 0) {
       return (
         <Grid item xs={getColumns('sort', 'xs')} sm={getColumns('sort', 'sm')} md={getColumns('sort', 'md')}>
-        <Button style={{ float: 'left' }} aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={filteredSections.length < 2}>
+        <Button style={{ float: 'left' }} aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={internalSections.length < 2}>
           <SortIcon/>Sort
         </Button>
         <Menu
@@ -366,7 +386,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           <Grid item container className={classes.searchContainer} style={props.search.length === 0 ? { display: 'none' } : {}} xs={12}>
-            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={sectionSearchText} id='textField_Search' size='small' label={searchTextFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(sectionSearchText.length > 0) }}/>
+            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
             <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
@@ -396,14 +416,24 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             {actionButton()}
           </Grid>
         </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} className={classes.sectionSelectionContainer}>
         <List className={classes.listContainer} style={{ maxHeight: props.height }}>
-          {filteredSections.map((section, index) => {
+          {internalSections.map((section, index) => {
             return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
               {listItemText(section)}
             </ListItem>)
           })}
         </List>
+        <Backdrop className={classes.backdrop} open={isSearching}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item xs={12}>
+              Searching...
+            </Grid>
+          </Grid>
+        </Backdrop>
       </Grid>
     </Grid>
     </>

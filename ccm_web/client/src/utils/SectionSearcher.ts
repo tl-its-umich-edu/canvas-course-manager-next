@@ -17,6 +17,15 @@ export abstract class SectionSearcher implements ISectionSearcher {
 
   abstract searchImpl: (searchText: string) => Promise<void>
 
+  init = async (): Promise<void> => {
+    console.log(`SectionSearcher init [preload: '${String(this.preload)}']`)
+    if (this.preload !== undefined) {
+      return await this.searchImpl(this.preload)
+    } else {
+      this.setSections([])
+    }
+  }
+
   search = async (searchString: string): Promise<void> => {
     console.log(`${this.name} search '${searchString}'`)
     return await this.searchImpl(searchString)
