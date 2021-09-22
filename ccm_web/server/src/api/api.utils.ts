@@ -13,6 +13,7 @@ export enum HttpMethod {
   Get = 'GET',
   Post = 'POST',
   Put = 'PUT',
+  Delete = 'DELETE'
 }
 
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {

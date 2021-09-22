@@ -4,20 +4,26 @@ import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 
 import baseLogger from '../logger'
-import { CanvasEnrollment } from '../canvas/canvas.interfaces'
+import { CanvasEnrollment, CanvasCourseSection, CanvasCourseSectionBase } from '../canvas/canvas.interfaces'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-export class EnrollSectionUsersApiHandler {
+export class SectionApiHandler {
   requestor: CanvasRequestor
-  users: SectionUserDto[]
   sectionId: number
 
-  constructor (requestor: CanvasRequestor, users: SectionUserDto[], sectionId: number) {
+  constructor (requestor: CanvasRequestor, sectionId: number) {
     this.requestor = requestor
-    this.users = users
     this.sectionId = sectionId
+  }
+
+  static slimSection (section: CanvasCourseSection): CanvasCourseSectionBase {
+    return {
+      id: section.id,
+      name: section.name,
+      course_id: section.course_id
+    }
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
@@ -63,13 +69,41 @@ export class EnrollSectionUsersApiHandler {
     }
   }
 
-  async enrollUsers (): Promise<CanvasEnrollment[] | APIErrorData> {
+  async enrollUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = this.users.map(async (user) => await this.enrollUser(user))
+    const apiPromises = users.map(async (user) => await this.enrollUser(user))
     const enrollmentResponses = await Promise.all(apiPromises)
     const end = process.hrtime.bigint()
-    logger.debug(`Time elapsed to enroll (${this.users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
+    logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
     return makeResponse<CanvasEnrollment>(enrollmentResponses)
+  }
+
+  async mergeSection (targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
+    try {
+      const endpoint = `sections/${this.sectionId}/crosslist/${targetCourseId}`
+      const method = HttpMethod.Post
+      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
+      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
+      logger.debug(response.body)
+      return SectionApiHandler.slimSection(response.body)
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+  }
+
+  async unmergeSection (): Promise<CanvasCourseSectionBase | APIErrorData> {
+    try {
+      const endpoint = `sections/${this.sectionId}/crosslist/`
+      const method = HttpMethod.Delete
+      logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
+      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
+      logger.debug(response.body)
+      return SectionApiHandler.slimSection(response.body)
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
   }
 }

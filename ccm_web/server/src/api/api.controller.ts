@@ -1,6 +1,6 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards, UseInterceptors
+  Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards, UseInterceptors
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
@@ -11,7 +11,7 @@ import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CourseWithSections
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
@@ -100,6 +100,28 @@ export class APIController {
   async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
     const users: SectionUserDto[] = sectionUsersData.users
     const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
+  @Post('sections/:id/merge/:course')
+  async mergeSection (
+    @Param('id', ParseIntPipe) sectionId: number,
+      @Param('course', ParseIntPipe) courseId: number,
+      @UserDec() user: User
+  ): Promise<CanvasCourseSectionBase> {
+    const result = await this.apiService.mergeSection(user, sectionId, courseId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
+  @Delete('sections/:id/unmerge')
+  async unmergeSection (@Param('id', ParseIntPipe) sectionId: number, @UserDec() user: User): Promise<CanvasCourseSectionBase> {
+    const result = await this.apiService.unmergeSection(user, sectionId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

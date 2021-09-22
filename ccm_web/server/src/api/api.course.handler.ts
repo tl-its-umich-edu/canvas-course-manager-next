@@ -65,6 +65,7 @@ export class CourseApiHandler {
       return sectionsFull.map(s => ({
         id: s.id,
         name: s.name,
+        course_id: s.course_id,
         total_students: s.total_students
       }))
     } catch (error) {
@@ -86,8 +87,13 @@ export class CourseApiHandler {
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
-      const { id, name } = response.body
-      return { id, name, total_students: 0 }
+      const newFullSection = response.body
+      return {
+        id: newFullSection.id,
+        name: newFullSection.name,
+        course_id: newFullSection.course_id,
+        total_students: 0
+      }
     } catch (error) {
       const errResponse = handleAPIError(error, sectionName)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }

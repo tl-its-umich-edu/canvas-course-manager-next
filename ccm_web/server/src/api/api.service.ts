@@ -4,12 +4,13 @@ import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
-import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
+import { SectionApiHandler } from './api.section.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { handleAPIError, makeResponse } from './api.utils'
 import {
-  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CourseWithSections
+  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
@@ -104,7 +105,19 @@ export class APIService {
 
   async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, sectionUsers, sectionId)
-    return await enrollmentHandler.enrollUsers()
+    const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    return await sectionHandler.enrollUsers(sectionUsers)
+  }
+
+  async mergeSection (user: User, sectionId: number, targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    return await sectionHandler.mergeSection(targetCourseId)
+  }
+
+  async unmergeSection (user: User, sectionId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    return await sectionHandler.unmergeSection()
   }
 }

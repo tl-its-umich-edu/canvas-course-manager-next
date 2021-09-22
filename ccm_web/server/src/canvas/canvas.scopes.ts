@@ -13,6 +13,8 @@ const privilegeLevelOneScopes = [
   // Sections
   'url:GET|/api/v1/courses/:course_id/sections',
   'url:POST|/api/v1/courses/:course_id/sections',
+  'url:POST|/api/v1/sections/:id/crosslist/:new_course_id',
+  'url:DELETE|/api/v1/sections/:id/crosslist',
   // Enrollments
   'url:POST|/api/v1/sections/:section_id/enrollments',
   // Accounts
