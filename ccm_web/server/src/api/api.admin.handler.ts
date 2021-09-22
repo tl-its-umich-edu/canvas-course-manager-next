@@ -44,6 +44,10 @@ export class AdminApiHandler {
         !accountIds.includes(a.parent_account_id) // The account's parent is not in the list of account IDs
       )
     })
+    logger.debug(
+      `User ${this.user.loginId} is an admin for these accounts ` +
+      `and their children: ${JSON.stringify(parentAccounts, null, 2)}`
+    )
     return parentAccounts
   }
 
@@ -63,25 +67,17 @@ export class AdminApiHandler {
   }
 
   async getCourseSectionsInTerm (
-    termId: number, instructor: string | undefined, courseName: string | undefined
+    accountIds: number[], termId: number, instructor: string | undefined, courseName: string | undefined
   ): Promise<CourseWithSections[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-
-    // Find highest level accounts they are an admin for
-    const accountsOrErrorData = await this.getParentAccounts()
-    if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
-    const accounts = accountsOrErrorData
-    logger.debug(accounts)
-    // Maybe we could do something more informative here if they aren't an account admin
-    if (accounts.length === 0) return []
 
     // Get courses in accounts they are admin for -- filtering by term, instructor, and search term
     const queryParams: AccountCoursesQueryParams = { enrollment_term_id: termId, per_page: 100 }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
 
-    const coursesApiPromises = accounts.map(async (a) => await this.getAccountCourses(a.id, queryParams))
+    const coursesApiPromises = accountIds.map(async (a) => await this.getAccountCourses(a, queryParams))
     const coursesResponses = await Promise.all(coursesApiPromises)
     const result = makeResponse<CanvasCourse[]>(coursesResponses)
     if (isAPIErrorData(result)) return result

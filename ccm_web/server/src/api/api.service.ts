@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
 import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
-import { APIErrorData, Globals } from './api.interfaces'
+import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { handleAPIError, makeResponse } from './api.utils'
 import {
@@ -74,7 +74,14 @@ export class APIService {
   ): Promise<CourseWithSections[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const adminHandler = new AdminApiHandler(user, requestor)
-    return await adminHandler.getCourseSectionsInTerm(termId, instructor, courseName)
+    const accountsOrErrorData = await adminHandler.getParentAccounts()
+    if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
+    const accounts = accountsOrErrorData
+    // Maybe we could do something more informative here if they aren't an account admin
+    if (accounts.length === 0) return []
+    return await adminHandler.getCourseSectionsInTerm(
+      accounts.map(a => a.id), termId, instructor, courseName
+    )
   }
 
   async getCourse (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
