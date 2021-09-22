@@ -160,18 +160,13 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     if (!firstRender) {
-      console.log(`Search because sectionSearcherText ${String(props.header?.title)} '${String(sectionSearcherText)}'`)
       void search()
-    } else {
-      console.log('Search skipped on first render')
     }
   }, [sectionSearcherText])
 
   useEffect(() => {
     if (!firstRender) {
       setSectionSearcherText(searchFieldTextDebounced)
-    } else {
-      console.log('sectionSearchTextDebounced update skipped on first render')
     }
   }, [searchFieldTextDebounced])
 
@@ -191,10 +186,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (searcher !== undefined) {
       props.selectionUpdated([])
       if (sectionSearcherText !== undefined) {
-        console.log('search hook search')
         void searcher.search(sectionSearcherText)
       } else {
-        console.log('search hook init')
         void searcher.init()
       }
     }

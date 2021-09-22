@@ -78,7 +78,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const [unstagedSectionsSort, setUnstagedSectionsSort] = useState<ICanvasCourseSectionSort>(new CanvasCourseSectionSort_AZ())
 
   useEffect(() => {
-    console.log('unsyncedUnstagedSections changed')
     setUnstagedSections(
       unsyncedUnstagedSections
         .map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })
@@ -111,7 +110,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   useEffect(() => {
     void doLoadStagedSectionData()
-    console.log(JSON.stringify(props.globals))
   }, [])
 
   const renderComponent = (): JSX.Element => {
