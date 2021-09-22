@@ -14,7 +14,10 @@ const privilegeLevelOneScopes = [
   'url:GET|/api/v1/courses/:course_id/sections',
   'url:POST|/api/v1/courses/:course_id/sections',
   // Enrollments
-  'url:POST|/api/v1/sections/:section_id/enrollments'
+  'url:POST|/api/v1/sections/:section_id/enrollments',
+  // Accounts
+  'url:GET|/api/v1/accounts',
+  'url:GET|/api/v1/accounts/:account_id/courses'
 ]
 
 export { privilegeLevelOneScopes }

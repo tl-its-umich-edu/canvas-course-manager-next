@@ -1,0 +1,103 @@
+import CanvasRequestor from '@kth/canvas-api'
+
+import { CourseApiHandler } from './api.course.handler'
+import { APIErrorData, isAPIErrorData } from './api.interfaces'
+import { handleAPIError, makeResponse } from './api.utils'
+import { CanvasAccount, CanvasCourse, CourseWithSections } from '../canvas/canvas.interfaces'
+import { User } from '../user/user.model'
+
+import baseLogger from '../logger'
+
+const logger = baseLogger.child({ filePath: __filename })
+
+interface AccountCoursesQueryParams extends Record<string, unknown> {
+  'enrollment_term_id': number
+  'per_page'?: number
+  'search_term'?: string
+  'by_teachers'?: string[]
+}
+
+export class AdminApiHandler {
+  user: User
+  requestor: CanvasRequestor
+
+  constructor (user: User, requestor: CanvasRequestor) {
+    this.user = user
+    this.requestor = requestor
+  }
+
+  async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
+    let accounts: CanvasAccount[] = []
+    try {
+      const endpoint = 'accounts'
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      accounts = await this.requestor.list<CanvasAccount>(endpoint).toArray()
+      logger.debug('Received response (status code unknown)')
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+    const accountIds = accounts.map(a => a.id)
+    const parentAccounts = accounts.filter(a => {
+      return (
+        a.parent_account_id === null || // The account is the root account
+        !accountIds.includes(a.parent_account_id) // The account's parent is not in the list of account IDs
+      )
+    })
+    return parentAccounts
+  }
+
+  async getAccountCourses (
+    accountId: number, queryParams: AccountCoursesQueryParams
+  ): Promise<CanvasCourse[] | APIErrorData> {
+    try {
+      const endpoint = `accounts/${accountId}/courses`
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      const courses = await this.requestor.list<CanvasCourse>(endpoint, queryParams).toArray()
+      logger.debug('Received response (status code unknown)')
+      return courses
+    } catch (error) {
+      const errResponse = handleAPIError(error)
+      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
+    }
+  }
+
+  async getCourseSectionsInTerm (
+    termId: number, instructor: string | undefined, courseName: string | undefined
+  ): Promise<CourseWithSections[] | APIErrorData> {
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+
+    // Find highest level accounts they are an admin for
+    const accountsOrErrorData = await this.getParentAccounts()
+    if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
+    const accounts = accountsOrErrorData
+    logger.debug(accounts)
+    // Maybe we could do something more informative here if they aren't an account admin
+    if (accounts.length === 0) return []
+
+    // Get courses in accounts they are admin for -- filtering by term, instructor, and search term
+    const queryParams: AccountCoursesQueryParams = { enrollment_term_id: termId, per_page: 100 }
+    if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
+    if (courseName !== undefined) queryParams.search_term = courseName
+
+    const coursesApiPromises = accounts.map(async (a) => await this.getAccountCourses(a.id, queryParams))
+    const coursesResponses = await Promise.all(coursesApiPromises)
+    const result = makeResponse<CanvasCourse[]>(coursesResponses)
+    if (isAPIErrorData(result)) return result
+    const allCourses: CanvasCourse[] = []
+    result.map(cs => allCourses.push(...cs))
+
+    // Get sections for those courses
+    const coursesWithSectionsApiPromises = allCourses.map(async c => {
+      const courseHandler = new CourseApiHandler(this.requestor, c.id)
+      return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
+    })
+    const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
+    const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
+
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
+    return finalResult
+  }
+}

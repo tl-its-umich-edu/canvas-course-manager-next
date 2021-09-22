@@ -63,6 +63,12 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
+export interface CanvasAccount {
+  id: number
+  name: string
+  parent_account_id: number | null
+}
+
 export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
 
 // Composites

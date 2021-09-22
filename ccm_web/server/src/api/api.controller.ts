@@ -2,7 +2,7 @@ import { SessionData } from 'express-session'
 import {
   Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards, UseInterceptors
 } from '@nestjs/common'
-import { ApiSecurity } from '@nestjs/swagger'
+import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
@@ -69,11 +69,27 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @Get('sections')
+  @Get('instructor/sections')
   async getCourseSectionsInTermAsInstructor (
     @UserDec() user: User, @Query('term_id', ParseIntPipe) termId: number
   ): Promise<CourseWithSections[]> {
     const result = await this.apiService.getCourseSectionsInTermAsInstructor(user, termId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @ApiQuery({ name: 'term_id', type: Number })
+  @ApiQuery({ name: 'instructor', required: false, type: String })
+  @ApiQuery({ name: 'course_name', required: false, type: String })
+  @Get('admin/sections')
+  async getCourseSectionsInTermAsAdmin (
+    @UserDec() user: User,
+      @Query('term_id', ParseIntPipe) termId: number,
+      @Query('instructor') instructor?: string,
+      @Query('course_name') courseName?: string
+  ): Promise<CourseWithSections[]> {
+    const result = await this.apiService.getCourseSectionsInTermAsAdmin(user, termId, instructor, courseName)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
