@@ -59,8 +59,9 @@ export interface ISectionSearcher {
   init: () => Promise<void>
 }
 
-// TODO for dev testing remove
-const OVERRIDE_ROLE: RoleEnum | undefined = RoleEnum.Teacher
+// TODO for dev testing remove all this before merging
+// Can set to a specific role for testing purposes
+const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()

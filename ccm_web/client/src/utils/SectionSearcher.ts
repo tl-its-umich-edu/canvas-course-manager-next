@@ -39,11 +39,8 @@ export class UniqnameSearcher extends SectionSearcher {
     if (searchText === undefined) {
       return
     }
-    searchSections(this.courseId, 'uniqname', searchText).then(sections => {
-      this.setSections(sections)
-    }).catch(error => {
-      throw error
-    })
+
+    this.setSections(await searchSections(this.courseId, 'uniqname', searchText))
   }
 }
 
@@ -56,11 +53,8 @@ export class CourseNameSearcher extends SectionSearcher {
     if (searchText === undefined) {
       return
     }
-    searchSections(this.courseId, 'coursename', searchText).then(sections => {
-      this.setSections(sections)
-    }).catch(error => {
-      throw error
-    })
+
+    this.setSections(await searchSections(this.courseId, 'coursename', searchText))
   }
 }
 
@@ -70,10 +64,7 @@ export class SectionNameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<void> => {
-    getTeacherSections(this.courseId).then(sections => {
-      this.setSections(sections.filter(s => { return localeIncludes(s.name, searchText) }))
-    }).catch(error => {
-      throw error
-    })
+    const sections = await (await getTeacherSections(this.courseId)).filter(s => { return localeIncludes(s.name, searchText) })
+    this.setSections(sections)
   }
 }

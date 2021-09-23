@@ -3,6 +3,8 @@ import { useDebounce } from '@react-hook/debounce'
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
+import { useSnackbar } from 'notistack'
+
 import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../pages/MergeSections'
 import usePromise from '../hooks/usePromise'
@@ -86,6 +88,7 @@ interface ISectionSelectorWidgetProps {
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
   const classes = useStyles()
+  const { enqueueSnackbar } = useSnackbar()
 
   // The the search text ultimately used when searching
   const [sectionSearcherText, setSectionSearcherText] = useState<string | undefined>(undefined)
@@ -186,14 +189,22 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (searcher !== undefined) {
       props.selectionUpdated([])
       if (sectionSearcherText !== undefined) {
-        void searcher.search(sectionSearcherText)
+        await searcher.search(sectionSearcherText)
       } else {
-        void searcher.init()
+        await searcher.init()
       }
     }
     return null
   }
   )
+
+  useEffect(() => {
+    if (searchError !== undefined) {
+      enqueueSnackbar('Error searching sections', {
+        variant: 'error'
+      })
+    }
+  }, [searchError])
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
