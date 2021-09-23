@@ -1,11 +1,11 @@
 /*
-Canvas API scopes, separated by privilege level
+Canvas API scopes
 
 Above each scope string is a comment indicating under which scope group or dropdown the scope
 can be found in the API Developer Key interface in Canvas.
 */
 
-const privilegeLevelOneScopes = [
+const canvasScopes = [
   // Courses
   'url:GET|/api/v1/courses/:id',
   'url:PUT|/api/v1/courses/:id',
@@ -22,4 +22,4 @@ const privilegeLevelOneScopes = [
   'url:GET|/api/v1/accounts/:account_id/courses'
 ]
 
-export { privilegeLevelOneScopes }
+export default canvasScopes

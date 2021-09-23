@@ -8,7 +8,7 @@ import { Options as GotOptions } from 'got'
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
-import { privilegeLevelOneScopes } from './canvas.scopes'
+import canvasScopes from './canvas.scopes'
 import { User } from '../user/user.model'
 
 import { CanvasConfig } from '../config'
@@ -84,7 +84,7 @@ export class CanvasService {
     const params = {
       client_id: this.clientId,
       response_type: 'code',
-      scope: privilegeLevelOneScopes.join(' '),
+      scope: canvasScopes.join(' '),
       redirect_uri: this.redirectURI
     }
     const searchParams = new URLSearchParams(params)
