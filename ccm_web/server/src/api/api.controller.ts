@@ -8,6 +8,7 @@ import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
+import { SectionIdsDto } from './dtos/api.section.ids.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import {
@@ -106,13 +107,14 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
-  @Post('sections/:id/merge/:course')
+  @Post('course/:id/sections/merge')
   async mergeSection (
-    @Param('id', ParseIntPipe) sectionId: number,
-      @Param('course', ParseIntPipe) courseId: number,
+    @Param('id', ParseIntPipe) targetCourseId: number,
+      @Body() sectionIdsData: SectionIdsDto,
       @UserDec() user: User
-  ): Promise<CanvasCourseSectionBase> {
-    const result = await this.apiService.mergeSection(user, sectionId, courseId)
+  ): Promise<CanvasCourseSectionBase[]> {
+    const { sectionIds } = sectionIdsData
+    const result = await this.apiService.mergeSections(user, targetCourseId, sectionIds)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

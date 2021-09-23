@@ -1,8 +1,11 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
+import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
-import { CanvasCourseBase, CanvasCourse, CanvasCourseSection, CourseWithSections } from '../canvas/canvas.interfaces'
+import {
+  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CourseWithSections
+} from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
@@ -108,5 +111,19 @@ export class CourseApiHandler {
     const stop = process.hrtime(start)
     logger.debug(`Time taken to create ${sections.length} sections: ${(stop[0] * 1e9 + stop[1]) / 1e9} seconds`)
     return makeResponse<CanvasCourseSection>(sectionsOrErrorDataObjs)
+  }
+
+  async mergeSections (sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData > {
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+    const apiPromises = sectionIds.map(async (si) => {
+      const sectionHandler = new SectionApiHandler(this.requestor, si)
+      return await sectionHandler.mergeSection(this.courseId)
+    })
+    const mergeSectionResults = await Promise.all(apiPromises)
+    const bulkResult = makeResponse<CanvasCourseSectionBase>(mergeSectionResults)
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
+    return bulkResult
   }
 }

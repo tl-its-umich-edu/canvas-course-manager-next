@@ -109,10 +109,10 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async mergeSection (user: User, sectionId: number, targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
+  async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const sectionHandler = new SectionApiHandler(requestor, sectionId)
-    return await sectionHandler.mergeSection(targetCourseId)
+    const courseHandler = new CourseApiHandler(requestor, targetCourseId)
+    return await courseHandler.mergeSections(sectionIds)
   }
 
   async unmergeSection (user: User, sectionId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
