@@ -3,9 +3,11 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import { handleAPIError } from './api.utils'
-import { CanvasCourse, CanvasCourseBase, CanvasCourseSection } from '../canvas/canvas.interfaces'
+import { CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { CreateSectionApiHandler } from './api.create.section.handler'
+import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
+import { SectionUserDto } from './dtos/api.section.users.dto'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
 import baseLogger from '../logger'
@@ -21,6 +23,10 @@ export class APIService {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
       canvasURL: this.configService.get('canvas.instanceURL') as string,
+      user: {
+        loginId: user.loginId,
+        hasCanvasToken: user.canvasToken !== null
+      },
       userLoginId: user.loginId,
       course: {
         id: sessionData.data.course.id,
@@ -35,17 +41,13 @@ export class APIService {
       const endpoint = `courses/${courseId}/sections`
       const queryParams = { include: ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      // FIXME: list() should return promise, toArray() should be callable later
       const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
-      // FIXME: no access to got Response; statusCode, etc. not available!
-      // logger.debug(`Received response with status code ${sectionsFull.statusCode}`) // broken
-      const sections = sectionsFull.map(s => ({
+      logger.debug('Received response (status code unknown)')
+      return sectionsFull.map(s => ({
         id: s.id,
         name: s.name,
         total_students: s.total_students
       }))
-
-      return sections
     } catch (error) {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
@@ -114,5 +116,11 @@ export class APIService {
     const result = await this.getTeacherSections(user, course)
     if (isAPIErrorData(result)) return result
     return result.filter(c => { return localeIncludes(c.name, searchText) })
+  }
+
+  async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, sectionUsers, sectionId)
+    return await enrollmentHandler.enrollUsers()
   }
 }

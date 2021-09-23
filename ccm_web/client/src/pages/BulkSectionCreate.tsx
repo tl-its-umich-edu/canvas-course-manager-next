@@ -6,7 +6,7 @@ import BulkSectionCreateUploadConfirmationTable, { Section } from '../components
 import FileUpload from '../components/FileUpload'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { DuplicateSectionInFileSectionRowsValidator, hasHeader, InvalidationType, SectionNameHeaderValidator, SectionNameTooLongValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
+import { DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType, SectionNameTooLongValidator, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
@@ -312,7 +312,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
   const parseFile = (file: File): void => {
     file.text().then(t => {
-      let lines = t.split(/[\r\n]+/).map(line => { return line.trim() })
+      let lines = t.replace(/\r\n/, '\n').split(/\n/)
       // An empty file will resultin 1 line
       if (lines.length > 0 && lines[0].length === 0) {
         lines = lines.slice(1)
@@ -343,6 +343,8 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
     const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
     rowInvalidations.push(...duplicateNamesInFileValidator.validate(sectionNames))
+    const emptyNamesInFileValidator: EmptySectionNameValidator = new EmptySectionNameValidator()
+    rowInvalidations.push(...emptyNamesInFileValidator.validate(sectionNames))
     const sectionNamesTooLongValidator: SectionNameTooLongValidator = new SectionNameTooLongValidator()
     rowInvalidations.push(...sectionNamesTooLongValidator.validate(sectionNames))
 

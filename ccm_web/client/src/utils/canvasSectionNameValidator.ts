@@ -37,22 +37,9 @@ export class CanvasCoursesSectionNameValidator {
     this.course = course
   }
 
-  private async getSections (): Promise<CanvasCourseSection[]> {
-    let sections: CanvasCourseSection[] = []
-    await getCourseSections(this.course.id).then(s => {
-      sections = s
-    }).catch(error => {
-      throw new Error(error)
-    })
-    return sections
-  }
-
   public async validateSectionName (newName: string): Promise<ICanvasSectionNameInvalidError[]> {
     const errors: ICanvasSectionNameInvalidError[] = []
-    let sections: CanvasCourseSection[] = []
-    await this.getSections().then(s => {
-      sections = s
-    })
+    const sections = await getCourseSections(this.course.id)
     this.validators.forEach(validator => {
       const error = validator.validate(sections, newName)
       if (error !== undefined) {

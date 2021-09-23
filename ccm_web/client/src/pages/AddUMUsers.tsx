@@ -190,7 +190,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const parseFile = (file: File): void => {
     file.text().then(t => {
-      let lines = t.split(/[\r\n]+/).map(line => { return line.trim() })
+      let lines = t.replace(/\r\n/, '\n').split(/\n/)
       // An empty file will resultin 1 line
       if (lines.length > 0 && lines[0].length === 0) {
         lines = lines.slice(1)

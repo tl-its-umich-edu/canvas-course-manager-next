@@ -1,11 +1,11 @@
 import axios from 'axios'
 import CanvasRequestor from '@kth/canvas-api'
-import { HttpService, Injectable } from '@nestjs/common'
+import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 import { Options as GotOptions } from 'got'
 
-import { CanvasOAuthAPIError, CanvasTokenNotFoundError } from './canvas.errors'
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
 import { privilegeLevelOneScopes } from './canvas.scopes'
@@ -14,11 +14,51 @@ import { User } from '../user/user.model'
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
+import { IncomingHttpHeaders } from 'http'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
-const requestorOptions: GotOptions = { retry: { limit: 2, methods: ['POST', 'GET', 'PUT', 'DELETE'] } }
+
+interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
+  'x-rate-limit-remaining'?: string
+  'x-request-cost'?: string
+}
+
+const requestorOptions: GotOptions = {
+  retry: {
+    limit: 2,
+    methods: ['POST', 'GET', 'PUT', 'DELETE'],
+    // TODO: After got@12 upgrade, replace following list with something like…
+    // got.defaultInternals.retry.statusCodes.concat(403)
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
+  },
+  hooks: {
+    beforeRequest: [
+      options => {
+        logger.debug('beforeRequest')
+      }
+    ],
+    afterResponse: [
+      (response, retryWithMergedOptions) => {
+        const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
+        logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+        return response
+      }
+    ],
+    beforeRetry: [
+      (options, error, retryCount) => {
+        logger.debug(`beforeRetry [${String(retryCount)}]: error.code: "${String(error?.code)}"`)
+      }
+    ],
+    beforeError: [
+      error => {
+        logger.debug('beforeError')
+        return error
+      }
+    ]
+  }
+}
 
 @Injectable()
 export class CanvasService {
@@ -112,6 +152,20 @@ export class CanvasService {
     }
   }
 
+  async deleteTokenForUser (user: User): Promise<void> {
+    if (user.canvasToken === null) throw new CanvasTokenNotFoundError(user.loginId)
+
+    logger.info(`Removing token for ${user.loginId}...`)
+    try {
+      await user.canvasToken.destroy()
+    } catch (error) {
+      logger.error(
+        `Error occurred while destroying CanvasToken for ${user.loginId}: ${JSON.stringify(error, null, 2)}`
+      )
+      throw new DatabaseError()
+    }
+  }
+
   async refreshToken (token: CanvasToken): Promise<CanvasToken> {
     const params = {
       grant_type: 'refresh_token',
@@ -131,8 +185,14 @@ export class CanvasService {
       data = response.data
     } catch (error) {
       if (axios.isAxiosError(error) && error.response !== undefined) {
-        logger.error(`Received unusual status code ${error.response.status}`)
-        logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+        const { status, data } = error.response
+        if (status === HttpStatus.BAD_REQUEST && typeof data?.error === 'string' && data.error === 'invalid_request') {
+          logger.warn('Discovered during refresh that existing token is now invalid.')
+          throw new InvalidTokenRefreshError()
+        } else {
+          logger.error(`Received unusual status code ${error.response.status}`)
+          logger.error(`Response body: ${JSON.stringify(error.response.data, null, 2)}`)
+        }
       } else {
         logger.error(
           `Error occurred while making request to Canvas for access token: ${JSON.stringify(error, null, 2)}`
