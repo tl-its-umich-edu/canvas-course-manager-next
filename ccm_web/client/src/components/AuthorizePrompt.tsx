@@ -15,7 +15,9 @@ export default function AuthorizePrompt (): JSX.Element {
   const classes = useStyles()
   return (
     <div className={classes.root}>
-      <Typography variant='h5' component='h1' gutterBottom>Need to Authorize Canvas Integration</Typography>
+      <Typography variant='h5' component='h1' gutterBottom>
+        Authorize Course Manager to Access Your Canvas Account
+      </Typography>
       <Typography gutterBottom>
         This tool is not integrated with Canvas.
       </Typography>
