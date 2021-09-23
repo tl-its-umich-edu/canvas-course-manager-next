@@ -58,7 +58,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     borderStyle: 'solid',
     borderWidth: '1px',
-    borderColor: '#EEEEEE'
+    borderColor: '#EEEEEE',
+    minHeight: '100px'
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
