@@ -115,9 +115,18 @@ export class APIService {
     return await courseHandler.mergeSections(sectionIds)
   }
 
-  async unmergeSection (user: User, sectionId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
+  async unmergeSections (user: User, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const sectionHandler = new SectionApiHandler(requestor, sectionId)
-    return await sectionHandler.unmergeSection()
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+    const apiPromises = sectionIds.map(async (si) => {
+      const sectionHandler = new SectionApiHandler(requestor, si)
+      return await sectionHandler.unmergeSection()
+    })
+    const unmergeSectionResults = await Promise.all(apiPromises)
+    const bulkResult = makeResponse<CanvasCourseSectionBase>(unmergeSectionResults)
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
+    return bulkResult
   }
 }

@@ -108,7 +108,7 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('course/:id/sections/merge')
-  async mergeSection (
+  async mergeSections (
     @Param('id', ParseIntPipe) targetCourseId: number,
       @Body() sectionIdsData: SectionIdsDto,
       @UserDec() user: User
@@ -121,9 +121,10 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
-  @Delete('sections/:id/unmerge')
-  async unmergeSection (@Param('id', ParseIntPipe) sectionId: number, @UserDec() user: User): Promise<CanvasCourseSectionBase> {
-    const result = await this.apiService.unmergeSection(user, sectionId)
+  @Delete('sections/unmerge')
+  async unmergeSections (@Body() sectionIdsData: SectionIdsDto, @UserDec() user: User): Promise<CanvasCourseSectionBase[]> {
+    const { sectionIds } = sectionIdsData
+    const result = await this.apiService.unmergeSections(user, sectionIds)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
