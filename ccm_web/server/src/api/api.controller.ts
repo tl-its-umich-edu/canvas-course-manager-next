@@ -70,6 +70,16 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
+  @Post('sections/:id/enroll')
+  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
+    const users: SectionUserDto[] = sectionUsersData.users
+    const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
   @Get('instructor/sections')
   async getCourseSectionsInTermAsInstructor (
     @UserDec() user: User, @Query('term_id', ParseIntPipe) termId: number
@@ -91,16 +101,6 @@ export class APIController {
       @Query('course_name') courseName?: string
   ): Promise<CourseWithSections[]> {
     const result = await this.apiService.getCourseSectionsInTermAsAdmin(user, termId, instructor, courseName)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
-  }
-
-  @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
-  @Post('sections/:id/enroll')
-  async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
-    const users: SectionUserDto[] = sectionUsersData.users
-    const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
