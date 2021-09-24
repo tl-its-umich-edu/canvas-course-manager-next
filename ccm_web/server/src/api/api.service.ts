@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
-import { SectionApiHandler } from './api.section.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
-import { SectionUserDto } from './dtos/api.section.users.dto'
+import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
+import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
   CourseWithSections
@@ -74,7 +74,7 @@ export class APIService {
     user: User, termId: number, instructor: string | undefined, courseName: string | undefined
   ): Promise<CourseWithSections[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const adminHandler = new AdminApiHandler(user, requestor)
+    const adminHandler = new AdminApiHandler(requestor, user.loginId)
     const accountsOrErrorData = await adminHandler.getParentAccounts()
     if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
     const accounts = accountsOrErrorData

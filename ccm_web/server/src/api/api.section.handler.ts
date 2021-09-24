@@ -46,6 +46,7 @@ export class SectionApiHandler {
       }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
+      logger.debug(`Received response with status code ${response.statusCode}`)
       const {
         id,
         course_id, // eslint-disable-line
@@ -85,7 +86,7 @@ export class SectionApiHandler {
       const method = HttpMethod.Post
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
-      logger.debug(response.body)
+      logger.debug(`Received response with status code ${response.statusCode}`)
       return SectionApiHandler.slimSection(response.body)
     } catch (error) {
       const errResponse = handleAPIError(error)
@@ -95,11 +96,11 @@ export class SectionApiHandler {
 
   async unmergeSection (): Promise<CanvasCourseSectionBase | APIErrorData> {
     try {
-      const endpoint = `sections/${this.sectionId}/crosslist/`
+      const endpoint = `sections/${this.sectionId}/crosslist`
       const method = HttpMethod.Delete
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
-      logger.debug(response.body)
+      logger.debug(`Received response with status code ${response.statusCode}`)
       return SectionApiHandler.slimSection(response.body)
     } catch (error) {
       const errResponse = handleAPIError(error)

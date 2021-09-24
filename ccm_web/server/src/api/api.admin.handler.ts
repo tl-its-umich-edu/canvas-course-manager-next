@@ -4,7 +4,6 @@ import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { handleAPIError, makeResponse } from './api.utils'
 import { CanvasAccount, CanvasCourse, CourseWithSections } from '../canvas/canvas.interfaces'
-import { User } from '../user/user.model'
 
 import baseLogger from '../logger'
 
@@ -18,12 +17,12 @@ interface AccountCoursesQueryParams extends Record<string, unknown> {
 }
 
 export class AdminApiHandler {
-  user: User
   requestor: CanvasRequestor
+  userLoginId: string
 
-  constructor (user: User, requestor: CanvasRequestor) {
-    this.user = user
+  constructor (requestor: CanvasRequestor, userLoginId: string) {
     this.requestor = requestor
+    this.userLoginId = userLoginId
   }
 
   async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
@@ -45,7 +44,7 @@ export class AdminApiHandler {
       )
     })
     logger.debug(
-      `User ${this.user.loginId} is an admin for these accounts ` +
+      `User ${this.userLoginId} is an admin for these accounts ` +
       `and their children: ${JSON.stringify(parentAccounts, null, 2)}`
     )
     return parentAccounts
@@ -76,7 +75,6 @@ export class AdminApiHandler {
     const queryParams: AccountCoursesQueryParams = { enrollment_term_id: termId, per_page: 100 }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
-
     const coursesApiPromises = accountIds.map(async (a) => await this.getAccountCourses(a, queryParams))
     const coursesResponses = await Promise.all(coursesApiPromises)
     const result = makeResponse<CanvasCourse[]>(coursesResponses)

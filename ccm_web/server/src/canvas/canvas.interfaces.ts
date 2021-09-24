@@ -41,6 +41,11 @@ export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
 }
 
+export interface CanvasCourseInput {
+  name?: string
+  course_code?: string
+}
+
 export interface CanvasCourseSectionBase {
   id: number
   name: string
@@ -72,8 +77,6 @@ export interface CanvasAccount {
   name: string
   parent_account_id: number | null
 }
-
-export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
 
 // Composites
 

@@ -4,7 +4,8 @@ import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
 import {
-  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CourseWithSections
+  CanvasCourse, CanvasCourseBase, CanvasCourseInput, CanvasCourseSection, CanvasCourseSectionBase,
+  CourseWithSections
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -41,7 +42,7 @@ export class CourseApiHandler {
     }
   }
 
-  async putCourse (courseData: Partial<CanvasCourse>): Promise<CanvasCourseBase | APIErrorData> {
+  async putCourse (courseData: CanvasCourseInput): Promise<CanvasCourseBase | APIErrorData> {
     try {
       const endpoint = `courses/${this.courseId}`
       const method = 'PUT'
@@ -90,13 +91,9 @@ export class CourseApiHandler {
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
+      logger.debug(`Received response with status code ${response.statusCode}`)
       const newFullSection = response.body
-      return {
-        id: newFullSection.id,
-        name: newFullSection.name,
-        course_id: newFullSection.course_id,
-        total_students: 0
-      }
+      return { ...SectionApiHandler.slimSection(newFullSection), total_students: 0 }
     } catch (error) {
       const errResponse = handleAPIError(error, sectionName)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
