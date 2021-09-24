@@ -2,10 +2,10 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import { SectionUserDto } from './dtos/api.section.users.dto'
+import { CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
-import { CanvasEnrollment, CanvasCourseSection, CanvasCourseSectionBase } from '../canvas/canvas.interfaces'
-import { SectionUserDto } from './dtos/api.section.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 

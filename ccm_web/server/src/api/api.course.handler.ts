@@ -2,7 +2,7 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { handleAPIError, makeResponse } from './api.utils'
+import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseInput, CanvasCourseSection, CanvasCourseSectionBase,
   CourseWithSections
@@ -45,7 +45,7 @@ export class CourseApiHandler {
   async putCourse (courseData: CanvasCourseInput): Promise<CanvasCourseBase | APIErrorData> {
     try {
       const endpoint = `courses/${this.courseId}`
-      const method = 'PUT'
+      const method = HttpMethod.Put
       const requestBody = { course: courseData }
       logger.debug(
         `Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`
@@ -87,7 +87,7 @@ export class CourseApiHandler {
   async createSection (sectionName: string): Promise<CanvasCourseSection | APIErrorData> {
     try {
       const endpoint = `courses/${this.courseId}/sections`
-      const method = 'POST'
+      const method = HttpMethod.Post
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
       const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
