@@ -3,13 +3,14 @@ import CanvasRequestor from '@kth/canvas-api'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { handleAPIError, makeResponse } from './api.utils'
-import { CanvasAccount, CanvasCourse, CourseWithSections } from '../canvas/canvas.interfaces'
+import { CanvasAccount, CanvasCourse, CourseWithSections, CourseWorkflowState } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 interface AccountCoursesQueryParams extends Record<string, unknown> {
+  'state': CourseWorkflowState[]
   'enrollment_term_id': number
   'per_page'?: number
   'search_term'?: string
@@ -75,11 +76,12 @@ export class AdminApiHandler {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
-    /*
-    Get courses in accounts they are admin for -- filtering by term, instructor, and search term
-    (note that the course "state" parameter default is in use: ['created', 'claimed', 'available', 'completed'])
-    */
-    const queryParams: AccountCoursesQueryParams = { enrollment_term_id: termId, per_page: 100 }
+    // Get courses in accounts they are an admin for -- filtering by course state, term, instructor, and search term
+    const queryParams: AccountCoursesQueryParams = {
+      state: [CourseWorkflowState.Created, CourseWorkflowState.Claimed, CourseWorkflowState.Available],
+      enrollment_term_id: termId,
+      per_page: 100
+    }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
     const coursesApiPromises = accountIds.map(async (a) => await this.getAccountCourses(a, queryParams))

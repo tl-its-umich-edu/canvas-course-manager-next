@@ -31,6 +31,14 @@ export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
 
 // Entities
 
+export enum CourseWorkflowState {
+  Created = 'created',
+  Claimed = 'claimed',
+  Available = 'available',
+  Completed = 'completed',
+  Deleted = 'deleted'
+}
+
 export interface CanvasCourseBase {
   id: number
   name: string
