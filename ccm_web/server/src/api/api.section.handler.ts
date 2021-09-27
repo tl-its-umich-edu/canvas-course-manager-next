@@ -10,7 +10,7 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 /*
-Handler class for Canvas API calls dealing with sections (i.e. those beginning with "/sections/")
+Handler class for Canvas API calls dealing with a specific section (i.e. those beginning with "/sections/:id")
 */
 export class SectionApiHandler {
   requestor: CanvasRequestor

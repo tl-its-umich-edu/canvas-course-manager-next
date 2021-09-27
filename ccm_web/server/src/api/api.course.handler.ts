@@ -13,7 +13,7 @@ import baseLogger from '../logger'
 const logger = baseLogger.child({ filePath: __filename })
 
 /*
-Handler class for Canvas API calls dealing with courses (i.e. those beginning with "/courses/")
+Handler class for Canvas API calls dealing with a specific course (i.e. those beginning with "/courses/:id")
 or course-scoped operations that make use of other handler instances for Canvas entities
 */
 export class CourseApiHandler {
