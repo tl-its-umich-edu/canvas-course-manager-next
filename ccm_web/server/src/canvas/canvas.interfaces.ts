@@ -32,18 +32,36 @@ export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
 
 // Entities
 
+export enum CourseWorkflowState {
+  Created = 'created',
+  Claimed = 'claimed',
+  Available = 'available',
+  Completed = 'completed',
+  Deleted = 'deleted'
+}
+
 export interface CanvasCourseBase {
   id: number
   name: string
+  enrollment_term_id: number
 }
 
 export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
 }
 
-export interface CanvasCourseSection {
+export interface CanvasCourseInput {
+  name?: string
+  course_code?: string
+}
+
+export interface CanvasCourseSectionBase {
   id: number
   name: string
+  course_id: number
+}
+
+export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
@@ -63,7 +81,17 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
-export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
+export interface CanvasAccount {
+  id: number
+  name: string
+  parent_account_id: number | null
+}
+
+// Composites
+
+export interface CourseWithSections extends CanvasCourseBase {
+  sections: CanvasCourseSection[]
+}
 
 // Errors
 

@@ -1,11 +1,16 @@
 export interface CanvasCourseBase {
   id: number
   name: string
+  enrollment_term_id: number
 }
 
-export interface CanvasCourseSection {
+export interface CanvasCourseSectionBase {
   id: number
   name: string
+  course_id: number
+}
+
+export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
