@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 import { Request, Response } from 'express'
 import {
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
@@ -37,9 +39,11 @@ export class CanvasController {
       return res.redirect('/')
     }
 
-    const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
+    const stateToken = crypto.randomBytes(48).toString('hex')
+    req.session.data.state = stateToken
+    const fullURL = `${this.canvasService.getAuthURL()}&state=${stateToken}`
     logger.debug(`Full redirect URL: ${fullURL}`)
-    res.redirect(fullURL)
+    req.session.save(() => { res.redirect(fullURL) })
   }
 
   @ApiExcludeEndpoint()
@@ -64,16 +68,19 @@ export class CanvasController {
     }
 
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
-    logger.debug(`Session ID: ${req.sessionID}`)
     logger.debug(`Session: ${JSON.stringify(req.session, null, 2)}`)
-    if (req.sessionID !== query.state) {
-      logger.warn('State variable returned from Canvas did not match session ID; throwing unauthorized exception...')
-      throw new UnauthorizedException('You are not authorized to access this resource.')
-    }
-
     if (req.session.data === undefined) {
       logger.warn('Failed to find needed session data; throwing an internal server error exception...')
       throw new InternalServerErrorException('Session data could not be found.')
+    }
+
+    const { state } = req.session.data
+    if (state === undefined || state !== query.state) {
+      logger.warn(
+        'The state variable returned from Canvas did not match that in the session, or ' +
+        'the state variable in the session was undefined.'
+      )
+      throw new UnauthorizedException('You are not authorized to access this resource.')
     }
 
     await this.canvasService.createTokenForUser(user, query.code)

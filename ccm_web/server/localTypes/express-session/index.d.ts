@@ -8,6 +8,7 @@ declare module 'express-session' {
   }
 
   interface CustomData {
+    state?: string
     course: Course
     isRootAdmin: boolean
   }
