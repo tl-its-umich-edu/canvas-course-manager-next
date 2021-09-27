@@ -31,7 +31,17 @@ const requestorOptions: GotOptions = {
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     // TODO: After got@12 upgrade, replace following list with something like…
     // got.defaultInternals.retry.statusCodes.concat(403)
-    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
+    calculateDelay: ({computedValue, attemptCount, error}) => {
+      const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
+      logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+
+      if (computedValue) {
+        return attemptCount * 1000; // 1 more second for each attempt
+      }
+
+      return 0;
+    }
   },
   hooks: {
     beforeRequest: [
