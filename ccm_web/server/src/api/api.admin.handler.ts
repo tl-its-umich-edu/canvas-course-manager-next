@@ -75,7 +75,10 @@ export class AdminApiHandler {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
-    // Get courses in accounts they are admin for -- filtering by term, instructor, and search term
+    /*
+    Get courses in accounts they are admin for -- filtering by term, instructor, and search term
+    (note that the course "state" parameter default is in use: ['created', 'claimed', 'available', 'completed'])
+    */
     const queryParams: AccountCoursesQueryParams = { enrollment_term_id: termId, per_page: 100 }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
