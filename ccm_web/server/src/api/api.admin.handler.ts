@@ -16,6 +16,10 @@ interface AccountCoursesQueryParams extends Record<string, unknown> {
   'by_teachers'?: string[]
 }
 
+/*
+Handler class for Canvas API calls dealing with accounts (i.e. those beginning with "/accounts/")
+or account-scoped operations that make use of other handler instances for Canvas entities
+*/
 export class AdminApiHandler {
   requestor: CanvasRequestor
   userLoginId: string
