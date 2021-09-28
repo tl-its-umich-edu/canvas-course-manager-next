@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { IsOptional, IsInt, IsNotEmpty, MaxLength, MinLength } from 'class-validator'
+import { IsInt, IsNotEmpty, IsOptional, MaxLength, MinLength } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class GetSectionsAdminQueryDto {
