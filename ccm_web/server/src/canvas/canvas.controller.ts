@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { promisify } from 'util'
 
 import { Request, Response } from 'express'
 import {
@@ -16,6 +17,8 @@ import { User } from '../user/user.model'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
+
+const generateToken = promisify(crypto.randomBytes)
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('canvas')
@@ -39,7 +42,7 @@ export class CanvasController {
       return res.redirect('/')
     }
 
-    const stateToken = crypto.randomBytes(48).toString('hex')
+    const stateToken = (await generateToken(48)).toString('hex')
     req.session.data.state = stateToken
     const fullURL = `${this.canvasService.getAuthURL()}&state=${stateToken}`
     logger.debug(`Full redirect URL: ${fullURL}`)
@@ -75,7 +78,7 @@ export class CanvasController {
     }
 
     const { state } = req.session.data
-    if (state === undefined || state !== query.state) {
+    if (state === undefined || query.state !== state) {
       logger.warn(
         'The state variable returned from Canvas did not match that in the session, or ' +
         'the state variable in the session was undefined.'
