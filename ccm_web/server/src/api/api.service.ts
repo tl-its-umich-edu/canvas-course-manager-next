@@ -2,12 +2,16 @@ import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { handleAPIError } from './api.utils'
-import { CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from '../canvas/canvas.interfaces'
+import { AdminApiHandler } from './api.admin.handler'
+import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
-import { CreateSectionApiHandler } from './api.create.section.handler'
-import { EnrollSectionUsersApiHandler } from './api.enroll.section.users.handler'
+import { SectionApiHandler } from './api.section.handler'
+import { handleAPIError, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
+import {
+  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CourseWithSections
+} from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
 import baseLogger from '../logger'
@@ -37,61 +41,66 @@ export class APIService {
 
   async getCourseSections (user: User, courseId: number): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    try {
-      const endpoint = `courses/${courseId}/sections`
-      const queryParams = { include: ['total_students'] } // use list for "include" values
-      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const sectionsFull = await requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
-      logger.debug('Received response (status code unknown)')
-      return sectionsFull.map(s => ({
-        id: s.id,
-        name: s.name,
-        total_students: s.total_students
-      }))
-    } catch (error) {
-      const errResponse = handleAPIError(error)
-      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
-    }
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.getSections()
   }
 
-  async getCourseName (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
+  async getCourseSectionsInTermAsInstructor (
+    user: User, termId: number
+  ): Promise<CourseWithSections[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    let courses: CanvasCourse[] = []
     try {
-      const endpoint = `courses/${courseId}`
-      logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: GET`)
-      const response = await requestor.get<CanvasCourse>(endpoint)
-      logger.debug(`Received response with status code ${response.statusCode}`)
-      const course = response.body
-      return { id: course.id, name: course.name }
+      const endpoint = 'courses'
+      const queryParams = { enrollment_type: 'teacher' }
+      logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
+      courses = await requestor.list<CanvasCourse>(endpoint, queryParams).toArray()
+      logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
+
+    const coursesInTerm = courses.filter(c => c.enrollment_term_id === termId)
+    const apiPromises = coursesInTerm.map(async c => {
+      const courseHandler = new CourseApiHandler(requestor, c.id)
+      return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
+    })
+    const coursesWithSectionsResult = await Promise.all(apiPromises)
+    return makeResponse<CourseWithSections>(coursesWithSectionsResult)
+  }
+
+  async getCourseSectionsInTermAsAdmin (
+    user: User, termId: number, instructor: string | undefined, courseName: string | undefined
+  ): Promise<CourseWithSections[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const adminHandler = new AdminApiHandler(requestor, user.loginId)
+    const accountsOrErrorData = await adminHandler.getParentAccounts()
+    if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
+    const accounts = accountsOrErrorData
+    // Maybe we could do something more informative here if they aren't an account admin
+    if (accounts.length === 0) return []
+    return await adminHandler.getCourseSectionsInTerm(
+      accounts.map(a => a.id), termId, instructor, courseName
+    )
+  }
+
+  async getCourse (user: User, courseId: number): Promise<CanvasCourseBase | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.getCourse()
   }
 
   async putCourseName (user: User, courseId: number, newName: string): Promise<CanvasCourseBase | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    try {
-      const endpoint = `courses/${courseId}`
-      const method = 'PUT'
-      const requestBody = { course: { name: newName, course_code: newName } }
-      logger.debug(
-        `Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`
-      )
-      const response = await requestor.requestUrl<CanvasCourse>(endpoint, method, requestBody)
-      logger.debug(`Received response with status code ${response.statusCode}`)
-      const course = response.body
-      return { id: course.id, name: course.name }
-    } catch (error) {
-      const errResponse = handleAPIError(error, newName)
-      return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
-    }
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.putCourse({ name: newName, course_code: newName })
   }
 
-  async createSections (user: User, course: number, sections: string[]): Promise<CanvasCourseSection[] | APIErrorData> {
+  async createSections (user: User, courseId: number, sections: string[]): Promise<CanvasCourseSection[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const createSectionsApiHandler = new CreateSectionApiHandler(requestor, sections, course)
-    return await createSectionsApiHandler.createSections()
+    const courseHandler = new CourseApiHandler(requestor, courseId)
+    return await courseHandler.createSections(sections)
   }
 
   // TODO hack just return all course sections
@@ -101,7 +110,7 @@ export class APIService {
 
   // TODO hack
   async getMergedSections (user: User, course: number): Promise<CanvasCourseSection[] | APIErrorData> {
-    return await Promise.resolve([{ id: 0, course_name: 'Spelunking 101', name: 'Already Merged Section', total_students: 123 }])
+    return await Promise.resolve([{ id: 0, course_id: 0, name: 'Already Merged Section', total_students: 123 }])
   }
 
   // TODO hack just search by section name
@@ -120,7 +129,28 @@ export class APIService {
 
   async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const enrollmentHandler = new EnrollSectionUsersApiHandler(requestor, sectionUsers, sectionId)
-    return await enrollmentHandler.enrollUsers()
+    const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    return await sectionHandler.enrollUsers(sectionUsers)
+  }
+
+  async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const courseHandler = new CourseApiHandler(requestor, targetCourseId)
+    return await courseHandler.mergeSections(sectionIds)
+  }
+
+  async unmergeSections (user: User, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+    const apiPromises = sectionIds.map(async (si) => {
+      const sectionHandler = new SectionApiHandler(requestor, si)
+      return await sectionHandler.unmergeSection()
+    })
+    const unmergeSectionResults = await Promise.all(apiPromises)
+    const bulkResult = makeResponse<CanvasCourseSectionBase>(unmergeSectionResults)
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
+    return bulkResult
   }
 }

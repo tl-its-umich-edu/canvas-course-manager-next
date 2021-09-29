@@ -97,7 +97,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchFieldText, setSearchFieldText] = useState<string>('')
   // The debounced version of the text in the search field
   // Changes here will be passed along to sectionSearcherText
-  const [searchFieldTextDebounced, setSearchFieldTextDebounced] = useDebounce<string | undefined>(undefined, 500)
+  const [searchFieldTextDebounced, setSearchFieldTextDebounced] = useDebounce<string | undefined>(undefined, 750)
   const [internalSections, setInternalSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
@@ -163,7 +163,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const firstRender = useFirstRender()
 
   useEffect(() => {
-    if (!firstRender) {
+    if (!firstRender && (sectionSearcherText === undefined || sectionSearcherText?.length >= 3)) {
       void search()
     }
   }, [sectionSearcherText])

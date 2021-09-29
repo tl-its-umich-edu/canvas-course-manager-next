@@ -1,15 +1,15 @@
 import { getTeacherSections, searchSections } from '../api'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSection, CourseWithSections } from '../models/canvas'
 import { ISectionSearcher } from '../pages/MergeSections'
 import { localeIncludes } from './localeIncludes'
 
 export abstract class SectionSearcher implements ISectionSearcher {
   name: string
   preload: string | undefined
-  courseId: number
+  termId: number
   setSections: (sections: CanvasCourseSection[]) => void
-  constructor (courseId: number, name: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void) {
-    this.courseId = courseId
+  constructor (termId: number, name: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void) {
+    this.termId = termId
     this.name = name
     this.preload = preload
     this.setSections = setSectionsCallabck
@@ -40,7 +40,7 @@ export class UniqnameSearcher extends SectionSearcher {
       return
     }
 
-    this.setSections(await searchSections(this.courseId, 'uniqname', searchText))
+    this.setSections(coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'uniqname', searchText)))
   }
 }
 
@@ -54,7 +54,7 @@ export class CourseNameSearcher extends SectionSearcher {
       return
     }
 
-    this.setSections(await searchSections(this.courseId, 'coursename', searchText))
+    this.setSections(coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'coursename', searchText)))
   }
 }
 
@@ -64,7 +64,24 @@ export class SectionNameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<void> => {
-    const sections = await (await getTeacherSections(this.courseId)).filter(s => { return localeIncludes(s.name, searchText) })
+    const sections = await (coursesWithSectionsToCanvasCourseSections(await getTeacherSections(this.termId))).filter(s => { return localeIncludes(s.name, searchText) })
     this.setSections(sections)
   }
+}
+
+const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSection[] => {
+  return coursesWithSections.map(courseWithSections => {
+    return courseWithSections.sections
+  }).flat()
+}
+
+const canvasCourseSectionsToCoursesWithSections = (canvasCourseSections: CanvasCourseSection[]): CourseWithSections[] => {
+  return canvasCourseSections.map(canvasCourseSection => {
+    return {
+      id: canvasCourseSection.course_id,
+      name: 'course name',
+      enrollment_term_id: 0,
+      sections: canvasCourseSections
+    }
+  }).flat()
 }

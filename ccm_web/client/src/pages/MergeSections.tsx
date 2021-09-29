@@ -61,7 +61,7 @@ export interface ISectionSearcher {
 
 // TODO for dev testing remove all this before merging
 // Can set to a specific role for testing purposes
-const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
+const OVERRIDE_ROLE: RoleEnum | undefined = RoleEnum.Teacher
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
@@ -175,7 +175,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                   ]
                 }
               }}
-              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.globals.course.id, setUnsyncedUnstagedSections), new UniqnameSearcher(props.globals.course.id, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.globals.course.id, setUnsyncedUnstagedSections)]}
+              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections)]}
               multiSelect={true}
               showCourseName={true}
               sections={unstagedSections !== undefined ? unstagedSections : []}

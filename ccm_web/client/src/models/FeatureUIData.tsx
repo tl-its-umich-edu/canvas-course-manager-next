@@ -15,6 +15,7 @@ import { Globals, RoleEnum } from './models'
 
 export interface CCMComponentProps {
   globals: Globals
+  termId: number
 }
 
 interface FeatureUIGroup {

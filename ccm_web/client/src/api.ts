@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CourseWithSections } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
@@ -36,7 +36,7 @@ const getPut = (body: string): RequestInit => {
 
 export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => {
   const request = getGet()
-  const resp = await fetch(`/api/course/${courseId}/name`, request)
+  const resp = await fetch(`/api/course/${courseId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
@@ -83,16 +83,17 @@ export const getMergedSections = async (courseId: number): Promise<CanvasCourseS
   return await resp.json()
 }
 
-export const getTeacherSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
+export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
   const request = getGet()
-  const resp = await fetch(`/api/course/${courseId.toString()}/sections/instructed`, request)
+  const resp = await fetch(`/api/instructor/sections?term_id=${termId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
 
-export const searchSections = async (courseId: number, searchType: 'uniqname' | 'coursename', searchText: string): Promise<CanvasCourseSection[]> => {
+export const searchSections = async (termId: number, searchType: 'uniqname' | 'coursename', searchText: string): Promise<CourseWithSections[]> => {
   const request = getGet()
-  const resp = await fetch(`/api/course/${courseId.toString()}/sections/search?${searchType}=${searchText}`, request)
+  const queryParam = searchType === 'uniqname' ? `instructor=${searchText}` : `course_name=${searchText}`
+  const resp = await fetch(`/api/admin/sections?term_id=${termId}&${queryParam}`, request)
   await handleErrors(resp)
   return await resp.json()
 }

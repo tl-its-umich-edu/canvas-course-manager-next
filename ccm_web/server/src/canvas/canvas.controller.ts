@@ -47,15 +47,24 @@ export class CanvasController {
     @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,
       @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
-    logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
-    logger.debug(`Session ID: ${req.sessionID}`)
-    logger.debug(JSON.stringify(req.session, null, 2))
-
+    logger.debug(`Query: ${JSON.stringify(query, null, 2)}`)
     if (isOAuthErrorResponseQuery(query)) {
-      logger.error(`Canvas OAuth failed  due to ${query.error}. ${query.error_description}`)
-      throw new InternalServerErrorException(query.error_description)
+      if (query.error === 'access_denied') {
+        logger.debug('User rejected Canvas OAuth; sending them back to application root...')
+        res.redirect('/')
+        return
+      }
+
+      logger.error(`Canvas OAuth failed due to ${query.error}: ${String(query.error_description)}`)
+      const message = query.error_description !== undefined
+        ? query.error_description
+        : 'Canvas OAuth error was sent without a description.'
+      throw new InternalServerErrorException(message)
     }
 
+    logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
+    logger.debug(`Session ID: ${req.sessionID}`)
+    logger.debug(`Session: ${JSON.stringify(req.session, null, 2)}`)
     if (req.sessionID !== query.state) {
       logger.warn('State variable returned from Canvas did not match session ID; throwing unauthorized exception...')
       throw new UnauthorizedException('You are not authorized to access this resource.')
