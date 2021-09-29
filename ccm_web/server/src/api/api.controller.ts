@@ -1,6 +1,7 @@
 import { SessionData } from 'express-session'
 import {
-  Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe, Post, Put, Query, Session, UseGuards, UseInterceptors
+  BadRequestException, Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe,
+  Post, Put, Query, Session, UseGuards, UseInterceptors
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
@@ -8,6 +9,7 @@ import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
+import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
 import { SectionIdsDto } from './dtos/api.section.ids.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -91,16 +93,19 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiQuery({ name: 'term_id', type: Number })
-  @ApiQuery({ name: 'instructor', required: false, type: String })
+  @ApiQuery({ name: 'instructor_name', required: false, type: String })
   @ApiQuery({ name: 'course_name', required: false, type: String })
   @Get('admin/sections')
   async getCourseSectionsInTermAsAdmin (
-    @UserDec() user: User,
-      @Query('term_id', ParseIntPipe) termId: number,
-      @Query('instructor') instructor?: string,
-      @Query('course_name') courseName?: string
+    @Query() query: GetSectionsAdminQueryDto,
+      @UserDec() user: User
   ): Promise<CourseWithSections[]> {
-    const result = await this.apiService.getCourseSectionsInTermAsAdmin(user, termId, instructor, courseName)
+    if (query.instructor_name === undefined && query.course_name === undefined) {
+      throw new BadRequestException('You must specify either instructor or course_name as a URL parameter.')
+    }
+    const result = await this.apiService.getCourseSectionsInTermAsAdmin(
+      user, query.term_id, query.instructor_name, query.course_name
+    )
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
