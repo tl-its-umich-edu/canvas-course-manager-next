@@ -72,23 +72,6 @@ export class APIController {
   }
 
   @ApiSecurity('CSRF-Token')
-  @Get('course/:id/sections/merged')
-  async mergedSections (@Param('id', ParseIntPipe) courseId: number, @UserDec() user: User): Promise<CanvasCourseSection[]> {
-    const result = await this.apiService.getMergedSections(user, courseId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
-  }
-
-  // TODO placeholder implementation just using getCourseSections. I think this needs a new query
-  @ApiSecurity('CSRF-Token')
-  @Get('course/:id/sections/instructed')
-  async instructedSections (@Param('id', ParseIntPipe) courseId: number, @UserDec() user: User): Promise<CanvasCourseSection[]> {
-    const result = await this.apiService.getCourseSections(user, courseId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
-  }
-
-  @ApiSecurity('CSRF-Token')
   @Get('course/:id/sections/search')
   async searchSections (@Param('id', ParseIntPipe) courseId: number,
     @Query('uniqname') uniqname: string,

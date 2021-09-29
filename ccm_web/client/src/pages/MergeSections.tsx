@@ -7,7 +7,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
-import { getCourseSections, getMergedSections } from '../api'
+import { getCourseSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
@@ -84,29 +84,16 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         .map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })))
   }, [unsyncedUnstagedSections])
 
-  const [doLoadUnstagedSectionData, isUnstagedSectionsLoading, loadUnstagedSectionsError] = usePromise(
-    async () => await getCourseSections(props.globals.course.id),
-    (sections: CanvasCourseSection[]) => {
-      setUnsyncedUnstagedSections(sections)
-    }
-  )
-
   const updateStagedSections = (sections: CanvasCourseSection[]): void => {
     setStagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }).map(s => { return { ...s, locked: true } }))
   }
 
   const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
-    async () => await getMergedSections(props.globals.course.id),
+    async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateStagedSections(sections)
     }
   )
-
-  useEffect(() => {
-    if (!isAccountAdmin() && !isSubAccountAdmin()) {
-      void doLoadUnstagedSectionData()
-    }
-  }, [])
 
   useEffect(() => {
     void doLoadStagedSectionData()
@@ -156,51 +143,32 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const getSelectSectionsUnstaged = (): JSX.Element => {
-    if (loadUnstagedSectionsError === undefined) {
-      return (
-        <>
-          <div>
-            <SectionSelectorWidget
-              action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
-              height={400}
-              header={{
-                title: 'Sections I teach',
-                sort: {
-                  sortChanged: setUnstagedSectionsSort,
-                  sorters: [
-                    { func: new CanvasCourseSectionSort_UserCount(), text: '# of students' },
-                    { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
-                    { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
-                  ]
-                }
-              }}
-              search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections)]}
-              multiSelect={true}
-              showCourseName={true}
-              sections={unstagedSections !== undefined ? unstagedSections : []}
-              selectedSections={selectedUnstagedSections}
-              selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
-            <Backdrop className={classes.backdrop} open={isUnstagedSectionsLoading}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <CircularProgress color="inherit" />
-                </Grid>
-                <Grid item xs={12}>
-                  Loading sections
-                </Grid>
-              </Grid>
-            </Backdrop>
-          </div>
-        </>
-      )
-    } else {
-      return (
-        <Paper className={classes.sectionLoadError} role='alert'>
-          <Typography>Error loading sections</Typography>
-          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
-        </Paper>
-      )
-    }
+    return (
+      <>
+        <div>
+          <SectionSelectorWidget
+            action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
+            height={400}
+            header={{
+              title: 'Sections I teach',
+              sort: {
+                sortChanged: setUnstagedSectionsSort,
+                sorters: [
+                  { func: new CanvasCourseSectionSort_UserCount(), text: '# of students' },
+                  { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
+                  { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
+                ]
+              }
+            }}
+            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections)]}
+            multiSelect={true}
+            showCourseName={true}
+            sections={unstagedSections !== undefined ? unstagedSections : []}
+            selectedSections={selectedUnstagedSections}
+            selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
+        </div>
+      </>
+    )
   }
 
   const getSelectSectionsStaged = (): JSX.Element => {
