@@ -71,7 +71,7 @@ export class SectionNameSearcher extends SectionSearcher {
 
 const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSection[] => {
   return coursesWithSections.map(courseWithSections => {
-    return courseWithSections.sections
+    return courseWithSections.sections.map(section => { return { ...section, course_name: courseWithSections.name } })
   }).flat()
 }
 
@@ -79,7 +79,7 @@ const canvasCourseSectionsToCoursesWithSections = (canvasCourseSections: CanvasC
   return canvasCourseSections.map(canvasCourseSection => {
     return {
       id: canvasCourseSection.course_id,
-      name: 'course name',
+      name: canvasCourseSection.course_name,
       enrollment_term_id: 0,
       sections: canvasCourseSections
     }
