@@ -80,7 +80,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   useEffect(() => {
     setUnstagedSections(
-      unstagedSectionsSort.sort(unsyncedUnstagedSections
+      unstagedSectionsSort.sort(unsyncedUnstagedSections.filter(section => { return section.course_id !== props.globals.course.id })
         .map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })))
   }, [unsyncedUnstagedSections])
 
