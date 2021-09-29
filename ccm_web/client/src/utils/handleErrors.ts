@@ -74,4 +74,4 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 }
 
-export default handleErrors
+export { handleErrors as default, DefaultError }

@@ -3,7 +3,7 @@ import ConfirmationTable from './ConfirmationTable'
 
 interface IAddUMUserEnrollment {
   rowNumber: number
-  loginID: string
+  loginId: string
   role: string
 }
 
@@ -20,7 +20,7 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 
 const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
   { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
-  { id: 'loginID', label: 'Login ID', minWidth: 100 },
+  { id: 'loginId', label: 'Login ID', minWidth: 100 },
   { id: 'role', label: 'Role', minWidth: 100 }
 ]
 

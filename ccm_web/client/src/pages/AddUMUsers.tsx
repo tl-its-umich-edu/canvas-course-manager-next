@@ -1,19 +1,24 @@
-import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography } from '@material-ui/core'
+import {
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Paper, Step, StepLabel,
+  Stepper, Theme, Tooltip, Typography
+} from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
 import { useSnackbar } from 'notistack'
 
-import { getCourseSections } from '../api'
+import { AddSectionEnrollment, addSectionEnrollments, getCourseSections } from '../api'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
+import SuccessCard from '../components/SuccessCard'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, canvasRoles } from '../models/canvas'
+import { CanvasCourseSection, canvasRoles, getCanvasRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
+import { DefaultError } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -119,7 +124,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   enum States {
     SelectSection = 0,
     UploadCSV = 1,
-    ReviewCSV = 2
+    ReviewCSV = 2,
+    Confirmation = 3
   }
 
   const classes = useStyles()
@@ -127,10 +133,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSection | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
-  const [isAddingEnrollments] = useState<boolean>(false)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
@@ -142,6 +148,18 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       updateSections(sections)
     }
   )
+
+  const [doAddEnrollments, isAddEnrollmentsLoading, AddEnrollmentsError] = usePromise(
+    async (section: CanvasCourseSection, enrollments: AddSectionEnrollment[]) => {
+      await addSectionEnrollments(section.id, enrollments)
+    },
+    () => { setActiveStep(States.Confirmation) }
+  )
+
+  console.log(AddEnrollmentsError)
+  if (AddEnrollmentsError instanceof DefaultError) {
+    console.log(AddEnrollmentsError.errors)
+  }
 
   useEffect(() => {
     void doLoadCanvasSectionData()
@@ -158,18 +176,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
-  const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
-
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     updateSections(sections.concat(newSection))
-    setSelectedSections([newSection])
+    setSelectedSection(newSection)
   }
 
   const isValidRole = (role: string): boolean => {
     return canvasRoles.map(canvasRole => { return canvasRole.clientName.localeCompare(role, 'en', { sensitivity: 'base' }) === 0 }).filter(value => { return value }).length > 0
   }
 
-  const isValidLoginID = (loginID: string): boolean => {
+  const isValidLoginId = (loginId: string): boolean => {
     // return uniqname.match(UNIQNAME_REGEX) !== null
     // Don't apply any validation here, just pass anything through
     // Flag this function for deletion in 3.. 2.. 1...
@@ -216,10 +232,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         } else {
           if (!isValidRole(parts[0])) {
             errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
-          } else if (!isValidLoginID(parts[1])) {
+          } else if (!isValidLoginId(parts[1])) {
             errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
           } else {
-            enrollments.push({ rowNumber: i + 2, loginID: parts[1], role: parts[0] })
+            enrollments.push({ rowNumber: i + 2, loginId: parts[1].trim(), role: parts[0].trim() })
           }
         }
       })
@@ -247,9 +263,23 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           </div>
           <Typography variant='subtitle1'>Or select one available section to add users</Typography>
           <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget height={400} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections}></SectionSelectorWidget>
+            <SectionSelectorWidget
+              height={400}
+              multiSelect={false}
+              sections={sections !== undefined ? sections : []}
+              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+              selectionUpdated={(sections) => setSelectedSection(sections[0])}
+            />
             <div>
-              <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedSections.length === 0} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+              <Button
+                className={classes.sectionSelectButton}
+                variant='contained'
+                color='primary'
+                disabled={selectedSection === undefined}
+                onClick={() => { setActiveStep(activeStep + 1) }}
+              >
+                Select
+              </Button>
             </div>
             <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
               <Grid container>
@@ -317,8 +347,8 @@ designer,userd`
   }
 
   const getReviewContent = (): JSX.Element => {
-    if (enrollments !== undefined) {
-      return (renderConfirm(enrollments))
+    if (selectedSection !== undefined && enrollments !== undefined) {
+      return renderConfirm(selectedSection, enrollments)
     } else if (errors !== undefined) {
       return (renderErrors(errors))
     } else {
@@ -338,7 +368,9 @@ designer,userd`
     }
   }
 
-  const renderConfirm = (enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+  const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+    const addSectionEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
+
     return (
       <div className={classes.confirmContainer}>
         {renderCSVFileName()}
@@ -355,12 +387,17 @@ designer,userd`
                 <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
                 <Button variant="outlined" onClick={setStateUpload}>Cancel</Button>
-                <Button variant="outlined" >Submit</Button>
+                <Button
+                  variant='outlined'
+                  onClick={async () => await doAddEnrollments(section, addSectionEnrollments)}
+                >
+                  Submit
+                </Button>
               </Paper>
             </Grid>
           </Box>
         </Grid>
-        <Backdrop className={classes.backdrop} open={isAddingEnrollments}>
+        <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
         <Grid container>
           <Grid item xs={12}>
             <CircularProgress color="inherit" />
@@ -371,6 +408,18 @@ designer,userd`
         </Grid>
       </Backdrop>
       </div>)
+  }
+
+  const getSuccessContent = (): JSX.Element => {
+    const { canvasURL, course } = props.globals
+    const settingsURL = `${canvasURL}/courses/${course.id}/settings`
+    const message = <Typography>New users have been added to the section!</Typography>
+    const nextAction = (
+      <span>
+        See the users in the course&apos;s sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link>for your course.
+      </span>
+    )
+    return <SuccessCard {...{ message, nextAction }} />
   }
 
   const setStateUpload = (): void => {
@@ -403,7 +452,8 @@ designer,userd`
             </Grid>
           </Box>
         </Grid>
-      </div>)
+      </div>
+    )
   }
 
   const getShouldNotHappenContent = (): JSX.Element => {
@@ -418,6 +468,8 @@ designer,userd`
         return getUploadContent()
       case States.ReviewCSV:
         return getReviewContent()
+      case States.Confirmation:
+        return getSuccessContent()
       default:
         return getShouldNotHappenContent()
     }

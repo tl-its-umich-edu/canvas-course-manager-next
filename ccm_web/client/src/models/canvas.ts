@@ -14,6 +14,14 @@ export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
+export interface CanvasEnrollment {
+  id: number
+  course_id: number
+  course_section_id: number
+  user_id: number
+  type: string // use RoleEnum?
+}
+
 export interface CanvasRole {
   clientName: string
   canvasName: string
@@ -26,3 +34,9 @@ export const canvasRoles: CanvasRole[] = [
   { clientName: 'observer', canvasName: 'ObserverEnrollment' },
   { clientName: 'designer', canvasName: 'DesignerEnrollment' }
 ]
+
+export const getCanvasRole = (clientName: string): string => {
+  const role = canvasRoles.find(r => r.clientName === clientName)
+  if (role === undefined) throw Error(`${clientName} is not a valid client name for a Canvas Role`)
+  return role.canvasName
+}

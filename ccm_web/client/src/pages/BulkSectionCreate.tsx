@@ -1,13 +1,19 @@
-import { Backdrop, Box, Button, Card, CardActions, CardContent, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
-import { CloudDone as CloudDoneIcon, CheckCircle, Error as ErrorIcon, Warning } from '@material-ui/icons'
+import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { CloudDone as CloudDoneIcon, Error as ErrorIcon, Warning } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
+
 import { addCourseSections, getCourseSections } from '../api'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
+import {
+  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType,
+  SectionNameTooLongValidator, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation,
+  SectionsSchemaInvalidation, SectionsSchemaValidator
+} from '../components/BulkSectionCreateValidators'
+import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType, SectionNameTooLongValidator, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation, SectionsSchemaInvalidation, SectionsSchemaValidator } from '../components/BulkSectionCreateValidators'
-import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -134,25 +140,6 @@ const useAPIErrorStyles = makeStyles((theme) => ({
   }
 }))
 
-const useSuccessStyles = makeStyles((theme) => ({
-  card: {
-    textAlign: 'center'
-  },
-  cardFooter: {
-    display: 'block',
-    backgroundColor: '#F7F7F7',
-    textAlign: 'center'
-  },
-  cardFooterText: {
-    textAlign: 'center'
-  },
-  icon: {
-    color: '#306430',
-    width: 100,
-    height: 100
-  }
-}))
-
 enum BulkSectionCreatePageState {
   UploadPending,
   LoadingExistingSectionNamesFailed,
@@ -180,7 +167,6 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
   const apiErrorClasses = useAPIErrorStyles()
-  const successClasses = useSuccessStyles()
 
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
@@ -564,18 +550,15 @@ Section 001`
   const renderSuccess = (): JSX.Element => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings`
-    return (
-      <Card className={successClasses.card} variant="outlined">
-        <CardContent>
-          <CheckCircle className={successClasses.icon} fontSize='large'/>
-          <Typography>New sections have been added!</Typography>
-        </CardContent>
-        <CardActions className={successClasses.cardFooter}>
-          See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
-        </CardActions>
-      </Card>
+    const message = <Typography>New sections have been added!</Typography>
+    const nextAction = (
+      <span>
+        See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
+      </span>
     )
+    return <SuccessCard {...{ message, nextAction }} />
   }
+
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
       case BulkSectionCreatePageState.UploadPending:
