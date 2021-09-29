@@ -13,7 +13,7 @@ export class GetSectionsAdminQueryDto {
   @IsOptional()
   @MinLength(3)
   @MaxLength(255)
-  instructor?: string
+  instructor_name?: string
 
   @ApiProperty({ type: String, required: false })
   @IsOptional()
@@ -21,9 +21,9 @@ export class GetSectionsAdminQueryDto {
   @MaxLength(255)
   course_name?: string
 
-  constructor (termId: number, instructor?: string, courseName?: string) {
+  constructor (termId: number, instructorName?: string, courseName?: string) {
     this.term_id = termId
-    this.instructor = instructor
+    this.instructor_name = instructorName
     this.course_name = courseName
   }
 }

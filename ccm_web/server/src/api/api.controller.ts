@@ -93,17 +93,19 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiQuery({ name: 'term_id', type: Number })
-  @ApiQuery({ name: 'instructor', required: false, type: String })
+  @ApiQuery({ name: 'instructor_name', required: false, type: String })
   @ApiQuery({ name: 'course_name', required: false, type: String })
   @Get('admin/sections')
   async getCourseSectionsInTermAsAdmin (
     @Query() query: GetSectionsAdminQueryDto,
       @UserDec() user: User
   ): Promise<CourseWithSections[]> {
-    if (query.instructor === undefined && query.course_name === undefined) {
+    if (query.instructor_name === undefined && query.course_name === undefined) {
       throw new BadRequestException('You must specify either instructor or course_name as a URL parameter.')
     }
-    const result = await this.apiService.getCourseSectionsInTermAsAdmin(user, query.term_id, query.instructor, query.course_name)
+    const result = await this.apiService.getCourseSectionsInTermAsAdmin(
+      user, query.term_id, query.instructor_name, query.course_name
+    )
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
