@@ -26,6 +26,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
   }
 
   search = async (searchString: string): Promise<void> => {
+    this.setSections([])
     return await this.searchImpl(searchString)
   }
 }
