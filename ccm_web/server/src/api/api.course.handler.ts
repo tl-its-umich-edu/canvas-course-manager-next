@@ -74,6 +74,7 @@ export class CourseApiHandler {
         id: s.id,
         name: s.name,
         course_id: s.course_id,
+        nonxlist_course_id: s.nonxlist_course_id,
         total_students: s.total_students
       }))
     } catch (error) {
