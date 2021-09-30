@@ -108,6 +108,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
 
   useEffect(() => {
+    searcher?.resetTitle()
+  }, [searcher])
+
+  useEffect(() => {
     setInternalSections(props.sections)
     setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
   }, [props.sections])
@@ -178,6 +182,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     props.selectionUpdated([])
     setSearchFieldText('')
     setSectionSearcherText(undefined)
+    searcher?.resetTitle()
   }
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {

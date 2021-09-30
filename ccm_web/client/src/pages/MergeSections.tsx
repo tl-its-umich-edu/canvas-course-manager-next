@@ -56,7 +56,9 @@ export interface ISectionSearcher {
   name: string
   preload: string | undefined
   search: (searchString: string) => Promise<void>
+  updateTitleCallback: (title: string) => void
   init: () => Promise<void>
+  resetTitle: () => void
 }
 
 // TODO for dev testing remove all this before merging
@@ -77,6 +79,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const [selectedStagedSections, setSelectedStagedSections] = useState<SelectableCanvasCourseSection[]>([])
 
   const [unstagedSectionsSort, setUnstagedSectionsSort] = useState<ICanvasCourseSectionSort>(new CanvasCourseSectionSort_AZ())
+
+  const [sectionsTitle, setSectionsTitle] = useState('Sections I Teach')
 
   useEffect(() => {
     setUnstagedSections(
@@ -150,7 +154,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
             height={400}
             header={{
-              title: 'Sections I teach',
+              title: sectionsTitle,
               sort: {
                 sortChanged: setUnstagedSectionsSort,
                 sorters: [
@@ -160,7 +164,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                 ]
               }
             }}
-            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections)]}
+            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle)]}
             multiSelect={true}
             showCourseName={true}
             sections={unstagedSections !== undefined ? unstagedSections : []}

@@ -103,26 +103,16 @@ export class APIService {
     return await courseHandler.createSections(sections)
   }
 
-  // TODO hack just return all course sections
-  async getTeacherSections (user: User, course: number): Promise<CanvasCourseSection[] | APIErrorData> {
-    return await this.getCourseSections(user, course)
-  }
-
-  // TODO hack
-  async getMergedSections (user: User, course: number): Promise<CanvasCourseSection[] | APIErrorData> {
-    return await Promise.resolve([{ id: 0, course_id: 0, name: 'Already Merged Section', total_students: 123 }])
-  }
-
   // TODO hack just search by section name
   async getCourseSectionsByCourseName (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
-    const result = await this.getTeacherSections(user, course)
+    const result = await this.getCourseSections(user, course)
     if (isAPIErrorData(result)) return result
     return result.filter(c => { return localeIncludes(c.name, searchText) })
   }
 
   // TODO hack just search by section name
   async getCourseSectionsByUniqname (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
-    const result = await this.getTeacherSections(user, course)
+    const result = await this.getCourseSections(user, course)
     if (isAPIErrorData(result)) return result
     return result.filter(c => { return localeIncludes(c.name, searchText) })
   }
