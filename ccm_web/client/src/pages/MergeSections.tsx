@@ -6,8 +6,8 @@ import { Error as ErrorIcon } from '@material-ui/icons'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
-import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
-import { getCourseSections } from '../api'
+import { CanvasCourseSection, CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
+import { getCourseSections, mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
@@ -49,7 +49,9 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 enum PageState {
-  SelectSections = 0
+  SelectSections = 0,
+  Merging = 1,
+  Merged = 2
 }
 
 export interface ISectionSearcher {
@@ -84,8 +86,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   useEffect(() => {
     setUnstagedSections(
-      unstagedSectionsSort.sort(unsyncedUnstagedSections.filter(section => { return section.course_id !== props.globals.course.id })
-        .map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })))
+      unstagedSectionsSort.sort(unsyncedUnstagedSections.map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })))
   }, [unsyncedUnstagedSections])
 
   const updateStagedSections = (sections: CanvasCourseSection[]): void => {
@@ -99,6 +100,22 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   )
 
+  const [doMerge, isMerging, mergeError] = usePromise(
+    async () => await mergeSections(props.globals.course.id, stagedSections.filter(section => { return !(section.locked ?? false) })),
+    (sections: CanvasCourseSectionBase[]) => {
+      console.log('merged')
+    }
+  )
+
+  useEffect(() => {
+    console.log('isMerging change')
+    if (!isMerging) {
+      if (pageState === PageState.Merging) {
+        setPageState(PageState.Merged)
+      }
+    }
+  }, [isMerging])
+
   useEffect(() => {
     void doLoadStagedSectionData()
   }, [])
@@ -107,6 +124,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     switch (pageState) {
       case PageState.SelectSections:
         return getSelectSections()
+      case PageState.Merging:
+        return <div>Merging</div>
+      case PageState.Merged:
+        return <div>Merge Successful</div>
       default:
         return <div>?</div>
     }
@@ -164,7 +185,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
                 ]
               }
             }}
-            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, setUnsyncedUnstagedSections, setSectionsTitle)]}
+            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
             multiSelect={true}
             showCourseName={true}
             sections={unstagedSections !== undefined ? unstagedSections : []}
@@ -215,6 +236,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   const submit = (): void => {
     console.log('Submit')
+    setPageState(PageState.Merging)
+    void doMerge()
   }
 
   const canMerge = (): boolean => {

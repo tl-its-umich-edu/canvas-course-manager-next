@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection, CourseWithSections } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
@@ -94,6 +94,14 @@ export const searchSections = async (termId: number, searchType: 'uniqname' | 'c
   const request = getGet()
   const queryParam = searchType === 'uniqname' ? `instructor_name=${searchText}` : `course_name=${searchText}`
   const resp = await fetch(`/api/admin/sections?term_id=${termId}&${queryParam}`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+  const body = JSON.stringify({ sectionIds: sectionsToMerge.map(section => { return section.id }) })
+  const request = getPost(body)
+  const resp = await fetch(`/api/course/${courseId}/sections/merge`, request)
   await handleErrors(resp)
   return await resp.json()
 }
