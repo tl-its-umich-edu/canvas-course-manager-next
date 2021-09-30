@@ -25,7 +25,8 @@ export class SectionApiHandler {
     return {
       id: section.id,
       name: section.name,
-      course_id: section.course_id
+      course_id: section.course_id,
+      nonxlist_course_id: section.nonxlist_course_id
     }
   }
 
