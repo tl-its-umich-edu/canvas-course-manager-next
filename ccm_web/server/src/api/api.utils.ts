@@ -3,7 +3,7 @@ import { HTTPError } from 'got'
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
 } from './api.interfaces'
-import { CanvasEntity, isCanvasErrorBody } from '../canvas/canvas.interfaces'
+import { isCanvasErrorBody } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
@@ -13,6 +13,7 @@ export enum HttpMethod {
   Get = 'GET',
   Post = 'POST',
   Put = 'PUT',
+  Delete = 'DELETE'
 }
 
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {
@@ -38,7 +39,7 @@ export function parseErrorBody (body: unknown): string {
   return body.errors.map(e => e.message).join(' ')
 }
 
-export function makeResponse<T extends CanvasEntity> (multipleResults: Array<APIErrorData | T>): T[] | APIErrorData {
+export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] | APIErrorData {
   const failures = []
   const statusCodes: Set<number> = new Set()
   const successes = []

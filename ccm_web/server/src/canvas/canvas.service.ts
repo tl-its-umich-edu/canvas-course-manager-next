@@ -3,12 +3,12 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
-import { Options as GotOptions } from 'got'
+import got, { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
 import { CanvasToken } from './canvas.model'
-import { privilegeLevelOneScopes } from './canvas.scopes'
+import canvasScopes from './canvas.scopes'
 import { User } from '../user/user.model'
 
 import { CanvasConfig } from '../config'
@@ -31,7 +31,7 @@ const requestorOptions: GotOptions = {
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     // TODO: After got@12 upgrade, replace following list with something like…
     // got.defaultInternals.retry.statusCodes.concat(403)
-    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
+    statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({computedValue, attemptCount, error}) => {
       const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
       // const delay: number = computedValue ? attemptCount * 1000 : 0
@@ -93,7 +93,7 @@ export class CanvasService {
     const params = {
       client_id: this.clientId,
       response_type: 'code',
-      scope: privilegeLevelOneScopes.join(' '),
+      scope: canvasScopes.join(' '),
       redirect_uri: this.redirectURI
     }
     const searchParams = new URLSearchParams(params)

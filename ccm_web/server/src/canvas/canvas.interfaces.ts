@@ -8,7 +8,8 @@ export interface OAuthGoodResponseQuery {
 }
 export interface OAuthErrorResponseQuery {
   error: string
-  error_description: string
+  error_description?: string
+  state?: string
 }
 
 interface TokenBaseResponseBody {
@@ -31,18 +32,37 @@ export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
 
 // Entities
 
+export enum CourseWorkflowState {
+  Created = 'created',
+  Claimed = 'claimed',
+  Available = 'available',
+  Completed = 'completed',
+  Deleted = 'deleted'
+}
+
 export interface CanvasCourseBase {
   id: number
   name: string
+  enrollment_term_id: number
 }
 
 export interface CanvasCourse extends CanvasCourseBase {
   course_code: string
 }
 
-export interface CanvasCourseSection {
+export interface CanvasCourseInput {
+  name?: string
+  course_code?: string
+}
+
+export interface CanvasCourseSectionBase {
   id: number
   name: string
+  course_id: number
+  nonxlist_course_id: number | null
+}
+
+export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
@@ -62,7 +82,17 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
-export type CanvasEntity = CanvasEnrollment | CanvasCourseSection | CanvasCourse
+export interface CanvasAccount {
+  id: number
+  name: string
+  parent_account_id: number | null
+}
+
+// Composites
+
+export interface CourseWithSections extends CanvasCourseBase {
+  sections: CanvasCourseSection[]
+}
 
 // Errors
 
@@ -88,5 +118,5 @@ export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
 }
 
 export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
-  return hasKeys(value, ['error']) && hasKeys(value, ['error_description'])
+  return hasKeys(value, ['error'])
 }
