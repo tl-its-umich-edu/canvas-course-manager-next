@@ -3,7 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
-import got, { Options as GotOptions } from 'got'
+import { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
@@ -29,7 +29,9 @@ const requestorOptions: GotOptions = {
   retry: {
     limit: 2,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    statusCodes: got.defaults.options.retry.statusCodes.concat([403])
+    // TODO: After got@12 upgrade, replace following list with something like…
+    // got.defaultInternals.retry.statusCodes.concat(403)
+    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
   },
   hooks: {
     beforeRequest: [
