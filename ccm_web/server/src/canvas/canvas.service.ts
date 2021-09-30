@@ -29,8 +29,6 @@ const requestorOptions: GotOptions = {
   retry: {
     limit: 2,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    // TODO: After got@12 upgrade, replace following list with something like…
-    // got.defaultInternals.retry.statusCodes.concat(403)
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({computedValue, attemptCount, error}) => {
       const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
