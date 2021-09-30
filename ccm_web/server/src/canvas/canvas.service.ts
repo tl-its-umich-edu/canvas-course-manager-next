@@ -34,21 +34,20 @@ const requestorOptions: GotOptions = {
     statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524],
     calculateDelay: ({computedValue, attemptCount, error}) => {
       const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
-      logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+      // const delay: number = computedValue ? attemptCount * 1000 : 0
+      const delay: number = 5000
 
-      if (computedValue) {
-        return attemptCount * 1000; // 1 more second for each attempt
-      }
+      logger.debug(`calculateDelay — "delay": "${String(delay)}"; "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
 
-      return 0;
+      return delay
     }
   },
   hooks: {
-    beforeRequest: [
-      options => {
-        logger.debug('beforeRequest')
-      }
-    ],
+    // beforeRequest: [
+    //   options => {
+    //     logger.debug('beforeRequest')
+    //   }
+    // ],
     afterResponse: [
       (response, retryWithMergedOptions) => {
         const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
