@@ -386,6 +386,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     }
   }
 
+  // TODO display:none, visibility:hidden.. find a better way
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
@@ -393,7 +394,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           <Grid item container className={classes.searchContainer} style={props.search.length === 0 ? { display: 'none' } : {}} xs={12}>
-            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
+            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' inputProps={{ maxLength: 256 }} InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
             <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
