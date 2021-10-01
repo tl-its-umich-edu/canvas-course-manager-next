@@ -30,7 +30,7 @@ const requestorOptions: GotOptions = {
     limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
-    calculateDelay: ({attemptCount, retryOptions, error, computedValue}) => {
+    calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
       const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
       const delay: number = computedValue === 0 ? 0 : 5000
 
@@ -41,21 +41,23 @@ const requestorOptions: GotOptions = {
         `"x-request-cost": "${String(headers['x-request-cost'])}"; `)
 
       return delay
-    }},
+    }
+  },
   hooks: {
     afterResponse: [(response, retryWithMergedOptions) => {
-        const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
-        logger.debug(`afterResponse — ` +
-          `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
-          `"x-request-cost": "${String(headers['x-request-cost'])}"`)
-        return response
-      }],
+      const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
+      logger.debug('afterResponse — ' +
+        `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+        `"x-request-cost": "${String(headers['x-request-cost'])}"`)
+      return response
+    }],
     beforeRetry: [(options, error, retryCount) => {
-        logger.debug(`beforeRetry [${String(retryCount)}] - ` +
-          `error.response.statusCode: "${String(error?.response?.statusCode)}"; ` +
-          `error.code: "${String(error?.code)}"`)
-      }]
-  }}
+      logger.debug(`beforeRetry [${String(retryCount)}] - ` +
+        `error.response.statusCode: "${String(error?.response?.statusCode)}"; ` +
+        `error.code: "${String(error?.code)}"`)
+    }]
+  }
+}
 
 @Injectable()
 export class CanvasService {
