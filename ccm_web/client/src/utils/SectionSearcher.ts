@@ -10,7 +10,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
   courseId: number
   setSections: (sections: CanvasCourseSection[]) => void
   updateTitleCallback: (title: string) => void
-  constructor (termId: number, courseId:number, name: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, name: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     this.termId = termId
     this.courseId = courseId
     this.name = name
@@ -21,20 +21,25 @@ export abstract class SectionSearcher implements ISectionSearcher {
 
   abstract resetTitle: () => void
 
-  abstract searchImpl: (searchText: string) => Promise<void>
+  abstract searchImpl: (searchText: string) => Promise<CanvasCourseSection[]>
 
   init = async (): Promise<void> => {
     if (this.preload !== undefined) {
-      return await this.searchImpl(this.preload)
+      await this.search(this.preload, false)
     } else {
       this.setSections([])
     }
   }
 
-  search = async (searchString: string): Promise<void> => {
-    this.updateTitleCallback('Searching...')
+  search = async (searchString: string, updateTitle = true): Promise<void> => {
+    if (searchString === undefined) {
+      return
+    }
+    if (updateTitle) this.updateTitleCallback('Searching...')
     this.setSections([])
-    return await this.searchImpl(searchString)
+    const filteredSections = (await this.searchImpl(searchString)).filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
+    if (updateTitle) this.updateTitleCallback(`Search results (${filteredSections.length})`)
+    this.setSections(filteredSections)
   }
 }
 
@@ -47,17 +52,12 @@ export class UniqnameSearcher extends SectionSearcher {
     this.updateTitleCallback('Sections for uniqname')
   }
 
-  searchImpl = async (searchText: string): Promise<void> => {
-    if (searchText === undefined) {
-      return
-    }
+  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+    // if (searchText === undefined) {
+    //   return []
+    // }
 
-    // this.setSections(coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'uniqname', searchText)))
-
-    const coursesWithSections = await (await searchSections(this.termId, 'uniqname', searchText)).filter(course => { return course.id !== this.courseId })
-    const canvasCourseSections = coursesWithSectionsToCanvasCourseSections(coursesWithSections)
-    this.updateTitleCallback(`Search results (${canvasCourseSections.length})`)
-    this.setSections(canvasCourseSections)
+    return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'uniqname', searchText))
   }
 }
 
@@ -70,14 +70,12 @@ export class CourseNameSearcher extends SectionSearcher {
     this.updateTitleCallback('Sections for course name')
   }
 
-  searchImpl = async (searchText: string): Promise<void> => {
-    if (searchText === undefined) {
-      return
-    }
-    const coursesWithSections = await (await searchSections(this.termId, 'coursename', searchText)).filter(course => { return course.id !== this.courseId })
-    const canvasCourseSections = coursesWithSectionsToCanvasCourseSections(coursesWithSections)
-    this.updateTitleCallback(`Search results (${canvasCourseSections.length})`)
-    this.setSections(canvasCourseSections)
+  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+    // if (searchText === undefined) {
+    //   return []
+    // }
+
+    return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'coursename', searchText))
   }
 }
 
@@ -90,14 +88,8 @@ export class SectionNameSearcher extends SectionSearcher {
     this.updateTitleCallback('Sections I Teach')
   }
 
-  searchImpl = async (searchText: string): Promise<void> => {
-    // const sections = await (coursesWithSectionsToCanvasCourseSections(await getTeacherSections(this.termId))).filter(s => { return localeIncludes(s.name, searchText) })
-    // this.setSections(sections)
-
-    const coursesWithSections = await getTeacherSections(this.termId)
-    const canvasCourseSections = coursesWithSectionsToCanvasCourseSections(coursesWithSections).filter(s => { return localeIncludes(s.name, searchText) })
-    this.updateTitleCallback(`Search results (${canvasCourseSections.length}`)
-    this.setSections(canvasCourseSections)
+  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+    return coursesWithSectionsToCanvasCourseSections(await getTeacherSections(this.termId)).filter(s => { return localeIncludes(s.name, searchText) })
   }
 }
 

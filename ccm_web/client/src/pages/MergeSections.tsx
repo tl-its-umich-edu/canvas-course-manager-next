@@ -108,7 +108,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   )
 
   useEffect(() => {
-    console.log('isMerging change')
     if (!isMerging) {
       if (pageState === PageState.Merging) {
         setPageState(PageState.Merged)

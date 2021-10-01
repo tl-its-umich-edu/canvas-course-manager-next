@@ -12,6 +12,7 @@ export interface CanvasCourseSectionBase {
   id: number
   name: string
   course_id: number
+  nonxlist_course_id: number | null
 }
 
 export interface CanvasCourseSection extends CanvasCourseSectionBase {

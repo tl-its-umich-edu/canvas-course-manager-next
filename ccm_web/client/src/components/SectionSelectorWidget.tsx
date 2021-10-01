@@ -65,6 +65,10 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
+  },
+  clickableButton: {
+    pointerEvents: 'auto',
+    opacity: '1'
   }
 }))
 
@@ -245,6 +249,23 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
   }
 
+  // const unmergeSection = (section: SelectableCanvasCourseSection): void => {
+  //   console.log(`unmerge section ${section.id}`)
+  // }
+  const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: SelectableCanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
+    console.log(`unmerge section ${section.id}`)
+    e.stopPropagation()
+    return undefined
+  }
+
+  const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element => {
+    if (section.nonxlist_course_id !== null) {
+      return <Button className={classes.clickableButton} color='primary' variant='contained' onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
+    } else {
+      return <></>
+    }
+  }
+
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
     if (props.showCourseName ?? false) {
       return (
@@ -259,6 +280,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               >
                 <span className={classes.overflowEllipsis}>{section.course_name}</span>
               </Typography>
+              {unmergeButton(section)}
               <span style={{ float: 'right' }}>
                 {`${section.total_students ?? '?'} students`}
               </span>
