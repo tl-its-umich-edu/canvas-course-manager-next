@@ -27,45 +27,35 @@ interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
 
 const requestorOptions: GotOptions = {
   retry: {
-    limit: 2,
+    limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
-    calculateDelay: ({computedValue, attemptCount, error}) => {
+    calculateDelay: ({attemptCount, retryOptions, error, computedValue}) => {
       const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
-      // const delay: number = computedValue ? attemptCount * 1000 : 0
-      const delay: number = 5000
+      const delay: number = computedValue === 0 ? 0 : 5000
 
-      logger.debug(`calculateDelay — "delay": "${String(delay)}"; "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+      logger.debug(`calculateDelay [${String(attemptCount)}] — ` +
+        `"delay": "${String(delay)}"; ` +
+        `"retryOptions": "${JSON.stringify(retryOptions)}"; ` +
+        `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+        `"x-request-cost": "${String(headers['x-request-cost'])}"; `)
 
       return delay
-    }
-  },
+    }},
   hooks: {
-    // beforeRequest: [
-    //   options => {
-    //     logger.debug('beforeRequest')
-    //   }
-    // ],
-    afterResponse: [
-      (response, retryWithMergedOptions) => {
+    afterResponse: [(response, retryWithMergedOptions) => {
         const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
-        logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
+        logger.debug(`afterResponse — ` +
+          `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+          `"x-request-cost": "${String(headers['x-request-cost'])}"`)
         return response
-      }
-    ],
-    beforeRetry: [
-      (options, error, retryCount) => {
-        logger.debug(`beforeRetry [${String(retryCount)}]: error.code: "${String(error?.code)}"`)
-      }
-    ],
-    beforeError: [
-      error => {
-        logger.debug('beforeError')
-        return error
-      }
-    ]
-  }
-}
+      }],
+    beforeRetry: [(options, error, retryCount) => {
+        logger.debug(`beforeRetry [${String(retryCount)}] - ` +
+          `error.response.statusCode: "${String(error?.response?.statusCode)}"; ` +
+          `error.code: "${String(error?.code)}"`)
+      }]
+  }}
 
 @Injectable()
 export class CanvasService {
