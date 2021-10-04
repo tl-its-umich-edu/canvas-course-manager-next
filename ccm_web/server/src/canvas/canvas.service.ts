@@ -3,7 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
-import got, { Options as GotOptions } from 'got'
+import got, { HTTPError, Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
@@ -20,35 +20,50 @@ const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
-interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
-  'x-rate-limit-remaining'?: string
-  'x-request-cost'?: string
-}
-
 const requestorOptions: GotOptions = {
   retry: {
-    limit: 3,
+    limit: 4,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
-      const headers = error.response?.headers as IncomingRateLimitedCanvasHttpHeaders
-      const delay: number = computedValue === 0 ? 0 : 5000
+      const isStrangeError = !(error instanceof HTTPError) && error.code === undefined
+      const delay = computedValue === 0 && !isStrangeError ? 0 : 5000
 
-      logger.debug(`calculateDelay [${String(attemptCount)}] — ` +
+      let logMessage: string =
+        `calculateDelay [${String(attemptCount)}] — ` +
         `"delay": "${String(delay)}"; ` +
+        `"isStrangeError": ${String(isStrangeError)}; ` +
         `"retryOptions": "${JSON.stringify(retryOptions)}"; ` +
-        `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
-        `"x-request-cost": "${String(headers['x-request-cost'])}"; `)
+        `error.code: ${String(error.code)}`
+
+      const headers = error.response?.headers
+      if (headers !== undefined) {
+        logMessage +=
+          `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+          `"x-request-cost": "${String(headers['x-request-cost'])}"; `
+      } else {
+        logMessage += 'headers not available'
+      }
+
+      logger.debug(logMessage)
 
       return delay
     }
   },
   hooks: {
     afterResponse: [(response, retryWithMergedOptions) => {
-      const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
-      logger.debug('afterResponse — ' +
-        `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
-        `"x-request-cost": "${String(headers['x-request-cost'])}"`)
+      let logMessage: string =  'afterResponse — '
+
+      const headers = response.headers
+      if (headers !== undefined) {
+        logMessage += `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+          `"x-request-cost": "${String(headers['x-request-cost'])}"`
+      } else {
+        logMessage += 'headers not available'
+      }
+
+      logger.debug(logMessage)
+
       return response
     }],
     beforeRetry: [(options, error, retryCount) => {
