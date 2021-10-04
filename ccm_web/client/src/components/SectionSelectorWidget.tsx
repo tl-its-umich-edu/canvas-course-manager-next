@@ -12,7 +12,23 @@ import usePromise from '../hooks/usePromise'
 const useStyles = makeStyles((theme) => ({
   listContainer: {
     overflow: 'auto',
-    marginBottom: '5px'
+    marginBottom: '5px',
+    '&& .Mui-disabled': {
+      opacity: 1,
+      '& > .MuiListItemAvatar-root': {
+        opacity: theme.palette.action.disabledOpacity
+      },
+      '& > .MuiListItemText-root': {
+        '& > :not(.MuiListItemText-secondary)': {
+          opacity: theme.palette.action.disabledOpacity
+        },
+        '& .MuiListItemText-secondary': {
+          '& > Button': {
+            pointerEvents: 'auto'
+          }
+        }
+      }
+    }
   },
   searchContainer: {
     textAlign: 'left'
@@ -65,10 +81,6 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
-  },
-  clickableButton: {
-    pointerEvents: 'auto',
-    opacity: '1'
   }
 }))
 
@@ -260,7 +272,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element => {
     if (section.nonxlist_course_id !== null) {
-      return <Button className={classes.clickableButton} color='primary' variant='contained' onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
+      return <Button color='primary' variant='contained' onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
     } else {
       return <></>
     }
