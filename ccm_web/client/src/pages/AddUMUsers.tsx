@@ -7,6 +7,7 @@ import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon
 import { useSnackbar } from 'notistack'
 
 import { AddSectionEnrollment, addSectionEnrollments, getCourseSections } from '../api'
+import APIErrorAlert from '../components/APIErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
@@ -137,6 +138,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
+  const [latestAPIError, setLatestAPIError] = useState<Error | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
@@ -149,17 +151,20 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
   )
 
-  const [doAddEnrollments, isAddEnrollmentsLoading, AddEnrollmentsError] = usePromise(
+  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError] = usePromise(
     async (section: CanvasCourseSection, enrollments: AddSectionEnrollment[]) => {
       await addSectionEnrollments(section.id, enrollments)
     },
     () => { setActiveStep(States.Confirmation) }
   )
 
-  console.log(AddEnrollmentsError)
-  if (AddEnrollmentsError instanceof CanvasError) {
-    console.log(AddEnrollmentsError.errors)
-  }
+  useEffect(() => {
+    if (getCanvasSectionDataError !== undefined) {
+      setLatestAPIError(getCanvasSectionDataError)
+    } else if (addEnrollmentsError !== undefined) {
+      setLatestAPIError(addEnrollmentsError)
+    }
+  }, [getCanvasSectionDataError, addEnrollmentsError])
 
   useEffect(() => {
     void doLoadCanvasSectionData()
@@ -445,7 +450,7 @@ designer,userd`
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3} className={classes.parseErrorDialog}>
               <Paper role='alert'>
-                <Typography>Review  your CSV file</Typography>
+                <Typography>Review your CSV file</Typography>
                 <ErrorIcon className={classes.parseErrorIcon} fontSize='large'/>
                 <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
               </Paper>
@@ -476,6 +481,7 @@ designer,userd`
   }
 
   const handleReset = (): void => {
+    setLatestAPIError(undefined)
     setActiveStep(States.SelectSection)
   }
 
@@ -490,20 +496,22 @@ designer,userd`
             </Step>
           ))}
         </Stepper>
-        <div>
-          {activeStep === steps.length
-            ? (
-                <div>
-                  <Typography className={classes.instructions}>All steps completed</Typography>
-                  <Button onClick={handleReset}>Reset</Button>
-                </div>
-              )
-            : (
-                <div>
-                  {getStepContent(activeStep)}
-                </div>
-              )}
-        </div>
+        {
+          (latestAPIError === undefined)
+            ? <div>{getStepContent(activeStep)}</div>
+            : latestAPIError instanceof CanvasError
+              ? <p>Some kind of Canvas error data table</p>
+              : (
+                  <APIErrorAlert
+                    message={(
+                      <Typography>
+                        The last action failed for the following reason: {latestAPIError.message}
+                      </Typography>
+                    )}
+                    tryAgain={() => handleReset()}
+                  />
+                )
+        }
       </div>
     </>
   )

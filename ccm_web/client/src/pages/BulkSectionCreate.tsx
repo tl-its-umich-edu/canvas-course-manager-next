@@ -3,6 +3,7 @@ import { CloudDone as CloudDoneIcon, Error as ErrorIcon, Warning } from '@materi
 import React, { useEffect, useState } from 'react'
 
 import { addCourseSections, getCourseSections } from '../api'
+import APIErrorAlert from '../components/APIErrorAlert'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
   DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType,
@@ -118,29 +119,6 @@ const useTopLevelErrorStyles = makeStyles((theme) => ({
   }
 }))
 
-const useAPIErrorStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    maxWidth: '75%',
-    margin: 'auto',
-    marginTop: 30,
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
-    width: '75%',
-    '& ol': {
-      margin: 'auto',
-      width: '75%'
-    },
-    '& li': {
-      textAlign: 'left'
-    }
-  },
-  dialogIcon: {
-    color: '#3F648E'
-  }
-}))
-
 enum BulkSectionCreatePageState {
   UploadPending,
   LoadingExistingSectionNamesFailed,
@@ -167,7 +145,6 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const confirmationClasses = useConfirmationStyles()
   const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
-  const apiErrorClasses = useAPIErrorStyles()
 
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
@@ -412,11 +389,6 @@ Section 001`
     return <Button color='primary' component="span" onClick={() => resetPageState()}>Upload again</Button>
   }
 
-  const renderTryAgainButton = (): JSX.Element => {
-    // eslint-disable-next-line no-void
-    return <Button color='primary' component="span" onClick={() => { resetPageState() }}>Try again</Button>
-  }
-
   const renderErrorIcon = (errorType: ErrorType): JSX.Element => {
     if (errorType === ErrorType.Error) {
       return (<ErrorIcon className={rowLevelErrorClasses.errorIcon} fontSize='large'/>)
@@ -497,18 +469,6 @@ Section 001`
     return <div>{rowLevelErrors !== undefined && rowLevelErrors}</div>
   }
 
-  const renderAPIError = (): JSX.Element => {
-    return (
-      <Grid item xs={12} className={apiErrorClasses.dialog}>
-        <Paper role='alert' >
-          <ErrorIcon className={apiErrorClasses.dialogIcon} fontSize='large'/>
-          <Typography>Something went wrong.  Please try again later.</Typography>
-          {renderTryAgainButton()}
-        </Paper>
-      </Grid>
-    )
-  }
-
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
@@ -565,7 +525,7 @@ Section 001`
       case BulkSectionCreatePageState.UploadPending:
         return renderUpload()
       case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
-        return renderAPIError()
+        return <APIErrorAlert tryAgain={() => resetPageState()} />
       case BulkSectionCreatePageState.InvalidUpload:
         return renderInvalidUpload()
       case BulkSectionCreatePageState.Submit:
