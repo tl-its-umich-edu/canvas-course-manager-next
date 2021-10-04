@@ -23,6 +23,16 @@ const getPost = (body: string): RequestInit => {
   return request
 }
 
+const getDelete = (body: string): RequestInit => {
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const csrfToken = getCSRFToken()
+  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
+  const request: RequestInit = { headers }
+  request.method = 'DELETE'
+  request.body = body
+  return request
+}
+
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (body: string): RequestInit => {
   const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
@@ -102,6 +112,14 @@ export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCou
   const body = JSON.stringify({ sectionIds: sectionsToMerge.map(section => { return section.id }) })
   const request = getPost(body)
   const resp = await fetch(`/api/course/${courseId}/sections/merge`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+  const body = JSON.stringify({ sectionIds: sectionsToUnmerge.map(section => { return section.id }) })
+  const request = getDelete(body)
+  const resp = await fetch('/api/sections/unmerge', request)
   await handleErrors(resp)
   return await resp.json()
 }

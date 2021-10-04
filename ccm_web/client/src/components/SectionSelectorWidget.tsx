@@ -5,9 +5,10 @@ import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
-import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionBase, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../pages/MergeSections'
 import usePromise from '../hooks/usePromise'
+import { unmergeSections } from '../api'
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
@@ -101,6 +102,7 @@ interface ISectionSelectorWidgetProps {
     title: string
     sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string}>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
   }
+  canUnmerge: boolean
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -122,6 +124,27 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const [searcher, setSearcher] = React.useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
   const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
+
+  const [sectionsToUnmerge, setSectionsToUnmerge] = React.useState<CanvasCourseSection[]>([])
+  const [doUnmerge, isUnmerging, unmergeError] = usePromise(
+    async () => await unmergeSections(sectionsToUnmerge),
+    (sections: CanvasCourseSectionBase[]) => {
+      console.log('unmerged')
+      setSectionsToUnmerge([])
+    }
+  )
+  useEffect(() => {
+    if (sectionsToUnmerge.length > 0) {
+      void doUnmerge()
+    }
+  }, [sectionsToUnmerge])
+  useEffect(() => {
+    if (unmergeError !== undefined) {
+      enqueueSnackbar('Error unmerging', {
+        variant: 'error'
+      })
+    }
+  }, [unmergeError])
 
   useEffect(() => {
     searcher?.resetTitle()
@@ -267,12 +290,13 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: SelectableCanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
     console.log(`unmerge section ${section.id}`)
     e.stopPropagation()
+    setSectionsToUnmerge([section])
     return undefined
   }
 
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element => {
-    if (section.nonxlist_course_id !== null) {
-      return <Button color='primary' variant='contained' onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
+    if (section.nonxlist_course_id !== null && props.canUnmerge) {
+      return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
     } else {
       return <></>
     }

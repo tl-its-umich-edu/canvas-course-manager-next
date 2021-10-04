@@ -189,7 +189,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             showCourseName={true}
             sections={unstagedSections !== undefined ? unstagedSections : []}
             selectedSections={selectedUnstagedSections}
-            selectionUpdated={setSelectedUnstagedSections}></SectionSelectorWidget>
+            selectionUpdated={setSelectedUnstagedSections}
+            canUnmerge={false}></SectionSelectorWidget>
         </div>
       </>
     )
@@ -209,7 +210,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               showCourseName={true}
               sections={stagedSections !== undefined ? stagedSections : []}
               selectedSections={selectedStagedSections}
-              selectionUpdated={setSelectedStagedSections}></SectionSelectorWidget>
+              selectionUpdated={setSelectedStagedSections}
+              canUnmerge={isSubAccountAdmin() || isAccountAdmin()}></SectionSelectorWidget>
             <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
