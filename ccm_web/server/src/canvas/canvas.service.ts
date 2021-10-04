@@ -14,7 +14,6 @@ import { User } from '../user/user.model'
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
-import { IncomingHttpHeaders } from 'http'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -52,7 +51,7 @@ const requestorOptions: GotOptions = {
   },
   hooks: {
     afterResponse: [(response, retryWithMergedOptions) => {
-      let logMessage: string =  'afterResponse — '
+      let logMessage = 'afterResponse — '
 
       const headers = response.headers
       if (headers !== undefined) {
