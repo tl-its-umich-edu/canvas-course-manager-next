@@ -40,19 +40,32 @@ export interface Globals {
 }
 
 export interface APIErrorPayload {
+  [k: string]: unknown
   canvasStatusCode: number
   message: string
   failedInput: string | null
 }
 
+const isAPIErrorPayload = (v: Record<string, unknown>): v is APIErrorPayload => {
+  return 'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+}
+
 export interface APIErrorData {
+  [k: string]: unknown
   statusCode: number
-  message?: string
-  redirect?: true
   error?: string
+  message?: string | string[]
+  redirect?: boolean
+}
+
+export interface CanvasAPIErrorData extends APIErrorData {
   errors: APIErrorPayload[]
 }
 
-export interface IDefaultError {
-  errors: APIErrorPayload[]
+export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is CanvasAPIErrorData => {
+  return (
+    'errors' in errorData &&
+    Array.isArray(errorData.errors) &&
+    errorData.errors.every(e => isAPIErrorPayload(e))
+  )
 }

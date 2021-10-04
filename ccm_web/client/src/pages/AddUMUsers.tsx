@@ -18,7 +18,7 @@ import { CanvasCourseSection, canvasRoles, getCanvasRole } from '../models/canva
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
-import { DefaultError } from '../utils/handleErrors'
+import { CanvasError } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -157,7 +157,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   console.log(AddEnrollmentsError)
-  if (AddEnrollmentsError instanceof DefaultError) {
+  if (AddEnrollmentsError instanceof CanvasError) {
     console.log(AddEnrollmentsError.errors)
   }
 

@@ -17,7 +17,8 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { APIErrorPayload, IDefaultError } from '../models/models'
+import { APIErrorPayload } from '../models/models'
+import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -226,8 +227,8 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   }
 
   useEffect(() => {
-    if (getSaveCanvasSectionDataError !== undefined) {
-      const errors = (getSaveCanvasSectionDataError as unknown as IDefaultError).errors
+    if (getSaveCanvasSectionDataError !== undefined && getSaveCanvasSectionDataError instanceof CanvasError) {
+      const errors = getSaveCanvasSectionDataError.errors
       const rowInvalidations = convertErrorsToRowInvalidations(errors)
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsError, schemaInvalidation: [], rowInvalidations: rowInvalidations })
     }
