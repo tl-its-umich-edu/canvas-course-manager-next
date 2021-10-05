@@ -40,14 +40,16 @@ export interface Globals {
 }
 
 export interface APIErrorPayload {
-  [k: string]: unknown
   canvasStatusCode: number
   message: string
   failedInput: string | null
 }
 
-const isAPIErrorPayload = (v: Record<string, unknown>): v is APIErrorPayload => {
-  return 'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+const isAPIErrorPayload = (v: unknown): v is APIErrorPayload => {
+  return (
+    (typeof v === 'object' && v !== null) &&
+    'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+  )
 }
 
 export interface APIErrorData {
