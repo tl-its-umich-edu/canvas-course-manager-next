@@ -9,9 +9,11 @@ import { useSnackbar } from 'notistack'
 import { AddSectionEnrollment, addSectionEnrollments, getCourseSections } from '../api'
 import APIErrorAlert from '../components/APIErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
+import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import usePromise from '../hooks/usePromise'
@@ -138,20 +140,19 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
-  const [latestAPIError, setLatestAPIError] = useState<Error | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
   }
 
-  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateSections(sections)
     }
   )
 
-  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError] = usePromise(
+  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSection, enrollments: AddSectionEnrollment[]) => {
       await addSectionEnrollments(section.id, enrollments)
     },
@@ -159,15 +160,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   useEffect(() => {
-    if (getCanvasSectionDataError !== undefined) {
-      setLatestAPIError(getCanvasSectionDataError)
-    } else if (addEnrollmentsError !== undefined) {
-      setLatestAPIError(addEnrollmentsError)
-    }
-  }, [getCanvasSectionDataError, addEnrollmentsError])
-
-  useEffect(() => {
-    void doLoadCanvasSectionData()
+    void doGetSections()
   }, [])
 
   useEffect(() => {
@@ -207,6 +200,17 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setEnrollments(undefined)
     setErrors(errors)
     setActiveStep(States.ReviewCSV)
+  }
+
+  const handleReset = (): void => {
+    clearGetSectionsError()
+    clearAddEnrollmentsError()
+    setActiveStep(States.SelectSection)
+  }
+
+  const handleReupload = (): void => {
+    clearAddEnrollmentsError()
+    setActiveStep(States.UploadCSV)
   }
 
   const parseFile = (file: File): void => {
@@ -259,54 +263,54 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const getSelectContent = (): JSX.Element => {
-    if (getCanvasSectionDataError === undefined) {
+    if (getSectionsError !== undefined) {
       return (
-        <>
-          <div className={classes.createSectionContainer}>
-            <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a distinct name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
-            <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
-          </div>
-          <Typography variant='subtitle1'>Or select one available section to add users</Typography>
-          <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget
-              height={400}
-              multiSelect={false}
-              sections={sections !== undefined ? sections : []}
-              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-              selectionUpdated={(sections) => setSelectedSection(sections[0])}
-            />
-            <div>
-              <Button
-                className={classes.sectionSelectButton}
-                variant='contained'
-                color='primary'
-                disabled={selectedSection === undefined}
-                onClick={() => { setActiveStep(activeStep + 1) }}
-              >
-                Select
-              </Button>
-            </div>
-            <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <CircularProgress color="inherit" />
-                </Grid>
-                <Grid item xs={12}>
-                  Loading sections
-                </Grid>
-              </Grid>
-            </Backdrop>
-          </div>
-        </>
-      )
-    } else {
-      return (
-        <Paper className={classes.sectionLoadError} role='alert'>
-          <Typography>Error loading sections</Typography>
-          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
-        </Paper>
+        <APIErrorAlert
+          message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
+          tryAgain={handleReset}
+        />
       )
     }
+
+    return (
+      <>
+        <div className={classes.createSectionContainer}>
+          <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a distinct name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
+          <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+        </div>
+        <Typography variant='subtitle1'>Or select one available section to add users</Typography>
+        <div className={classes.sectionSelectionContainer}>
+          <SectionSelectorWidget
+            height={400}
+            multiSelect={false}
+            sections={sections !== undefined ? sections : []}
+            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+            selectionUpdated={(sections) => setSelectedSection(sections[0])}
+          />
+          <div>
+            <Button
+              className={classes.sectionSelectButton}
+              variant='contained'
+              color='primary'
+              disabled={selectedSection === undefined}
+              onClick={() => { setActiveStep(activeStep + 1) }}
+            >
+              Select
+            </Button>
+          </div>
+          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}>
+                <CircularProgress color="inherit" />
+              </Grid>
+              <Grid item xs={12}>
+                Loading sections
+              </Grid>
+            </Grid>
+          </Backdrop>
+        </div>
+      </>
+    )
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -349,16 +353,6 @@ designer,userd`
       {renderFileUpload()}
     </div>
     )
-  }
-
-  const getReviewContent = (): JSX.Element => {
-    if (selectedSection !== undefined && enrollments !== undefined) {
-      return renderConfirm(selectedSection, enrollments)
-    } else if (errors !== undefined) {
-      return (renderErrors(errors))
-    } else {
-      return (<div>?</div>)
-    }
   }
 
   const renderCSVFileName = (): JSX.Element => {
@@ -412,7 +406,39 @@ designer,userd`
           </Grid>
         </Grid>
       </Backdrop>
-      </div>)
+      </div>
+    )
+  }
+
+  const renderPostError = (error: Error): JSX.Element => {
+    const apiErrorMessage = (
+      <Typography>The last action failed with the following message: {error.message}</Typography>
+    )
+
+    return (
+      error instanceof CanvasError
+        ? (
+            <RowLevelErrorsContent
+              table={<CanvasAPIErrorsTable errors={error.errors} />}
+              title='Some errors occurred'
+              errorType='error'
+              resetUpload={handleReupload}
+            />
+          )
+        : <APIErrorAlert message={apiErrorMessage} tryAgain={handleReset} />
+    )
+  }
+
+  const getReviewContent = (): JSX.Element => {
+    if (errors !== undefined) {
+      return (renderValidationErrors(errors))
+    } else if (addEnrollmentsError !== undefined) {
+      return renderPostError(addEnrollmentsError)
+    } else if (selectedSection !== undefined && enrollments !== undefined) {
+      return renderConfirm(selectedSection, enrollments)
+    } else {
+      return (<div>?</div>)
+    }
   }
 
   const getSuccessContent = (): JSX.Element => {
@@ -437,7 +463,7 @@ designer,userd`
     return <Button color='primary' component="span" onClick={() => setStateUpload()}>Upload again</Button>
   }
 
-  const renderErrors = (errors: ValidationError[]): JSX.Element => {
+  const renderValidationErrors = (errors: ValidationError[]): JSX.Element => {
     return (
       <div>
         {renderCSVFileName()}
@@ -480,40 +506,18 @@ designer,userd`
     }
   }
 
-  const handleReset = (): void => {
-    setLatestAPIError(undefined)
-    setActiveStep(States.SelectSection)
-  }
-
   return (
-    <>
-      <div className={classes.root}>
-        <Typography variant='h5'>{addUMUsersProps.title}</Typography>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        {
-          (latestAPIError === undefined)
-            ? <div>{getStepContent(activeStep)}</div>
-            : latestAPIError instanceof CanvasError
-              ? <p>Some kind of Canvas error data table</p>
-              : (
-                  <APIErrorAlert
-                    message={(
-                      <Typography>
-                        The last action failed for the following reason: {latestAPIError.message}
-                      </Typography>
-                    )}
-                    tryAgain={() => handleReset()}
-                  />
-                )
-        }
-      </div>
-    </>
+    <div className={classes.root}>
+      <Typography variant='h5'>{addUMUsersProps.title}</Typography>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <div>{getStepContent(activeStep)}</div>
+    </div>
   )
 }
 
