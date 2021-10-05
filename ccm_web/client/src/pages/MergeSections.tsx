@@ -11,6 +11,7 @@ import { getCourseSections, mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
+import CourseSections from '../components/CourseSections'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -126,7 +127,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       case PageState.Merging:
         return <div>Merging</div>
       case PageState.Merged:
-        return <div>Merge Successful</div>
+        return getMergeSuccess()
       default:
         return <div>?</div>
     }
@@ -259,6 +260,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         <Button className={classes.submitButton} onClick={submit} variant='contained' color='primary' disabled={!canMerge()}>Go Merge</Button>
       </>
     )
+  }
+
+  const getMergeSuccess = (): JSX.Element => {
+    return (<CourseSections canUnmerge={isAccountAdmin() || isSubAccountAdmin()} courseid={props.globals.course.id}/>)
   }
 
   return (
