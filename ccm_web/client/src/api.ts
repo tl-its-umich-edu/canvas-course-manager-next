@@ -7,11 +7,6 @@ const jsonMimeType = 'application/json'
 
 export const getCSRFToken = (): string | undefined => Cookies.get('CSRF-Token')
 
-export interface AddSectionEnrollment {
-  loginId: string
-  type: string
-}
-
 const getGet = (): RequestInit => {
   const request: RequestInit = {}
   request.method = 'GET'
@@ -73,6 +68,11 @@ export const addCourseSections = async (courseId: number, sectionNames: string[]
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
+}
+
+export interface AddSectionEnrollment {
+  loginId: string
+  type: string
 }
 
 export const addSectionEnrollments = async (

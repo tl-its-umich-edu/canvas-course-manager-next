@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
 import { useSnackbar } from 'notistack'
 
-import { AddSectionEnrollment, addSectionEnrollments, getCourseSections } from '../api'
+import { addSectionEnrollments, getCourseSections } from '../api'
 import APIErrorAlert from '../components/APIErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
@@ -125,8 +125,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (section: CanvasCourseSection, enrollments: AddSectionEnrollment[]) => {
-      await addSectionEnrollments(section.id, enrollments)
+    async (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]) => {
+      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
+      await addSectionEnrollments(section.id, apiEnrollments)
     },
     () => { setActiveStep(States.Confirmation) }
   )
@@ -328,8 +329,6 @@ designer,userd`
   }
 
   const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
-    const addSectionEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
-
     return (
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
@@ -348,7 +347,7 @@ designer,userd`
                 <Button variant="outlined" onClick={setStateUpload}>Cancel</Button>
                 <Button
                   variant='outlined'
-                  onClick={async () => await doAddEnrollments(section, addSectionEnrollments)}
+                  onClick={async () => await doAddEnrollments(section, enrollments)}
                 >
                   Submit
                 </Button>
