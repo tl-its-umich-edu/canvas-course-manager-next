@@ -25,15 +25,13 @@ const requestorOptions: GotOptions = {
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
-      const isStrangeError = !(error instanceof HTTPError) && error.code === undefined
-      const delay = computedValue === 0 && !isStrangeError ? 0 : 5000
+      const delay = computedValue === 0 ? 0 : 5000
 
-      let logMessage: string =
+      let logMessage =
         `calculateDelay [${String(attemptCount)}] — ` +
         `"delay": "${String(delay)}"; ` +
-        `"isStrangeError": ${String(isStrangeError)}; ` +
         `"retryOptions": "${JSON.stringify(retryOptions)}"; ` +
-        `error.code: ${String(error.code)}`
+        `"error.code": ${String(error.code)}`
 
       const headers = error.response?.headers
       if (headers !== undefined) {
@@ -67,8 +65,8 @@ const requestorOptions: GotOptions = {
     }],
     beforeRetry: [(options, error, retryCount) => {
       logger.debug(`beforeRetry [${String(retryCount)}] - ` +
-        `error.response.statusCode: "${String(error?.response?.statusCode)}"; ` +
-        `error.code: "${String(error?.code)}"`)
+        `"error.response.statusCode": "${String(error?.response?.statusCode)}"; ` +
+        `"error.code": "${String(error?.code)}"`)
     }]
   }
 }
