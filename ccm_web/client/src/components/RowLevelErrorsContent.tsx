@@ -26,10 +26,16 @@ interface RowLevelErrorsContentProps {
   title: string
   errorType: 'error' | 'warning'
   resetUpload: () => void
+  message?: JSX.Element
 }
 
 function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element {
   const classes = useStyles()
+  const defaultMessage = (
+    <Typography>
+      Create a new file with corrected versions of these lines and try again.
+    </Typography>
+  )
 
   return (
     <Grid container justify='flex-start'>
@@ -45,10 +51,8 @@ function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element 
                 ? <ErrorIcon className={classes.errorIcon} fontSize='large'/>
                 : <Warning className={classes.warningIcon} fontSize='large'/>
             }
-            <Typography>
-              Create a new file with corrected versions of these lines and
-              <Button color='primary' component='span' onClick={props.resetUpload}>Upload again</Button>
-            </Typography>
+            {props.message !== undefined ? props.message : defaultMessage}
+            <Button color='primary' component='span' onClick={props.resetUpload}>Upload again</Button>
           </Paper>
         </Grid>
       </Box>
