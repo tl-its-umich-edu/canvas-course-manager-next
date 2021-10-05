@@ -1,8 +1,8 @@
-import { Button, List, ListItem, ListItemText, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { getCourseSections } from '../api'
+import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionBase } from '../models/canvas'
 import { useSnackbar } from 'notistack'
 
 const useStyles = makeStyles((theme) => ({
@@ -23,6 +23,17 @@ const useStyles = makeStyles((theme) => ({
     borderWidth: '1px',
     borderColor: '#EEEEEE',
     marginBottom: '2px'
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    position: 'absolute'
+  },
+  listContainer: {
+    position: 'relative',
+    zIndex: 0,
+    textAlign: 'center',
+    minHeight: '400px'
   }
 }))
 
@@ -42,6 +53,28 @@ function CourseSections (props: CourseSectionsProps): JSX.Element {
     }
   )
 
+  const [sectionsToUnmerge, setSectionsToUnmerge] = React.useState<CanvasCourseSection[]>([])
+  const [doUnmerge, isUnmerging, unmergeError] = usePromise(
+    async () => await unmergeSections(sectionsToUnmerge),
+    (unmergedSections: CanvasCourseSectionBase[]) => {
+      setSections(sections.filter(section => { return !unmergedSections.map(s => { return s.id }).includes(section.id) }))
+      console.log('unmerged')
+      setSectionsToUnmerge([])
+    }
+  )
+  useEffect(() => {
+    if (sectionsToUnmerge.length > 0) {
+      void doUnmerge()
+    }
+  }, [sectionsToUnmerge])
+  useEffect(() => {
+    if (unmergeError !== undefined) {
+      enqueueSnackbar('Error unmerging', {
+        variant: 'error'
+      })
+    }
+  }, [unmergeError])
+
   useEffect(() => {
     void loadSections()
   }, [])
@@ -54,15 +87,35 @@ function CourseSections (props: CourseSectionsProps): JSX.Element {
     }
   }, [error])
 
+  const loadingText = (): string => {
+    return isLoading ? 'Loading...' : 'Unmerging...'
+  }
+
   const loading = (): JSX.Element => {
-    return (<div>Loading...</div>)
+    return (<Backdrop className={classes.backdrop} open={isLoading || isUnmerging}>
+      <Grid container>
+        <Grid item xs={12}>
+          <CircularProgress color="inherit" />
+        </Grid>
+        <Grid item xs={12}>
+          {loadingText()}
+        </Grid>
+      </Grid>
+    </Backdrop>)
+  }
+
+  const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: CanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
+    console.log(`unmerge section ${section.id}`)
+    e.stopPropagation()
+    setSectionsToUnmerge([section])
+    return undefined
   }
 
   const unmergeButton = (section: CanvasCourseSection): JSX.Element => {
     if (section.nonxlist_course_id !== null && props.canUnmerge) {
-      return <Button color='primary' variant='contained'>Unmerge</Button>
+      return (<Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>)
     } else {
-      return <></>
+      return (<></>)
     }
   }
 
@@ -90,23 +143,23 @@ function CourseSections (props: CourseSectionsProps): JSX.Element {
   }
 
   const sectionList = (): JSX.Element => {
-    if (isLoading) {
-      return loading()
-    } else {
-      return (
+    return (
       <div>
         <Typography variant='h6'>Course Sections</Typography>
-        <List>
-          {sections.map(section => {
-            return (
-            <ListItem key={section.id} className={classes.listItem}>
-              {listItemText(section)}
-            </ListItem>
-            )
-          })}
-        </List>
-      </div>)
-    }
+        <div className={classes.listContainer}>
+          <List>
+            {sections.map(section => {
+              return (
+              <ListItem key={section.id} className={classes.listItem}>
+                {listItemText(section)}
+              </ListItem>
+              )
+            })}
+          </List>
+          {loading()}
+        </div>
+      </div>
+    )
   }
 
   return (sectionList())
