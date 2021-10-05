@@ -1,10 +1,6 @@
 import React from 'react'
 import { makeStyles, Typography } from '@material-ui/core'
 
-interface CSVFileNameProps {
-  file: File
-}
-
 const useStyles = makeStyles(() => ({
   fileNameContainer: {
     marginBottom: 15,
@@ -17,6 +13,10 @@ const useStyles = makeStyles(() => ({
     fontFamily: 'monospace'
   }
 }))
+
+interface CSVFileNameProps {
+  file: File
+}
 
 export default function CSVFileName (props: CSVFileNameProps): JSX.Element {
   const classes = useStyles()
