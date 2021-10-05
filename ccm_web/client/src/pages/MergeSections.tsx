@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon } from '@material-ui/icons'
 
+import { useSnackbar } from 'notistack'
+
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
@@ -70,6 +72,7 @@ const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
+  const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
   // Updating untagedSections is done via setUnsyncedUnstagedSections so that the synchornizing of unstaged/staged sections can be done in useEffect
@@ -109,6 +112,14 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   )
 
   useEffect(() => {
+    if (mergeError !== undefined) {
+      enqueueSnackbar('Error merging', {
+        variant: 'error'
+      })
+    }
+  }, [mergeError])
+
+  useEffect(() => {
     if (!isMerging) {
       if (pageState === PageState.Merging) {
         setPageState(PageState.Merged)
@@ -133,12 +144,12 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  const isTeacher = (): boolean => {
-    if (OVERRIDE_ROLE !== undefined) {
-      return OVERRIDE_ROLE === RoleEnum.Teacher
-    }
-    return props.globals.course.roles.includes(RoleEnum.Teacher)
-  }
+  // const isTeacher = (): boolean => {
+  //   if (OVERRIDE_ROLE !== undefined) {
+  //     return OVERRIDE_ROLE === RoleEnum.Teacher
+  //   }
+  //   return props.globals.course.roles.includes(RoleEnum.Teacher)
+  // }
 
   const isSubAccountAdmin = (): boolean => {
     if (OVERRIDE_ROLE !== undefined) {
