@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ConfirmationTable from './ConfirmationTable'
+import CustomTable from './CustomTable'
 
 interface IAddUMUserEnrollment {
   rowNumber: number
@@ -29,7 +29,7 @@ function BulkEnrollUMUserConfirmationTable (props: BulkEnrollUMUserConfirmationT
 
   const tableRows = props.enrollments
 
-  return <ConfirmationTable<IAddUMUserEnrollment> {...{ tableRows, columns, page, setPage }} />
+  return <CustomTable<IAddUMUserEnrollment> {...{ tableRows, columns, page, setPage }} />
 }
 
 export type { BulkEnrollUMUserConfirmationTableProps, IAddUMUserEnrollment }
