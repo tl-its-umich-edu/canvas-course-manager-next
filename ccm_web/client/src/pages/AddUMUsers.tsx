@@ -3,7 +3,7 @@ import {
   Stepper, Theme, Tooltip, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
+import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
 import { useSnackbar } from 'notistack'
 
 import { AddSectionEnrollment, addSectionEnrollments, getCourseSections } from '../api'
@@ -11,6 +11,7 @@ import APIErrorAlert from '../components/APIErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
+import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
@@ -44,16 +45,6 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'relative',
       zIndex: 0,
       textAlign: 'center'
-    },
-    fileNameContainer: {
-      marginBottom: 15,
-      paddingLeft: 10,
-      paddingRight: 10,
-      textAlign: 'left'
-    },
-    fileName: {
-      color: '#3F648E',
-      fontFamily: 'monospace'
     },
     instructions: {
       marginTop: theme.spacing(1),
@@ -92,25 +83,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dialogIcon: {
       color: '#3F648E'
-    },
-    parseErrorDialog: {
-      textAlign: 'center',
-      marginBottom: 15,
-      paddingLeft: 10,
-      paddingRight: 10
-    },
-    parseErrorTable: {
-      paddingLeft: 10,
-      paddingRight: 10
-    },
-    parseErrorIcon: {
-      color: 'red'
-    },
-    sectionLoadErrorIcon: {
-      color: '#3F648E'
-    },
-    sectionLoadError: {
-      textAlign: 'center'
     },
     newSectionHint: {
       display: 'flex'
@@ -355,24 +327,12 @@ designer,userd`
     )
   }
 
-  const renderCSVFileName = (): JSX.Element => {
-    if (file !== undefined) {
-      return (
-        <h5 className={classes.fileNameContainer}>
-          <Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography>
-        </h5>
-      )
-    } else {
-      return <></>
-    }
-  }
-
   const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     const addSectionEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
 
     return (
       <div className={classes.confirmContainer}>
-        {renderCSVFileName()}
+        {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={classes.table}>
@@ -414,16 +374,18 @@ designer,userd`
     const apiErrorMessage = (
       <Typography>The last action failed with the following message: {error.message}</Typography>
     )
-
     return (
       error instanceof CanvasError
         ? (
+            <>
+            {file !== undefined && <CSVFileName file={file} />}
             <RowLevelErrorsContent
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
               errorType='error'
               resetUpload={handleReupload}
             />
+            </>
           )
         : <APIErrorAlert message={apiErrorMessage} tryAgain={handleReset} />
     )
@@ -459,31 +421,17 @@ designer,userd`
     setActiveStep(States.UploadCSV)
   }
 
-  const renderUploadAgainButton = (): JSX.Element => {
-    return <Button color='primary' component="span" onClick={() => setStateUpload()}>Upload again</Button>
-  }
-
   const renderValidationErrors = (errors: ValidationError[]): JSX.Element => {
     return (
-      <div>
-        {renderCSVFileName()}
-        <Grid container justify='flex-start'>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.parseErrorTable} >
-              <ValidationErrorTable invalidations={errors} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={classes.parseErrorDialog}>
-              <Paper role='alert'>
-                <Typography>Review your CSV file</Typography>
-                <ErrorIcon className={classes.parseErrorIcon} fontSize='large'/>
-                <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
-              </Paper>
-            </Grid>
-          </Box>
-        </Grid>
-      </div>
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<ValidationErrorTable invalidations={errors} />}
+        title='Review your CSV file'
+        errorType='error'
+        resetUpload={setStateUpload}
+      />
+      </>
     )
   }
 
