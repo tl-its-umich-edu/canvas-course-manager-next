@@ -66,6 +66,10 @@ const handleErrors = async (resp: Response): Promise<void> => {
     case 404:
       text = await resp.text()
       console.error(text)
+      errorBody = JSON.parse(text)
+      if (isCanvasAPIErrorData(errorBody)) {
+        throw new CanvasError(errorBody.errors)
+      }
       throw new NotFoundError()
     default:
       text = await resp.text()
