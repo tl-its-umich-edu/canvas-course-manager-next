@@ -37,6 +37,6 @@ export const canvasRoles: CanvasRole[] = [
 
 export const getCanvasRole = (clientName: string): string => {
   const role = canvasRoles.find(r => r.clientName === clientName)
-  if (role === undefined) throw Error(`${clientName} is not a valid client name for a Canvas Role`)
+  if (role === undefined) throw Error(`${clientName} is not a valid client name for a Canvas role.`)
   return role.canvasName
 }
