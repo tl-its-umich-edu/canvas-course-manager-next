@@ -223,6 +223,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const clearSearch = (): void => {
     props.selectionUpdated([])
     setSearchFieldText('')
+    setSearchFieldTextDebounced(undefined)
     setSectionSearcherText(undefined)
     searcher?.resetTitle()
   }
