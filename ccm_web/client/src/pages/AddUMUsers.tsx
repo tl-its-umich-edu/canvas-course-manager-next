@@ -17,11 +17,11 @@ import FileUpload from '../components/FileUpload'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
+import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, canvasRoles, getCanvasRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
 import { CanvasError } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
@@ -76,6 +76,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: 15,
       paddingLeft: 10,
       paddingRight: 10
+    },
+    dialogButton: {
+      margin: 5
     },
     table: {
       paddingLeft: 10,
@@ -248,7 +251,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     return (
       <>
         <div className={classes.createSectionContainer}>
-          <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a distinct name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
+          <div className={classes.newSectionHint}>
+            <Typography>Create a new section to add users</Typography>
+            <Tooltip placement='top' title='Enter a distinct name for this section'>
+              <HelpIcon fontSize='small'/>
+            </Tooltip>
+          </div>
           <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
         </div>
         <Typography variant='subtitle1'>Or select one available section to add users</Typography>
@@ -266,7 +274,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               variant='contained'
               color='primary'
               disabled={selectedSection === undefined}
-              onClick={() => { setActiveStep(activeStep + 1) }}
+              onClick={() => { setActiveStep(States.UploadCSV) }}
             >
               Select
             </Button>
@@ -274,7 +282,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
             <Grid container>
               <Grid item xs={12}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
               </Grid>
               <Grid item xs={12}>
                 Loading sections
@@ -344,8 +352,9 @@ designer,userd`
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button variant="outlined" onClick={setStateUpload}>Cancel</Button>
+                <Button className={classes.dialogButton} variant='outlined' onClick={setStateUpload}>Cancel</Button>
                 <Button
+                  className={classes.dialogButton}
                   variant='outlined'
                   onClick={async () => await doAddEnrollments(section, enrollments)}
                 >
@@ -361,7 +370,10 @@ designer,userd`
             <CircularProgress color="inherit" />
           </Grid>
           <Grid item xs={12}>
-          Loading...
+            Loading...
+          </Grid>
+          <Grid item xs={12}>
+            Please stay on the page. This may take up to a couple of minutes for larger files.
           </Grid>
         </Grid>
       </Backdrop>
@@ -386,13 +398,13 @@ designer,userd`
             />
             </>
           )
-        : <APIErrorAlert message={apiErrorMessage} tryAgain={handleReset} />
+        : <APIErrorAlert message={apiErrorMessage} tryAgain={handleReupload} />
     )
   }
 
   const getReviewContent = (): JSX.Element => {
     if (errors !== undefined) {
-      return (renderValidationErrors(errors))
+      return renderValidationErrors(errors)
     } else if (addEnrollmentsError !== undefined) {
       return renderPostError(addEnrollmentsError)
     } else if (selectedSection !== undefined && enrollments !== undefined) {
@@ -404,11 +416,15 @@ designer,userd`
 
   const getSuccessContent = (): JSX.Element => {
     const { canvasURL, course } = props.globals
-    const settingsURL = `${canvasURL}/courses/${course.id}/settings`
+    const settingsLink = (
+      <Link href={`${canvasURL}/courses/${course.id}/settings`} target='_parent'>
+        Canvas Settings page
+      </Link>
+    )
     const message = <Typography>New users have been added to the section!</Typography>
     const nextAction = (
       <span>
-        See the users in the course&apos;s sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link>for your course.
+        See the users in the course&apos;s sections on the {settingsLink} for your course.
       </span>
     )
     return <SuccessCard {...{ message, nextAction }} />
@@ -457,11 +473,7 @@ designer,userd`
     <div className={classes.root}>
       <Typography variant='h5'>{addUMUsersProps.title}</Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
+        {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
       </Stepper>
       <div>{getStepContent(activeStep)}</div>
     </div>
