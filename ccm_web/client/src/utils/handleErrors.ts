@@ -50,31 +50,25 @@ class CanvasError extends Error implements ICanvasError {
 
 const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
-  let text: string
-  let errorBody: APIErrorData
+  const text = await resp.text()
+  console.error(text)
+  const errorBody: APIErrorData = JSON.parse(text)
+
   switch (resp.status) {
     case 401:
-      text = await resp.text()
-      console.error(text)
-      errorBody = JSON.parse(text)
       if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
-      text = await resp.text()
-      console.error(text)
+      if (isCanvasAPIErrorData(errorBody)) {
+        throw new CanvasError(errorBody.errors)
+      }
       throw new ForbiddenError()
     case 404:
-      text = await resp.text()
-      console.error(text)
-      errorBody = JSON.parse(text)
       if (isCanvasAPIErrorData(errorBody)) {
         throw new CanvasError(errorBody.errors)
       }
       throw new NotFoundError()
     default:
-      text = await resp.text()
-      console.error(text)
-      errorBody = JSON.parse(text)
       if (isCanvasAPIErrorData(errorBody)) {
         throw new CanvasError(errorBody.errors)
       } else {
