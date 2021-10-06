@@ -123,7 +123,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [anchorSortEl, setAnchorSortEl] = React.useState<null | HTMLElement>(null)
 
   const [searcher, setSearcher] = React.useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
-  const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? `Search By ${(props.search)[0].name}` : undefined)
+  const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
   const [sectionsToUnmerge, setSectionsToUnmerge] = React.useState<CanvasCourseSection[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
@@ -226,8 +226,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
     const sort = event.target.value as string
-    setSearcher((props.search).filter(searcher => { return searcher.name === sort })[0])
-    setSearchFieldLabel(`Search by ${sort}`)
+    const newSearcher = (props.search).filter(searcher => { return searcher.name === sort })[0]
+    setSearcher(newSearcher)
+    setSearchFieldLabel(newSearcher.helperText)
   }
 
   const [search, isSearching, searchError] = usePromise(async () => {
@@ -296,7 +297,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element => {
     if (section.nonxlist_course_id !== null && props.canUnmerge) {
-      return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge from {section.nonxlist_course_id}</Button>
+      return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>
     } else {
       return <></>
     }
