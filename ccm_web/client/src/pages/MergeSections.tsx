@@ -166,7 +166,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const stageSections = (): void => {
-    setStagedSections(stagedSections.concat(selectedUnstagedSections))
+    setStagedSections(selectedUnstagedSections.concat(stagedSections))
     setUnsyncedUnstagedSections(unstagedSections)
     setSelectedUnstagedSections([])
   }
