@@ -11,7 +11,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
   courseId: number
   setSections: (sections: CanvasCourseSection[]) => void
   updateTitleCallback: (title: string) => void
-  constructor (termId: number, courseId: number, name: string, helperText:string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, name: string, helperText: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     this.termId = termId
     this.courseId = courseId
     this.name = name

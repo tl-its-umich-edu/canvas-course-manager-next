@@ -496,13 +496,13 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             </ListItem>)
           })}
         </List>
-        <Backdrop className={classes.backdrop} open={isSearching}>
+        <Backdrop className={classes.backdrop} open={isSearching || isUnmerging}>
           <Grid container>
             <Grid item xs={12}>
               <CircularProgress color="inherit" />
             </Grid>
             <Grid item xs={12}>
-              Searching...
+              {isSearching ? 'Searching...' : 'Unmerging...'}
             </Grid>
           </Grid>
         </Backdrop>

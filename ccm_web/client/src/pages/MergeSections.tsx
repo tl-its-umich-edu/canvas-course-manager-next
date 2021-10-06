@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, Grid, LinearProgress, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon } from '@material-ui/icons'
 
 import { useSnackbar } from 'notistack'
@@ -132,12 +132,27 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     void doLoadStagedSectionData()
   }, [])
 
+  const getMerging = (): JSX.Element => {
+    return (
+      <div style={{ paddingTop: '20px', minHeight: '400px', textAlign: 'center' }}>
+        <Grid container>
+        <Grid item xs={12}>
+            Merging sections...
+          </Grid>
+          <Grid item xs={12} style={{ paddingTop: '20px' }}>
+            <LinearProgress />
+          </Grid>
+        </Grid>
+      </div>
+    )
+  }
+
   const renderComponent = (): JSX.Element => {
     switch (pageState) {
       case PageState.SelectSections:
         return getSelectSections()
       case PageState.Merging:
-        return <div>Merging</div>
+        return getMerging()
       case PageState.Merged:
         return getMergeSuccess()
       default:
