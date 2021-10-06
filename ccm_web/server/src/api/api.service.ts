@@ -15,7 +15,6 @@ import {
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
 import baseLogger from '../logger'
-import { localeIncludes } from '../localeIncludes'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -101,20 +100,6 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const courseHandler = new CourseApiHandler(requestor, courseId)
     return await courseHandler.createSections(sections)
-  }
-
-  // TODO hack just search by section name
-  async getCourseSectionsByCourseName (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
-    const result = await this.getCourseSections(user, course)
-    if (isAPIErrorData(result)) return result
-    return result.filter(c => { return localeIncludes(c.name, searchText) })
-  }
-
-  // TODO hack just search by section name
-  async getCourseSectionsByUniqname (user: User, course: number, searchText: string): Promise<CanvasCourseSection[] | APIErrorData> {
-    const result = await this.getCourseSections(user, course)
-    if (isAPIErrorData(result)) return result
-    return result.filter(c => { return localeIncludes(c.name, searchText) })
   }
 
   async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {

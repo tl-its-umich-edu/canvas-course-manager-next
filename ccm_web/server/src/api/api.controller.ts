@@ -71,25 +71,6 @@ export class APIController {
     return result
   }
 
-  @ApiSecurity('CSRF-Token')
-  @Get('course/:id/sections/search')
-  async searchSections (@Param('id', ParseIntPipe) courseId: number,
-    @Query('uniqname') uniqname: string,
-    @Query('coursename') courseName: string,
-    @UserDec() user: User): Promise<CanvasCourseSection[]> {
-    if (courseName !== undefined) {
-      const result = await this.apiService.getCourseSectionsByCourseName(user, courseId, courseName)
-      if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-      return result
-    } else if (uniqname !== undefined) {
-      const result = await this.apiService.getCourseSectionsByUniqname(user, courseId, uniqname)
-      if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-      return result
-    } else {
-      throw new HttpException('Invalid section search parameter', 400)
-    }
-  }
-
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enroll')
