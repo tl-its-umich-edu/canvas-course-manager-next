@@ -130,12 +130,15 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     async () => await unmergeSections(sectionsToUnmerge),
     (sections: CanvasCourseSectionBase[]) => {
       console.log('unmerged')
-      setSectionsToUnmerge([])
     }
   )
   useEffect(() => {
     if (sectionsToUnmerge.length > 0) {
-      void doUnmerge()
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      doUnmerge().then(() => {
+        setInternalSections(internalSections.filter(section => { return !sectionsToUnmerge.map(s2u => { return s2u.id }).includes(section.id) }))
+        setSectionsToUnmerge([])
+      })
     }
   }, [sectionsToUnmerge])
   useEffect(() => {
