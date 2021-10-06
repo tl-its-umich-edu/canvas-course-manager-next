@@ -288,9 +288,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
   }
 
-  // const unmergeSection = (section: SelectableCanvasCourseSection): void => {
-  //   console.log(`unmerge section ${section.id}`)
-  // }
   const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: SelectableCanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
     console.log(`unmerge section ${section.id}`)
     e.stopPropagation()

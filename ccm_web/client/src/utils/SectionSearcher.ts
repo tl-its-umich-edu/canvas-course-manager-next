@@ -92,14 +92,3 @@ const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWi
     return courseWithSections.sections.map(section => { return { ...section, course_name: courseWithSections.name } })
   }).flat()
 }
-
-// const canvasCourseSectionsToCoursesWithSections = (canvasCourseSections: CanvasCourseSection[]): CourseWithSections[] => {
-//   return canvasCourseSections.map(canvasCourseSection => {
-//     return {
-//       id: canvasCourseSection.course_id,
-//       name: canvasCourseSection.course_name,
-//       enrollment_term_id: 0,
-//       sections: canvasCourseSections
-//     }
-//   }).flat()
-// }
