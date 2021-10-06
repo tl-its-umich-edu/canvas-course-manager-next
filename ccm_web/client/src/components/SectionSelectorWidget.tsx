@@ -304,16 +304,16 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
+    const isSelected = isSectionSelected(section.id)
     if (props.showCourseName ?? false) {
       return (
-        <ListItemText primary={section.name}
+        <ListItemText primary={section.name} style={isSelected ? { color: '#3777c5' } : { }}
           secondary={
             <React.Fragment>
               <Typography
                 component="span"
                 variant="body2"
                 className={classes.secondaryTypography}
-                color="textPrimary"
               >
                 <span className={classes.overflowEllipsis}>{section.course_name}</span>
               </Typography>
