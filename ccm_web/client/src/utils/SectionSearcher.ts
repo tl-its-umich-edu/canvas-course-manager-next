@@ -5,15 +5,17 @@ import { localeIncludes } from './localeIncludes'
 
 export abstract class SectionSearcher implements ISectionSearcher {
   name: string
+  helperText: string
   preload: string | undefined
   termId: number
   courseId: number
   setSections: (sections: CanvasCourseSection[]) => void
   updateTitleCallback: (title: string) => void
-  constructor (termId: number, courseId: number, name: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, name: string, helperText:string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     this.termId = termId
     this.courseId = courseId
     this.name = name
+    this.helperText = helperText
     this.preload = preload
     this.setSections = setSectionsCallabck
     this.updateTitleCallback = updateTitle
@@ -45,25 +47,21 @@ export abstract class SectionSearcher implements ISectionSearcher {
 
 export class UniqnameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
-    super(termId, courseId, 'Uniqname', undefined, setSectionsCallabck, updateTitle)
+    super(termId, courseId, 'Uniqname', 'Search by exact Instructor Uniqname', undefined, setSectionsCallabck, updateTitle)
   }
 
   resetTitle = (): void => {
-    this.updateTitleCallback('Sections for uniqname')
+    this.updateTitleCallback('Sections for Uniqname')
   }
 
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
-    // if (searchText === undefined) {
-    //   return []
-    // }
-
     return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'uniqname', searchText))
   }
 }
 
 export class CourseNameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
-    super(termId, courseId, 'Course Name', undefined, setSectionsCallabck, updateTitle)
+    super(termId, courseId, 'Course Name', 'Search by course name', undefined, setSectionsCallabck, updateTitle)
   }
 
   resetTitle = (): void => {
@@ -71,17 +69,13 @@ export class CourseNameSearcher extends SectionSearcher {
   }
 
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
-    // if (searchText === undefined) {
-    //   return []
-    // }
-
     return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'coursename', searchText))
   }
 }
 
 export class SectionNameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
-    super(termId, courseId, 'Section Name', '', setSectionsCallabck, updateTitle)
+    super(termId, courseId, 'Section Name', 'Search by section name', '', setSectionsCallabck, updateTitle)
   }
 
   resetTitle = (): void => {

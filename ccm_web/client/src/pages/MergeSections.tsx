@@ -59,6 +59,7 @@ enum PageState {
 
 export interface ISectionSearcher {
   name: string
+  helperText: string
   preload: string | undefined
   search: (searchString: string) => Promise<void>
   updateTitleCallback: (title: string) => void
