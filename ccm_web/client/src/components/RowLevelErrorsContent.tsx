@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => ({
     color: '#3F648E'
   },
   warningIcon: {
-    color: '#e2cf2a'
+    color: '#E2CF2A'
   }
 }))
 

@@ -52,8 +52,7 @@ const isAPIErrorPayload = (v: unknown): v is APIErrorPayload => {
   )
 }
 
-export interface APIErrorData {
-  [k: string]: unknown
+export interface APIErrorData extends Record<string, unknown> {
   statusCode: number
   error?: string
   message?: string | string[]
