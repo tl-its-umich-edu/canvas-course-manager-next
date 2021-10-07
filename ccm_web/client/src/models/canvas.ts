@@ -14,29 +14,43 @@ export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
+export enum CanvasRoleType {
+  Student = 'StudentEnrollment',
+  Teacher = 'TeacherEnrollment',
+  TA = 'TaEnrollment',
+  Observer = 'ObserverEnrollment',
+  Designer = 'DesignerEnrollment'
+}
+
+export enum ClientRoleType {
+  Student = 'student',
+  Teacher = 'teacher',
+  TA = 'ta',
+  Observer = 'observer',
+  Designer = 'designer'
+}
+const clientStringValues = Object.values(ClientRoleType).map(m => String(m))
+
 export interface CanvasEnrollment {
   id: number
   course_id: number
   course_section_id: number
   user_id: number
-  type: string
+  type: CanvasRoleType
 }
 
-export interface CanvasRole {
-  clientName: string
-  canvasName: string
+const clientToCanvasRoleMap: Record<ClientRoleType, CanvasRoleType> = {
+  student: CanvasRoleType.Student,
+  teacher: CanvasRoleType.Teacher,
+  ta: CanvasRoleType.TA,
+  observer: CanvasRoleType.Observer,
+  designer: CanvasRoleType.Designer
 }
 
-export const canvasRoles: CanvasRole[] = [
-  { clientName: 'student', canvasName: 'StudentEnrollment' },
-  { clientName: 'teacher', canvasName: 'TeacherEnrollment' },
-  { clientName: 'ta', canvasName: 'TaEnrollment' },
-  { clientName: 'observer', canvasName: 'ObserverEnrollment' },
-  { clientName: 'designer', canvasName: 'DesignerEnrollment' }
-]
+export const isValidRole = (role: string): role is ClientRoleType => {
+  return clientStringValues.includes(role)
+}
 
-export const getCanvasRole = (clientName: string): string => {
-  const role = canvasRoles.find(r => r.clientName === clientName)
-  if (role === undefined) throw Error(`${clientName} is not a valid client name for a Canvas role.`)
-  return role.canvasName
+export const getCanvasRole = (clientName: ClientRoleType): CanvasRoleType => {
+  return clientToCanvasRoleMap[clientName]
 }

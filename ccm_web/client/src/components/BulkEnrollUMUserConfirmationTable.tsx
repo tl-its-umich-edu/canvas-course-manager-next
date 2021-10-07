@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
+
 import CustomTable from './CustomTable'
+import { ClientRoleType } from '../models/canvas'
 
 interface IAddUMUserEnrollment {
   rowNumber: number
   loginId: string
-  role: string
+  role: ClientRoleType
 }
 
 interface BulkEnrollUMUserConfirmationTableProps {

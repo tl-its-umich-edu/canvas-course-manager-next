@@ -19,7 +19,7 @@ import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, canvasRoles, getCanvasRole } from '../models/canvas'
+import { CanvasCourseSection, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
@@ -155,10 +155,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setSelectedSection(newSection)
   }
 
-  const isValidRole = (role: string): boolean => {
-    return canvasRoles.map(canvasRole => { return canvasRole.clientName.localeCompare(role, 'en', { sensitivity: 'base' }) === 0 }).filter(value => { return value }).length > 0
-  }
-
   const isValidLoginId = (loginId: string): boolean => {
     // return uniqname.match(UNIQNAME_REGEX) !== null
     // Don't apply any validation here, just pass anything through
@@ -215,12 +211,13 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         if (parts.length !== 2) {
           errors.push({ rowNumber: i + 2, message: 'Invalid column count' })
         } else {
-          if (!isValidRole(parts[0])) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
-          } else if (!isValidLoginId(parts[1])) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
+          const [role, loginId] = parts.map(p => p.trim())
+          if (!isValidRole(role)) {
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
+          } else if (!isValidLoginId(loginId)) {
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
           } else {
-            enrollments.push({ rowNumber: i + 2, loginId: parts[1].trim(), role: parts[0].trim() })
+            enrollments.push({ rowNumber: i + 2, loginId, role })
           }
         }
       })
