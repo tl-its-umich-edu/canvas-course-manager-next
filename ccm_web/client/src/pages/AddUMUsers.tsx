@@ -136,8 +136,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   useEffect(() => {
-    void doGetSections()
-  }, [])
+    if (getSectionsError === undefined) {
+      void doGetSections()
+    }
+  }, [getSectionsError])
 
   useEffect(() => {
     if (file !== undefined) {
