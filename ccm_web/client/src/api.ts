@@ -87,13 +87,6 @@ export const setCSRFTokenCookie = async (): Promise<void> => {
   await handleErrors(resp)
 }
 
-export const getMergedSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
-  const request = getGet()
-  const resp = await fetch('/api/course/' + courseId.toString() + '/sections/merged', request)
-  await handleErrors(resp)
-  return await resp.json()
-}
-
 export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
   const request = getGet()
   const resp = await fetch(`/api/instructor/sections?term_id=${termId}`, request)
