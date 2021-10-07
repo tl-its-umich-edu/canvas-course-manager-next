@@ -256,7 +256,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           </div>
           <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
         </div>
-        <Typography variant='subtitle1'>Or select one available section to add users</Typography>
+        <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
         <div className={classes.sectionSelectionContainer}>
           <SectionSelectorWidget
             height={400}
