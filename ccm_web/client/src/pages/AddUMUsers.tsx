@@ -117,7 +117,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
-    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
