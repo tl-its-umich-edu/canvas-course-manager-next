@@ -65,7 +65,7 @@ function App (): JSX.Element {
   }
 
   if (isCourseLoading) return loading
-  if (getCourseError !== undefined) {
+  if (getCourseError !== undefined || course === undefined) {
     return (
       <div className='App'>
         <p>Course info failed to load.</p>
