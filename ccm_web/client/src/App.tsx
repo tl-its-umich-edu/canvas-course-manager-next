@@ -43,7 +43,7 @@ function App (): JSX.Element {
 
   const loading = <div className='App'><p>Loading...</p></div>
 
-  if (isAuthenticated === undefined || isLoading || isCourseLoading || course === undefined) return loading
+  if (isAuthenticated === undefined || isLoading) return loading
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
@@ -60,6 +60,15 @@ function App (): JSX.Element {
       <div className='App'>
         <Breadcrumbs />
         <AuthorizePrompt />
+      </div>
+    )
+  }
+
+  if (isCourseLoading) return loading
+  if (getCourseError !== undefined) {
+    return (
+      <div className='App'>
+        <p>Course info failed to load.</p>
       </div>
     )
   }
