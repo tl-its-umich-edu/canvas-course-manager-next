@@ -19,7 +19,7 @@ export interface CanvasEnrollment {
   course_id: number
   course_section_id: number
   user_id: number
-  type: string // use RoleEnum?
+  type: string
 }
 
 export interface CanvasRole {
