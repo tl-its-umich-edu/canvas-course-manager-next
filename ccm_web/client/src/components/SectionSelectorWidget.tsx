@@ -103,6 +103,7 @@ interface ISectionSelectorWidgetProps {
     sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string}>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
   }
   canUnmerge: boolean
+  sectionsRemoved?: (sections: SelectableCanvasCourseSection[]) => void
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -137,6 +138,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       doUnmerge().then(() => {
         setInternalSections(internalSections.filter(section => { return !sectionsToUnmerge.map(s2u => { return s2u.id }).includes(section.id) }))
+        if (props.sectionsRemoved !== undefined) {
+          props.sectionsRemoved(sectionsToUnmerge)
+        }
         setSectionsToUnmerge([])
       })
     }

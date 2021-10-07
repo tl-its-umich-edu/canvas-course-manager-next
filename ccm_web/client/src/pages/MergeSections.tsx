@@ -224,6 +224,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     )
   }
 
+  const handleUnmergedSections = (unmergedSections: SelectableCanvasCourseSection[]): void => {
+    setStagedSections(stagedSections.filter(section => { return !unmergedSections.map(us => { return us.id }).includes(section.id) }))
+  }
+
   const getSelectSectionsStaged = (): JSX.Element => {
     if (loadStagedSectionsError === undefined) {
       return (
@@ -239,6 +243,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               sections={stagedSections !== undefined ? stagedSections : []}
               selectedSections={selectedStagedSections}
               selectionUpdated={setSelectedStagedSections}
+              sectionsRemoved={handleUnmergedSections}
               canUnmerge={isSubAccountAdmin() || isAccountAdmin()}></SectionSelectorWidget>
             <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
               <Grid container>
