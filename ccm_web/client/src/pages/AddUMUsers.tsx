@@ -26,6 +26,7 @@ import { CanvasError } from '../utils/handleErrors'
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
 const MAX_ENROLLMENT_RECORDS = 400
+const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -212,9 +213,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       lines = lines.slice(1)
 
       if (lines.length > MAX_ENROLLMENT_RECORDS) {
-        handleFileError(
-          `There are too many records in the CSV; the maximum number of lines is ${MAX_ENROLLMENT_RECORDS}.`
-        )
+        handleFileError(`There are too many records in the CSV. ${MAX_ENROLLMENT_MESSAGE}`)
       }
 
       const enrollments: IAddUMUserEnrollment[] = []
@@ -312,8 +311,9 @@ observer,userc
 designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       bodyText: (
-        `Your file should include a ${USER_ID_TEXT.toLocaleLowerCase()} and a ${USER_ROLE_TEXT.toLocaleLowerCase()} for each user. ` +
-        `The maximum number of records allowed is ${MAX_ENROLLMENT_RECORDS}.`
+        `Your file should include a ${USER_ID_TEXT.toLocaleLowerCase()} ` +
+        `and a ${USER_ROLE_TEXT.toLocaleLowerCase()} for each user. ` +
+        MAX_ENROLLMENT_MESSAGE
       ),
       fileData: fileData,
       fileName: 'bulk_um_enroll.csv',
