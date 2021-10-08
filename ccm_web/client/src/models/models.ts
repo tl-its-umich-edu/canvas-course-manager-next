@@ -45,14 +45,28 @@ export interface APIErrorPayload {
   failedInput: string | null
 }
 
-export interface APIErrorData {
+const isAPIErrorPayload = (v: unknown): v is APIErrorPayload => {
+  return (
+    (typeof v === 'object' && v !== null) &&
+    'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+  )
+}
+
+export interface APIErrorData extends Record<string, unknown> {
   statusCode: number
-  message?: string
-  redirect?: true
   error?: string
+  message?: string | string[]
+  redirect?: boolean
+}
+
+export interface CanvasAPIErrorData extends APIErrorData {
   errors: APIErrorPayload[]
 }
 
-export interface IDefaultError {
-  errors: APIErrorPayload[]
+export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is CanvasAPIErrorData => {
+  return (
+    'errors' in errorData &&
+    Array.isArray(errorData.errors) &&
+    errorData.errors.every(e => isAPIErrorPayload(e))
+  )
 }

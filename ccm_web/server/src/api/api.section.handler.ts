@@ -66,7 +66,7 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, JSON.stringify(user))
+      const errorResponse = handleAPIError(error, `Login ID: ${user.loginId}; Role: ${user.type}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]

@@ -5,7 +5,9 @@ import ErrorIcon from '@material-ui/icons/Error'
 import WarningIcon from '@material-ui/icons/Warning'
 import { parse, ParseResult } from 'papaparse'
 
+import CSVFileName from '../components/CSVFileName'
 import FileUpload from '../components/FileUpload'
+import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { canvasGradebookFormatterProps } from '../models/feature'
@@ -19,15 +21,6 @@ const useStyles = makeStyles((theme) => ({
     '& button': {
       margin: 5
     }
-  },
-  fileNameContainer: {
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
-  fileName: {
-    color: '#3F648E',
-    fontFamily: 'monospace'
   },
   uploadHeader: {
     paddingTop: 15
@@ -50,22 +43,6 @@ const useConfirmationStyles = makeStyles((theme) => ({
   },
   dialogWarningIcon: {
     color: '#e2cf2a'
-  }
-}))
-
-const useRowLevelErrorStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
-  table: {
-    paddingLeft: 10,
-    paddingRight: 10
-  },
-  dialogIcon: {
-    color: 'red'
   }
 }))
 
@@ -126,7 +103,6 @@ interface DownloadData {
 function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
-  const rowLevelErrorClasses = useRowLevelErrorStyles()
   const topLevelClasses = useTopLevelErrorStyles()
 
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
@@ -251,30 +227,23 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     </span>
   }
 
-  const renderUploadAgainButton = (): JSX.Element => {
-    return <Button color='primary' component="span" onClick={() => resetPageState()}>Upload again</Button>
-  }
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
     return (
       <div>
-        {renderCSVFileName()}
-        <Grid container justify='flex-start'>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={rowLevelErrorClasses.table} >
-              <ValidationErrorTable invalidations={invalidations} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={rowLevelErrorClasses.dialog}>
-              <Paper role='alert' >
-                <ErrorIcon className={rowLevelErrorClasses.dialogIcon} fontSize='large'/>
-                <Typography>Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors</Typography>
-                <Typography>{renderUploadAgainButton()}</Typography>
-              </Paper>
-            </Grid>
-          </Box>
-        </Grid>
-      </div>)
+        {file !== undefined && <CSVFileName file={file} />}
+        <RowLevelErrorsContent
+          table={<ValidationErrorTable invalidations={invalidations} />}
+          title='Some errors occurred'
+          errorType='error'
+          message={(
+            <Typography>
+              Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors.
+            </Typography>
+          )}
+          resetUpload={resetPageState}
+        />
+      </div>
+    )
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
@@ -284,7 +253,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     const errorList = errors.length > 1 ? <ol>{errorListItems}</ol> : <ul>{errorListItems}</ul>
     return (
       <div>
-        {renderCSVFileName()}
+        {file !== undefined && <CSVFileName file={file} />}
         <Grid container justify='flex-start'>
           <Grid item xs={12} className={topLevelClasses.dialog}>
             <Paper role='alert'>
@@ -294,14 +263,6 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
           </Grid>
         </Grid>
       </div>)
-  }
-
-  const renderCSVFileName = (): JSX.Element => {
-    if (file !== undefined) {
-      return (<h5 className={classes.fileNameContainer}><Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography></h5>)
-    } else {
-      return <></>
-    }
   }
 
   const renderInvalidUpload = (): JSX.Element => {
@@ -333,7 +294,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const renderConfirm = (grades: StudentGrade[], overideGradeMismatchWarning: boolean): JSX.Element => {
     return (
       <div>
-        {renderCSVFileName()}
+        {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={confirmationClasses.table}>

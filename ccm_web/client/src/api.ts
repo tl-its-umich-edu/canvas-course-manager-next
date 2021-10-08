@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
@@ -66,6 +66,21 @@ export const addCourseSections = async (courseId: number, sectionNames: string[]
   const body = JSON.stringify({ sections: sectionNames })
   const request = getPost(body)
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export interface AddSectionEnrollment {
+  loginId: string
+  type: string
+}
+
+export const addSectionEnrollments = async (
+  sectionId: number, enrollments: AddSectionEnrollment[]
+): Promise<CanvasEnrollment> => {
+  const body = JSON.stringify({ users: enrollments })
+  const request = getPost(body)
+  const resp = await fetch(`/api/sections/${sectionId}/enroll`, request)
   await handleErrors(resp)
   return await resp.json()
 }

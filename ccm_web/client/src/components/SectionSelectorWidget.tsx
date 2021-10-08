@@ -21,7 +21,7 @@ interface ISectionSelectorWidgetProps {
   selectedSections: CanvasCourseSection[]
   height: number
   multiSelect: boolean
-  selectionUpdated: (section: CanvasCourseSection[]) => void
+  selectionUpdated: (sections: CanvasCourseSection[]) => void
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
