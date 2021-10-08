@@ -25,12 +25,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface APIErrorAlertProps {
+interface ErrorAlertProps {
   message?: JSX.Element
   tryAgain: () => void
 }
 
-export default function ErrorAlert (props: APIErrorAlertProps): JSX.Element {
+export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   const classes = useStyles()
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
   return (
