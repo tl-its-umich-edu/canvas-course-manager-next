@@ -30,7 +30,7 @@ interface APIErrorAlertProps {
   tryAgain: () => void
 }
 
-export default function APIErrorAlert (props: APIErrorAlertProps): JSX.Element {
+export default function ErrorAlert (props: APIErrorAlertProps): JSX.Element {
   const classes = useStyles()
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
   return (

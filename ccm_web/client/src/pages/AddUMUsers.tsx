@@ -4,10 +4,9 @@ import {
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
-import { useSnackbar } from 'notistack'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
-import APIErrorAlert from '../components/APIErrorAlert'
+import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
@@ -17,7 +16,7 @@ import FileUpload from '../components/FileUpload'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
-import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
+import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
@@ -26,6 +25,7 @@ import { CanvasError } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
+const MAX_ENROLLMENT_RECORDS = 400
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -107,14 +107,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const classes = useStyles()
-  const { enqueueSnackbar } = useSnackbar()
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSection | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
-  const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
+  const [fileError, setFileError] = useState<string | undefined>(undefined)
+  const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
@@ -158,32 +158,37 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const isValidLoginId = (loginId: string): boolean => {
-    // return uniqname.match(UNIQNAME_REGEX) !== null
-    // Don't apply any validation here, just pass anything through
-    // Flag this function for deletion in 3.. 2.. 1...
+    if (loginId.trim().length === 0) return false
     return true
   }
 
   const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
     setEnrollments(enrollments)
-    setErrors(undefined)
+    setRowErrors(undefined)
     setActiveStep(States.ReviewCSV)
   }
 
-  const handleParseFailure = (errors: ValidationError[]): void => {
+  const handleParseFailure = (errors: RowValidationError[]): void => {
     setEnrollments(undefined)
-    setErrors(errors)
+    setRowErrors(errors)
     setActiveStep(States.ReviewCSV)
   }
 
-  const handleReset = (): void => {
-    clearGetSectionsError()
-    clearAddEnrollmentsError()
-    setActiveStep(States.SelectSection)
+  const handleFileError = (errorText: string): void => {
+    setFileError(errorText)
+    setActiveStep(States.ReviewCSV)
   }
 
-  const handleReupload = (): void => {
+  const handleEnrollmentsReset = (): void => {
     clearAddEnrollmentsError()
+    setEnrollments(undefined)
+    setFile(undefined)
+    setFileError(undefined)
+    setRowErrors(undefined)
+  }
+
+  const handleUploadReset = (): void => {
+    handleEnrollmentsReset()
     setActiveStep(States.UploadCSV)
   }
 
@@ -206,8 +211,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
       lines = lines.slice(1)
 
+      if (lines.length > MAX_ENROLLMENT_RECORDS) {
+        handleFileError(
+          `There are too many records in the CSV; the maximum number of lines is ${MAX_ENROLLMENT_RECORDS}.`
+        )
+      }
+
       const enrollments: IAddUMUserEnrollment[] = []
-      const errors: ValidationError[] = []
+      const errors: RowValidationError[] = []
       lines.forEach((line, i) => {
         const parts = line.split(',')
         if (parts.length !== 2) {
@@ -231,18 +242,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       }
     }).catch(e => {
       // TODO Not sure how to produce this error in real life
-      enqueueSnackbar('Error parsing file', {
-        variant: 'error'
-      })
+      handleFileError('An error occurred while parsing the file.')
     })
   }
 
   const getSelectContent = (): JSX.Element => {
     if (getSectionsError !== undefined) {
       return (
-        <APIErrorAlert
+        <ErrorAlert
           message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
-          tryAgain={handleReset}
+          tryAgain={() => clearGetSectionsError()}
         />
       )
     }
@@ -302,7 +311,10 @@ ta,userb
 observer,userc
 designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: `Your file should include the user's ${USER_ID_TEXT.toLocaleLowerCase()} and their ${USER_ROLE_TEXT.toLocaleLowerCase()}`,
+      bodyText: (
+        `Your file should include a ${USER_ID_TEXT.toLocaleLowerCase()} and a ${USER_ROLE_TEXT.toLocaleLowerCase()} for each user. ` +
+        `The maximum number of records allowed is ${MAX_ENROLLMENT_RECORDS}.`
+      ),
       fileData: fileData,
       fileName: 'bulk_um_enroll.csv',
       linkText: 'Download an example',
@@ -351,7 +363,7 @@ designer,userd`
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button className={classes.dialogButton} variant='outlined' onClick={setStateUpload}>Cancel</Button>
+                <Button className={classes.dialogButton} variant='outlined' onClick={handleUploadReset}>Cancel</Button>
                 <Button
                   className={classes.dialogButton}
                   variant='outlined'
@@ -380,6 +392,24 @@ designer,userd`
     )
   }
 
+  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<ValidationErrorTable invalidations={errors} />}
+        title='Review your CSV file'
+        errorType='error'
+        resetUpload={handleUploadReset}
+      />
+      </>
+    )
+  }
+
+  const renderFileError = (errorText: string): JSX.Element => {
+    return <ErrorAlert message={<Typography>{errorText}</Typography>} tryAgain={handleUploadReset} />
+  }
+
   const renderPostError = (error: Error): JSX.Element => {
     const apiErrorMessage = (
       <Typography>The last action failed with the following message: {error.message}</Typography>
@@ -393,17 +423,19 @@ designer,userd`
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
               errorType='error'
-              resetUpload={handleReupload}
+              resetUpload={handleUploadReset}
             />
             </>
           )
-        : <APIErrorAlert message={apiErrorMessage} tryAgain={handleReupload} />
+        : <ErrorAlert message={apiErrorMessage} tryAgain={handleUploadReset} />
     )
   }
 
   const getReviewContent = (): JSX.Element => {
-    if (errors !== undefined) {
-      return renderValidationErrors(errors)
+    if (rowErrors !== undefined) {
+      return renderRowValidationErrors(rowErrors)
+    } else if (fileError !== undefined) {
+      return renderFileError(fileError)
     } else if (addEnrollmentsError !== undefined) {
       return renderPostError(addEnrollmentsError)
     } else if (selectedSection !== undefined && enrollments !== undefined) {
@@ -427,26 +459,6 @@ designer,userd`
       </span>
     )
     return <SuccessCard {...{ message, nextAction }} />
-  }
-
-  const setStateUpload = (): void => {
-    setEnrollments(undefined)
-    setErrors(undefined)
-    setActiveStep(States.UploadCSV)
-  }
-
-  const renderValidationErrors = (errors: ValidationError[]): JSX.Element => {
-    return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <RowLevelErrorsContent
-        table={<ValidationErrorTable invalidations={errors} />}
-        title='Review your CSV file'
-        errorType='error'
-        resetUpload={setStateUpload}
-      />
-      </>
-    )
   }
 
   const getShouldNotHappenContent = (): JSX.Element => {

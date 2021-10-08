@@ -3,7 +3,7 @@ import { CloudDone as CloudDoneIcon, Error as ErrorIcon } from '@material-ui/ico
 import React, { useEffect, useState } from 'react'
 
 import { addCourseSections, getCourseSections } from '../api'
-import APIErrorAlert from '../components/APIErrorAlert'
+import ErrorAlert from '../components/ErrorAlert'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
   DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType,
@@ -400,7 +400,7 @@ Section 001`
             />
             </>
           )
-        : <APIErrorAlert message={apiErrorMessage} tryAgain={resetPageState} />
+        : <ErrorAlert message={apiErrorMessage} tryAgain={resetPageState} />
     )
   }
 
@@ -460,7 +460,12 @@ Section 001`
       case BulkSectionCreatePageState.UploadPending:
         return renderUpload()
       case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
-        return <APIErrorAlert tryAgain={resetPageState} />
+        return (
+          <ErrorAlert
+            message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
+            tryAgain={resetPageState}
+          />
+        )
       case BulkSectionCreatePageState.InvalidUpload:
         return renderInvalidUpload()
       case BulkSectionCreatePageState.Submit:
