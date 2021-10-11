@@ -58,7 +58,6 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
     async () => await unmergeSections(sectionsToUnmerge),
     (unmergedSections: CanvasCourseSectionBase[]) => {
       setSections(sections.filter(section => { return !unmergedSections.map(s => { return s.id }).includes(section.id) }))
-      console.log('unmerged')
       setSectionsToUnmerge([])
     }
   )

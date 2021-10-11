@@ -134,10 +134,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const [sectionsToUnmerge, setSectionsToUnmerge] = React.useState<CanvasCourseSection[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async () => await unmergeSections(sectionsToUnmerge),
-    (sections: CanvasCourseSectionBase[]) => {
-      console.log('unmerged')
-    }
+    async () => await unmergeSections(sectionsToUnmerge)
   )
   useEffect(() => {
     if (sectionsToUnmerge.length > 0) {
