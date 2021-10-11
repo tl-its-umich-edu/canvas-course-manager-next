@@ -13,7 +13,7 @@ import { getCourseSections, mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
-import CourseSections from '../components/CourseSections'
+import CourseSectionList from '../components/CourseSectionList'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -304,7 +304,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const getMergeSuccess = (): JSX.Element => {
-    return (<CourseSections canUnmerge={isAccountAdmin() || isSubAccountAdmin()} courseId={props.globals.course.id}/>)
+    return (<CourseSectionList canUnmerge={isAccountAdmin() || isSubAccountAdmin()} courseId={props.globals.course.id}/>)
   }
 
   return (

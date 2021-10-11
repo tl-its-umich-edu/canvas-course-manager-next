@@ -37,12 +37,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export interface CourseSectionsProps {
+export interface CourseSectionListProps {
   canUnmerge: boolean
   courseId: number
 }
 
-function CourseSections (props: CourseSectionsProps): JSX.Element {
+function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const classes = useStyles()
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
@@ -165,4 +165,4 @@ function CourseSections (props: CourseSectionsProps): JSX.Element {
   return (sectionList())
 }
 
-export default CourseSections
+export default CourseSectionList
