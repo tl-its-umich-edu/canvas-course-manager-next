@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ConfirmationTable from './ConfirmationTable'
+import CustomTable from './CustomTable'
 
 interface StudentGrade {
   rowNumber: number
@@ -34,7 +34,7 @@ function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTab
     ? columns
     : columns.filter(column => { return column.id !== 'overrideGrade' })
 
-  return <ConfirmationTable<StudentGrade> {...{ tableRows, columns: confirmationTableColumns, page, setPage }} />
+  return <CustomTable<StudentGrade> {...{ tableRows, columns: confirmationTableColumns, page, setPage }} />
 }
 
 export type { GradebookUploadConfirmationTableProps, StudentGrade }

@@ -1,22 +1,32 @@
-import { Backdrop, Box, Button, CircularProgress, createStyles, Grid, makeStyles, Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography } from '@material-ui/core'
+import {
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Paper, Step, StepLabel,
+  Stepper, Theme, Tooltip, Typography
+} from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { CloudDone as CloudDoneIcon, Error as ErrorIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
-import { useSnackbar } from 'notistack'
+import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
 
-import { getCourseSections } from '../api'
+import { addSectionEnrollments, getCourseSections } from '../api'
+import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
+import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CreateSectionWidget from '../components/CreateSectionWidget'
+import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
+import SuccessCard from '../components/SuccessCard'
+import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, canvasRoles } from '../models/canvas'
+import { CanvasCourseSection, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import ValidationErrorTable, { ValidationError } from '../components/ValidationErrorTable'
+import { CanvasError } from '../utils/handleErrors'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
+const MAX_ENROLLMENT_RECORDS = 400
+const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,16 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'relative',
       zIndex: 0,
       textAlign: 'center'
-    },
-    fileNameContainer: {
-      marginBottom: 15,
-      paddingLeft: 10,
-      paddingRight: 10,
-      textAlign: 'left'
-    },
-    fileName: {
-      color: '#3F648E',
-      fontFamily: 'monospace'
     },
     instructions: {
       marginTop: theme.spacing(1),
@@ -78,31 +78,15 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: 10,
       paddingRight: 10
     },
+    dialogButton: {
+      margin: 5
+    },
     table: {
       paddingLeft: 10,
       paddingRight: 10
     },
     dialogIcon: {
       color: '#3F648E'
-    },
-    parseErrorDialog: {
-      textAlign: 'center',
-      marginBottom: 15,
-      paddingLeft: 10,
-      paddingRight: 10
-    },
-    parseErrorTable: {
-      paddingLeft: 10,
-      paddingRight: 10
-    },
-    parseErrorIcon: {
-      color: 'red'
-    },
-    sectionLoadErrorIcon: {
-      color: '#3F648E'
-    },
-    sectionLoadError: {
-      textAlign: 'center'
     },
     newSectionHint: {
       display: 'flex'
@@ -119,33 +103,44 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   enum States {
     SelectSection = 0,
     UploadCSV = 1,
-    ReviewCSV = 2
+    ReviewCSV = 2,
+    Confirmation = 3
   }
 
   const classes = useStyles()
-  const { enqueueSnackbar } = useSnackbar()
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSection | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
-  const [errors, setErrors] = useState<ValidationError[]|undefined>(undefined)
-  const [isAddingEnrollments] = useState<boolean>(false)
+  const [fileError, setFileError] = useState<string | undefined>(undefined)
+  const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSection[]): void => {
-    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }))
+    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
   }
 
-  const [doLoadCanvasSectionData, isExistingSectionsLoading, getCanvasSectionDataError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateSections(sections)
     }
   )
 
+  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
+    async (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]) => {
+      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
+      await addSectionEnrollments(section.id, apiEnrollments)
+    },
+    () => { setActiveStep(States.Confirmation) }
+  )
+
   useEffect(() => {
-    void doLoadCanvasSectionData()
-  }, [])
+    if (getSectionsError === undefined) {
+      void doGetSections()
+    }
+  }, [getSectionsError])
 
   useEffect(() => {
     if (file !== undefined) {
@@ -158,34 +153,44 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
-  const [selectedSections, setSelectedSections] = useState<CanvasCourseSection[]>([])
-
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     updateSections(sections.concat(newSection))
-    setSelectedSections([newSection])
+    setSelectedSection(newSection)
   }
 
-  const isValidRole = (role: string): boolean => {
-    return canvasRoles.map(canvasRole => { return canvasRole.clientName.localeCompare(role, 'en', { sensitivity: 'base' }) === 0 }).filter(value => { return value }).length > 0
-  }
-
-  const isValidLoginID = (loginID: string): boolean => {
-    // return uniqname.match(UNIQNAME_REGEX) !== null
-    // Don't apply any validation here, just pass anything through
-    // Flag this function for deletion in 3.. 2.. 1...
+  const isValidLoginId = (loginId: string): boolean => {
+    if (loginId.trim().length === 0) return false
     return true
   }
 
   const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
     setEnrollments(enrollments)
-    setErrors(undefined)
+    setRowErrors(undefined)
     setActiveStep(States.ReviewCSV)
   }
 
-  const handleParseFailure = (errors: ValidationError[]): void => {
+  const handleParseFailure = (errors: RowValidationError[]): void => {
     setEnrollments(undefined)
-    setErrors(errors)
+    setRowErrors(errors)
     setActiveStep(States.ReviewCSV)
+  }
+
+  const handleFileError = (errorText: string): void => {
+    setFileError(errorText)
+    setActiveStep(States.ReviewCSV)
+  }
+
+  const handleEnrollmentsReset = (): void => {
+    clearAddEnrollmentsError()
+    setEnrollments(undefined)
+    setFile(undefined)
+    setFileError(undefined)
+    setRowErrors(undefined)
+  }
+
+  const handleUploadReset = (): void => {
+    handleEnrollmentsReset()
+    setActiveStep(States.UploadCSV)
   }
 
   const parseFile = (file: File): void => {
@@ -207,19 +212,24 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
       lines = lines.slice(1)
 
+      if (lines.length > MAX_ENROLLMENT_RECORDS) {
+        handleFileError(`There are too many records in the CSV. ${MAX_ENROLLMENT_MESSAGE}`)
+      }
+
       const enrollments: IAddUMUserEnrollment[] = []
-      const errors: ValidationError[] = []
+      const errors: RowValidationError[] = []
       lines.forEach((line, i) => {
         const parts = line.split(',')
         if (parts.length !== 2) {
           errors.push({ rowNumber: i + 2, message: 'Invalid column count' })
         } else {
-          if (!isValidRole(parts[0])) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${parts[0]}'` })
-          } else if (!isValidLoginID(parts[1])) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${parts[1]}'` })
+          const [role, loginId] = parts.map(p => p.trim())
+          if (!isValidRole(role)) {
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
+          } else if (!isValidLoginId(loginId)) {
+            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
           } else {
-            enrollments.push({ rowNumber: i + 2, loginID: parts[1], role: parts[0] })
+            enrollments.push({ rowNumber: i + 2, loginId, role })
           }
         }
       })
@@ -231,30 +241,56 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       }
     }).catch(e => {
       // TODO Not sure how to produce this error in real life
-      enqueueSnackbar('Error parsing file', {
-        variant: 'error'
-      })
+      handleFileError('An error occurred while parsing the file.')
     })
   }
 
   const getSelectContent = (): JSX.Element => {
-    if (getCanvasSectionDataError === undefined) {
+    if (getSectionsError !== undefined) {
+      return (
+        <ErrorAlert
+          message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
+          tryAgain={() => clearGetSectionsError()}
+        />
+      )
+    } else {
       return (
         <>
           <div className={classes.createSectionContainer}>
-            <div className={classes.newSectionHint}><Typography>Create a new section to add users</Typography><Tooltip placement='top' title='Enter a distinct name for this section'><HelpIcon fontSize='small'/></Tooltip></div>
+            <div className={classes.newSectionHint}>
+              <Typography>Create a new section to add users</Typography>
+              <Tooltip placement='top' title='Enter a distinct name for this section'>
+                <HelpIcon fontSize='small'/>
+              </Tooltip>
+            </div>
             <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
           </div>
-          <Typography variant='subtitle1'>Or select one available section to add users</Typography>
+          <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
           <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget height={400} search={[]} multiSelect={false} sections={sections !== undefined ? sections : []} selectedSections={selectedSections} selectionUpdated={setSelectedSections} canUnmerge={false}></SectionSelectorWidget>
+            <SectionSelectorWidget
+              height={400}
+              search={[]}
+              multiSelect={false}
+              sections={sections !== undefined ? sections : []}
+              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+              selectionUpdated={(sections) => setSelectedSection(sections[0])}
+              canUnmerge={false}
+            />
             <div>
-              <Button className={classes.sectionSelectButton} variant='contained' color='primary' disabled={selectedSections.length === 0} onClick={() => { setActiveStep(activeStep + 1) }}>Select</Button>
+              <Button
+                className={classes.sectionSelectButton}
+                variant='contained'
+                color='primary'
+                disabled={selectedSection === undefined}
+                onClick={() => { setActiveStep(States.UploadCSV) }}
+              >
+                Select
+              </Button>
             </div>
-            <Backdrop className={classes.backdrop} open={isExistingSectionsLoading}>
+            <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
-                  <CircularProgress color="inherit" />
+                  <CircularProgress color='inherit' />
                 </Grid>
                 <Grid item xs={12}>
                   Loading sections
@@ -263,13 +299,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
             </Backdrop>
           </div>
         </>
-      )
-    } else {
-      return (
-        <Paper className={classes.sectionLoadError} role='alert'>
-          <Typography>Error loading sections</Typography>
-          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
-        </Paper>
       )
     }
   }
@@ -283,7 +312,11 @@ ta,userb
 observer,userc
 designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: `Your file should include the user's ${USER_ID_TEXT.toLocaleLowerCase()} and their ${USER_ROLE_TEXT.toLocaleLowerCase()}`,
+      bodyText: (
+        `Your file should include a ${USER_ID_TEXT.toLocaleLowerCase()} ` +
+        `and a ${USER_ROLE_TEXT.toLocaleLowerCase()} for each user. ` +
+        MAX_ENROLLMENT_MESSAGE
+      ),
       fileData: fileData,
       fileName: 'bulk_um_enroll.csv',
       linkText: 'Download an example',
@@ -316,32 +349,10 @@ designer,userd`
     )
   }
 
-  const getReviewContent = (): JSX.Element => {
-    if (enrollments !== undefined) {
-      return (renderConfirm(enrollments))
-    } else if (errors !== undefined) {
-      return (renderErrors(errors))
-    } else {
-      return (<div>?</div>)
-    }
-  }
-
-  const renderCSVFileName = (): JSX.Element => {
-    if (file !== undefined) {
-      return (
-        <h5 className={classes.fileNameContainer}>
-          <Typography component='span'>File: </Typography><Typography component='span' className={classes.fileName}>{file.name}</Typography>
-        </h5>
-      )
-    } else {
-      return <></>
-    }
-  }
-
-  const renderConfirm = (enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+  const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
-        {renderCSVFileName()}
+        {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
             <Grid item xs={12} sm={9} className={classes.table}>
@@ -354,56 +365,102 @@ designer,userd`
                 <Typography>Review your CSV file</Typography>
                 <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
                 <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button variant="outlined" onClick={setStateUpload}>Cancel</Button>
-                <Button variant="outlined" >Submit</Button>
+                <Button className={classes.dialogButton} variant='outlined' onClick={handleUploadReset}>Cancel</Button>
+                <Button
+                  className={classes.dialogButton}
+                  variant='outlined'
+                  onClick={async () => await doAddEnrollments(section, enrollments)}
+                >
+                  Submit
+                </Button>
               </Paper>
             </Grid>
           </Box>
         </Grid>
-        <Backdrop className={classes.backdrop} open={isAddingEnrollments}>
+        <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
         <Grid container>
           <Grid item xs={12}>
             <CircularProgress color="inherit" />
           </Grid>
           <Grid item xs={12}>
-          Loading...
+            Loading...
+          </Grid>
+          <Grid item xs={12}>
+            Please stay on the page. This may take up to a couple of minutes for larger files.
           </Grid>
         </Grid>
       </Backdrop>
-      </div>)
+      </div>
+    )
   }
 
-  const setStateUpload = (): void => {
-    setEnrollments(undefined)
-    setErrors(undefined)
-    setActiveStep(States.UploadCSV)
-  }
-
-  const renderUploadAgainButton = (): JSX.Element => {
-    return <Button color='primary' component="span" onClick={() => setStateUpload()}>Upload again</Button>
-  }
-
-  const renderErrors = (errors: ValidationError[]): JSX.Element => {
+  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
     return (
-      <div>
-        {renderCSVFileName()}
-        <Grid container justify='flex-start'>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.parseErrorTable} >
-              <ValidationErrorTable invalidations={errors} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={classes.parseErrorDialog}>
-              <Paper role='alert'>
-                <Typography>Review  your CSV file</Typography>
-                <ErrorIcon className={classes.parseErrorIcon} fontSize='large'/>
-                <Typography>Correct the file and{renderUploadAgainButton()}</Typography>
-              </Paper>
-            </Grid>
-          </Box>
-        </Grid>
-      </div>)
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<ValidationErrorTable invalidations={errors} />}
+        title='Review your CSV file'
+        errorType='error'
+        resetUpload={handleUploadReset}
+      />
+      </>
+    )
+  }
+
+  const renderFileError = (errorText: string): JSX.Element => {
+    return <ErrorAlert message={<Typography>{errorText}</Typography>} tryAgain={handleUploadReset} />
+  }
+
+  const renderPostError = (error: Error): JSX.Element => {
+    const apiErrorMessage = (
+      <Typography>The last action failed with the following message: {error.message}</Typography>
+    )
+    return (
+      error instanceof CanvasError
+        ? (
+            <>
+            {file !== undefined && <CSVFileName file={file} />}
+            <RowLevelErrorsContent
+              table={<CanvasAPIErrorsTable errors={error.errors} />}
+              title='Some errors occurred'
+              errorType='error'
+              resetUpload={handleUploadReset}
+            />
+            </>
+          )
+        : <ErrorAlert message={apiErrorMessage} tryAgain={handleUploadReset} />
+    )
+  }
+
+  const getReviewContent = (): JSX.Element => {
+    if (rowErrors !== undefined) {
+      return renderRowValidationErrors(rowErrors)
+    } else if (fileError !== undefined) {
+      return renderFileError(fileError)
+    } else if (addEnrollmentsError !== undefined) {
+      return renderPostError(addEnrollmentsError)
+    } else if (selectedSection !== undefined && enrollments !== undefined) {
+      return renderConfirm(selectedSection, enrollments)
+    } else {
+      return (<div>?</div>)
+    }
+  }
+
+  const getSuccessContent = (): JSX.Element => {
+    const { canvasURL, course } = props.globals
+    const settingsLink = (
+      <Link href={`${canvasURL}/courses/${course.id}/settings`} target='_parent'>
+        Canvas Settings page
+      </Link>
+    )
+    const message = <Typography>New users have been added to the section!</Typography>
+    const nextAction = (
+      <span>
+        See the users in the course&apos;s sections on the {settingsLink} for your course.
+      </span>
+    )
+    return <SuccessCard {...{ message, nextAction }} />
   }
 
   const getShouldNotHappenContent = (): JSX.Element => {
@@ -418,42 +475,21 @@ designer,userd`
         return getUploadContent()
       case States.ReviewCSV:
         return getReviewContent()
+      case States.Confirmation:
+        return getSuccessContent()
       default:
         return getShouldNotHappenContent()
     }
   }
 
-  const handleReset = (): void => {
-    setActiveStep(States.SelectSection)
-  }
-
   return (
-    <>
-      <div className={classes.root}>
-        <Typography variant='h5'>{addUMUsersProps.title}</Typography>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        <div>
-          {activeStep === steps.length
-            ? (
-                <div>
-                  <Typography className={classes.instructions}>All steps completed</Typography>
-                  <Button onClick={handleReset}>Reset</Button>
-                </div>
-              )
-            : (
-                <div>
-                  {getStepContent(activeStep)}
-                </div>
-              )}
-        </div>
-      </div>
-    </>
+    <div className={classes.root}>
+      <Typography variant='h5'>{addUMUsersProps.title}</Typography>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
+      </Stepper>
+      <div>{getStepContent(activeStep)}</div>
+    </div>
   )
 }
 

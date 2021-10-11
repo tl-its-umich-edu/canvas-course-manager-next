@@ -3,25 +3,25 @@ import React from 'react'
 import StyledTableCell from './StyledTableCell'
 import { TablePaginationActions } from './TablePagination'
 
-interface ConfirmationEntity {
+interface TableEntity {
   rowNumber: number
 }
 
-interface ConfirmationTableColumn<T> {
+interface TableColumn<T> {
   id: keyof T
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
 }
 
-interface ConfirmationTableProps<T> {
+interface TableProps<T> {
   tableRows: T[]
-  columns: Array<ConfirmationTableColumn<T>>
+  columns: Array<TableColumn<T>>
   page: number
   setPage: (page: number) => void
 }
 
-function ConfirmationTable<T extends ConfirmationEntity> (props: ConfirmationTableProps<T>): JSX.Element {
+function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element {
   const rowsPerPage = 5
 
   const { tableRows, columns, page, setPage } = props
@@ -91,5 +91,5 @@ function ConfirmationTable<T extends ConfirmationEntity> (props: ConfirmationTab
   )
 }
 
-export type { ConfirmationTableColumn }
-export default ConfirmationTable
+export type { TableColumn }
+export default CustomTable

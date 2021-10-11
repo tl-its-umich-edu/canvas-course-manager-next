@@ -3,17 +3,17 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableH
 import { TablePaginationActions } from './TablePagination'
 import StyledTableCell from './StyledTableCell'
 
-interface ValidationError {
+interface RowValidationError {
   rowNumber: number
   message: string
 }
 
 interface ErrorTableProps {
-  invalidations: ValidationError[]
+  invalidations: RowValidationError[]
 }
 
 interface TableHeaderColumnInfoShouldUseMatUIType {
-  id: keyof ValidationError
+  id: keyof RowValidationError
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
@@ -25,7 +25,7 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 ]
 
 function ErrorTable (props: ErrorTableProps): JSX.Element {
-  const [tableRows, setTableRows] = useState<ValidationError[]>([])
+  const [tableRows, setTableRows] = useState<RowValidationError[]>([])
   const [page, setPage] = React.useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
@@ -111,5 +111,5 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
   return renderTable()
 }
 
-export type { ErrorTableProps, ValidationError }
+export type { ErrorTableProps, RowValidationError }
 export default ErrorTable

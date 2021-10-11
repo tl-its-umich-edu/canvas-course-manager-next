@@ -24,7 +24,7 @@ function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.
     return <div className={classes.uploadHeader}>
       <Typography variant='h6'>{props.titleText}</Typography>
       <br/>
-      <Typography><strong>Requirement:</strong> {props.bodyText}</Typography>
+      <Typography><strong>Requirement(s):</strong> {props.bodyText}</Typography>
       <StaticContentDownloadLink data={fileData} fileName={props.fileName} linkText={props.linkText}/>
     </div>
   }

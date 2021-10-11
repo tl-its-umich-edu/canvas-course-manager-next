@@ -3,7 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
-import { Options as GotOptions } from 'got'
+import got, { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
@@ -14,49 +14,60 @@ import { User } from '../user/user.model'
 import { CanvasConfig } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
-import { IncomingHttpHeaders } from 'http'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
-interface IncomingRateLimitedCanvasHttpHeaders extends IncomingHttpHeaders {
-  'x-rate-limit-remaining'?: string
-  'x-request-cost'?: string
-}
-
 const requestorOptions: GotOptions = {
   retry: {
-    limit: 2,
+    limit: 4,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    // TODO: After got@12 upgrade, replace following list with something like…
-    // got.defaultInternals.retry.statusCodes.concat(403)
-    statusCodes: [403, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]
+    statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
+    calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
+      const delay = computedValue === 0 ? 0 : 5000
+
+      let logMessage =
+        `calculateDelay [${String(attemptCount)}] — ` +
+        `"delay": "${String(delay)}"; ` +
+        `"retryOptions": "${JSON.stringify(retryOptions)}"; ` +
+        `"error.code": ${String(error.code)}`
+
+      const headers = error.response?.headers
+      if (headers !== undefined) {
+        logMessage +=
+          `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+          `"x-request-cost": "${String(headers['x-request-cost'])}"; `
+      } else {
+        logMessage += 'headers not available'
+      }
+
+      logger.debug(logMessage)
+
+      return delay
+    }
   },
   hooks: {
-    beforeRequest: [
-      options => {
-        logger.debug('beforeRequest')
+    afterResponse: [(response, retryWithMergedOptions) => {
+      let logMessage = 'afterResponse — '
+
+      const headers = response.headers
+      if (headers !== undefined) {
+        logMessage += `"x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; ` +
+          `"x-request-cost": "${String(headers['x-request-cost'])}"`
+      } else {
+        logMessage += 'headers not available'
       }
-    ],
-    afterResponse: [
-      (response, retryWithMergedOptions) => {
-        const headers = response.headers as IncomingRateLimitedCanvasHttpHeaders
-        logger.debug(`afterResponse — "x-rate-limit-remaining": "${String(headers['x-rate-limit-remaining'])}"; "x-request-cost": "${String(headers['x-request-cost'])}"`)
-        return response
-      }
-    ],
-    beforeRetry: [
-      (options, error, retryCount) => {
-        logger.debug(`beforeRetry [${String(retryCount)}]: error.code: "${String(error?.code)}"`)
-      }
-    ],
-    beforeError: [
-      error => {
-        logger.debug('beforeError')
-        return error
-      }
-    ]
+
+      logger.debug(logMessage)
+
+      return response
+    }],
+    beforeRetry: [(options, error, retryCount) => {
+      logger.debug(`beforeRetry [${String(retryCount)}] - ` +
+        `"error.response.statusCode": "${String(error?.response?.statusCode)}"; ` +
+        `"error.code": "${String(error?.code)}"`)
+    }]
   }
 }
 

@@ -4,7 +4,7 @@ See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/sr
 */
 
 import redirect from './redirect'
-import { APIErrorData, APIErrorPayload } from '../models/models'
+import { APIErrorData, APIErrorPayload, isCanvasAPIErrorData } from '../models/models'
 
 /*
 Custom Error types
@@ -34,12 +34,12 @@ class NotFoundError extends Error {
   }
 }
 
-interface IDefaultError {
+interface ICanvasError {
   errors: APIErrorPayload[]
 }
 
-class DefaultError extends Error implements IDefaultError {
-  public name = 'DefaultError'
+class CanvasError extends Error implements ICanvasError {
+  public name = 'CanvasError'
   errors: APIErrorPayload[]
 
   constructor (errors: APIErrorPayload[]) {
@@ -50,28 +50,34 @@ class DefaultError extends Error implements IDefaultError {
 
 const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
-  let text: string
-  let errorBody: APIErrorData
-  let canvasErrors: APIErrorPayload[]
+  const text = await resp.text()
+  console.error(text)
+  const errorBody: APIErrorData = JSON.parse(text)
+
   switch (resp.status) {
     case 401:
-      text = await resp.text()
-      console.error(text)
-      errorBody = JSON.parse(text)
       if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
-      text = await resp.text()
-      console.error(text)
+      if (isCanvasAPIErrorData(errorBody)) {
+        throw new CanvasError(errorBody.errors)
+      }
       throw new ForbiddenError()
     case 404:
-      text = await resp.text()
-      console.error(text)
+      if (isCanvasAPIErrorData(errorBody)) {
+        throw new CanvasError(errorBody.errors)
+      }
       throw new NotFoundError()
     default:
-      canvasErrors = (JSON.parse(await resp.text()) as APIErrorData).errors
-      throw new DefaultError(canvasErrors)
+      if (isCanvasAPIErrorData(errorBody)) {
+        throw new CanvasError(errorBody.errors)
+      } else {
+        const message = Array.isArray(errorBody.message)
+          ? errorBody.message.join(' ')
+          : errorBody.message
+        throw new Error(message)
+      }
   }
 }
 
-export default handleErrors
+export { handleErrors as default, CanvasError }
