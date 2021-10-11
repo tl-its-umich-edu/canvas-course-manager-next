@@ -8,7 +8,7 @@ import { useSnackbar } from 'notistack'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
-import { CanvasCourseSection, CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
 import { getCourseSections, mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
@@ -110,10 +110,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doMerge, isMerging, mergeError] = usePromise(
-    async () => await mergeSections(props.globals.course.id, mergableSections()),
-    (sections: CanvasCourseSectionBase[]) => {
-      console.log('merged')
-    }
+    async () => await mergeSections(props.globals.course.id, mergableSections())
   )
 
   useEffect(() => {
@@ -192,7 +189,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const unStageSections = (): void => {
-    console.debug(unstagedSectionsSort.description)
     setUnsyncedUnstagedSections(unstagedSections)
     setStagedSections(stagedSections.filter(s => { return !selectedStagedSections.includes(s) }))
     setSelectedStagedSections([])
@@ -274,7 +270,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const submit = (): void => {
-    console.log('Submit')
     setPageState(PageState.Merging)
     void doMerge()
   }

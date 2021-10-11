@@ -5,7 +5,7 @@ import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
-import { CanvasCourseSection, CanvasCourseSectionBase, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../pages/MergeSections'
 import usePromise from '../hooks/usePromise'
 import { unmergeSections } from '../api'
@@ -297,7 +297,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: SelectableCanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
-    console.log(`unmerge section ${section.id}`)
     e.stopPropagation()
     setSectionsToUnmerge([section])
     return undefined
@@ -360,7 +359,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const handleSort = (event: React.MouseEvent<HTMLElement>, sorter: ICanvasCourseSectionSort): void => {
     setAnchorSortEl(null)
-    console.debug('sort changed')
     props.header?.sort?.sortChanged(sorter)
     setInternalSections(sorter.sort(internalSections))
   }
