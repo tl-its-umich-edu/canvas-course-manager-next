@@ -42,7 +42,7 @@ export class CanvasCourseSectionSort_AZ implements ICanvasCourseSectionSort {
   description = 'Sort alphabetically A to Z'
   sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     return sections.sort((a, b) => {
-      return (a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
+      return (a.name.localeCompare(b.name, 'en', { sensitivity: 'base', numeric: true }))
     })
   }
 }
