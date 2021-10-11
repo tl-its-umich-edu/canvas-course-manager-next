@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
     },
-    createSetctionWidget: {
+    createSectionWidget: {
       width: '500px'
     },
     sectionSelectButton: {
@@ -263,7 +263,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
                 <HelpIcon fontSize='small'/>
               </Tooltip>
             </div>
-            <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+            <div className={classes.createSectionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
           </div>
           <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
           <div className={classes.sectionSelectionContainer}>
