@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface CourseSectionsProps {
   canUnmerge: boolean
-  courseid: number
+  courseId: number
 }
 
 function CourseSections (props: CourseSectionsProps): JSX.Element {
@@ -47,7 +47,7 @@ function CourseSections (props: CourseSectionsProps): JSX.Element {
   const classes = useStyles()
   const [sections, setSections] = useState<CanvasCourseSection[]>([])
   const [loadSections, isLoading, error] = usePromise(
-    async () => await getCourseSections(props.courseid),
+    async () => await getCourseSections(props.courseId),
     (sections: CanvasCourseSection[]) => {
       setSections(sections)
     }

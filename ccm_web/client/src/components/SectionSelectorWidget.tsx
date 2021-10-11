@@ -82,6 +82,11 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
+  },
+  highlighted: {
+    borderLeftStyle: 'solid',
+    borderLeftColor: '#3777c5',
+    borderLeftWidth: '1px'
   }
 }))
 
@@ -104,6 +109,7 @@ interface ISectionSelectorWidgetProps {
   }
   canUnmerge: boolean
   sectionsRemoved?: (sections: SelectableCanvasCourseSection[]) => void
+  highlightUnlocked?: boolean
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -496,7 +502,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid item xs={12} className={classes.sectionSelectionContainer}>
         <List className={classes.listContainer} style={{ maxHeight: props.height }}>
           {internalSections.map((section, index) => {
-            return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)}>
+            return (<ListItem divider key={section.id} button disabled={section.locked} selected={isSectionSelected(section.id)} onClick={(event) => handleListItemClick(section.id)} className={ (section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : ''}>
               {listItemText(section)}
             </ListItem>)
           })}

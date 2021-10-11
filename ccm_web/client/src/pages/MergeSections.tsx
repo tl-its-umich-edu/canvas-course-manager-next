@@ -105,8 +105,12 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   )
 
+  const mergableSections = (): SelectableCanvasCourseSection[] => {
+    return stagedSections.filter(section => { return !(section.locked ?? false) })
+  }
+
   const [doMerge, isMerging, mergeError] = usePromise(
-    async () => await mergeSections(props.globals.course.id, stagedSections.filter(section => { return !(section.locked ?? false) })),
+    async () => await mergeSections(props.globals.course.id, mergableSections()),
     (sections: CanvasCourseSectionBase[]) => {
       console.log('merged')
     }
@@ -244,7 +248,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               selectedSections={selectedStagedSections}
               selectionUpdated={setSelectedStagedSections}
               sectionsRemoved={handleUnmergedSections}
-              canUnmerge={isSubAccountAdmin() || isAccountAdmin()}></SectionSelectorWidget>
+              canUnmerge={isSubAccountAdmin() || isAccountAdmin()}
+              highlightUnlocked={true}></SectionSelectorWidget>
             <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
@@ -278,6 +283,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     return stagedSections.filter(s => { return !(s.locked ?? false) }).length > 0
   }
 
+  const mergeButtonText = (sectionsToMerge: SelectableCanvasCourseSection[]): string => {
+    return `Go Merge${sectionsToMerge.length > 0 ? '(' + String(sectionsToMerge.length) + ')' : ''}`
+  }
+
   const getSelectSections = (): JSX.Element => {
     return (
       <>
@@ -289,13 +298,13 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             {getSelectSectionsStaged()}
           </Grid>
         </Grid>
-        <Button className={classes.submitButton} onClick={submit} variant='contained' color='primary' disabled={!canMerge()}>Go Merge</Button>
+        <Button className={classes.submitButton} onClick={submit} variant='contained' color='primary' disabled={!canMerge()}>{mergeButtonText(mergableSections())}</Button>
       </>
     )
   }
 
   const getMergeSuccess = (): JSX.Element => {
-    return (<CourseSections canUnmerge={isAccountAdmin() || isSubAccountAdmin()} courseid={props.globals.course.id}/>)
+    return (<CourseSections canUnmerge={isAccountAdmin() || isSubAccountAdmin()} courseId={props.globals.course.id}/>)
   }
 
   return (
