@@ -104,7 +104,6 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   }
 
   const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: CanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
-    console.log(`unmerge section ${section.id}`)
     e.stopPropagation()
     setSectionsToUnmerge([section])
     return undefined
