@@ -484,7 +484,7 @@ designer,userd`
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5'>{addUMUsersProps.title}</Typography>
+      <Typography variant='h5' component='h5'>{addUMUsersProps.title}</Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
       </Stepper>

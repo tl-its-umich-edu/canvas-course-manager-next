@@ -347,7 +347,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5'>{canvasGradebookFormatterProps.title}</Typography>
+      <Typography variant='h5' component='h5'>{canvasGradebookFormatterProps.title}</Typography>
       {renderComponent()}
     </div>
   )
