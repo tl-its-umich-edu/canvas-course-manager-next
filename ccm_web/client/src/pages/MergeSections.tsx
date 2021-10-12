@@ -23,10 +23,6 @@ const useStyles = makeStyles((theme) => ({
       margin: 5
     }
   },
-  selectSections: {
-    // flexGrow: 1
-    // width: '100%'
-  },
   sectionSelectionContainer: {
     position: 'relative',
     zIndex: 0,
