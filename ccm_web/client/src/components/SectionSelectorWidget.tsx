@@ -265,19 +265,19 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
-    <FormControl className={classes.searchEndAdnornment}>
-        <InputLabel id="demo-simple-select-label">Search By</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={searcher?.name}
-          onChange={handleChange}
-        >
-          {(props.search).map((searcher, index) => {
-            return <MenuItem key={index} value={searcher.name}>{searcher.name}</MenuItem>
-          })}
-        </Select>
-      </FormControl>
+      <FormControl className={classes.searchEndAdnornment}>
+      <InputLabel id="demo-simple-select-label">Search By</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={searcher?.name}
+        onChange={handleChange}
+      >
+        {(props.search).map((searcher, index) => {
+          return <MenuItem key={index} value={searcher.name}>{searcher.name}</MenuItem>
+        })}
+      </Select>
+    </FormControl>
     )
   }
 
