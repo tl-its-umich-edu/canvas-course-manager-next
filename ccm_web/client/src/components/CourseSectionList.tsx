@@ -143,7 +143,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const sectionList = (): JSX.Element => {
     return (
       <div>
-        <Typography variant='h6'>Course Sections</Typography>
+        <Typography variant='h6' component='h6'>Course Sections</Typography>
         <div className={classes.listContainer}>
           <List>
             {sections.map(section => {
