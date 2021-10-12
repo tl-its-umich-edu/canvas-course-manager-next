@@ -116,7 +116,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
 
-  // The the search text ultimately used when searching
+  // The search text ultimately used when searching
   const [sectionSearcherText, setSectionSearcherText] = useState<string | undefined>(undefined)
   // The text actually displayed in the search field
   const [searchFieldText, setSearchFieldText] = useState<string>('')
