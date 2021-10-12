@@ -27,7 +27,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface ErrorAlertProps {
   message?: JSX.Element
-  tryAgain: () => void
+  tryAgain?: () => void
+  icon?: JSX.Element
 }
 
 export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
@@ -36,9 +37,9 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   return (
     <Grid item xs={12} className={classes.dialog}>
       <Paper role='alert'>
-        <ErrorIcon className={classes.dialogIcon} fontSize='large'/>
+        {(props.icon != null) ? props.icon : (<ErrorIcon className={classes.dialogIcon} fontSize='large'/>)}
         {props.message !== undefined ? props.message : defaultMessage}
-        <Button color='primary' component='span' onClick={props.tryAgain}>Try Again</Button>
+        {(props.tryAgain != null) ? (<Button color='primary' component='span' onClick={props.tryAgain}>Try Again</Button>) : <></>}
       </Paper>
     </Grid>
   )

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Backdrop, Button, CircularProgress, Grid, LinearProgress, makeStyles, Paper, Typography } from '@material-ui/core'
-import { Error as ErrorIcon } from '@material-ui/icons'
+import { Backdrop, Button, CircularProgress, Grid, LinearProgress, makeStyles, Typography } from '@material-ui/core'
 
 import { useSnackbar } from 'notistack'
 
@@ -14,6 +13,7 @@ import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
 import CourseSectionList from '../components/CourseSectionList'
+import ErrorAlert from '../components/ErrorAlert'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -261,10 +261,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       )
     } else {
       return (
-        <Paper className={classes.sectionLoadError} role='alert'>
-          <Typography>Error loading merged sections</Typography>
-          <ErrorIcon className={classes.sectionLoadErrorIcon} fontSize='large'/>
-        </Paper>
+        <ErrorAlert message={<Typography>Error loading merged sections</Typography>}/>
       )
     }
   }
