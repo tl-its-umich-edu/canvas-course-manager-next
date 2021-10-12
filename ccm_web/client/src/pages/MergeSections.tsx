@@ -297,7 +297,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5' component='h5'>{mergeSectionProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{mergeSectionProps.title}</Typography>
       {renderComponent()}
     </div>
   )
