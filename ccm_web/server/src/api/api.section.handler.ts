@@ -32,7 +32,7 @@ export class SectionApiHandler {
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
     const enrollLoginId = user.loginId
-      .replace(/@umich\.edu$/i, '')
+      .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
 
     try {
