@@ -36,12 +36,6 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
     position: 'absolute'
   },
-  sectionLoadErrorIcon: {
-    color: '#3F648E'
-  },
-  sectionLoadError: {
-    textAlign: 'center'
-  },
   submitButton: {
     float: 'right'
   }
