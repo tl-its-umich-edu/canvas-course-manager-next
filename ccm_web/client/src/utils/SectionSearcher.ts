@@ -78,12 +78,21 @@ export class SectionNameSearcher extends SectionSearcher {
     super(termId, courseId, 'Section Name', 'Search by section name', '', setSectionsCallabck, updateTitle)
   }
 
+  sectionsCache: CourseWithSections[] | undefined = undefined
+
   resetTitle = (): void => {
     this.updateTitleCallback('Sections I Teach')
   }
 
+  getCachedTeacherSections = async (): Promise<CourseWithSections[]> => {
+    if (this.sectionsCache === undefined) {
+      this.sectionsCache = await getTeacherSections(this.termId)
+    }
+    return this.sectionsCache
+  }
+
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
-    return coursesWithSectionsToCanvasCourseSections(await getTeacherSections(this.termId)).filter(s => { return localeIncludes(s.name, searchText) })
+    return coursesWithSectionsToCanvasCourseSections(await this.getCachedTeacherSections()).filter(s => { return localeIncludes(s.name, searchText) })
   }
 }
 
