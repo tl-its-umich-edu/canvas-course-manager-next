@@ -53,7 +53,7 @@ export interface ISectionSearcher {
   search: (searchString: string) => Promise<void>
   updateTitleCallback?: (title: string) => void
   init: () => Promise<void>
-  resetTitle: () => void
+  resetTitle?: () => void
   isInteractive: boolean
 }
 

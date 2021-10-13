@@ -23,7 +23,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
     this.updateTitleCallback = updateTitle
   }
 
-  abstract resetTitle: () => void
+  abstract resetTitle?: () => void
 
   abstract searchImpl: (searchText: string) => Promise<CanvasCourseSection[]>
 
@@ -43,9 +43,14 @@ export abstract class SectionSearcher implements ISectionSearcher {
     this.setSections([])
     let filteredSections = await this.searchImpl(searchString)
     if (this.searchFilter !== undefined) filteredSections = this.searchFilter(filteredSections)
+    filteredSections = await this.searchImpl(searchString)
     if (updateTitle && this.updateTitleCallback !== undefined) this.updateTitleCallback(`Search results (${filteredSections.length})`)
     this.setSections(filteredSections)
   }
+}
+
+const sectionNotInOrCrosslistedToCurrentCourseFilter = (sections: CanvasCourseSection[], currentCourseId: number): CanvasCourseSection[] => {
+  return sections.filter(section => { return section.course_id !== currentCourseId && section.nonxlist_course_id !== currentCourseId })
 }
 
 export class UniqnameSearcher extends SectionSearcher {
@@ -55,7 +60,7 @@ export class UniqnameSearcher extends SectionSearcher {
   }
 
   filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
-    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
+    return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
   resetTitle = (): void => {
@@ -74,7 +79,7 @@ export class CourseNameSearcher extends SectionSearcher {
   }
 
   filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
-    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
+    return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
   resetTitle = (): void => {
@@ -93,7 +98,7 @@ export class SectionNameSearcher extends SectionSearcher {
   }
 
   filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
-    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
+    return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
   sectionsCache: CourseWithSections[] | undefined = undefined
@@ -122,9 +127,7 @@ export class CourseSectionSearcher extends SectionSearcher {
 
   sectionsCache: CourseWithSections[] | undefined = undefined
 
-  resetTitle = (): void => {
-    // this.updateTitleCallback('Sections I Teach')
-  }
+  resetTitle = undefined
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {

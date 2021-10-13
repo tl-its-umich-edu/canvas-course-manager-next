@@ -158,7 +158,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }, [unmergeError])
 
   useEffect(() => {
-    searcher?.resetTitle()
+    if (searcher?.resetTitle !== undefined) searcher.resetTitle()
   }, [searcher])
 
   useEffect(() => {
@@ -233,7 +233,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     setSearchFieldText('')
     setSearchFieldTextDebounced(undefined)
     setSectionSearcherText(undefined)
-    searcher?.resetTitle()
+    if (searcher?.resetTitle !== undefined) searcher.resetTitle()
   }
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
@@ -304,7 +304,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
-    if (section.nonxlist_course_id !== null && props.canUnmerge) {
+    if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>
     }
   }
