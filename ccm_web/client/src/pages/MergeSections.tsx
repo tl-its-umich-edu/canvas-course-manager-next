@@ -117,7 +117,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     return (
       <div style={{ paddingTop: '20px', minHeight: '400px', textAlign: 'center' }}>
         <Grid container>
-        <Grid item xs={12}>
+          <Grid item xs={12}>
             Merging sections...
           </Grid>
           <Grid item xs={12} style={{ paddingTop: '20px' }}>
