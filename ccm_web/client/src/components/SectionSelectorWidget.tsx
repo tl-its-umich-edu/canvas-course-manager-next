@@ -127,12 +127,12 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
 
-  const [anchorSortEl, setAnchorSortEl] = React.useState<null | HTMLElement>(null)
+  const [anchorSortEl, setAnchorSortEl] = useState<null | HTMLElement>(null)
 
-  const [searcher, setSearcher] = React.useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
-  const [searchFieldLabel, setSearchFieldLabel] = React.useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
+  const [searcher, setSearcher] = useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
+  const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
-  const [sectionsToUnmerge, setSectionsToUnmerge] = React.useState<CanvasCourseSection[]>([])
+  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSection[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
     async () => await unmergeSections(sectionsToUnmerge)
   )
