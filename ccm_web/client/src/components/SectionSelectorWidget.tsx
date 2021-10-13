@@ -167,7 +167,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }, [props.sections])
 
   useEffect(() => {
-    searcher?.init()
+    void init()
   }, [])
 
   const selectableSections = (): SelectableCanvasCourseSection[] => {
@@ -256,13 +256,19 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
   )
 
+  const [init, isIniting, initError] = usePromise(async () => {
+    if (searcher !== undefined) {
+      await searcher.init()
+    }
+  })
+
   useEffect(() => {
-    if (searchError !== undefined) {
+    if (searchError !== undefined || initError !== undefined) {
       enqueueSnackbar('Error searching sections', {
         variant: 'error'
       })
     }
-  }, [searchError])
+  }, [searchError, initError])
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
@@ -463,7 +469,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           <Grid item container className={classes.searchContainer} style={props.search.length === 0 || (searcher !== undefined && !searcher.isInteractive) ? { display: 'none' } : {}} xs={12}>
-            <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' inputProps={{ maxLength: 256 }} InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
+            <TextField className={classes.searchTextField} disabled={isSearching || isIniting} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' inputProps={{ maxLength: 256 }} InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
             <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
@@ -501,7 +507,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             </ListItem>)
           })}
         </List>
-        <Backdrop className={classes.backdrop} open={isSearching || isUnmerging}>
+        <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
           <Grid container>
             <Grid item xs={12}>
               <CircularProgress color="inherit" />

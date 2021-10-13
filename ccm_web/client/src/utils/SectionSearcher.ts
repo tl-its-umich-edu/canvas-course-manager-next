@@ -43,7 +43,6 @@ export abstract class SectionSearcher implements ISectionSearcher {
     this.setSections([])
     let filteredSections = await this.searchImpl(searchString)
     if (this.searchFilter !== undefined) filteredSections = this.searchFilter(filteredSections)
-    filteredSections = await this.searchImpl(searchString)
     if (updateTitle && this.updateTitleCallback !== undefined) this.updateTitleCallback(`Search results (${filteredSections.length})`)
     this.setSections(filteredSections)
   }
@@ -131,9 +130,7 @@ export class CourseSectionSearcher extends SectionSearcher {
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
-    const courseSections = await getCourseSections(this.courseId)
-    console.log(`CourseSectionSearcher ${courseSections.length} sections found`)
-    return courseSections
+    return await getCourseSections(this.courseId)
   }
 }
 
