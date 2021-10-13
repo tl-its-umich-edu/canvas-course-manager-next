@@ -513,7 +513,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               <CircularProgress color="inherit" />
             </Grid>
             <Grid item xs={12}>
-              {isSearching ? 'Searching...' : 'Unmerging...'}
+              {isSearching || isIniting ? 'Searching...' : 'Unmerging...'}
             </Grid>
           </Grid>
         </Backdrop>
