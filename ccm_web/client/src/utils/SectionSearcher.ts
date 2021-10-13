@@ -124,8 +124,6 @@ export class CourseSectionSearcher extends SectionSearcher {
     this.isInteractive = false
   }
 
-  sectionsCache: CourseWithSections[] | undefined = undefined
-
   resetTitle = undefined
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
