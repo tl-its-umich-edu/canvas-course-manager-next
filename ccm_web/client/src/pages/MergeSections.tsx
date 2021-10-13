@@ -84,8 +84,9 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       unstagedSectionsSort.sort(unsyncedUnstagedSections.map(s => { return { ...s, locked: stagedSections.filter(staged => { return staged.id === s.id }).length > 0 } })))
   }, [unsyncedUnstagedSections])
 
+  const stagedSectionsSorter = new CanvasCourseSectionSort_AZ()
   const updateStagedSections = (sections: CanvasCourseSection[]): void => {
-    setStagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }).map(s => { return { ...s, locked: true } }))
+    setStagedSections(stagedSectionsSorter.sort(sections).map(s => { return { ...s, locked: true } }))
   }
 
   const mergableSections = (): SelectableCanvasCourseSection[] => {
