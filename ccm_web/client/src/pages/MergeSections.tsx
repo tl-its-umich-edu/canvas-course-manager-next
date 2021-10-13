@@ -238,7 +238,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const mergeButtonText = (sectionsToMerge: SelectableCanvasCourseSection[]): string => {
-    return `Go Merge${sectionsToMerge.length > 0 ? '(' + String(sectionsToMerge.length) + ')' : ''}`
+    return `Go Merge ${sectionsToMerge.length > 0 ? '(' + String(sectionsToMerge.length) + ')' : ''}`
   }
 
   const getSelectSections = (): JSX.Element => {
