@@ -136,6 +136,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
     async () => await unmergeSections(sectionsToUnmerge)
   )
+
   useEffect(() => {
     if (sectionsToUnmerge.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -302,11 +303,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     return undefined
   }
 
-  const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element => {
+  const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
     if (section.nonxlist_course_id !== null && props.canUnmerge) {
       return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>
-    } else {
-      return <></>
     }
   }
 
@@ -463,7 +462,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>{props.selectedSections.length} section{props.selectedSections.length === 1 ? '' : 's' } selected</span>
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
-          <Grid item container className={classes.searchContainer} style={props.search.length === 0 ? { display: 'none' } : {}} xs={12}>
+          <Grid item container className={classes.searchContainer} style={props.search.length === 0 || (searcher !== undefined && !searcher.isInteractive) ? { display: 'none' } : {}} xs={12}>
             <TextField className={classes.searchTextField} disabled={isSearching} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' inputProps={{ maxLength: 256 }} InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>

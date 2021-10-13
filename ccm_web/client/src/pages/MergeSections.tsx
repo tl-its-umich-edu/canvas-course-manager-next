@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Backdrop, Button, CircularProgress, Grid, LinearProgress, makeStyles, Typography } from '@material-ui/core'
+import { Button, Grid, LinearProgress, makeStyles, Typography } from '@material-ui/core'
 
 import { useSnackbar } from 'notistack'
 
@@ -8,12 +8,11 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
-import { getCourseSections, mergeSections } from '../api'
+import { mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
-import { CourseNameSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
+import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
 import CourseSectionList from '../components/CourseSectionList'
-import ErrorAlert from '../components/ErrorAlert'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,9 +51,10 @@ export interface ISectionSearcher {
   helperText: string
   preload: string | undefined
   search: (searchString: string) => Promise<void>
-  updateTitleCallback: (title: string) => void
+  updateTitleCallback?: (title: string) => void
   init: () => Promise<void>
   resetTitle: () => void
+  isInteractive: boolean
 }
 
 // TODO for dev testing remove all this before merging
@@ -88,13 +88,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     setStagedSections(sections.sort((a, b) => { return a.name.localeCompare(b.name) }).map(s => { return { ...s, locked: true } }))
   }
 
-  const [doLoadStagedSectionData, isStagedSectionsLoading, loadStagedSectionsError] = usePromise(
-    async () => await getCourseSections(props.globals.course.id),
-    (sections: CanvasCourseSection[]) => {
-      updateStagedSections(sections)
-    }
-  )
-
   const mergableSections = (): SelectableCanvasCourseSection[] => {
     return stagedSections.filter(section => { return !(section.locked ?? false) })
   }
@@ -118,10 +111,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       }
     }
   }, [isMerging])
-
-  useEffect(() => {
-    void doLoadStagedSectionData()
-  }, [])
 
   const getMerging = (): JSX.Element => {
     return (
@@ -219,41 +208,24 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const getSelectSectionsStaged = (): JSX.Element => {
-    if (loadStagedSectionsError === undefined) {
-      return (
-        <>
-          <div>
-            <SectionSelectorWidget
-              action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
-              height={400}
-              header={{ title: 'Prepared to merge' }}
-              search={ [] }
-              multiSelect={true}
-              showCourseName={true}
-              sections={stagedSections !== undefined ? stagedSections : []}
-              selectedSections={selectedStagedSections}
-              selectionUpdated={setSelectedStagedSections}
-              sectionsRemoved={handleUnmergedSections}
-              canUnmerge={isSubAccountAdmin() || isAccountAdmin()}
-              highlightUnlocked={true}></SectionSelectorWidget>
-            <Backdrop className={classes.backdrop} open={isStagedSectionsLoading}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <CircularProgress color="inherit" />
-                </Grid>
-                <Grid item xs={12}>
-                  Loading sections
-                </Grid>
-              </Grid>
-            </Backdrop>
-          </div>
-        </>
-      )
-    } else {
-      return (
-        <ErrorAlert message={<Typography>Error loading merged sections</Typography>}/>
-      )
-    }
+    return (
+      <div>
+        <SectionSelectorWidget
+          action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
+          height={400}
+          header={{ title: 'Prepared to merge' }}
+          search={ [new CourseSectionSearcher(props.termId, props.globals.course.id, updateStagedSections, undefined)] }
+          multiSelect={true}
+          showCourseName={true}
+          sections={stagedSections !== undefined ? stagedSections : []}
+          selectedSections={selectedStagedSections}
+          selectionUpdated={setSelectedStagedSections}
+          sectionsRemoved={handleUnmergedSections}
+          canUnmerge={isSubAccountAdmin() || isAccountAdmin()}
+          highlightUnlocked={true}
+          ></SectionSelectorWidget>
+      </div>
+    )
   }
 
   const submit = (): void => {

@@ -1,4 +1,4 @@
-import { getTeacherSections, searchSections } from '../api'
+import { getCourseSections, getTeacherSections, searchSections } from '../api'
 import { CanvasCourseSection, CourseWithSections } from '../models/canvas'
 import { ISectionSearcher } from '../pages/MergeSections'
 import { localeIncludes } from './localeIncludes'
@@ -10,8 +10,10 @@ export abstract class SectionSearcher implements ISectionSearcher {
   termId: number
   courseId: number
   setSections: (sections: CanvasCourseSection[]) => void
-  updateTitleCallback: (title: string) => void
-  constructor (termId: number, courseId: number, name: string, helperText: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  updateTitleCallback?: (title: string) => void
+  isInteractive = true
+  searchFilter?: (sections: CanvasCourseSection[]) => CanvasCourseSection[]
+  constructor (termId: number, courseId: number, name: string, helperText: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle?: (title: string) => void) {
     this.termId = termId
     this.courseId = courseId
     this.name = name
@@ -37,10 +39,11 @@ export abstract class SectionSearcher implements ISectionSearcher {
     if (searchString === undefined) {
       return
     }
-    if (updateTitle) this.updateTitleCallback('Searching...')
+    if (updateTitle && this.updateTitleCallback !== undefined) this.updateTitleCallback('Searching...')
     this.setSections([])
-    const filteredSections = (await this.searchImpl(searchString)).filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
-    if (updateTitle) this.updateTitleCallback(`Search results (${filteredSections.length})`)
+    let filteredSections = await this.searchImpl(searchString)
+    if (this.searchFilter !== undefined) filteredSections = this.searchFilter(filteredSections)
+    if (updateTitle && this.updateTitleCallback !== undefined) this.updateTitleCallback(`Search results (${filteredSections.length})`)
     this.setSections(filteredSections)
   }
 }
@@ -48,10 +51,15 @@ export abstract class SectionSearcher implements ISectionSearcher {
 export class UniqnameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Uniqname', 'Search by exact Instructor Uniqname', undefined, setSectionsCallabck, updateTitle)
+    this.searchFilter = this.filter
+  }
+
+  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
   }
 
   resetTitle = (): void => {
-    this.updateTitleCallback('Sections for Uniqname')
+    if (this.updateTitleCallback !== undefined) this.updateTitleCallback('Sections for Uniqname')
   }
 
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
@@ -62,10 +70,15 @@ export class UniqnameSearcher extends SectionSearcher {
 export class CourseNameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Course Name', 'Search by course name', undefined, setSectionsCallabck, updateTitle)
+    this.searchFilter = this.filter
+  }
+
+  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
   }
 
   resetTitle = (): void => {
-    this.updateTitleCallback('Sections for course name')
+    if (this.updateTitleCallback !== undefined) this.updateTitleCallback('Sections for course name')
   }
 
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
@@ -76,12 +89,17 @@ export class CourseNameSearcher extends SectionSearcher {
 export class SectionNameSearcher extends SectionSearcher {
   constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Section Name', 'Search by section name', '', setSectionsCallabck, updateTitle)
+    this.searchFilter = this.filter
+  }
+
+  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+    return sections.filter(section => { return section.course_id !== this.courseId && section.nonxlist_course_id !== this.courseId })
   }
 
   sectionsCache: CourseWithSections[] | undefined = undefined
 
   resetTitle = (): void => {
-    this.updateTitleCallback('Sections I Teach')
+    if (this.updateTitleCallback !== undefined) this.updateTitleCallback('Sections I Teach')
   }
 
   getCachedTeacherSections = async (): Promise<CourseWithSections[]> => {
@@ -93,6 +111,26 @@ export class SectionNameSearcher extends SectionSearcher {
 
   searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
     return coursesWithSectionsToCanvasCourseSections(await this.getCachedTeacherSections()).filter(s => { return localeIncludes(s.name, searchText) })
+  }
+}
+
+export class CourseSectionSearcher extends SectionSearcher {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle?: (title: string) => void) {
+    super(termId, courseId, 'Prepared to merge', '', '', setSectionsCallabck, updateTitle)
+    this.isInteractive = false
+  }
+
+  sectionsCache: CourseWithSections[] | undefined = undefined
+
+  resetTitle = (): void => {
+    // this.updateTitleCallback('Sections I Teach')
+  }
+
+  // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
+  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+    const courseSections = await getCourseSections(this.courseId)
+    console.log(`CourseSectionSearcher ${courseSections.length} sections found`)
+    return courseSections
   }
 }
 
