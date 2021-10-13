@@ -99,7 +99,7 @@ interface ISectionSelectorWidgetProps {
   selectedSections: SelectableCanvasCourseSection[]
   height: number
   multiSelect: boolean
-  selectionUpdated: (section: SelectableCanvasCourseSection[]) => void
+  selectionUpdated: (sections: SelectableCanvasCourseSection[]) => void
   search: ISectionSearcher[]
   showCourseName?: boolean
   action?: {text: string, cb: () => void, disabled: boolean}
