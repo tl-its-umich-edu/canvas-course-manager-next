@@ -176,31 +176,27 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   const getSelectSectionsUnstaged = (): JSX.Element => {
     return (
-      <>
-        <div>
-          <SectionSelectorWidget
-            action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
-            height={400}
-            header={{
-              title: sectionsTitle,
-              sort: {
-                sortChanged: setUnstagedSectionsSort,
-                sorters: [
-                  { func: new CanvasCourseSectionSort_UserCount(), text: '# of students' },
-                  { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
-                  { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
-                ]
-              }
-            }}
-            search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
-            multiSelect={true}
-            showCourseName={true}
-            sections={unstagedSections !== undefined ? unstagedSections : []}
-            selectedSections={selectedUnstagedSections}
-            selectionUpdated={setSelectedUnstagedSections}
-            canUnmerge={false}></SectionSelectorWidget>
-        </div>
-      </>
+      <SectionSelectorWidget
+        action={{ text: 'Add', cb: stageSections, disabled: selectedUnstagedSections.length === 0 }}
+        height={400}
+        header={{
+          title: sectionsTitle,
+          sort: {
+            sortChanged: setUnstagedSectionsSort,
+            sorters: [
+              { func: new CanvasCourseSectionSort_UserCount(), text: '# of students' },
+              { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
+              { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
+            ]
+          }
+        }}
+        search={ isSubAccountAdmin() || isAccountAdmin() ? [new CourseNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
+        multiSelect={true}
+        showCourseName={true}
+        sections={unstagedSections !== undefined ? unstagedSections : []}
+        selectedSections={selectedUnstagedSections}
+        selectionUpdated={setSelectedUnstagedSections}
+        canUnmerge={false}></SectionSelectorWidget>
     )
   }
 
