@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Box, Button, Grid, Link, List, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
-import ErrorIcon from '@material-ui/icons/Error'
 import WarningIcon from '@material-ui/icons/Warning'
-import { parse, ParseResult } from 'papaparse'
 
 import CSVFileName from '../components/CSVFileName'
+import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
-import { canvasGradebookFormatterProps } from '../models/feature'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
+import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,45 +47,28 @@ const useConfirmationStyles = makeStyles((theme) => ({
   }
 }))
 
-const useTopLevelErrorStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    maxWidth: '75%',
-    margin: 'auto',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
-    width: '75%',
-    '& ol': {
-      margin: 'auto',
-      width: '75%'
-    },
-    '& ul': {
-      margin: 'auto',
-      width: '75%'
-    },
-    '& li': {
-      textAlign: 'left'
-    }
-  },
-  dialogIcon: {
-    color: 'red'
-  }
-}))
-
-interface GradebookRecord {
+interface GradebookRecord extends UnknownCSVRecord {
   'Current Grade': string
   'Final Grade': string
   'SIS Login ID': string
+  Student: string
   'Override Grade': string | undefined
   grade: string | undefined
-  Student: string
+}
+
+const isGradebookRecord = (record: UnknownCSVRecord): record is GradebookRecord => {
+  return (
+    typeof record['Current Grade'] === 'string' &&
+    typeof record['Final Grade'] === 'string' &&
+    typeof record['SIS Login ID'] === 'string' &&
+    typeof record.Student === 'string'
+  )
 }
 
 interface GradebookCanvasPageStateData {
   state: GradebookCanvasPageState
-  invalidations?: GradebookRowInvalidation[] | undefined
-  errorMessage?: JSX.Element[]
+  invalidations?: GradebookRowInvalidation[]
+  errorMessages?: JSX.Element[]
   grades?: GradebookRecord[]
 }
 
@@ -100,38 +84,39 @@ interface DownloadData {
   fileName: string
 }
 
+const convertEmptyCellToUndefined = (cell: string | undefined): string | undefined => {
+  if (cell !== undefined && cell.trim().length === 0) return undefined
+  return cell
+}
+
 function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
-  const topLevelClasses = useTopLevelErrorStyles()
 
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
   const [file, setFile] = useState<File|undefined>(undefined)
-  const [downloadData, setDownloadData] = useState<DownloadData|undefined>(undefined)
+  const [downloadData, setDownloadData] = useState<DownloadData | undefined>(undefined)
 
   const uploadComplete = (file: File): void => {
     setFile(file)
   }
 
-  useEffect(() => {
-    parseUpload(file)
-  }, [file])
-
-  const parseUpload = (file: File|undefined): void => {
-    if (file === undefined) {
-      resetPageState()
-      return
-    }
-    // This results in an error on the 2nd "header" row for possible scores
-    parse<GradebookRecord>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        handleParseComplete(results)
-      }
-
-    })
+  const parseUpload = (file: File): void => {
+    const parser = new FileParserAdapter(
+      handleParseComplete,
+      e => setPageState({
+        state: GradebookCanvasPageState.Upload,
+        errorMessages: [<Typography key='0'>An error occurred while parsing the file: {e.message}</Typography>]
+      })
+    )
+    parser.parseFile(file)
   }
+
+  useEffect(() => {
+    if (file !== undefined) {
+      parseUpload(file)
+    }
+  }, [file])
 
   const resetPageState = (): void => {
     setPageState({ state: GradebookCanvasPageState.Upload })
@@ -157,14 +142,27 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     setDownloadData({ data: encodeURI(csvContent), fileName: getOutputFilename(file) })
   }
 
+  const handleInvalidUpload = (errorMessages?: JSX.Element[], invalidations?: GradebookRowInvalidation[]): void => {
+    setPageState({
+      state: GradebookCanvasPageState.InvalidUpload,
+      invalidations: invalidations,
+      errorMessages: errorMessages
+    })
+  }
+
   const handleNoLetterGradesError = (): void => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings#course_grading_standard_enabled`
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, errorMessage: [<Typography key='0'><Link href={settingsURL} target='_parent'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.</Typography>] })
+    const errorMessage = (
+      <Typography key='0'>
+        <Link href={settingsURL} target='_parent'>Grading Scheme in settings</Link> needs to be check marked for letter grade to appear in the CSV file.
+      </Typography>
+    )
+    return handleInvalidUpload([errorMessage])
   }
 
-  const handleRowLevelInvalidationError = (errorMessage: JSX.Element[], invalidations: GradebookRowInvalidation[]): void => {
-    setPageState({ state: GradebookCanvasPageState.InvalidUpload, invalidations: invalidations, errorMessage: errorMessage })
+  const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
+    handleInvalidUpload(invalidations.map((invalidation, i) => <Typography key={i}>{invalidation.error}</Typography>))
   }
 
   const handleParseSuccess = (grades: GradebookRecord[], warnings: GradebookRowInvalidation[]): void => {
@@ -172,26 +170,44 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     setCSVtoDownload(grades)
   }
 
-  const handleParseComplete = (results: ParseResult<GradebookRecord>): void => {
-    const data = results.data.slice(1).map(d => { return { ...d, 'Override Grade': (d['Override Grade'] !== undefined && d['Override Grade'].trim().length > 0) ? d['Override Grade'] : undefined } }) // The first row is possible scores
+  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+    const requiredHeaders = ['Current Grade', 'Final Grade', 'SIS Login ID', 'Student']
+    const schemaValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
 
-    if (data[0]['Final Grade'] === undefined) {
-      handleNoLetterGradesError()
-      return
+    const records = data.slice(1) // Remove Points Possible record
+    const schemaInvalidations = schemaValidator.validate(headers, records)
+    let gradebookRecords: GradebookRecord[] | undefined
+    if (!schemaValidator.checkRecordShapes(records)) {
+      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
+    } else {
+      gradebookRecords = records
     }
 
-    let invalidations: GradebookRowInvalidation[] = []
+    if (gradebookRecords === undefined || schemaInvalidations.length > 0) {
+      if (headers !== undefined && !(headers.includes('Final Grade') && headers.includes('Current Grade'))) {
+        return handleNoLetterGradesError()
+      }
+      return handleSchemaInvalidations(schemaInvalidations)
+    }
 
+    const recordsToValidate = gradebookRecords.map(r => ({
+      ...r,
+      'Override Grade': convertEmptyCellToUndefined(r['Override Grade'])
+    }))
+
+    let rowInvalidations: GradebookRowInvalidation[] = []
     const gradeMismatchValidator = new CurrentAndFinalGradeMatchGradebookValidator()
 
-    data.forEach(record => {
-      invalidations = invalidations.concat(gradeMismatchValidator.validate(record, data.indexOf(record) + 1 + 2)) // Add 2 because of 2 header rows
+    recordsToValidate.forEach(record => {
+      rowInvalidations = rowInvalidations.concat(
+        gradeMismatchValidator.validate(record, recordsToValidate.indexOf(record) + 1 + 2) // Add 2 because of 2 header rows
+      )
     })
 
-    if (invalidations.filter(i => { return i.type === GradbookRowInvalidationType.ERROR }).length > 0) {
-      handleRowLevelInvalidationError([<div key='0'>There are blank cells in the gradebook. Please enter 0 or EX (for excused) for any blank cells in the gradebook and export a new CSV file.</div>], invalidations)
+    if (rowInvalidations.filter(i => i.type === GradbookRowInvalidationType.ERROR).length > 0) {
+      handleInvalidUpload(undefined, rowInvalidations)
     } else {
-      handleParseSuccess(data, invalidations.filter(i => { return i.type === GradbookRowInvalidationType.WARNING }))
+      handleParseSuccess(recordsToValidate, rowInvalidations.filter(i => i.type === GradbookRowInvalidationType.WARNING))
     }
   }
 
@@ -204,7 +220,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       <ol>
         <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades' target='_blank' rel="noopener">All assignments are graded.</Link></Typography></li>
         <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_blank' rel="noopener">Grading scheme must be enabled in your course settings.</Link></Typography></li>
-        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook</Link></Typography></li>
+        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook.</Link></Typography></li>
       </ol>
     </div>
   }
@@ -247,29 +263,28 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
-    const errorListItems = errors.map(e => {
-      return (<li key={e.key}>{e}</li>)
-    })
-    const errorList = errors.length > 1 ? <ol>{errorListItems}</ol> : <ul>{errorListItems}</ul>
+    const errorsBlock = errors.length === 1
+      ? <Typography>{errors[0]}</Typography>
+      : <List>{errors.map(e => <ListItem key={e.key}>{e}</ListItem>)}</List>
+    const message = (
+      <>
+      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
+      {errorsBlock}
+      </>
+    )
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
-        <Grid container justify='flex-start'>
-          <Grid item xs={12} className={topLevelClasses.dialog}>
-            <Paper role='alert'>
-              <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-              {errorList}
-            </Paper>
-          </Grid>
-        </Grid>
-      </div>)
+        <ErrorAlert message={message} tryAgain={resetPageState} />
+      </div>
+    )
   }
 
   const renderInvalidUpload = (): JSX.Element => {
-    if (pageState.invalidations !== undefined) {
+    if (pageState.errorMessages !== undefined) {
+      return renderTopLevelErrors(pageState.errorMessages)
+    } else if (pageState.invalidations !== undefined) {
       return renderRowLevelErrors(pageState.invalidations)
-    } else if (pageState.errorMessage !== undefined) {
-      return renderTopLevelErrors(pageState.errorMessage)
     } else {
       return <div>?</div>
     }
@@ -326,7 +341,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       return []
     }
     return grades.map<StudentGrade>(g => {
-      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g.Student, grade: g['Final Grade'], overrideGrade: g['Override Grade'] } // Add 2 because of 2 header rows
+      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g['SIS Login ID'], grade: g['Final Grade'], overrideGrade: g['Override Grade'] } // Add 2 because of 2 header rows
     })
   }
 
@@ -337,7 +352,10 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       case GradebookCanvasPageState.InvalidUpload:
         return renderInvalidUpload()
       case GradebookCanvasPageState.Confirm:
-        return renderConfirm(gradeBookRecordToStudentGrade(pageState.grades), (pageState.invalidations !== undefined && pageState.invalidations.length > 0))
+        return renderConfirm(
+          gradeBookRecordToStudentGrade(pageState.grades),
+          (pageState.invalidations !== undefined && pageState.invalidations.length > 0)
+        )
       case GradebookCanvasPageState.Done:
         return renderDone()
       default:

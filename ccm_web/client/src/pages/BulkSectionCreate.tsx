@@ -1,14 +1,15 @@
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
-import { CloudDone as CloudDoneIcon, Error as ErrorIcon } from '@material-ui/icons'
+import {
+  Backdrop, Box, Button, CircularProgress, Grid, Link, List, ListItem, makeStyles, Paper, Typography
+} from '@material-ui/core'
+import { CloudDone as CloudDoneIcon } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
 
 import { addCourseSections, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
-  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, hasHeader, InvalidationType,
-  SectionNameTooLongValidator, SectionNameHeaderValidator, SectionRowsValidator, SectionsRowInvalidation,
-  SectionsSchemaInvalidation, SectionsSchemaValidator
+  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, InvalidationType, SectionNameTooLongValidator,
+  SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CSVFileName from '../components/CSVFileName'
@@ -21,6 +22,8 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
 import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
@@ -70,27 +73,13 @@ const useConfirmationStyles = makeStyles((theme) => ({
   }
 }))
 
-const useTopLevelErrorStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    maxWidth: '75%',
-    margin: 'auto',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
-    width: '75%',
-    '& ol': {
-      margin: 'auto',
-      width: '75%'
-    },
-    '& li': {
-      textAlign: 'left'
-    }
-  },
-  dialogIcon: {
-    color: '#3F648E'
-  }
-}))
+interface SectionNameRecord extends UnknownCSVRecord {
+  'SECTION_NAME': string
+}
+
+const isSectionNameRecord = (r: UnknownCSVRecord): r is SectionNameRecord => {
+  return typeof r.SECTION_NAME === 'string'
+}
 
 enum BulkSectionCreatePageState {
   UploadPending,
@@ -105,13 +94,12 @@ enum BulkSectionCreatePageState {
 interface BulkSectionCreatePageStateData {
   state: BulkSectionCreatePageState
   rowInvalidations: SectionsRowInvalidation[]
-  schemaInvalidation: SectionsSchemaInvalidation[]
+  schemaInvalidation: SchemaInvalidation[]
 }
 
 function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
-  const topLevelClasses = useTopLevelErrorStyles()
 
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   const [file, setFile] = useState<File|undefined>(undefined)
@@ -190,18 +178,6 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  const uploadComplete = (file: File): void => {
-    setFile(file)
-  }
-
-  useEffect(() => {
-    if (file === undefined) {
-      resetPageState()
-    } else {
-      parseFile(file)
-    }
-  }, [file])
-
   useEffect(() => {
     if (sectionNames.length > 0) {
       const clientInvalidations = doClientValidation()
@@ -217,7 +193,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     setPageState({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
   }
 
-  const handleSchemaError = (schemaInvalidations: SectionsSchemaInvalidation[]): void => {
+  const handleSchemaError = (schemaInvalidations: SchemaInvalidation[]): void => {
     setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidation: schemaInvalidations, rowInvalidations: [] })
   }
 
@@ -230,33 +206,37 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidation: [], rowInvalidations: [] })
   }
 
-  const parseFile = (file: File): void => {
-    file.text().then(t => {
-      let lines = t.replace(/\r\n/, '\n').split(/\n/)
-      // An empty file will resultin 1 line
-      if (lines.length > 0 && lines[0].length === 0) {
-        lines = lines.slice(1)
-      }
+  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+    const sectionNameValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION_NAME'], isSectionNameRecord, 60)
 
-      const schemaInvalidations: SectionsSchemaInvalidation[] = []
+    let sectionNames: string[] | undefined
+    const schemaInvalidations = sectionNameValidator.validate(headers, data)
+    if (sectionNameValidator.checkRecordShapes(data)) {
+      sectionNames = data.map(r => r.SECTION_NAME)
+    } else {
+      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
+    }
 
-      const sectionNameHeaderValidator: SectionsSchemaValidator = new SectionNameHeaderValidator()
-      schemaInvalidations.push(...sectionNameHeaderValidator.validate(lines))
-
-      if (schemaInvalidations.length !== 0) {
-        handleSchemaError(schemaInvalidations)
-        return
-      }
-
-      if (hasHeader(lines)) {
-        lines = lines.slice(1)
-      }
-      handleParseSuccess(lines)
-    }).catch(e => {
-      // TODO Not sure how to produce this error in real life
-      handleSchemaError([{ error: 'Error processing file', type: InvalidationType.Error }])
-    })
+    if (schemaInvalidations.length === 0 && sectionNames !== undefined) {
+      return handleParseSuccess(sectionNames)
+    } else {
+      return handleSchemaError(schemaInvalidations)
+    }
   }
+
+  const parseFile = (file: File): void => {
+    const parser = new FileParserAdapter(
+      handleParseComplete,
+      (e) => handleSchemaError([{ error: e.message, type: InvalidationType.Error }])
+    )
+    parser.parseFile(file)
+  }
+
+  useEffect(() => {
+    if (file !== undefined) {
+      parseFile(file)
+    }
+  }, [file])
 
   const doClientValidation = (): SectionsRowInvalidation[] => {
     const rowInvalidations: SectionsRowInvalidation[] = []
@@ -305,7 +285,7 @@ Section 001`
     return <div className={classes.uploadContainer}>
       <Grid container>
         <Grid item xs={12}>
-          <FileUpload onUploadComplete={uploadComplete}></FileUpload>
+          <FileUpload onUploadComplete={(file) => setFile(file)} />
         </Grid>
       </Grid>
       <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
@@ -330,27 +310,21 @@ Section 001`
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
+    const errorsBlock = errors.length === 1
+      ? errors[0]
+      : <List>{errors.map(e => <ListItem key={e.key}>{e}</ListItem>)}</List>
+    const message = (
+      <>
+      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
+      {errorsBlock}
+      </>
+    )
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
-        <Grid container justify='flex-start'>
-          <Grid item xs={12} className={topLevelClasses.dialog}>
-            <Paper role='alert'>
-              <Typography>Grading Scheme must be enabled in course settings.</Typography>
-              <ErrorIcon className={topLevelClasses.dialogIcon} fontSize='large'/>
-              <Typography>
-                Correct the file and
-                <Button color='primary' component="span" onClick={resetPageState}>Upload again</Button>
-              </Typography>
-              <ol>
-                {errors.map(e => {
-                  return (<li key={e.key}>{e}</li>)
-                })}
-              </ol>
-            </Paper>
-          </Grid>
-        </Grid>
-      </div>)
+        <ErrorAlert message={message} tryAgain={resetPageState}/>
+      </div>
+    )
   }
 
   const renderInvalidUpload = (): JSX.Element => {
@@ -440,7 +414,7 @@ Section 001`
   }
 
   const sectionNamesToSection = (sectionNames: string[]): Section[] => {
-    return sectionNames.map((name, i) => { return { rowNumber: i + 1, sectionName: name } })
+    return sectionNames.map((name, i) => ({ rowNumber: i + 1 + 1, sectionName: name })) // Add 1 for expected headers
   }
 
   const renderSuccess = (): JSX.Element => {
