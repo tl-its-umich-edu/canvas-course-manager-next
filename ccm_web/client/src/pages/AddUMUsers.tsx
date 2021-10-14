@@ -18,7 +18,7 @@ import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
+import { CanvasCourseSection, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
@@ -110,26 +110,26 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
-  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
-  const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
+  const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSection | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [fileError, setFileError] = useState<string | undefined>(undefined)
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
-  const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
+  const updateSections = (sections: CanvasCourseSection[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
-    (sections: CanvasCourseSectionWithCourseName[]) => {
+    (sections: CanvasCourseSection[]) => {
       updateSections(sections)
     }
   )
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]) => {
+    async (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
       await addSectionEnrollments(section.id, apiEnrollments)
     },
@@ -153,7 +153,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
   const steps = getSteps()
 
-  const sectionCreated = (newSection: CanvasCourseSectionWithCourseName): void => {
+  const sectionCreated = (newSection: CanvasCourseSection): void => {
     updateSections(sections.concat(newSection))
     setSelectedSection(newSection)
   }
@@ -349,7 +349,7 @@ designer,userd`
     )
   }
 
-  const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+  const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}

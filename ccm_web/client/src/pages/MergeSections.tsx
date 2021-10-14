@@ -7,7 +7,7 @@ import { useSnackbar } from 'notistack'
 import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
-import { CanvasCourseSectionWithCourseName, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, ICanvasCourseSectionSort } from '../models/canvas'
 import { mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
@@ -74,7 +74,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }, [unsyncedUnstagedSections])
 
   const stagedSectionsSorter = new CanvasCourseSectionSort_AZ()
-  const updateStagedSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
+  const updateStagedSections = (sections: CanvasCourseSection[]): void => {
     setStagedSections(stagedSectionsSorter.sort(sections).map(s => { return { ...s, locked: true } }))
   }
 

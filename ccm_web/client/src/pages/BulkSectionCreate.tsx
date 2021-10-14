@@ -18,7 +18,7 @@ import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName } from '../models/canvas'
+import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
@@ -120,7 +120,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
   const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
-    (value: CanvasCourseSectionWithCourseName[]) => {
+    (value: CanvasCourseSection[]) => {
       const existingSuggestions = value.map(s => { return s.name.toUpperCase() })
       setExistingSectionNames(existingSuggestions)
     }
@@ -128,7 +128,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
   const [doAddSections, isAddSectionsLoading, addSectionsError] = usePromise(
     async () => await addCourseSections(props.globals.course.id, sectionNames),
-    (newSections: CanvasCourseSectionWithCourseName[]) => {
+    (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidation: [], rowInvalidations: [] })
       setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])

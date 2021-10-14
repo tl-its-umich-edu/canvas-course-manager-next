@@ -5,7 +5,7 @@ export interface CanvasCourseBase {
 }
 
 export interface CourseWithSections extends CanvasCourseBase {
-  sections: CanvasCourseSectionWithCourseName[]
+  sections: CanvasCourseSection[]
 }
 
 export interface CanvasCourseSectionBase {
@@ -15,22 +15,19 @@ export interface CanvasCourseSectionBase {
   nonxlist_course_id: number | null
 }
 
-interface CanvasCourseSection extends CanvasCourseSectionBase {
+export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
-}
-
-export interface CanvasCourseSectionWithCourseName extends CanvasCourseSection {
   course_name: string
 }
 
 export interface ICanvasCourseSectionSort {
   description: string
-  sort: (sections: CanvasCourseSectionWithCourseName[]) => CanvasCourseSectionWithCourseName[]
+  sort: (sections: CanvasCourseSection[]) => CanvasCourseSection[]
 }
 
 export class CanvasCourseSectionSort_AZ implements ICanvasCourseSectionSort {
   description = 'Sort alphabetically A to Z'
-  sort = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
+  sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     return sections.sort((a, b) => {
       return (a.name.localeCompare(b.name, 'en', { sensitivity: 'base', numeric: true }))
     })
@@ -39,7 +36,7 @@ export class CanvasCourseSectionSort_AZ implements ICanvasCourseSectionSort {
 
 export class CanvasCourseSectionSort_ZA implements ICanvasCourseSectionSort {
   description = 'Sort alphabetically Z to A'
-  sort = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
+  sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     const sorter = new CanvasCourseSectionSort_AZ()
     return sorter.sort(sections).reverse()
   }
@@ -47,7 +44,7 @@ export class CanvasCourseSectionSort_ZA implements ICanvasCourseSectionSort {
 
 export class CanvasCourseSectionSort_UserCount implements ICanvasCourseSectionSort {
   description = 'Sort by number of users, descending'
-  sort = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
+  sort = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
     return sections.sort((a, b) => {
       return (b.total_students - a.total_students)
     })
