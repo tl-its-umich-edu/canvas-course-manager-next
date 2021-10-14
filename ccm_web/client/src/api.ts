@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
@@ -66,14 +66,14 @@ export const getGlobals = async (): Promise<Globals> => {
   return await resp.json()
 }
 
-export const getCourseSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
+export const getCourseSections = async (courseId: number): Promise<CanvasCourseSectionWithCourseName[]> => {
   const request = getGet()
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
 }
 
-export const addCourseSections = async (courseId: number, sectionNames: string[]): Promise<CanvasCourseSection[]> => {
+export const addCourseSections = async (courseId: number, sectionNames: string[]): Promise<CanvasCourseSectionWithCourseName[]> => {
   const body = JSON.stringify({ sections: sectionNames })
   const request = getPost(body)
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
@@ -117,7 +117,7 @@ export const searchSections = async (termId: number, searchType: 'uniqname' | 'c
   return await resp.json()
 }
 
-export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCourseSectionWithCourseName[]): Promise<CanvasCourseSectionBase[]> => {
   const body = JSON.stringify({ sectionIds: sectionsToMerge.map(section => { return section.id }) })
   const request = getPost(body)
   const resp = await fetch(`/api/course/${courseId}/sections/merge`, request)
@@ -125,7 +125,7 @@ export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCou
   return await resp.json()
 }
 
-export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSectionWithCourseName[]): Promise<CanvasCourseSectionBase[]> => {
   const body = JSON.stringify({ sectionIds: sectionsToUnmerge.map(section => { return section.id }) })
   const request = getDelete(body)
   const resp = await fetch('/api/sections/unmerge', request)

@@ -2,7 +2,7 @@ import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
 import React, { ChangeEvent, useState } from 'react'
 import { useSnackbar } from 'notistack'
 import { addCourseSections } from '../api'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
 import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export interface CreateSectionWidgetProps extends CCMComponentProps {
-  onSectionCreated: (newSection: CanvasCourseSection) => void
+  onSectionCreated: (newSection: CanvasCourseSectionWithCourseName) => void
 }
 
 function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {

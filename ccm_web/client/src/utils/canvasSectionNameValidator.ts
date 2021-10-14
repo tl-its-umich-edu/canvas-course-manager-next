@@ -1,5 +1,5 @@
 import { getCourseSections } from '../api'
-import { CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName } from '../models/canvas'
 import { Course } from '../models/models'
 
 export interface ICanvasSectionNameInvalidError {
@@ -7,11 +7,11 @@ export interface ICanvasSectionNameInvalidError {
 }
 
 interface IValidator {
-  validate: (sections: CanvasCourseSection[], sectionName: string) => ICanvasSectionNameInvalidError|undefined
+  validate: (sections: CanvasCourseSectionWithCourseName[], sectionName: string) => ICanvasSectionNameInvalidError|undefined
 }
 
 class DuplicateSectionNameValidator implements IValidator {
-  validate = (sections: CanvasCourseSection[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
+  validate = (sections: CanvasCourseSectionWithCourseName[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
     if (sections.map(s => s.name).filter(n => n.localeCompare(sectionName) === 0).length > 0) {
       return { reason: `Section name already used in this course: "${sectionName}"` }
     }
@@ -20,7 +20,7 @@ class DuplicateSectionNameValidator implements IValidator {
 }
 
 class SectionNameTooLongValidator implements IValidator {
-  validate = (sections: CanvasCourseSection[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
+  validate = (sections: CanvasCourseSectionWithCourseName[], sectionName: string): ICanvasSectionNameInvalidError | undefined => {
     if (sectionName.length > 255) {
       return { reason: 'Section name must be 255 characters or less' }
     }

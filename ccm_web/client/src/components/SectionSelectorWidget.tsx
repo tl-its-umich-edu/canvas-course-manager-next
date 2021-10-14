@@ -5,7 +5,7 @@ import SortIcon from '@material-ui/icons/Sort'
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
-import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
 import { unmergeSections } from '../api'
 import { ISectionSearcher } from '../utils/SectionSearcher'
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export interface SelectableCanvasCourseSection extends CanvasCourseSection {
+export interface SelectableCanvasCourseSection extends CanvasCourseSectionWithCourseName {
   locked?: boolean
 }
 
@@ -132,7 +132,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searcher, setSearcher] = useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
   const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
-  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSection[]>([])
+  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
     async () => await unmergeSections(sectionsToUnmerge)
   )

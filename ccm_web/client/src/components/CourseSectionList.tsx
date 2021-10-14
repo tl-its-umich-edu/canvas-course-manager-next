@@ -2,7 +2,7 @@ import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText,
 import React, { useEffect, useState } from 'react'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionBase } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, CanvasCourseSectionBase } from '../models/canvas'
 import { useSnackbar } from 'notistack'
 
 const useStyles = makeStyles((theme) => ({
@@ -45,15 +45,15 @@ export interface CourseSectionListProps {
 function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const classes = useStyles()
-  const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [loadSections, isLoading, error] = usePromise(
     async () => await getCourseSections(props.courseId),
-    (sections: CanvasCourseSection[]) => {
+    (sections: CanvasCourseSectionWithCourseName[]) => {
       setSections(sections)
     }
   )
 
-  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSection[]>([])
+  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
     async () => await unmergeSections(sectionsToUnmerge),
     (unmergedSections: CanvasCourseSectionBase[]) => {
@@ -103,13 +103,13 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
     </Backdrop>)
   }
 
-  const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: CanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
+  const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: CanvasCourseSectionWithCourseName): React.MouseEventHandler<HTMLButtonElement> | undefined => {
     e.stopPropagation()
     setSectionsToUnmerge([section])
     return undefined
   }
 
-  const unmergeButton = (section: CanvasCourseSection): JSX.Element => {
+  const unmergeButton = (section: CanvasCourseSectionWithCourseName): JSX.Element => {
     if (section.nonxlist_course_id !== null && props.canUnmerge) {
       return (<Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>)
     } else {
@@ -117,7 +117,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
     }
   }
 
-  const listItemText = (section: CanvasCourseSection): JSX.Element => {
+  const listItemText = (section: CanvasCourseSectionWithCourseName): JSX.Element => {
     return (
       <ListItemText primary={section.name}
         secondary={
