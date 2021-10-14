@@ -349,7 +349,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (<></>)
     } else {
       return (
-      <Grid item xs={getColumns('action', 'xs')} sm={getColumns('action', 'sm')} md={getColumns('action', 'md')}>
+      <Grid item {...gridSpacing.action}>
         <Button style={{ float: 'right' }} variant="contained" color="primary" onClick={props.action.cb} disabled={props.action.disabled}>
           {props.action?.text}
         </Button>
@@ -387,50 +387,21 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       Title, Select All, Sort
 */
 
-  const getColumns = (item: 'title'|'select all'|'sort'|'action', size: 'xs'|'sm'|'md'): GridSize => {
-    const hasSort = props.header?.sort !== undefined
-    switch (item) {
-      case 'title':
-        if (size === 'xs') {
-          return 12
-        } else if (size === 'sm') {
-          return 8
-        } else {
-          return hasSort ? 4 : 6
-        }
-      case 'select all':
-        if (size === 'xs') {
-          return 4
-        } else if (size === 'sm') {
-          return 4
-        } else {
-          return 3
-        }
-      case 'sort':
-        if (size === 'xs') {
-          return 4
-        } else if (size === 'sm') {
-          return 6
-        } else {
-          return 2
-        }
-      case 'action':
-        if (size === 'xs') {
-          return 4
-        } else if (size === 'sm') {
-          return hasSort ? 6 : 12
-        } else {
-          return 3
-        }
-      default:
-        return 12
-    }
+  const hasSort = (): boolean => {
+    return props.header?.sort !== undefined
+  }
+
+  const gridSpacing = {
+    title: { xs: 12 as GridSize, sm: 8 as GridSize, md: hasSort() ? 4 as GridSize : 6 as GridSize },
+    'select all': { xs: 4 as GridSize, sm: 4 as GridSize, md: 3 as GridSize },
+    sort: { xs: 4 as GridSize, sm: 6 as GridSize, md: 2 as GridSize },
+    action: { xs: hasSort() ? 4 as GridSize : 8 as GridSize, sm: hasSort() ? 6 as GridSize : 12 as GridSize, md: 3 as GridSize }
   }
 
   const sortButton = (): JSX.Element => {
     if (props.header?.sort !== undefined && props.header.sort?.sorters.length > 0) {
       return (
-        <Grid item xs={getColumns('sort', 'xs')} sm={getColumns('sort', 'sm')} md={getColumns('sort', 'md')}>
+        <Grid item {...gridSpacing.sort}>
         <Button style={{ float: 'left' }} aria-controls="simple-menu" aria-haspopup="true" onClick={handleSortMenuClick} disabled={internalSections.length < 2}>
           <SortIcon/>Sort
         </Button>
@@ -472,14 +443,14 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             <TextField className={classes.searchTextField} disabled={isSearching || isIniting} onChange={searchChange} value={searchFieldText} id='textField_Search' size='small' label={searchFieldLabel} variant='outlined' inputProps={{ maxLength: 256 }} InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}/>
           </Grid>
           <Grid item container style={{ paddingLeft: '16px' }}>
-            <Grid item xs={getColumns('title', 'xs')} sm={getColumns('title', 'sm')} md={getColumns('title', 'md')} className={classes.title}>
+            <Grid item {...gridSpacing.title} className={classes.title}>
               <Typography variant='h6' style={{ visibility: props.header?.title !== undefined ? 'visible' : 'hidden' }}>{props.header?.title}
                 <span hidden={props.selectedSections.length === 0}>
                   ({props.selectedSections.length})
                 </span>
               </Typography>
             </Grid>
-            <Grid item xs={getColumns('select all', 'xs')} sm={getColumns('select all', 'sm')} md={getColumns('select all', 'md')}>
+            <Grid item {...gridSpacing['select all']}>
               <FormGroup row style={checkboxStyle()}>
                 <FormControlLabel
                 control={
