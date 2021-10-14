@@ -6,9 +6,9 @@ import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
 import { CanvasCourseSection, ICanvasCourseSectionSort } from '../models/canvas'
-import { ISectionSearcher } from '../pages/MergeSections'
 import usePromise from '../hooks/usePromise'
 import { unmergeSections } from '../api'
+import { ISectionSearcher } from '../utils/SectionSearcher'
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {

@@ -46,17 +46,6 @@ enum PageState {
   Merged = 2
 }
 
-export interface ISectionSearcher {
-  name: string
-  helperText: string
-  preload: string | undefined
-  search: (searchString: string) => Promise<void>
-  updateTitleCallback?: (title: string) => void
-  init: () => Promise<void>
-  resetTitle?: () => void
-  isInteractive: boolean
-}
-
 // TODO for dev testing remove all this before merging
 // Can set to a specific role for testing purposes
 const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher

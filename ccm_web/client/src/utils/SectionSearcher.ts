@@ -1,7 +1,17 @@
 import { getCourseSections, getTeacherSections, searchSections } from '../api'
 import { CanvasCourseSection, CourseWithSections } from '../models/canvas'
-import { ISectionSearcher } from '../pages/MergeSections'
 import { localeIncludes } from './localeIncludes'
+
+export interface ISectionSearcher {
+  name: string
+  helperText: string
+  preload: string | undefined
+  search: (searchString: string) => Promise<void>
+  updateTitleCallback?: (title: string) => void
+  init: () => Promise<void>
+  resetTitle?: () => void
+  isInteractive: boolean
+}
 
 export abstract class SectionSearcher implements ISectionSearcher {
   name: string
