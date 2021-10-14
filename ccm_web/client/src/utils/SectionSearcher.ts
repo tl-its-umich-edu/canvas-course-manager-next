@@ -1,5 +1,5 @@
 import { getCourseSections, getTeacherSections, searchSections } from '../api'
-import { CanvasCourseSection, CourseWithSections } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
 import { localeIncludes } from './localeIncludes'
 
 export interface ISectionSearcher {
@@ -19,11 +19,11 @@ export abstract class SectionSearcher implements ISectionSearcher {
   preload: string | undefined
   termId: number
   courseId: number
-  setSections: (sections: CanvasCourseSection[]) => void
+  setSections: (sections: CanvasCourseSectionWithCourseName[]) => void
   updateTitleCallback?: (title: string) => void
   isInteractive = true
-  searchFilter?: (sections: CanvasCourseSection[]) => CanvasCourseSection[]
-  constructor (termId: number, courseId: number, name: string, helperText: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle?: (title: string) => void) {
+  searchFilter?: (sections: CanvasCourseSectionWithCourseName[]) => CanvasCourseSectionWithCourseName[]
+  constructor (termId: number, courseId: number, name: string, helperText: string, preload: string | undefined, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle?: (title: string) => void) {
     this.termId = termId
     this.courseId = courseId
     this.name = name
@@ -35,7 +35,7 @@ export abstract class SectionSearcher implements ISectionSearcher {
 
   abstract resetTitle?: () => void
 
-  abstract searchImpl: (searchText: string) => Promise<CanvasCourseSection[]>
+  abstract searchImpl: (searchText: string) => Promise<CanvasCourseSectionWithCourseName[]>
 
   init = async (): Promise<void> => {
     if (this.preload !== undefined) {
@@ -58,17 +58,17 @@ export abstract class SectionSearcher implements ISectionSearcher {
   }
 }
 
-const sectionNotInOrCrosslistedToCurrentCourseFilter = (sections: CanvasCourseSection[], currentCourseId: number): CanvasCourseSection[] => {
+const sectionNotInOrCrosslistedToCurrentCourseFilter = (sections: CanvasCourseSectionWithCourseName[], currentCourseId: number): CanvasCourseSectionWithCourseName[] => {
   return sections.filter(section => { return section.course_id !== currentCourseId && section.nonxlist_course_id !== currentCourseId })
 }
 
 export class UniqnameSearcher extends SectionSearcher {
-  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Uniqname', 'Search by exact Instructor Uniqname', undefined, setSectionsCallabck, updateTitle)
     this.searchFilter = this.filter
   }
 
-  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+  filter = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
     return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
@@ -76,18 +76,18 @@ export class UniqnameSearcher extends SectionSearcher {
     if (this.updateTitleCallback !== undefined) this.updateTitleCallback('Sections for Uniqname')
   }
 
-  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+  searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
     return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'uniqname', searchText))
   }
 }
 
 export class CourseNameSearcher extends SectionSearcher {
-  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Course Name', 'Search by course name', undefined, setSectionsCallabck, updateTitle)
     this.searchFilter = this.filter
   }
 
-  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+  filter = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
     return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
@@ -95,18 +95,18 @@ export class CourseNameSearcher extends SectionSearcher {
     if (this.updateTitleCallback !== undefined) this.updateTitleCallback('Sections for course name')
   }
 
-  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+  searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
     return coursesWithSectionsToCanvasCourseSections(await searchSections(this.termId, 'coursename', searchText))
   }
 }
 
 export class SectionNameSearcher extends SectionSearcher {
-  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle: (title: string) => void) {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle: (title: string) => void) {
     super(termId, courseId, 'Section Name', 'Search by section name', '', setSectionsCallabck, updateTitle)
     this.searchFilter = this.filter
   }
 
-  filter = (sections: CanvasCourseSection[]): CanvasCourseSection[] => {
+  filter = (sections: CanvasCourseSectionWithCourseName[]): CanvasCourseSectionWithCourseName[] => {
     return sectionNotInOrCrosslistedToCurrentCourseFilter(sections, this.courseId)
   }
 
@@ -123,13 +123,13 @@ export class SectionNameSearcher extends SectionSearcher {
     return this.sectionsCache
   }
 
-  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+  searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
     return coursesWithSectionsToCanvasCourseSections(await this.getCachedTeacherSections()).filter(s => { return localeIncludes(s.name, searchText) })
   }
 }
 
 export class CourseSectionSearcher extends SectionSearcher {
-  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSection[]) => void, updateTitle?: (title: string) => void) {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle?: (title: string) => void) {
     super(termId, courseId, 'Prepared to merge', '', '', setSectionsCallabck, updateTitle)
     this.isInteractive = false
   }
@@ -137,12 +137,12 @@ export class CourseSectionSearcher extends SectionSearcher {
   resetTitle = undefined
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
-  searchImpl = async (searchText: string): Promise<CanvasCourseSection[]> => {
+  searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
     return await getCourseSections(this.courseId)
   }
 }
 
-const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSection[] => {
+const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSectionWithCourseName[] => {
   return coursesWithSections.map(courseWithSections => {
     return courseWithSections.sections.map(section => { return { ...section, course_name: courseWithSections.name } })
   }).flat()
