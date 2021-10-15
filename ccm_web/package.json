@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/sequelize": "^0.2.0",
     "@nestjs/swagger": "^4.8.0",
+    "@react-hook/debounce": "^4.0.0",
     "axios": "^0.21.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",

@@ -12,6 +12,7 @@ import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
+import ResponsiveHelper from './components/ResponsiveHelper'
 
 const useStyles = makeStyles((theme) => ({
   swaggerLink: {
@@ -42,7 +43,7 @@ function App (): JSX.Element {
 
   const loading = <div className='App'><p>Loading...</p></div>
 
-  if (isAuthenticated === undefined || isLoading || isCourseLoading) return loading
+  if (isAuthenticated === undefined || isLoading) return loading
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
@@ -63,6 +64,15 @@ function App (): JSX.Element {
     )
   }
 
+  if (isCourseLoading) return loading
+  if (getCourseError !== undefined || course === undefined) {
+    return (
+      <div className='App'>
+        <p>Course info failed to load.</p>
+      </div>
+    )
+  }
+
   return (
     <div className='App'>
       <SnackbarProvider maxSnack={3}>
@@ -78,7 +88,7 @@ function App (): JSX.Element {
           <Switch>
             <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} />}/>
+              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} />}/>
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
@@ -86,8 +96,13 @@ function App (): JSX.Element {
         {
           globals?.environment === 'development' &&
           (
-            <div className={classes.swaggerLink}>
-              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+            <div>
+              <div className={classes.swaggerLink}>
+                <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+              </div>
+              <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
+                <ResponsiveHelper/>
+              </div>
             </div>
           )
         }

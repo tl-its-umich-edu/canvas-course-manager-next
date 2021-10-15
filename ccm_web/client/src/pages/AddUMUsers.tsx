@@ -18,7 +18,7 @@ import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, getCanvasRole, isValidRole } from '../models/canvas'
+import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
     },
-    createSetctionWidget: {
+    createSectionWidget: {
       width: '500px'
     },
     sectionSelectButton: {
@@ -110,26 +110,26 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(States.SelectSection)
 
-  const [sections, setSections] = useState<CanvasCourseSection[]>([])
-  const [selectedSection, setSelectedSection] = useState<CanvasCourseSection | undefined>(undefined)
+  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
   const [fileError, setFileError] = useState<string | undefined>(undefined)
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
-  const updateSections = (sections: CanvasCourseSection[]): void => {
+  const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
     setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      updateSections(sections)
+      updateSections(injectCourseName(sections, props.course.name))
     }
   )
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]) => {
+    async (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
       await addSectionEnrollments(section.id, apiEnrollments)
     },
@@ -154,8 +154,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const steps = getSteps()
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
-    updateSections(sections.concat(newSection))
-    setSelectedSection(newSection)
+    const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
+    updateSections(sections.concat(newSectionWithCourseName))
+    setSelectedSection(newSectionWithCourseName)
   }
 
   const isValidLoginId = (loginId: string): boolean => {
@@ -253,52 +254,54 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           tryAgain={() => clearGetSectionsError()}
         />
       )
+    } else {
+      return (
+        <>
+          <div className={classes.createSectionContainer}>
+            <div className={classes.newSectionHint}>
+              <Typography>Create a new section to add users</Typography>
+              <Tooltip placement='top' title='Enter a distinct name for this section'>
+                <HelpIcon fontSize='small'/>
+              </Tooltip>
+            </div>
+            <div className={classes.createSectionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
+          </div>
+          <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
+          <div className={classes.sectionSelectionContainer}>
+            <SectionSelectorWidget
+              height={400}
+              search={[]}
+              multiSelect={false}
+              sections={sections !== undefined ? sections : []}
+              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+              selectionUpdated={(sections) => setSelectedSection(sections[0])}
+              canUnmerge={false}
+            />
+            <div>
+              <Button
+                className={classes.sectionSelectButton}
+                variant='contained'
+                color='primary'
+                disabled={selectedSection === undefined}
+                onClick={() => { setActiveStep(States.UploadCSV) }}
+              >
+                Select
+              </Button>
+            </div>
+            <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <CircularProgress color='inherit' />
+                </Grid>
+                <Grid item xs={12}>
+                  Loading sections
+                </Grid>
+              </Grid>
+            </Backdrop>
+          </div>
+        </>
+      )
     }
-
-    return (
-      <>
-        <div className={classes.createSectionContainer}>
-          <div className={classes.newSectionHint}>
-            <Typography>Create a new section to add users</Typography>
-            <Tooltip placement='top' title='Enter a distinct name for this section'>
-              <HelpIcon fontSize='small'/>
-            </Tooltip>
-          </div>
-          <div className={classes.createSetctionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
-        </div>
-        <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
-        <div className={classes.sectionSelectionContainer}>
-          <SectionSelectorWidget
-            height={400}
-            multiSelect={false}
-            sections={sections !== undefined ? sections : []}
-            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-            selectionUpdated={(sections) => setSelectedSection(sections[0])}
-          />
-          <div>
-            <Button
-              className={classes.sectionSelectButton}
-              variant='contained'
-              color='primary'
-              disabled={selectedSection === undefined}
-              onClick={() => { setActiveStep(States.UploadCSV) }}
-            >
-              Select
-            </Button>
-          </div>
-          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}>
-                <CircularProgress color='inherit' />
-              </Grid>
-              <Grid item xs={12}>
-                Loading sections
-              </Grid>
-            </Grid>
-          </Backdrop>
-        </div>
-      </>
-    )
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -347,7 +350,7 @@ designer,userd`
     )
   }
 
-  const renderConfirm = (section: CanvasCourseSection, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+  const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
@@ -482,7 +485,7 @@ designer,userd`
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5'>{addUMUsersProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{addUMUsersProps.title}</Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
       </Stepper>

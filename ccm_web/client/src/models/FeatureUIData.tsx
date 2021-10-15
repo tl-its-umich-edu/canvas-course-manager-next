@@ -12,9 +12,11 @@ import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
 import AddUMUsers from '../pages/AddUMUsers'
 import { Globals, RoleEnum } from './models'
+import { CanvasCourseBase } from './canvas'
 
 export interface CCMComponentProps {
   globals: Globals
+  course: CanvasCourseBase
 }
 
 interface FeatureUIGroup {
@@ -81,12 +83,6 @@ const allFeatures: FeatureUIGroup[] = [
 
 const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[], featureDescriptionForLogging: string): boolean => {
   const rolesAllowingAccess = userRoles.filter(userRole => requiredRoles.includes(userRole))
-  // These log messages seem useful while debugging/testing but should be removed later
-  // if (rolesAllowingAccess.length > 0) {
-  //   console.debug('Feature ' + featureDescriptionForLogging + ' allowed by ' + rolesAllowingAccess.join(','))
-  // } else {
-  //   console.debug('Feature ' + featureDescriptionForLogging + ' forbid for ' + userRoles.join(','))
-  // }
   return rolesAllowingAccess.length > 0
 }
 

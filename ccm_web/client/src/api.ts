@@ -1,11 +1,18 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment } from './models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
 import { Globals } from './models/models'
 import handleErrors from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
 
 export const getCSRFToken = (): string | undefined => Cookies.get('CSRF-Token')
+
+const initCSRFRequest = (headers: string[][]): RequestInit => {
+  const csrfToken = getCSRFToken()
+  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
+  const request: RequestInit = { headers }
+  return request
+}
 
 const getGet = (): RequestInit => {
   const request: RequestInit = {}
@@ -15,10 +22,16 @@ const getGet = (): RequestInit => {
 
 const getPost = (body: string): RequestInit => {
   const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
-  const csrfToken = getCSRFToken()
-  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
-  const request: RequestInit = { headers }
+  const request = initCSRFRequest(headers)
   request.method = 'POST'
+  request.body = body
+  return request
+}
+
+const getDelete = (body: string): RequestInit => {
+  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const request = initCSRFRequest(headers)
+  request.method = 'DELETE'
   request.body = body
   return request
 }
@@ -26,9 +39,7 @@ const getPost = (body: string): RequestInit => {
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (body: string): RequestInit => {
   const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
-  const csrfToken = getCSRFToken()
-  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
-  const request: RequestInit = { headers }
+  const request = initCSRFRequest(headers)
   request.method = 'PUT'
   request.body = body
   return request
@@ -89,4 +100,35 @@ export const setCSRFTokenCookie = async (): Promise<void> => {
   const request = getGet()
   const resp = await fetch('/auth/csrfToken', request)
   await handleErrors(resp)
+}
+
+export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
+  const request = getGet()
+  const resp = await fetch(`/api/instructor/sections?term_id=${termId}`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const searchSections = async (termId: number, searchType: 'uniqname' | 'coursename', searchText: string): Promise<CourseWithSections[]> => {
+  const request = getGet()
+  const queryParam = searchType === 'uniqname' ? `instructor_name=${searchText}` : `course_name=${searchText}`
+  const resp = await fetch(`/api/admin/sections?term_id=${termId}&${queryParam}`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const mergeSections = async (courseId: number, sectionsToMerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+  const body = JSON.stringify({ sectionIds: sectionsToMerge.map(section => { return section.id }) })
+  const request = getPost(body)
+  const resp = await fetch(`/api/course/${courseId}/sections/merge`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]): Promise<CanvasCourseSectionBase[]> => {
+  const body = JSON.stringify({ sectionIds: sectionsToUnmerge.map(section => { return section.id }) })
+  const request = getDelete(body)
+  const resp = await fetch('/api/sections/unmerge', request)
+  await handleErrors(resp)
+  return await resp.json()
 }

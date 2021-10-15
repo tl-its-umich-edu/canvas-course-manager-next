@@ -485,7 +485,7 @@ Section 001`
 
   return (
     <div className={classes.root}>
-      <Typography variant='h5'>{createSectionsProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{createSectionsProps.title}</Typography>
       {renderComponent()}
     </div>
   )

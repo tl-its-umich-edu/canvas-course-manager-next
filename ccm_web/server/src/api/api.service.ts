@@ -14,7 +14,6 @@ import {
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
-
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
