@@ -165,7 +165,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             ]
           }
         }}
-        search={ isSubAccountAdminOrAccountAdmin() ? [new CourseNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.termId, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
+        search={ isSubAccountAdminOrAccountAdmin() ? [new CourseNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
         multiSelect={true}
         showCourseName={true}
         sections={unstagedSections !== undefined ? unstagedSections : []}
@@ -186,7 +186,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
           height={400}
           header={{ title: 'Prepared to merge' }}
-          search={ [new CourseSectionSearcher(props.termId, props.globals.course.id, updateStagedSections, undefined)] }
+          search={ [new CourseSectionSearcher(props.course.enrollment_term_id, props.globals.course.id, updateStagedSections, props.course.name)] }
           multiSelect={true}
           showCourseName={true}
           sections={stagedSections !== undefined ? stagedSections : []}
@@ -230,7 +230,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const getMergeSuccess = (): JSX.Element => {
-    return (<CourseSectionList canUnmerge={isSubAccountAdminOrAccountAdmin()} courseId={props.globals.course.id}/>)
+    return (<CourseSectionList canUnmerge={isSubAccountAdminOrAccountAdmin()} {...props}/>)
   }
 
   return (

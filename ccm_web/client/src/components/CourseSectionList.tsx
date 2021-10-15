@@ -2,8 +2,9 @@ import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText,
 import React, { useEffect, useState } from 'react'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionBase } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionBase, canvasCourseSectionsToCanvasCourseSectionsWithCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
 import { useSnackbar } from 'notistack'
+import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   secondaryTypography: {
@@ -37,19 +38,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export interface CourseSectionListProps {
+export interface CourseSectionListProps extends CCMComponentProps {
   canUnmerge: boolean
-  courseId: number
 }
 
 function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const classes = useStyles()
-  const [sections, setSections] = useState<CanvasCourseSection[]>([])
+  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [loadSections, isLoading, error] = usePromise(
-    async () => await getCourseSections(props.courseId),
+    async () => await getCourseSections(props.course.id),
     (sections: CanvasCourseSection[]) => {
-      setSections(sections)
+      setSections(canvasCourseSectionsToCanvasCourseSectionsWithCourseName(sections, props.course.name))
     }
   )
 
@@ -117,7 +117,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
     }
   }
 
-  const listItemText = (section: CanvasCourseSection): JSX.Element => {
+  const listItemText = (section: CanvasCourseSectionWithCourseName): JSX.Element => {
     return (
       <ListItemText primary={section.name}
         secondary={

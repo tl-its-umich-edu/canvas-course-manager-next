@@ -12,10 +12,11 @@ import MergeSections from '../pages/MergeSections'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
 import AddUMUsers from '../pages/AddUMUsers'
 import { Globals, RoleEnum } from './models'
+import { CanvasCourseBase } from './canvas'
 
 export interface CCMComponentProps {
   globals: Globals
-  termId: number
+  course: CanvasCourseBase
 }
 
 interface FeatureUIGroup {

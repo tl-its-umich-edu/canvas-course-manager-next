@@ -94,3 +94,7 @@ export const isValidRole = (role: string): role is ClientRoleType => {
 export const getCanvasRole = (clientName: ClientRoleType): CanvasRoleType => {
   return clientToCanvasRoleMap[clientName]
 }
+
+export const canvasCourseSectionsToCanvasCourseSectionsWithCourseName = (sections: CanvasCourseSection[], courseName: string): CanvasCourseSectionWithCourseName[] => {
+  return sections.map(section => { return { ...section, course_name: courseName } })
+}

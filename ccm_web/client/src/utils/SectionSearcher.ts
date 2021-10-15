@@ -1,5 +1,5 @@
 import { getCourseSections, getTeacherSections, searchSections } from '../api'
-import { CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
+import { canvasCourseSectionsToCanvasCourseSectionsWithCourseName, CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
 import { localeIncludes } from './localeIncludes'
 
 export interface ISectionSearcher {
@@ -129,21 +129,23 @@ export class SectionNameSearcher extends SectionSearcher {
 }
 
 export class CourseSectionSearcher extends SectionSearcher {
-  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, updateTitle?: (title: string) => void) {
+  constructor (termId: number, courseId: number, setSectionsCallabck: (sections: CanvasCourseSectionWithCourseName[]) => void, courseName: string, updateTitle?: (title: string) => void) {
     super(termId, courseId, 'Prepared to merge', '', '', setSectionsCallabck, updateTitle)
     this.isInteractive = false
+    this.courseName = courseName
   }
 
+  courseName: string
   resetTitle = undefined
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
   searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
-    return await getCourseSections(this.courseId)
+    return canvasCourseSectionsToCanvasCourseSectionsWithCourseName(await getCourseSections(this.courseId), this.courseName)
   }
 }
 
 const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSectionWithCourseName[] => {
   return coursesWithSections.map(courseWithSections => {
-    return courseWithSections.sections.map(section => { return { ...section, course_name: courseWithSections.name } })
+    return courseWithSections.sections.map(section => { return canvasCourseSectionsToCanvasCourseSectionsWithCourseName([section], courseWithSections.name)[0] })
   }).flat()
 }
