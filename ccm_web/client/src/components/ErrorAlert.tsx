@@ -45,7 +45,7 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   const messageBlock = (messages === undefined || messages.length === 0)
     ? defaultMessage
     : messages.length === 1
-      ? <Typography gutterBottom>{messages[0]}</Typography>
+      ? messages[0]
       : <List>{messages.map((m, i) => <ListItem key={i}>{m}</ListItem>)}</List>
 
   return (
