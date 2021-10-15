@@ -19,7 +19,7 @@ class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   constructor (record: GradebookRecord, rowNumber: number, type: GradbookRowInvalidationType) {
     this.record = record
     this.rowNumber = rowNumber
-    this.message = 'Current and Final grade mismatch: ' + record.Student + '(' + record['SIS Login ID'] + ')'
+    this.message = `Current and Final Grade mismatch: ${record.Student} (${record['SIS Login ID']})`
     this.type = type
   }
 }

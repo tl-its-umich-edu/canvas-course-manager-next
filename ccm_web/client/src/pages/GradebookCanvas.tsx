@@ -253,6 +253,8 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
           errorType='error'
           message={(
             <Typography>
+              There are likely blank cells in the course&apos;s gradebook.
+              Please enter 0 or EX (for excused) for any blank cells in the gradebook, and export a new CSV file.
               Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors.
             </Typography>
           )}
