@@ -18,7 +18,7 @@ import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, canvasCourseSectionsToCanvasCourseSectionsWithCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
+import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
@@ -124,7 +124,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      updateSections(canvasCourseSectionsToCanvasCourseSectionsWithCourseName(sections, props.course.name))
+      updateSections(injectCourseName(sections, props.course.name))
     }
   )
 
@@ -154,7 +154,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const steps = getSteps()
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
-    const newSectionWithCourseName = canvasCourseSectionsToCanvasCourseSectionsWithCourseName([newSection], props.course.name)[0]
+    const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
     updateSections(sections.concat(newSectionWithCourseName))
     setSelectedSection(newSectionWithCourseName)
   }

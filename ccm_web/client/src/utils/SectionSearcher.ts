@@ -1,5 +1,5 @@
 import { getCourseSections, getTeacherSections, searchSections } from '../api'
-import { canvasCourseSectionsToCanvasCourseSectionsWithCourseName, CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
+import { injectCourseName, CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
 import { localeIncludes } from './localeIncludes'
 
 export interface ISectionSearcher {
@@ -140,12 +140,12 @@ export class CourseSectionSearcher extends SectionSearcher {
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
   searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
-    return canvasCourseSectionsToCanvasCourseSectionsWithCourseName(await getCourseSections(this.courseId), this.courseName)
+    return injectCourseName(await getCourseSections(this.courseId), this.courseName)
   }
 }
 
 const coursesWithSectionsToCanvasCourseSections = (coursesWithSections: CourseWithSections[]): CanvasCourseSectionWithCourseName[] => {
   return coursesWithSections.map(courseWithSections => {
-    return courseWithSections.sections.map(section => { return canvasCourseSectionsToCanvasCourseSectionsWithCourseName([section], courseWithSections.name)[0] })
+    return courseWithSections.sections.map(section => { return injectCourseName([section], courseWithSections.name)[0] })
   }).flat()
 }

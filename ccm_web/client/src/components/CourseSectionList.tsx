@@ -2,7 +2,7 @@ import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText,
 import React, { useEffect, useState } from 'react'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionBase, canvasCourseSectionsToCanvasCourseSectionsWithCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
 import { useSnackbar } from 'notistack'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
@@ -49,7 +49,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const [loadSections, isLoading, error] = usePromise(
     async () => await getCourseSections(props.course.id),
     (sections: CanvasCourseSection[]) => {
-      setSections(canvasCourseSectionsToCanvasCourseSectionsWithCourseName(sections, props.course.name))
+      setSections(injectCourseName(sections, props.course.name))
     }
   )
 
