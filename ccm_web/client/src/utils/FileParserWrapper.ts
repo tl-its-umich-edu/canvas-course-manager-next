@@ -8,7 +8,8 @@ export class FileParserWrapper {
 
   static defaultParseConfigOptions: Papa.ParseConfig = {
     header: true,
-    skipEmptyLines: true
+    skipEmptyLines: true,
+    transformHeader: header => header.toUpperCase()
   }
 
   constructor (parseConfig?: Papa.ParseConfig, unparseConfig?: Papa.UnparseConfig) {
