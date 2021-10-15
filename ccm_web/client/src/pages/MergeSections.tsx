@@ -46,10 +46,6 @@ enum PageState {
   Merged = 2
 }
 
-// TODO for dev testing remove all this before merging
-// Can set to a specific role for testing purposes
-const OVERRIDE_ROLE: RoleEnum | undefined = undefined // RoleEnum.Teacher
-
 function MergeSections (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
@@ -131,9 +127,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const isSubAccountAdminOrAccountAdmin = (): boolean => {
-    if (OVERRIDE_ROLE !== undefined) {
-      return OVERRIDE_ROLE === RoleEnum['Subaccount admin'] || OVERRIDE_ROLE === RoleEnum['Account Admin']
-    }
     return isAuthorizedForRoles([RoleEnum['Subaccount admin'], RoleEnum['Account Admin']], props.globals.course.roles, 'MergeSections')
   }
 

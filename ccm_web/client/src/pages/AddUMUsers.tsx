@@ -122,9 +122,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
-    async () => canvasCourseSectionsToCanvasCourseSectionsWithCourseName(await getCourseSections(props.globals.course.id), props.course.name),
-    (sections: CanvasCourseSectionWithCourseName[]) => {
-      updateSections(sections)
+    async () => await getCourseSections(props.globals.course.id),
+    (sections: CanvasCourseSection[]) => {
+      updateSections(canvasCourseSectionsToCanvasCourseSectionsWithCourseName(sections, props.course.name))
     }
   )
 
