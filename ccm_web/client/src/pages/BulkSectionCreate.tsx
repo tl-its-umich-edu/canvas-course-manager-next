@@ -1,5 +1,5 @@
 import {
-  Backdrop, Box, Button, CircularProgress, Grid, Link, List, ListItem, makeStyles, Paper, Typography
+  Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography
 } from '@material-ui/core'
 import { CloudDone as CloudDoneIcon } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
@@ -312,19 +312,10 @@ Section 001`
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
-    const errorsBlock = errors.length === 1
-      ? errors[0]
-      : <List>{errors.map(e => <ListItem key={e.key}>{e}</ListItem>)}</List>
-    const message = (
-      <>
-      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
-      {errorsBlock}
-      </>
-    )
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
-        <ErrorAlert message={message} tryAgain={resetPageState}/>
+        <ErrorAlert messages={errors} tryAgain={resetPageState}/>
       </div>
     )
   }
@@ -361,7 +352,7 @@ Section 001`
 
   const renderPartialSuccess = (error: Error): JSX.Element => {
     const apiErrorMessage = (
-      <Typography>The last action failed with the following message: {error.message}</Typography>
+      <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
     )
     return (
       error instanceof CanvasError
@@ -376,7 +367,7 @@ Section 001`
             />
             </>
           )
-        : <ErrorAlert message={apiErrorMessage} tryAgain={resetPageState} />
+        : <ErrorAlert messages={[apiErrorMessage]} tryAgain={resetPageState} />
     )
   }
 
@@ -438,7 +429,7 @@ Section 001`
       case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
         return (
           <ErrorAlert
-            message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
+            messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
             tryAgain={resetPageState}
           />
         )

@@ -1,5 +1,5 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, List, ListItem, makeStyles,
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles,
   Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
@@ -257,8 +257,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     if (getSectionsError !== undefined) {
       return (
         <ErrorAlert
-          message={<Typography>An error occurred while loading section data from Canvas.</Typography>}
-          tryAgain={() => clearGetSectionsError()}
+          messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+          tryAgain={clearGetSectionsError}
         />
       )
     } else {
@@ -417,22 +417,20 @@ designer,userd`
   }
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
-    const errors = invalidations.map(i => i.error)
-    const errorsBlock = errors.length === 1
-      ? <Typography>{errors[0]}</Typography>
-      : <List>{errors.map((e, i) => <ListItem key={i}>{e}</ListItem>)}</List>
-    const message = (
+    const errors = invalidations.map(
+      (invalidation, i) => <Typography key={i} component='span'>{invalidation.error}</Typography>
+    )
+    return (
       <>
-      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
-      {errorsBlock}
+      {file !== undefined && <CSVFileName file={file} />}
+      <ErrorAlert messages={errors} tryAgain={handleUploadReset} />
       </>
     )
-    return <ErrorAlert message={message} tryAgain={handleUploadReset} />
   }
 
   const renderPostError = (error: Error): JSX.Element => {
     const apiErrorMessage = (
-      <Typography>The last action failed with the following message: {error.message}</Typography>
+      <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
     )
     return (
       error instanceof CanvasError
@@ -447,7 +445,7 @@ designer,userd`
             />
             </>
           )
-        : <ErrorAlert message={apiErrorMessage} tryAgain={handleUploadReset} />
+        : <ErrorAlert messages={[apiErrorMessage]} tryAgain={handleUploadReset} />
     )
   }
 

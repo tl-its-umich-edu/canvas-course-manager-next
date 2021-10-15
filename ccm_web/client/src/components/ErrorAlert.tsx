@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Button, Grid, List, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
 import ErrorIcon from '@material-ui/icons/Error'
 
 const useStyles = makeStyles((theme) => ({
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface ErrorAlertProps {
-  message?: JSX.Element
+  messages?: JSX.Element[]
   tryAgain?: () => void
   icon?: JSX.Element
 }
@@ -34,12 +34,27 @@ interface ErrorAlertProps {
 export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   const classes = useStyles()
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
+  const preface = (
+    <Typography gutterBottom>
+      Some errors occurred. If possible, correct them, and/or try again.
+    </Typography>
+  )
+
+  const { messages, tryAgain, icon } = props
+
+  const messageBlock = (messages === undefined || messages.length === 0)
+    ? defaultMessage
+    : messages.length === 1
+      ? <Typography gutterBottom>{messages[0]}</Typography>
+      : <List>{messages.map((m, i) => <ListItem key={i}>{m}</ListItem>)}</List>
+
   return (
     <Grid item xs={12} className={classes.dialog}>
       <Paper role='alert'>
-        {(props.icon != null) ? props.icon : (<ErrorIcon className={classes.dialogIcon} fontSize='large'/>)}
-        {props.message !== undefined ? props.message : defaultMessage}
-        {(props.tryAgain != null) ? (<Button color='primary' component='span' onClick={props.tryAgain}>Try Again</Button>) : <></>}
+        {icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
+        {Boolean(messages?.length) && preface}
+        {messageBlock}
+        {tryAgain !== undefined && <Button color='primary' component='span' onClick={props.tryAgain}>Try Again</Button>}
       </Paper>
     </Grid>
   )

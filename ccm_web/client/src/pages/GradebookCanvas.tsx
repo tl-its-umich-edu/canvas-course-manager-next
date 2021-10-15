@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Link, List, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 import WarningIcon from '@material-ui/icons/Warning'
 
@@ -263,19 +263,10 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
-    const errorsBlock = errors.length === 1
-      ? <Typography>{errors[0]}</Typography>
-      : <List>{errors.map(e => <ListItem key={e.key}>{e}</ListItem>)}</List>
-    const message = (
-      <>
-      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
-      {errorsBlock}
-      </>
-    )
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
-        <ErrorAlert message={message} tryAgain={resetPageState} />
+        <ErrorAlert messages={errors} tryAgain={resetPageState} />
       </div>
     )
   }
