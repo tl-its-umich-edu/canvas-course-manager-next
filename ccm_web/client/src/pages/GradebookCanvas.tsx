@@ -13,7 +13,7 @@ import { CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationTyp
 import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
+import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -97,19 +97,21 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const [file, setFile] = useState<File|undefined>(undefined)
   const [downloadData, setDownloadData] = useState<DownloadData | undefined>(undefined)
 
+  const fileParser = new FileParserWrapper()
+
   const uploadComplete = (file: File): void => {
     setFile(file)
   }
 
   const parseUpload = (file: File): void => {
-    const parser = new FileParserAdapter(
+    fileParser.parseCSV(
+      file,
       handleParseComplete,
       e => setPageState({
         state: GradebookCanvasPageState.Upload,
         errorMessages: [<Typography key='0'>An error occurred while parsing the file: {e.message}</Typography>]
       })
     )
-    parser.parseFile(file)
   }
 
   useEffect(() => {
@@ -135,11 +137,9 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
-    let csvContent = 'data:text/csv;charset=utf-8,'
-    data.forEach(function (record, index) {
-      csvContent += record['SIS Login ID'] + ',' + getGradeForExport(record) + (index < data.length ? '\n' : '')
-    })
-    setDownloadData({ data: encodeURI(csvContent), fileName: getOutputFilename(file) })
+    const csvData = data.map(r => [r['SIS Login ID'], getGradeForExport(r)])
+    const csvString = 'data:text/csv;charset=utf-8,' + fileParser.createCSV(csvData)
+    setDownloadData({ data: encodeURI(csvString), fileName: getOutputFilename(file) })
   }
 
   const handleInvalidUpload = (errorMessages?: JSX.Element[], invalidations?: GradebookRowInvalidation[]): void => {

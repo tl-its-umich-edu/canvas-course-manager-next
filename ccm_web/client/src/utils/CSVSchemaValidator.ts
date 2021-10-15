@@ -1,4 +1,4 @@
-import { UnknownCSVRecord } from '../utils/FileParserAdapter'
+import { UnknownCSVRecord } from '../utils/FileParserWrapper'
 
 // Original requirement was to have a warning for missing header row, leaving this for now
 enum InvalidationType {

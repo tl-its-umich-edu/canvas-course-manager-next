@@ -23,7 +23,7 @@ import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import CSVSchemaValidator, { InvalidationType, SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
+import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
 import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
@@ -227,11 +227,12 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   }
 
   const parseFile = (file: File): void => {
-    const parser = new FileParserAdapter(
+    const parser = new FileParserWrapper()
+    parser.parseCSV(
+      file,
       handleParseComplete,
       (e) => handleSchemaError([{ error: e.message, type: InvalidationType.Error }])
     )
-    parser.parseFile(file)
   }
 
   useEffect(() => {

@@ -22,7 +22,7 @@ import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseNam
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
-import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
+import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
 import CSVSchemaValidator, { InvalidationType, SchemaInvalidation } from '../utils/CSVSchemaValidator'
 
 const USER_ROLE_TEXT = 'Role'
@@ -246,11 +246,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const parseFile = (file: File): void => {
-    const parser = new FileParserAdapter(
+    const parser = new FileParserWrapper()
+    parser.parseCSV(
+      file,
       handleParseComplete,
       (e) => handleSchemaInvalidations([{ error: e.message, type: InvalidationType.Error }])
     )
-    parser.parseFile(file)
   }
 
   const getSelectContent = (): JSX.Element => {
