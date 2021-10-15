@@ -19,7 +19,7 @@ class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   constructor (record: GradebookRecord, rowNumber: number, type: GradbookRowInvalidationType) {
     this.record = record
     this.rowNumber = rowNumber
-    this.message = `Current and Final Grade mismatch: ${record.Student} (${record['SIS Login ID']})`
+    this.message = `Current and Final Grade mismatch: ${record.STUDENT} (${record['SIS LOGIN ID']})`
     this.type = type
   }
 }
@@ -45,8 +45,8 @@ abstract class GradebookValidator implements GradebookRecordValidator {
 class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
   validate = (record: GradebookRecord, rowNumber: number): GradebookRowInvalidation[] => {
     const invalidations: GradebookRowInvalidation[] = []
-    if (record['Final Grade'] !== record['Current Grade']) {
-      if (record['Override Grade'] === undefined) {
+    if (record['FINAL GRADE'] !== record['CURRENT GRADE']) {
+      if (record['OVERRIDE GRADE'] === undefined) {
         invalidations.push(new CurrentAndFinalGradeMismatchError(record, rowNumber))
       } else {
         invalidations.push(new CurrentAndFinalGradeMismatchWarning(record, rowNumber))

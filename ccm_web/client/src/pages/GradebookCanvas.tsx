@@ -48,20 +48,19 @@ const useConfirmationStyles = makeStyles((theme) => ({
 }))
 
 interface GradebookRecord extends UnknownCSVRecord {
-  'Current Grade': string
-  'Final Grade': string
-  'SIS Login ID': string
-  Student: string
-  'Override Grade': string | undefined
-  grade: string | undefined
+  'CURRENT GRADE': string
+  'FINAL GRADE': string
+  'SIS LOGIN ID': string
+  STUDENT: string
+  'OVERRIDE GRADE': string | undefined
 }
 
 const isGradebookRecord = (record: UnknownCSVRecord): record is GradebookRecord => {
   return (
-    typeof record['Current Grade'] === 'string' &&
-    typeof record['Final Grade'] === 'string' &&
-    typeof record['SIS Login ID'] === 'string' &&
-    typeof record.Student === 'string'
+    typeof record['CURRENT GRADE'] === 'string' &&
+    typeof record['FINAL GRADE'] === 'string' &&
+    typeof record['SIS LOGIN ID'] === 'string' &&
+    typeof record.STUDENT === 'string'
   )
 }
 
@@ -133,11 +132,11 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const getGradeForExport = (record: GradebookRecord): string => {
-    return record['Override Grade'] !== undefined ? record['Override Grade'] : record['Final Grade']
+    return record['OVERRIDE GRADE'] !== undefined ? record['OVERRIDE GRADE'] : record['FINAL GRADE']
   }
 
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
-    const csvData = data.map(r => [r['SIS Login ID'], getGradeForExport(r)])
+    const csvData = data.map(r => [r['SIS LOGIN ID'], getGradeForExport(r)])
     const csvString = 'data:text/csv;charset=utf-8,' + fileParser.createCSV(csvData)
     setDownloadData({ data: encodeURI(csvString), fileName: getOutputFilename(file) })
   }
@@ -171,7 +170,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
-    const requiredHeaders = ['Current Grade', 'Final Grade', 'SIS Login ID', 'Student']
+    const requiredHeaders = ['CURRENT GRADE', 'FINAL GRADE', 'SIS LOGIN ID', 'STUDENT']
     const schemaValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
 
     const records = data.slice(1) // Remove Points Possible record
@@ -184,7 +183,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     }
 
     if (gradebookRecords === undefined || schemaInvalidations.length > 0) {
-      if (headers !== undefined && !(headers.includes('Final Grade') && headers.includes('Current Grade'))) {
+      if (headers !== undefined && !(headers.includes('FINAL GRADE') && headers.includes('CURRENT GRADE'))) {
         return handleNoLetterGradesError()
       }
       return handleSchemaInvalidations(schemaInvalidations)
@@ -192,7 +191,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
     const recordsToValidate = gradebookRecords.map(r => ({
       ...r,
-      'Override Grade': convertEmptyCellToUndefined(r['Override Grade'])
+      'OVERRIDE GRADE': convertEmptyCellToUndefined(r['OVERRIDE GRADE'])
     }))
 
     let rowInvalidations: GradebookRowInvalidation[] = []
@@ -334,7 +333,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       return []
     }
     return grades.map<StudentGrade>(g => {
-      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g['SIS Login ID'], grade: g['Final Grade'], overrideGrade: g['Override Grade'] } // Add 2 because of 2 header rows
+      return { rowNumber: grades.indexOf(g) + 1 + 2, uniqname: g['SIS LOGIN ID'], grade: g['FINAL GRADE'], overrideGrade: g['OVERRIDE GRADE'] } // Add 2 because of 2 header rows
     })
   }
 
