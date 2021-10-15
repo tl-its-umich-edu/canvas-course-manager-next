@@ -72,12 +72,6 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
   }
 
   checkRecordShapes (rowData: UnknownCSVRecord[]): rowData is T[] {
-    console.log(rowData.map(r => ({
-      'Final Grade': r['Final Grade'],
-      'Current Grade': r['Current Grade'],
-      Student: r.Student,
-      'SIS Login ID': r['SIS Login ID']
-    })))
     return rowData.every(r => this.typeGuard(r))
   }
 }
