@@ -8,7 +8,7 @@ import { addCourseSections, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
-  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, InvalidationType, SectionNameTooLongValidator,
+  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
@@ -22,7 +22,7 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection } from '../models/canvas'
 import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+import CSVSchemaValidator, { InvalidationType, SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
 import { CanvasError } from '../utils/handleErrors'
 
@@ -94,14 +94,16 @@ enum BulkSectionCreatePageState {
 interface BulkSectionCreatePageStateData {
   state: BulkSectionCreatePageState
   rowInvalidations: SectionsRowInvalidation[]
-  schemaInvalidation: SchemaInvalidation[]
+  schemaInvalidations: SchemaInvalidation[]
 }
 
 function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
   const confirmationClasses = useConfirmationStyles()
 
-  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
+  const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>(
+    { state: BulkSectionCreatePageState.UploadPending, schemaInvalidations: [], rowInvalidations: [] }
+  )
   const [file, setFile] = useState<File|undefined>(undefined)
   const [sectionNames, setSectionNames] = useState<string[]>([])
   const [existingSectionNames, setExistingSectionNames] = useState<string[]|undefined>(undefined)
@@ -118,14 +120,14 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     async () => await addCourseSections(props.globals.course.id, sectionNames),
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
-      setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidation: [], rowInvalidations: [] })
+      setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidations: [], rowInvalidations: [] })
       setExistingSectionNames([...new Set([...originalSectionNames, ...newSections.map(newSection => { return newSection.name.toUpperCase() })])])
     }
   )
 
   useEffect(() => {
     if (getSectionsError !== undefined) {
-      setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidation: [], rowInvalidations: [] })
+      setPageState({ state: BulkSectionCreatePageState.LoadingExistingSectionNamesFailed, schemaInvalidations: [], rowInvalidations: [] })
     }
   }, [getSectionsError])
 
@@ -145,13 +147,13 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   }
 
   const submit = async (): Promise<void> => {
-    setPageState({ state: BulkSectionCreatePageState.Saving, schemaInvalidation: [], rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.Saving, schemaInvalidations: [], rowInvalidations: [] })
     void doGetSections()
   }
 
   useEffect(() => {
     if (addSectionsError !== undefined) {
-      setPageState({ state: BulkSectionCreatePageState.CreateSectionsError, schemaInvalidation: [], rowInvalidations: [] })
+      setPageState({ state: BulkSectionCreatePageState.CreateSectionsError, schemaInvalidations: [], rowInvalidations: [] })
     }
   }, [addSectionsError])
 
@@ -184,26 +186,26 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
       if (clientInvalidations.length !== 0) {
         handleRowLevelInvalidationError(clientInvalidations)
       } else {
-        setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidation: [], rowInvalidations: [] })
+        setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidations: [], rowInvalidations: [] })
       }
     }
   }, [sectionNames])
 
   const resetPageState = (): void => {
-    setPageState({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidation: [], rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.UploadPending, schemaInvalidations: [], rowInvalidations: [] })
   }
 
   const handleSchemaError = (schemaInvalidations: SchemaInvalidation[]): void => {
-    setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidation: schemaInvalidations, rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidations: schemaInvalidations, rowInvalidations: [] })
   }
 
   const handleRowLevelInvalidationError = (invalidations: SectionsRowInvalidation[]): void => {
-    setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidation: [], rowInvalidations: invalidations })
+    setPageState({ state: BulkSectionCreatePageState.InvalidUpload, schemaInvalidations: [], rowInvalidations: invalidations })
   }
 
   const handleParseSuccess = (sectionNames: string[]): void => {
     setSectionNames(sectionNames)
-    setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidation: [], rowInvalidations: [] })
+    setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidations: [], rowInvalidations: [] })
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
@@ -343,8 +345,8 @@ Section 001`
         </>
       )
     }
-    if (pageState.schemaInvalidation.length > 0) {
-      const schemaErrors: JSX.Element[] = pageState.schemaInvalidation.map((invalidation, i) => {
+    if (pageState.schemaInvalidations.length > 0) {
+      const schemaErrors: JSX.Element[] = pageState.schemaInvalidations.map((invalidation, i) => {
         return (<div key={i}>{invalidation.error}</div>)
       })
       schemaLevelErrors = <div>{renderTopLevelErrors(schemaErrors)}</div>
