@@ -1,6 +1,6 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Paper, Step, StepLabel,
-  Stepper, Theme, Tooltip, Typography
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, List, ListItem, makeStyles,
+  Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
@@ -22,6 +22,8 @@ import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseNam
 import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
+import { FileParserAdapter, UnknownCSVRecord } from '../utils/FileParserAdapter'
+import CSVSchemaValidator, { InvalidationType, SchemaInvalidation } from '../utils/CSVSchemaValidator'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -97,6 +99,18 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+interface EnrollmentRecord extends UnknownCSVRecord {
+  'LOGIN ID': string
+  'ROLE': string
+}
+
+const isEnrollmentRecord = (record: UnknownCSVRecord): record is EnrollmentRecord => {
+  return (
+    typeof record['LOGIN ID'] === 'string' &&
+    typeof record.ROLE === 'string'
+  )
+}
+
 interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
@@ -114,7 +128,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
-  const [fileError, setFileError] = useState<string | undefined>(undefined)
+  const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
@@ -176,8 +190,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setActiveStep(States.ReviewCSV)
   }
 
-  const handleFileError = (errorText: string): void => {
-    setFileError(errorText)
+  const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
+    setSchemaInvalidations(invalidations)
     setActiveStep(States.ReviewCSV)
   }
 
@@ -185,7 +199,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     clearAddEnrollmentsError()
     setEnrollments(undefined)
     setFile(undefined)
-    setFileError(undefined)
+    setSchemaInvalidations(undefined)
     setRowErrors(undefined)
   }
 
@@ -194,56 +208,49 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setActiveStep(States.UploadCSV)
   }
 
-  const parseFile = (file: File): void => {
-    file.text().then(t => {
-      let lines = t.replace(/\r\n/, '\n').split(/\n/)
-      // An empty file will resultin 1 line
-      if (lines.length > 0 && lines[0].length === 0) {
-        lines = lines.slice(1)
-      }
+  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+    const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(['LOGIN ID', 'ROLE'], isEnrollmentRecord, 400)
 
-      const headerParts = lines[0].split(',')
-      if (headerParts.length !== 2) {
-        handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
-        return
-      } else if (USER_ROLE_TEXT.localeCompare(headerParts[0], 'en', { sensitivity: 'base' }) !== 0 || USER_ID_TEXT.localeCompare(headerParts[1], 'en', { sensitivity: 'base' }) !== 0) {
-        handleParseFailure([{ rowNumber: 1, message: 'Invalid header.' }])
-        return
-      }
+    const schemaInvalidations = csvValidator.validate(headers, data)
 
-      lines = lines.slice(1)
+    let enrollmentRecords: EnrollmentRecord[] | undefined
+    if (csvValidator.checkRecordShapes(data)) {
+      enrollmentRecords = data.map(r => ({ 'LOGIN ID': r['LOGIN ID'], ROLE: r.ROLE }))
+    } else {
+      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
+    }
 
-      if (lines.length > MAX_ENROLLMENT_RECORDS) {
-        handleFileError(`There are too many records in the CSV. ${MAX_ENROLLMENT_MESSAGE}`)
-      }
+    if (schemaInvalidations.length > 0 || enrollmentRecords === undefined) {
+      return handleSchemaInvalidations(schemaInvalidations)
+    }
 
-      const enrollments: IAddUMUserEnrollment[] = []
-      const errors: RowValidationError[] = []
-      lines.forEach((line, i) => {
-        const parts = line.split(',')
-        if (parts.length !== 2) {
-          errors.push({ rowNumber: i + 2, message: 'Invalid column count' })
-        } else {
-          const [role, loginId] = parts.map(p => p.trim())
-          if (!isValidRole(role)) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
-          } else if (!isValidLoginId(loginId)) {
-            errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
-          } else {
-            enrollments.push({ rowNumber: i + 2, loginId, role })
-          }
-        }
-      })
-
-      if (errors.length === 0) {
-        handleParseSuccess(enrollments)
+    const enrollments: IAddUMUserEnrollment[] = []
+    const errors: RowValidationError[] = []
+    enrollmentRecords.forEach((r, i) => {
+      const role = r.ROLE
+      const loginId = r['LOGIN ID']
+      if (!isValidRole(role)) {
+        errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
+      } else if (!isValidLoginId(loginId)) {
+        errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
       } else {
-        handleParseFailure(errors)
+        enrollments.push({ rowNumber: i + 2, loginId, role })
       }
-    }).catch(e => {
-      // TODO Not sure how to produce this error in real life
-      handleFileError('An error occurred while parsing the file.')
     })
+
+    if (errors.length === 0) {
+      handleParseSuccess(enrollments)
+    } else {
+      handleParseFailure(errors)
+    }
+  }
+
+  const parseFile = (file: File): void => {
+    const parser = new FileParserAdapter(
+      handleParseComplete,
+      (e) => handleSchemaInvalidations([{ error: e.message, type: InvalidationType.Error }])
+    )
+    parser.parseFile(file)
   }
 
   const getSelectContent = (): JSX.Element => {
@@ -409,8 +416,18 @@ designer,userd`
     )
   }
 
-  const renderFileError = (errorText: string): JSX.Element => {
-    return <ErrorAlert message={<Typography>{errorText}</Typography>} tryAgain={handleUploadReset} />
+  const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
+    const errors = invalidations.map(i => i.error)
+    const errorsBlock = errors.length === 1
+      ? <Typography>{errors[0]}</Typography>
+      : <List>{errors.map((e, i) => <ListItem key={i}>{e}</ListItem>)}</List>
+    const message = (
+      <>
+      <Typography gutterBottom>Correct the below error(s), and try uploading again.</Typography>
+      {errorsBlock}
+      </>
+    )
+    return <ErrorAlert message={message} tryAgain={handleUploadReset} />
   }
 
   const renderPostError = (error: Error): JSX.Element => {
@@ -437,8 +454,8 @@ designer,userd`
   const getReviewContent = (): JSX.Element => {
     if (rowErrors !== undefined) {
       return renderRowValidationErrors(rowErrors)
-    } else if (fileError !== undefined) {
-      return renderFileError(fileError)
+    } else if (schemaInvalidations !== undefined) {
+      return renderSchemaInvalidations(schemaInvalidations)
     } else if (addEnrollmentsError !== undefined) {
       return renderPostError(addEnrollmentsError)
     } else if (selectedSection !== undefined && enrollments !== undefined) {
