@@ -171,15 +171,15 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
     const requiredHeaders = ['CURRENT GRADE', 'FINAL GRADE', 'SIS LOGIN ID', 'STUDENT']
-    const schemaValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
+    const csvValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
 
     const records = data.slice(1) // Remove Points Possible record
-    const schemaInvalidations = schemaValidator.validate(headers, records)
+    const schemaInvalidations = csvValidator.validate(headers, records)
     let gradebookRecords: GradebookRecord[] | undefined
-    if (!schemaValidator.checkRecordShapes(records)) {
-      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
-    } else {
+    if (csvValidator.checkRecordShapes(records)) {
       gradebookRecords = records
+    } else {
+      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
     }
 
     if (gradebookRecords === undefined || schemaInvalidations.length > 0) {

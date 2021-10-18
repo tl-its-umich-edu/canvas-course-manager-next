@@ -210,11 +210,11 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
-    const sectionNameValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION_NAME'], isSectionNameRecord, 60)
+    const csvValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION_NAME'], isSectionNameRecord, 60)
 
     let sectionNames: string[] | undefined
-    const schemaInvalidations = sectionNameValidator.validate(headers, data)
-    if (sectionNameValidator.checkRecordShapes(data)) {
+    const schemaInvalidations = csvValidator.validate(headers, data)
+    if (csvValidator.checkRecordShapes(data)) {
       sectionNames = data.map(r => r.SECTION_NAME)
     } else {
       schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
