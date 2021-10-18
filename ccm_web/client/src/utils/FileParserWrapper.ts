@@ -2,7 +2,7 @@ import Papa from 'papaparse'
 
 export type UnknownCSVRecord = Record<string, string | undefined>
 
-export class FileParserWrapper {
+export default class FileParserWrapper {
   parseConfig?: Papa.ParseConfig
   unparseConfig?: Papa.UnparseConfig
 

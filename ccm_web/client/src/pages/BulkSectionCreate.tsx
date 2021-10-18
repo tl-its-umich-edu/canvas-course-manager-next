@@ -24,7 +24,7 @@ import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
+import FileParserWrapper, { UnknownCSVRecord } from '../utils/FileParserWrapper'
 import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({

@@ -1,6 +1,6 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles,
-  Paper, Step, StepLabel, Stepper, Theme, Tooltip, Typography
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Paper, Step, StepLabel,
+  Stepper, Theme, Tooltip, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
@@ -23,7 +23,7 @@ import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import { CanvasError } from '../utils/handleErrors'
-import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
+import FileParserWrapper, { UnknownCSVRecord } from '../utils/FileParserWrapper'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 
 const USER_ROLE_TEXT = 'Role'
@@ -230,12 +230,13 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     enrollmentRecords.forEach((r, i) => {
       const role = r.ROLE
       const loginId = r['LOGIN ID']
+      const rowNumber = i + 2
       if (!isValidRole(role)) {
-        errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
+        errors.push({ rowNumber, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
       } else if (!isValidLoginId(loginId)) {
-        errors.push({ rowNumber: i + 2, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
+        errors.push({ rowNumber, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
       } else {
-        enrollments.push({ rowNumber: i + 2, loginId, role })
+        enrollments.push({ rowNumber, loginId, role })
       }
     })
 
