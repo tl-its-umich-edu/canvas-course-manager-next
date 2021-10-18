@@ -1,22 +1,18 @@
+import { InvalidationType } from '../models/models'
 import { GradebookRecord } from '../pages/GradebookCanvas'
-
-enum GradbookRowInvalidationType {
-  ERROR,
-  WARNING
-}
 
 interface GradebookRowInvalidation {
   message: string
   rowNumber: number
-  type: GradbookRowInvalidationType
+  type: InvalidationType
 }
 
 class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   message: string
   record: GradebookRecord
   rowNumber: number
-  type: GradbookRowInvalidationType
-  constructor (record: GradebookRecord, rowNumber: number, type: GradbookRowInvalidationType) {
+  type: InvalidationType
+  constructor (record: GradebookRecord, rowNumber: number, type: InvalidationType) {
     this.record = record
     this.rowNumber = rowNumber
     this.message = `Current and Final Grade mismatch: ${record.STUDENT} (${record['SIS LOGIN ID']})`
@@ -26,13 +22,13 @@ class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
 
 class CurrentAndFinalGradeMismatchError extends CurrentAndFinalGradeInvalidation {
   constructor (record: GradebookRecord, rowNumber: number) {
-    super(record, rowNumber, GradbookRowInvalidationType.ERROR)
+    super(record, rowNumber, InvalidationType.Error)
   }
 }
 
 class CurrentAndFinalGradeMismatchWarning extends CurrentAndFinalGradeInvalidation {
   constructor (record: GradebookRecord, rowNumber: number) {
-    super(record, rowNumber, GradbookRowInvalidationType.WARNING)
+    super(record, rowNumber, InvalidationType.Warning)
   }
 }
 
@@ -57,4 +53,7 @@ class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
 }
 
 export type { GradebookRowInvalidation, GradebookRecordValidator }
-export { CurrentAndFinalGradeMismatchError, CurrentAndFinalGradeMismatchWarning, GradebookValidator, CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType }
+export {
+  CurrentAndFinalGradeMismatchError, CurrentAndFinalGradeMismatchWarning, GradebookValidator,
+  CurrentAndFinalGradeMatchGradebookValidator
+}

@@ -1,5 +1,4 @@
-// Need to remove this or move it to models
-import { InvalidationType } from '../utils/CSVSchemaValidator'
+import { InvalidationType } from '../models/models'
 
 // For validating row level issues
 interface SectionsRowInvalidation {

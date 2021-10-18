@@ -9,9 +9,10 @@ import FileUpload from '../components/FileUpload'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
-import { CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
+import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import { FileParserWrapper, UnknownCSVRecord } from '../utils/FileParserWrapper'
 
@@ -203,10 +204,10 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       )
     })
 
-    if (rowInvalidations.filter(i => i.type === GradbookRowInvalidationType.ERROR).length > 0) {
+    if (rowInvalidations.filter(i => i.type === InvalidationType.Error).length > 0) {
       handleInvalidUpload(undefined, rowInvalidations)
     } else {
-      handleParseSuccess(recordsToValidate, rowInvalidations.filter(i => i.type === GradbookRowInvalidationType.WARNING))
+      handleParseSuccess(recordsToValidate, rowInvalidations.filter(i => i.type === InvalidationType.Warning))
     }
   }
 

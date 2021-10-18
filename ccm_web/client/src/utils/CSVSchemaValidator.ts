@@ -1,10 +1,5 @@
+import { InvalidationType } from '../models/models'
 import { UnknownCSVRecord } from '../utils/FileParserWrapper'
-
-// Original requirement was to have a warning for missing header row, leaving this for now
-enum InvalidationType {
-  Error,
-  Warning
-}
 
 interface SchemaInvalidation {
   error: string
@@ -27,7 +22,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
   maxLength: number | undefined
 
   static recordShapeInvalidation: SchemaInvalidation = {
-    error: 'One or more of the records in your file has incorrect types.',
+    error: 'Some of the required columns in the CSV are missing data.',
     type: InvalidationType.Error
   }
 
@@ -52,7 +47,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
 
   validateLength (rowData: UnknownCSVRecord[]): SchemaInvalidation | undefined {
     if (rowData.length === 0) {
-      return { error: 'No data found', type: InvalidationType.Error }
+      return { error: 'No data was found in the file.', type: InvalidationType.Error }
     }
     if (this.maxLength !== undefined && rowData.length > this.maxLength) {
       return {
@@ -77,4 +72,4 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
 }
 
 export type { SchemaInvalidation }
-export { CSVSchemaValidator as default, InvalidationType }
+export default CSVSchemaValidator
