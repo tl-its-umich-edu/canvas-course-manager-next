@@ -183,7 +183,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     }
 
     if (gradebookRecords === undefined || schemaInvalidations.length > 0) {
-      if (headers !== undefined && !(headers.includes('FINAL GRADE') && headers.includes('CURRENT GRADE'))) {
+      if (headers !== undefined && (!headers.includes('FINAL GRADE') || !headers.includes('CURRENT GRADE'))) {
         return handleNoLetterGradesError()
       }
       return handleSchemaInvalidations(schemaInvalidations)
