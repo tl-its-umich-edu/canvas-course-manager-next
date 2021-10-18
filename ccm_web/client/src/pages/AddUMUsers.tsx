@@ -252,7 +252,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     parser.parseCSV(
       file,
       handleParseComplete,
-      (e) => handleSchemaInvalidations([{ error: e.message, type: InvalidationType.Error }])
+      (message) => handleSchemaInvalidations([{ error: message, type: InvalidationType.Error }])
     )
   }
 

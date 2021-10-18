@@ -107,9 +107,8 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     fileParser.parseCSV(
       file,
       handleParseComplete,
-      e => setPageState({
-        state: GradebookCanvasPageState.Upload,
-        errorMessages: [<Typography key='0'>An error occurred while parsing the file: {e.message}</Typography>]
+      (message) => setPageState({
+        state: GradebookCanvasPageState.Upload, errorMessages: [<Typography key='0'>{message}</Typography>]
       })
     )
   }

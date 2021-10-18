@@ -22,12 +22,12 @@ export default class FileParserWrapper {
   parseCSV (
     file: File,
     onComplete: (headers: string[] | undefined, rowData: UnknownCSVRecord[]) => void,
-    onError: (e: Error) => void
+    onError: (message: string) => void
   ): void {
     Papa.parse<UnknownCSVRecord>(file, {
       ...this.parseConfig,
       complete: results => onComplete(results.meta.fields, results.data),
-      error: (e) => onError(new Error(e.message))
+      error: (e) => onError(`An error occurred while parsing the file: "${e.message}"`)
     })
   }
 

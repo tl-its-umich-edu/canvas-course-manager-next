@@ -232,7 +232,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     parser.parseCSV(
       file,
       handleParseComplete,
-      (e) => handleSchemaError([{ error: e.message, type: InvalidationType.Error }])
+      (message) => handleSchemaError([{ error: message, type: InvalidationType.Error }])
     )
   }
 
@@ -409,7 +409,7 @@ Section 001`
   }
 
   const sectionNamesToSection = (sectionNames: string[]): Section[] => {
-    return sectionNames.map((name, i) => ({ rowNumber: i + 1 + 1, sectionName: name })) // Add 1 for expected headers
+    return sectionNames.map((name, i) => ({ rowNumber: i + 2, sectionName: name })) // Add extra 1 for expected headers
   }
 
   const renderSuccess = (): JSX.Element => {
