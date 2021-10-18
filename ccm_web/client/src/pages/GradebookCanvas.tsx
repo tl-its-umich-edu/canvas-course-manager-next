@@ -142,11 +142,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const handleInvalidUpload = (errorMessages?: JSX.Element[], invalidations?: GradebookRowInvalidation[]): void => {
-    setPageState({
-      state: GradebookCanvasPageState.InvalidUpload,
-      invalidations: invalidations,
-      errorMessages: errorMessages
-    })
+    setPageState({ state: GradebookCanvasPageState.InvalidUpload, invalidations, errorMessages })
   }
 
   const handleNoLetterGradesError = (): void => {

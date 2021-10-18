@@ -210,8 +210,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
-    const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(['LOGIN ID', 'ROLE'], isEnrollmentRecord, 400)
-
+    const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
+      ['LOGIN ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
+    )
     const schemaInvalidations = csvValidator.validate(headers, data)
 
     let enrollmentRecords: EnrollmentRecord[] | undefined
