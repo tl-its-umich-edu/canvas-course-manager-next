@@ -216,7 +216,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     const schemaInvalidations = csvValidator.validate(headers, data)
     if (csvValidator.checkRecordShapes(data)) {
       sectionNames = data.map(r => r.SECTION_NAME)
-    } else {
+    } else if (csvValidator.validateHeaders(headers) === undefined) {
       schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
     }
 

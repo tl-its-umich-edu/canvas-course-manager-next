@@ -218,7 +218,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     let enrollmentRecords: EnrollmentRecord[] | undefined
     if (csvValidator.checkRecordShapes(data)) {
       enrollmentRecords = data.map(r => ({ 'LOGIN ID': r['LOGIN ID'], ROLE: r.ROLE }))
-    } else {
+    } else if (csvValidator.validateHeaders(headers) === undefined) {
       schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
     }
 

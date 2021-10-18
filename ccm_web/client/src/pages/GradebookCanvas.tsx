@@ -176,7 +176,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     let gradebookRecords: GradebookRecord[] | undefined
     if (csvValidator.checkRecordShapes(records)) {
       gradebookRecords = records
-    } else {
+    } else if (csvValidator.validateHeaders(headers) === undefined) {
       schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
     }
 
