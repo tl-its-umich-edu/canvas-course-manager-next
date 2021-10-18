@@ -35,9 +35,10 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   const classes = useStyles()
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
   const preface = (
-    <Typography gutterBottom>
-      Some errors occurred (see below). If possible, correct them, and/or try again.
-    </Typography>
+    <>
+    <Typography gutterBottom>One or more errors occurred.</Typography>
+    <Typography gutterBottom>If possible, fix the issue(s), and/or try again.</Typography>
+    </>
   )
 
   const { messages, tryAgain, icon } = props
