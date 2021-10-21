@@ -1,5 +1,5 @@
 import { InvalidationType } from '../models/models'
-import { UnknownCSVRecord } from '../utils/FileParserWrapper'
+import { CSVRecord } from '../utils/FileParserWrapper'
 
 interface SchemaInvalidation {
   message: string
@@ -7,17 +7,17 @@ interface SchemaInvalidation {
 }
 
 // For validating schema level problems
-interface ICSVSchemaValidator<T extends UnknownCSVRecord> {
+interface ICSVSchemaValidator<T extends CSVRecord> {
   requiredHeaders: string[]
-  typeGuard: (r: UnknownCSVRecord) => r is T
+  typeGuard: (r: CSVRecord) => r is T
   maxLength: number | undefined
   validateHeaders: (headers: string[]) => SchemaInvalidation | undefined
-  validateLength: (rowData: UnknownCSVRecord[]) => SchemaInvalidation | undefined
-  validate: (headers: string[], rowData: UnknownCSVRecord[]) => SchemaInvalidation[]
+  validateLength: (rowData: CSVRecord[]) => SchemaInvalidation | undefined
+  validate: (headers: string[], rowData: CSVRecord[]) => SchemaInvalidation[]
 }
 
-class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValidator<T> {
-  typeGuard: (r: UnknownCSVRecord) => r is T
+class CSVSchemaValidator<T extends CSVRecord> implements ICSVSchemaValidator<T> {
+  typeGuard: (r: CSVRecord) => r is T
   requiredHeaders: string[]
   maxLength: number | undefined
 
@@ -26,7 +26,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
     type: InvalidationType.Error
   }
 
-  constructor (requiredHeaders: string[], typeGuard: (r: UnknownCSVRecord) => r is T, maxLength?: number) {
+  constructor (requiredHeaders: string[], typeGuard: (r: CSVRecord) => r is T, maxLength?: number) {
     this.maxLength = maxLength
     this.typeGuard = typeGuard
     this.requiredHeaders = requiredHeaders
@@ -45,7 +45,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
     if (!result) return invalidation
   }
 
-  validateLength (rowData: UnknownCSVRecord[]): SchemaInvalidation | undefined {
+  validateLength (rowData: CSVRecord[]): SchemaInvalidation | undefined {
     if (rowData.length === 0) {
       return { message: 'No data was found in the file.', type: InvalidationType.Error }
     }
@@ -57,7 +57,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
     }
   }
 
-  validate (headers: string[] | undefined, rowData: UnknownCSVRecord[]): SchemaInvalidation[] {
+  validate (headers: string[] | undefined, rowData: CSVRecord[]): SchemaInvalidation[] {
     const schemaInvalidations = []
     const headersResult = this.validateHeaders(headers)
     if (headersResult !== undefined) schemaInvalidations.push(headersResult)
@@ -66,7 +66,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
     return schemaInvalidations
   }
 
-  checkRecordShapes (rowData: UnknownCSVRecord[]): rowData is T[] {
+  checkRecordShapes (rowData: CSVRecord[]): rowData is T[] {
     return rowData.every(r => this.typeGuard(r))
   }
 }

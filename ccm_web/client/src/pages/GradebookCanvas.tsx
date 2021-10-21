@@ -14,7 +14,7 @@ import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import FileParserWrapper, { UnknownCSVRecord } from '../utils/FileParserWrapper'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,7 +48,7 @@ const useConfirmationStyles = makeStyles((theme) => ({
   }
 }))
 
-interface GradebookRecord extends UnknownCSVRecord {
+interface GradebookRecord extends CSVRecord {
   'CURRENT GRADE': string
   'FINAL GRADE': string
   'SIS LOGIN ID': string
@@ -56,7 +56,7 @@ interface GradebookRecord extends UnknownCSVRecord {
   'OVERRIDE GRADE': string | undefined
 }
 
-const isGradebookRecord = (record: UnknownCSVRecord): record is GradebookRecord => {
+const isGradebookRecord = (record: CSVRecord): record is GradebookRecord => {
   return (
     typeof record['CURRENT GRADE'] === 'string' &&
     typeof record['FINAL GRADE'] === 'string' &&
@@ -167,7 +167,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     setCSVtoDownload(grades)
   }
 
-  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+  const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const requiredHeaders = ['CURRENT GRADE', 'FINAL GRADE', 'SIS LOGIN ID', 'STUDENT']
     const csvValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
 

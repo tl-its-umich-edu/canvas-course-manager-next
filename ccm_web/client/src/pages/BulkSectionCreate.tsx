@@ -24,7 +24,7 @@ import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import FileParserWrapper, { UnknownCSVRecord } from '../utils/FileParserWrapper'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
@@ -74,11 +74,11 @@ const useConfirmationStyles = makeStyles((theme) => ({
   }
 }))
 
-interface SectionNameRecord extends UnknownCSVRecord {
+interface SectionNameRecord extends CSVRecord {
   'SECTION NAME': string
 }
 
-const isSectionNameRecord = (r: UnknownCSVRecord): r is SectionNameRecord => {
+const isSectionNameRecord = (r: CSVRecord): r is SectionNameRecord => {
   return typeof r['SECTION NAME'] === 'string'
 }
 
@@ -209,7 +209,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     setPageState({ state: BulkSectionCreatePageState.Submit, schemaInvalidations: [], rowInvalidations: [] })
   }
 
-  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+  const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const csvValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION NAME'], isSectionNameRecord, 60)
 
     let sectionNames: string[] | undefined

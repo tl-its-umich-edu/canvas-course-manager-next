@@ -23,7 +23,7 @@ import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import { CanvasError } from '../utils/handleErrors'
-import FileParserWrapper, { UnknownCSVRecord } from '../utils/FileParserWrapper'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 
 const USER_ROLE_TEXT = 'Role'
@@ -100,12 +100,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-interface EnrollmentRecord extends UnknownCSVRecord {
+interface EnrollmentRecord extends CSVRecord {
   'LOGIN ID': string
   'ROLE': string
 }
 
-const isEnrollmentRecord = (record: UnknownCSVRecord): record is EnrollmentRecord => {
+const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
   return (
     typeof record['LOGIN ID'] === 'string' &&
     typeof record.ROLE === 'string'
@@ -209,7 +209,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setActiveStep(States.UploadCSV)
   }
 
-  const handleParseComplete = (headers: string[] | undefined, data: UnknownCSVRecord[]): void => {
+  const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
       ['LOGIN ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
