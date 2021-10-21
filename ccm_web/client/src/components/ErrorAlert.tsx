@@ -4,8 +4,7 @@ import ErrorIcon from '@material-ui/icons/Error'
 
 const useStyles = makeStyles((theme) => ({
   padding: {
-    paddingLeft: 10,
-    paddingRight: 10
+    padding: theme.spacing(1)
   },
   dialog: {
     textAlign: 'center',
@@ -26,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface ErrorAlertProps {
+  // Spacing works out best when you use Material UI Typography components or p tags.
   messages?: JSX.Element[]
   tryAgain?: () => void
   icon?: JSX.Element

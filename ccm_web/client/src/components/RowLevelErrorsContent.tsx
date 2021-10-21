@@ -2,14 +2,12 @@ import React from 'react'
 import { Button, Box, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon, Warning } from '@material-ui/icons'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   padding: {
-    paddingLeft: 10,
-    paddingRight: 10
+    padding: theme.spacing(1)
   },
   dialog: {
-    textAlign: 'center',
-    marginBottom: 15
+    textAlign: 'center'
   },
   errorIcon: {
     color: '#3F648E'

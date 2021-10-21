@@ -413,7 +413,7 @@ designer,userd`
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const errors = invalidations.map(
-      (invalidation, i) => <Typography key={i} component='span'>{invalidation.message}</Typography>
+      (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
     )
     return (
       <>

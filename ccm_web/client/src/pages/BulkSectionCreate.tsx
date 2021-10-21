@@ -331,7 +331,7 @@ Section 001`
     }
     if (pageState.schemaInvalidations.length > 0) {
       const schemaErrors: JSX.Element[] = pageState.schemaInvalidations.map((invalidation, i) => {
-        return (<div key={i}>{invalidation.message}</div>)
+        return <Typography key={i}>{invalidation.message}</Typography>
       })
       schemaLevelErrors = <div>{renderTopLevelErrors(schemaErrors)}</div>
     }
