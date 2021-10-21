@@ -253,7 +253,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     parser.parseCSV(
       file,
       handleParseComplete,
-      (message) => handleSchemaInvalidations([{ error: message, type: InvalidationType.Error }])
+      (message) => handleSchemaInvalidations([{ message, type: InvalidationType.Error }])
     )
   }
 
@@ -422,7 +422,7 @@ designer,userd`
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const errors = invalidations.map(
-      (invalidation, i) => <Typography key={i} component='span'>{invalidation.error}</Typography>
+      (invalidation, i) => <Typography key={i} component='span'>{invalidation.message}</Typography>
     )
     return (
       <>

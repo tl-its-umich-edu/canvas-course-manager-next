@@ -2,7 +2,7 @@ import { InvalidationType } from '../models/models'
 import { UnknownCSVRecord } from '../utils/FileParserWrapper'
 
 interface SchemaInvalidation {
-  error: string
+  message: string
   type: InvalidationType
 }
 
@@ -22,7 +22,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
   maxLength: number | undefined
 
   static recordShapeInvalidation: SchemaInvalidation = {
-    error: 'Some of the required columns in the CSV are missing data.',
+    message: 'Some of the required columns in the CSV are missing data.',
     type: InvalidationType.Error
   }
 
@@ -34,7 +34,7 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
 
   validateHeaders (headers: string[] | undefined): SchemaInvalidation | undefined {
     const invalidation = {
-      error: (
+      message: (
         'The headers are invalid. The first line must include the following headers: ' +
         this.requiredHeaders.map(h => `"${h}"`).join(', ')
       ),
@@ -47,11 +47,11 @@ class CSVSchemaValidator<T extends UnknownCSVRecord> implements ICSVSchemaValida
 
   validateLength (rowData: UnknownCSVRecord[]): SchemaInvalidation | undefined {
     if (rowData.length === 0) {
-      return { error: 'No data was found in the file.', type: InvalidationType.Error }
+      return { message: 'No data was found in the file.', type: InvalidationType.Error }
     }
     if (this.maxLength !== undefined && rowData.length > this.maxLength) {
       return {
-        error: `The CSV file has too many records. The maximum number of non-header records allowed is ${this.maxLength}.`,
+        message: `The CSV file has too many records. The maximum number of non-header records allowed is ${this.maxLength}.`,
         type: InvalidationType.Error
       }
     }

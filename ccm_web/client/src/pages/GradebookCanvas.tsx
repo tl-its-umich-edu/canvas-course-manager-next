@@ -159,7 +159,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
-    handleInvalidUpload(invalidations.map((invalidation, i) => <Typography key={i}>{invalidation.error}</Typography>))
+    handleInvalidUpload(invalidations.map((invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>))
   }
 
   const handleParseSuccess = (grades: GradebookRecord[], warnings: GradebookRowInvalidation[]): void => {

@@ -232,7 +232,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
     parser.parseCSV(
       file,
       handleParseComplete,
-      (message) => handleSchemaError([{ error: message, type: InvalidationType.Error }])
+      (message) => handleSchemaError([{ message, type: InvalidationType.Error }])
     )
   }
 
@@ -340,7 +340,7 @@ Section 001`
     }
     if (pageState.schemaInvalidations.length > 0) {
       const schemaErrors: JSX.Element[] = pageState.schemaInvalidations.map((invalidation, i) => {
-        return (<div key={i}>{invalidation.error}</div>)
+        return (<div key={i}>{invalidation.message}</div>)
       })
       schemaLevelErrors = <div>{renderTopLevelErrors(schemaErrors)}</div>
     }
