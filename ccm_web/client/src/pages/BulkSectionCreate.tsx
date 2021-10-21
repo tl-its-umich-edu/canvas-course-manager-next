@@ -75,11 +75,11 @@ const useConfirmationStyles = makeStyles((theme) => ({
 }))
 
 interface SectionNameRecord extends CSVRecord {
-  'SECTION NAME': string
+  SECTION_NAME: string
 }
 
 const isSectionNameRecord = (r: CSVRecord): r is SectionNameRecord => {
-  return typeof r['SECTION NAME'] === 'string'
+  return typeof r.SECTION_NAME === 'string'
 }
 
 enum BulkSectionCreatePageState {
@@ -210,11 +210,11 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
-    const csvValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION NAME'], isSectionNameRecord, 60)
+    const csvValidator = new CSVSchemaValidator<SectionNameRecord>(['SECTION_NAME'], isSectionNameRecord, 60)
     const validationResult = csvValidator.validate(headers, data)
     if (!validationResult.valid) return handleSchemaError(validationResult.schemaInvalidations)
 
-    const sectionNames = validationResult.validData.map(r => r['SECTION NAME'])
+    const sectionNames = validationResult.validData.map(r => r.SECTION_NAME)
     return handleParseSuccess(sectionNames)
   }
 
@@ -256,7 +256,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`SECTION NAME
+`SECTION_NAME
 Section 001`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       bodyText: 'Your file should include one section name per line',
