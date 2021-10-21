@@ -101,13 +101,13 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface EnrollmentRecord extends CSVRecord {
-  'LOGIN ID': string
-  'ROLE': string
+  LOGIN_ID: string
+  ROLE: string
 }
 
 const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
   return (
-    typeof record['LOGIN ID'] === 'string' &&
+    typeof record.LOGIN_ID === 'string' &&
     typeof record.ROLE === 'string'
   )
 }
@@ -211,22 +211,22 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
-      ['LOGIN ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
+      ['LOGIN_ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
     const validationResult = csvValidator.validate(headers, data)
     if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
-    const enrollmentRecords = validationResult.validData.map(r => ({ 'LOGIN ID': r['LOGIN ID'], ROLE: r.ROLE }))
+    const enrollmentRecords = validationResult.validData.map(r => ({ LOGIN_ID: r.LOGIN_ID, ROLE: r.ROLE }))
 
     const enrollments: IAddUMUserEnrollment[] = []
     const errors: RowValidationError[] = []
     enrollmentRecords.forEach((r, i) => {
       const role = r.ROLE
-      const loginId = r['LOGIN ID']
+      const loginId = r.LOGIN_ID
       const rowNumber = i + 2
       if (!isValidRole(role)) {
         errors.push({ rowNumber, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
       } else if (!isValidLoginId(loginId)) {
-        errors.push({ rowNumber, message: `Invalid ${USER_ID_TEXT.toUpperCase()} '${loginId}'` })
+        errors.push({ rowNumber, message: `Invalid ${USER_ID_TEXT.replace(' ', '_').toUpperCase()} '${loginId}'` })
       } else {
         enrollments.push({ rowNumber, loginId, role })
       }
@@ -308,7 +308,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`${USER_ROLE_TEXT.toUpperCase()},${USER_ID_TEXT.toUpperCase()}
+`${USER_ROLE_TEXT.toUpperCase()},${USER_ID_TEXT.replace(' ', '_').toUpperCase()}
 student,studenta
 teacher,usera
 ta,userb
