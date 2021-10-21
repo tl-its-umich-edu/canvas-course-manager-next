@@ -6,6 +6,18 @@ interface SchemaInvalidation {
   type: InvalidationType
 }
 
+interface SchemaValidationResultSuccess<T> {
+  valid: true
+  validData: T[]
+}
+
+interface SchemaValidationResultFailure {
+  valid: false
+  schemaInvalidations: SchemaInvalidation[]
+}
+
+type SchemaValidationResult<T> = SchemaValidationResultSuccess<T> | SchemaValidationResultFailure
+
 // For validating schema level problems
 interface ICSVSchemaValidator<T extends CSVRecord> {
   requiredHeaders: string[]
@@ -13,7 +25,7 @@ interface ICSVSchemaValidator<T extends CSVRecord> {
   maxLength: number | undefined
   validateHeaders: (headers: string[]) => SchemaInvalidation | undefined
   validateLength: (rowData: CSVRecord[]) => SchemaInvalidation | undefined
-  validate: (headers: string[], rowData: CSVRecord[]) => SchemaInvalidation[]
+  validate: (headers: string[], rowData: CSVRecord[]) => SchemaValidationResult<T>
 }
 
 class CSVSchemaValidator<T extends CSVRecord> implements ICSVSchemaValidator<T> {
@@ -57,17 +69,23 @@ class CSVSchemaValidator<T extends CSVRecord> implements ICSVSchemaValidator<T> 
     }
   }
 
-  validate (headers: string[] | undefined, rowData: CSVRecord[]): SchemaInvalidation[] {
+  checkRecordShapes (rowData: CSVRecord[]): rowData is T[] {
+    return rowData.every(r => this.typeGuard(r))
+  }
+
+  validate (headers: string[] | undefined, rowData: CSVRecord[]): SchemaValidationResult<T> {
     const schemaInvalidations = []
     const headersResult = this.validateHeaders(headers)
     if (headersResult !== undefined) schemaInvalidations.push(headersResult)
     const lengthResult = this.validateLength(rowData)
     if (lengthResult !== undefined) schemaInvalidations.push(lengthResult)
-    return schemaInvalidations
-  }
-
-  checkRecordShapes (rowData: CSVRecord[]): rowData is T[] {
-    return rowData.every(r => this.typeGuard(r))
+    if (this.checkRecordShapes(rowData)) {
+      if (schemaInvalidations.length === 0) return { valid: true, validData: rowData }
+      return { valid: false, schemaInvalidations }
+    } else {
+      if (headersResult === undefined) schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
+      return { valid: false, schemaInvalidations }
+    }
   }
 }
 

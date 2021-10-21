@@ -213,18 +213,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
       ['LOGIN ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
-    const schemaInvalidations = csvValidator.validate(headers, data)
-
-    let enrollmentRecords: EnrollmentRecord[] | undefined
-    if (csvValidator.checkRecordShapes(data)) {
-      enrollmentRecords = data.map(r => ({ 'LOGIN ID': r['LOGIN ID'], ROLE: r.ROLE }))
-    } else if (csvValidator.validateHeaders(headers) === undefined) {
-      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
-    }
-
-    if (schemaInvalidations.length > 0 || enrollmentRecords === undefined) {
-      return handleSchemaInvalidations(schemaInvalidations)
-    }
+    const validationResult = csvValidator.validate(headers, data)
+    if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
+    const enrollmentRecords = validationResult.validData.map(r => ({ 'LOGIN ID': r['LOGIN ID'], ROLE: r.ROLE }))
 
     const enrollments: IAddUMUserEnrollment[] = []
     const errors: RowValidationError[] = []

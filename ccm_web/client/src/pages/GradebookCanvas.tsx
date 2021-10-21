@@ -172,22 +172,15 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     const csvValidator = new CSVSchemaValidator<GradebookRecord>(requiredHeaders, isGradebookRecord)
 
     const records = data.slice(1) // Remove Points Possible record
-    const schemaInvalidations = csvValidator.validate(headers, records)
-    let gradebookRecords: GradebookRecord[] | undefined
-    if (csvValidator.checkRecordShapes(records)) {
-      gradebookRecords = records
-    } else if (csvValidator.validateHeaders(headers) === undefined) {
-      schemaInvalidations.push(CSVSchemaValidator.recordShapeInvalidation)
-    }
-
-    if (gradebookRecords === undefined || schemaInvalidations.length > 0) {
+    const validationResult = csvValidator.validate(headers, records)
+    if (!validationResult.valid) {
       if (headers !== undefined && (!headers.includes('FINAL GRADE') || !headers.includes('CURRENT GRADE'))) {
         return handleNoLetterGradesError()
       }
-      return handleSchemaInvalidations(schemaInvalidations)
+      return handleSchemaInvalidations(validationResult.schemaInvalidations)
     }
 
-    const recordsToValidate = gradebookRecords.map(r => ({
+    const recordsToValidate = validationResult.validData.map(r => ({
       ...r,
       'OVERRIDE GRADE': convertEmptyCellToUndefined(r['OVERRIDE GRADE'])
     }))
