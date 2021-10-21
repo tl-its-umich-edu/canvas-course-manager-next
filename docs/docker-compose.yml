@@ -1,0 +1,10 @@
+version: '2.2'
+
+services:
+  jekyll:
+    image: jekyll/jekyll:latest
+    command: jekyll serve --port 4020 --watch --force_polling --verbose
+    ports:
+      - 4020:4020
+    volumes:
+      - .:/srv/jekyll

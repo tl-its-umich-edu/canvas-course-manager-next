@@ -1,0 +1,14 @@
+- name: Home
+  link: /
+- name: Merge Sections
+  link: /merge-sections.html
+- name: Create Sections
+  link: /create-sections.html
+- name: Canvas Gradebook Formatter
+  link: /gradebook-canvas.html
+- name: External Tools Gradebook Formatter
+  link: /gradebook-thirdparty.html
+- name: Add UM Users
+  link: /add-um-users.html
+- name: Add Non UM Users
+  link: /add-non-um-users.html

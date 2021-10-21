@@ -1,0 +1,41 @@
+#page-container {
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  #content-wrap {
+    padding-bottom: 2.5rem;    /* Footer height */
+  }
+  
+  .site-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #333333;
+  }
+  .footer-content {
+    display: flex;
+    text-align: justify
+
+  }
+  .footer-text {
+    color: #ffffff;
+    font-size: 0.8rem;
+  }
+  .footer-logo {
+    margin: 20px auto;
+    padding: 0;
+    display: block;
+    width: 150px;
+  }
+  nav ul {
+    font-family:'Helvetica', 'Arial', 'Sans-Serif';
+    padding: 0px;
+    list-style: none;
+    font-weight: bold;
+ }
+  nav ul li {
+    display: inline;
+    margin-right: 20px;
+ }
+  
