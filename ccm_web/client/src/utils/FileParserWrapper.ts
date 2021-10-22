@@ -21,7 +21,6 @@ export default class FileParserWrapper {
 
   static defaultParseConfigOptions: Papa.ParseConfig = {
     header: true,
-    skipEmptyLines: true,
     transformHeader: header => header.toUpperCase()
   }
 
@@ -37,11 +36,14 @@ export default class FileParserWrapper {
     onComplete: (headers: string[] | undefined, rowData: CSVRecord[]) => void,
     onError: (message: string) => void
   ): void {
-    Papa.parse<CSVRecord>(file, {
-      ...this.parseConfig,
-      complete: results => onComplete(results.meta.fields, results.data),
-      error: (e) => onError(`An error occurred while parsing the file: "${e.message}"`)
-    })
+    file.text().then(
+      (v) => {
+        const results = Papa.parse<CSVRecord>(v.trim(), this.parseConfig)
+        onComplete(results.meta.fields, results.data)
+      }
+    ).catch(
+      (r) => onError(`An error occurred while parsing the file: "${String(r)}"`)
+    )
   }
 
   createCSV (data: Array<Record<string, unknown>> | string[][]): string {
