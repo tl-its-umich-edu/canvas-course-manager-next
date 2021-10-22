@@ -40,7 +40,7 @@ class EmptySectionNameValidator implements SectionRowsValidator {
     const invalidations: SectionsRowInvalidation[] = []
     sectionNames.forEach((sectionName, row) => {
       if (sectionName.trim().length === 0) {
-        invalidations.push({ message: 'Empty section name\'s not allowed', rowNumber: row + 2, type: InvalidationType.Error })
+        invalidations.push({ message: 'Empty section name is not allowed', rowNumber: row + 2, type: InvalidationType.Error })
       }
     })
     return invalidations
