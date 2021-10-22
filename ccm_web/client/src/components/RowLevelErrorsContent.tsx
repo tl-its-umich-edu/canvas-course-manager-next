@@ -2,16 +2,12 @@ import React from 'react'
 import { Button, Box, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import { Error as ErrorIcon, Warning } from '@material-ui/icons'
 
-const useStyles = makeStyles(() => ({
-  dialog: {
-    textAlign: 'center',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
+const useStyles = makeStyles((theme) => ({
+  padding: {
+    padding: theme.spacing(1)
   },
-  table: {
-    paddingLeft: 10,
-    paddingRight: 10
+  dialog: {
+    textAlign: 'center'
   },
   errorIcon: {
     color: '#3F648E'
@@ -40,11 +36,11 @@ function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element 
   return (
     <Grid container justify='flex-start'>
       <Box clone order={{ xs: 2, sm: 1 }}>
-        <Grid item xs={12} sm={9} className={classes.table}>{props.table}</Grid>
+        <Grid item xs={12} sm={8} className={classes.padding}>{props.table}</Grid>
       </Box>
       <Box clone order={{ xs: 1, sm: 2 }}>
-        <Grid item xs={12} sm={3} className={classes.dialog}>
-          <Paper role='alert'>
+        <Grid item xs={12} sm={4} className={`${classes.dialog} ${classes.padding}`}>
+          <Paper className={classes.padding} role='alert'>
             <Typography>{props.title}</Typography>
             {
               props.errorType === 'error'

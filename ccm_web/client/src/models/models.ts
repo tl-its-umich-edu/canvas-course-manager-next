@@ -2,6 +2,8 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
+// Globals
+
 /* Left side = canvas display value
    Right side = canvas internal string representation
 */
@@ -39,6 +41,8 @@ export interface Globals {
   course: Course
 }
 
+// API Errors
+
 export interface APIErrorPayload {
   canvasStatusCode: number
   message: string
@@ -69,4 +73,11 @@ export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is Canv
     Array.isArray(errorData.errors) &&
     errorData.errors.every(e => isAPIErrorPayload(e))
   )
+}
+
+// Validation
+
+export enum InvalidationType {
+  Error,
+  Warning
 }

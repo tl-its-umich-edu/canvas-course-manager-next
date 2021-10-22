@@ -1,38 +1,34 @@
+import { InvalidationType } from '../models/models'
 import { GradebookRecord } from '../pages/GradebookCanvas'
-
-enum GradbookRowInvalidationType {
-  ERROR,
-  WARNING
-}
 
 interface GradebookRowInvalidation {
   message: string
   rowNumber: number
-  type: GradbookRowInvalidationType
+  type: InvalidationType
 }
 
 class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   message: string
   record: GradebookRecord
   rowNumber: number
-  type: GradbookRowInvalidationType
-  constructor (record: GradebookRecord, rowNumber: number, type: GradbookRowInvalidationType) {
+  type: InvalidationType
+  constructor (record: GradebookRecord, rowNumber: number, type: InvalidationType) {
     this.record = record
     this.rowNumber = rowNumber
-    this.message = 'Current and Final grade mismatch: ' + record.Student + '(' + record['SIS Login ID'] + ')'
+    this.message = `Current and Final Grade mismatch: ${record.STUDENT} (${record['SIS LOGIN ID']})`
     this.type = type
   }
 }
 
 class CurrentAndFinalGradeMismatchError extends CurrentAndFinalGradeInvalidation {
   constructor (record: GradebookRecord, rowNumber: number) {
-    super(record, rowNumber, GradbookRowInvalidationType.ERROR)
+    super(record, rowNumber, InvalidationType.Error)
   }
 }
 
 class CurrentAndFinalGradeMismatchWarning extends CurrentAndFinalGradeInvalidation {
   constructor (record: GradebookRecord, rowNumber: number) {
-    super(record, rowNumber, GradbookRowInvalidationType.WARNING)
+    super(record, rowNumber, InvalidationType.Warning)
   }
 }
 
@@ -45,8 +41,8 @@ abstract class GradebookValidator implements GradebookRecordValidator {
 class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
   validate = (record: GradebookRecord, rowNumber: number): GradebookRowInvalidation[] => {
     const invalidations: GradebookRowInvalidation[] = []
-    if (record['Final Grade'] !== record['Current Grade']) {
-      if (record['Override Grade'] === undefined) {
+    if (record['FINAL GRADE'] !== record['CURRENT GRADE']) {
+      if (record['OVERRIDE GRADE'] === undefined) {
         invalidations.push(new CurrentAndFinalGradeMismatchError(record, rowNumber))
       } else {
         invalidations.push(new CurrentAndFinalGradeMismatchWarning(record, rowNumber))
@@ -57,4 +53,7 @@ class CurrentAndFinalGradeMatchGradebookValidator extends GradebookValidator {
 }
 
 export type { GradebookRowInvalidation, GradebookRecordValidator }
-export { CurrentAndFinalGradeMismatchError, CurrentAndFinalGradeMismatchWarning, GradebookValidator, CurrentAndFinalGradeMatchGradebookValidator, GradbookRowInvalidationType }
+export {
+  CurrentAndFinalGradeMismatchError, CurrentAndFinalGradeMismatchWarning, GradebookValidator,
+  CurrentAndFinalGradeMatchGradebookValidator
+}

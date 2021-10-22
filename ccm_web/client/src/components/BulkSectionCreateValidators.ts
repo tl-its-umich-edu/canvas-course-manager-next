@@ -1,46 +1,4 @@
-export const FILE_HEADER_VALUE = 'SECTION_NAME'
-
-const isHeader = (text: string): boolean => {
-  return text.toUpperCase() === FILE_HEADER_VALUE.toUpperCase()
-}
-
-const hasHeader = (sectionNames: string[]): boolean => {
-  return sectionNames.length > 0 && isHeader(sectionNames[0])
-}
-
-// Original requirement was to have a warning for missing header row, leaving this for now
-enum InvalidationType {
-  Error,
-  Warning
-}
-
-interface SectionsSchemaInvalidation {
-  error: string
-  type: InvalidationType
-}
-
-// For validating schema level problems
-interface SectionsSchemaValidator {
-  validate: (sectionName: string[]) => SectionsSchemaInvalidation[]
-}
-
-class SectionNameHeaderValidator implements SectionsSchemaValidator {
-  validate = (sectionNames: string[]): SectionsSchemaInvalidation[] => {
-    const invalidations: SectionsSchemaInvalidation[] = []
-
-    if (!hasHeader(sectionNames)) {
-      invalidations.push({ error: 'First line must be "' + FILE_HEADER_VALUE + '"', type: InvalidationType.Error })
-    }
-    if (sectionNames.length === 0) {
-      invalidations.push({ error: 'No data found', type: InvalidationType.Error })
-    }
-
-    if (sectionNames.length === 1 && isHeader(sectionNames[0])) {
-      invalidations.push({ error: 'No data found', type: InvalidationType.Error })
-    }
-    return invalidations
-  }
-}
+import { InvalidationType } from '../models/models'
 
 // For validating row level issues
 interface SectionsRowInvalidation {
@@ -82,7 +40,7 @@ class EmptySectionNameValidator implements SectionRowsValidator {
     const invalidations: SectionsRowInvalidation[] = []
     sectionNames.forEach((sectionName, row) => {
       if (sectionName.trim().length === 0) {
-        invalidations.push({ message: 'Empty section name\'s not allowed', rowNumber: row + 2, type: InvalidationType.Error })
+        invalidations.push({ message: 'Empty section name is not allowed', rowNumber: row + 2, type: InvalidationType.Error })
       }
     })
     return invalidations
@@ -101,5 +59,5 @@ class SectionNameTooLongValidator implements SectionRowsValidator {
   }
 }
 
-export type { SectionsSchemaInvalidation, SectionsRowInvalidation, SectionRowsValidator, SectionsSchemaValidator }
-export { InvalidationType, SectionNameHeaderValidator, DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator, hasHeader }
+export type { SectionsRowInvalidation, SectionRowsValidator }
+export { InvalidationType, DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator }
