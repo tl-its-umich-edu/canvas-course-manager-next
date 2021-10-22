@@ -308,7 +308,7 @@ Section 001`
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
-        <ErrorAlert messages={errors} tryAgain={resetPageState}/>
+        <ErrorAlert messages={errors} tryAgain={resetPageState} />
       </div>
     )
   }

@@ -55,7 +55,7 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
         {icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
         {Boolean(messages?.length) && preface}
         {messageBlock}
-        {tryAgain !== undefined && <Button color='primary' component='span' onClick={props.tryAgain}>Try Again</Button>}
+        {tryAgain !== undefined && <Button color='primary' onClick={props.tryAgain}>Try Again</Button>}
       </Paper>
     </Grid>
   )
