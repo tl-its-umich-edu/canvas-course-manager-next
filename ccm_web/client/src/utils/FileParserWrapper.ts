@@ -21,6 +21,7 @@ export default class FileParserWrapper {
 
   static defaultParseConfigOptions: Papa.ParseConfig = {
     header: true,
+    transform: value => value.trim(),
     transformHeader: header => header.toUpperCase()
   }
 
