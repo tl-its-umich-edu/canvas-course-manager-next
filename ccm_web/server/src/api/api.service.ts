@@ -34,7 +34,8 @@ export class APIService {
       course: {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
-      }
+      },
+      helpURL: this.configService.get('helpURL') as string
     }
   }
 

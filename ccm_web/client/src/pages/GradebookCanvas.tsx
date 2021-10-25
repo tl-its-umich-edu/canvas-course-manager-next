@@ -11,7 +11,7 @@ import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 import { canvasGradebookFormatterProps } from '../models/feature'
-import { CCMComponentProps } from '../models/FeatureUIData'
+import allFeatures, { CCMComponentProps, FeatureUIGroup, FeatureUIProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
@@ -234,6 +234,9 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
+    const helpPath = props.globals.helpURL
+    const features: FeatureUIProps[] = allFeatures.map((f: FeatureUIGroup) => f.features).flat()
+    const gradebookHelpURL = features.filter(feature => feature.route === location.pathname)[0].helpURL
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
@@ -245,7 +248,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
             <Typography>
               There are likely blank cells in the course&apos;s gradebook.
               Please enter 0 or EX (for excused) for any blank cells in the gradebook, and export a new CSV file.
-              Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors.
+              Get <Link href={helpPath + gradebookHelpURL} target='_new' rel='noopener'>help</Link> with validation errors.
             </Typography>
           )}
           resetUpload={resetPageState}

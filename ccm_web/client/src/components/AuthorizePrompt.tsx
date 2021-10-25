@@ -13,6 +13,8 @@ const useStyles = makeStyles(() => ({
 
 export default function AuthorizePrompt (): JSX.Element {
   const classes = useStyles()
+  const pathnames = location.pathname.split('/').filter(x => x)
+  console.log(pathnames)
   return (
     <div className={classes.root}>
       <Typography variant='h5' component='h1' gutterBottom>

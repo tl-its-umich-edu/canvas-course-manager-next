@@ -39,6 +39,7 @@ export interface Config {
   lti: LTIConfig
   canvas: CanvasConfig
   db: DatabaseConfig
+  helpURL: string
 }
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -92,6 +93,7 @@ export function validateConfig (): Config {
   let lti
   let canvas
   let db
+  let helpURL
 
   try {
     server = {
@@ -122,9 +124,10 @@ export function validateConfig (): Config {
       user: validate<string>('DB_USER', env.DB_USER, isString, [isNotEmpty]),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString, [isNotEmpty])
     }
+    helpURL = validate<string>('HELP_URL', env.HELP_URL, isString, [isNotEmpty])
   } catch (error) {
     logger.error(error)
     throw new Error(error)
   }
-  return { server, lti, canvas, db }
+  return { server, lti, canvas, db, helpURL }
 }
