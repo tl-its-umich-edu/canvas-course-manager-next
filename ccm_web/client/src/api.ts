@@ -86,6 +86,13 @@ export interface AddSectionEnrollment {
   type: string
 }
 
+export const getStudentsEnrolledInSection = async (sectionId: number): Promise<string[]> => {
+  const request = getGet()
+  const resp = await fetch(`/api/sections/${sectionId}/students`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
 export const addSectionEnrollments = async (
   sectionId: number, enrollments: AddSectionEnrollment[]
 ): Promise<CanvasEnrollment> => {
