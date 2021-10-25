@@ -32,12 +32,12 @@ function App (): JSX.Element {
 
   const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
-  const [course, setCourse] = useState<undefined | CanvasCourseBase>(undefined)
-  const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase | undefined, typeof getCourse>(
+  const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
+  const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
     async (courseId: number): Promise<CanvasCourseBase> => {
       return await getCourse(courseId)
     },
-    (value: CanvasCourseBase | undefined) => setCourse(value)
+    (value: CanvasCourseBase|undefined) => setCourse(value)
   )
 
   useEffect(() => {
@@ -86,27 +86,22 @@ function App (): JSX.Element {
       <SnackbarProvider maxSnack={3}>
         <Router>
           <div>
-            <>
               <Route>
                 {({ location }) => {
                   const pathnames = location.pathname.split('/').filter(x => x)
                   return (
-                    <>
                       <div className={classes.breadcrumbsHelpContainer}>
                         <Breadcrumbs {...{ features, pathnames }} />
                         <Help pathName={pathnames === undefined ? '/' : pathnames[0]} helpURL={globals.helpURL} />
                       </div>
-                    </>
                   )
                 }}
               </Route>
-
-            </>
           </div>
           <Switch>
             <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} />} />
+              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} />}/>
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
@@ -119,7 +114,7 @@ function App (): JSX.Element {
                 <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
               </div>
               <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-                <ResponsiveHelper />
+                <ResponsiveHelper/>
               </div>
             </div>
           )
