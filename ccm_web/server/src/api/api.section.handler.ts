@@ -30,26 +30,19 @@ export class SectionApiHandler {
     }
   }
 
-  async getStudentEnrollments (): Promise<CanvasEnrollment[] | APIErrorData> {
+  async getStudentsEnrolled (): Promise<string[] | APIErrorData> {
     const queryParams = { type: [UserEnrollmentType.StudentEnrollment] }
-    let result
+    let enrollmentsResult
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${HttpMethod.Get}"`)
-      result = await this.requestor.list<CanvasEnrollment>(endpoint, queryParams).toArray()
+      enrollmentsResult = await this.requestor.list<CanvasEnrollment>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
-    return result.map(e => ({
-      id: e.id,
-      course_section_id: e.course_section_id,
-      course_id: e.course_id,
-      user_id: e.user_id,
-      user: { login_id: e.user.login_id },
-      type: e.type
-    }))
+    return enrollmentsResult.map(e => e.user.login_id)
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {

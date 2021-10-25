@@ -73,8 +73,8 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @Get('sections/:id/students')
-  async getStudentEnrollments (@Param('id', ParseIntPipe) sectionId: number, @UserDec() user: User): Promise<CanvasEnrollment[]> {
-    const result = await this.apiService.getStudentEnrollments(user, sectionId)
+  async getStudentsEnrolledInSection (@Param('id', ParseIntPipe) sectionId: number, @UserDec() user: User): Promise<string[]> {
+    const result = await this.apiService.getStudentsEnrolledInSection(user, sectionId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
