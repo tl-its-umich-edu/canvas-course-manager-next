@@ -27,7 +27,7 @@ const canvasGradebookFormatterProps: FeatureDataProps = {
   helpURLEnding: '/gradebook-canvas.html'
 }
 
-const ExternalToolsGradebookFormatterProps: FeatureDataProps = {
+const externalToolsGradebookFormatterProps: FeatureDataProps = {
   id: 'ExternalToolsGradebookFormatter',
   title: 'External Tools Gradebook Formatter',
   description: 'Formats a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
@@ -66,4 +66,7 @@ const addNonUMUsersProps: FeatureDataProps = {
 const courseRenameRoles: RoleEnum[] = [RoleEnum['Account Admin'], RoleEnum['Subaccount admin'], RoleEnum['Support Consultant']]
 
 export type { FeatureDataProps }
-export { mergeSectionProps, canvasGradebookFormatterProps, ExternalToolsGradebookFormatterProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles }
+export {
+  mergeSectionProps, canvasGradebookFormatterProps, externalToolsGradebookFormatterProps,
+  createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles
+}

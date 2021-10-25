@@ -6,11 +6,15 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
 import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 
-import { FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, ExternalToolsGradebookFormatterProps, createSectionsProps, addUMUsersProps, addNonUMUsersProps } from './feature'
+import {
+  FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, externalToolsGradebookFormatterProps,
+  createSectionsProps, addUMUsersProps, addNonUMUsersProps
+} from './feature'
+import AddUMUsers from '../pages/AddUMUsers'
+import BulkSectionCreate from '../pages/BulkSectionCreate'
+import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
-import BulkSectionCreate from '../pages/BulkSectionCreate'
-import AddUMUsers from '../pages/AddUMUsers'
 import { Globals, RoleEnum } from './models'
 import { CanvasCourseBase } from './canvas'
 
@@ -34,6 +38,8 @@ interface FeatureUIProps {
   route: string
 }
 
+const NotYetImplementedComponent = (): JSX.Element => <p>This feature has not been implemented yet.</p>
+
 const mergeSectionCardProps: FeatureUIProps = {
   data: mergeSectionProps,
   icon: <MergeTypeIcon fontSize='large' />,
@@ -48,10 +54,10 @@ const canvasGradebookFormatterCardProps: FeatureUIProps = {
   route: '/gradebook-canvas'
 }
 
-const ExternalToolsGradebookFormatterCardProps: FeatureUIProps = {
-  data: ExternalToolsGradebookFormatterProps,
+const externalToolsGradebookFormatterCardProps: FeatureUIProps = {
+  data: externalToolsGradebookFormatterProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: FormatThirdPartyGradebook,
   route: '/gradebook-thirdparty'
 }
 
@@ -72,12 +78,12 @@ const addUMUsersCardProps: FeatureUIProps = {
 const addNonUMUsersCardProps: FeatureUIProps = {
   data: addNonUMUsersProps,
   icon: <PersonAddOutlinedIcon fontSize='large' />,
-  component: MergeSections,
+  component: NotYetImplementedComponent,
   route: '/add-non-um-users'
 }
 
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookFormatterCardProps, ExternalToolsGradebookFormatterCardProps] },
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookFormatterCardProps, externalToolsGradebookFormatterCardProps] },
   { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]
