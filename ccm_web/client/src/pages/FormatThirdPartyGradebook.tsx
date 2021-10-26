@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Step, StepLabel, Stepper, Typography
+  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Step, StepLabel, Stepper, Typography
 } from '@material-ui/core'
 
 import * as api from '../api'
+import ConfirmDialog from '../components/ConfirmDialog'
+import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
+import SuccessCard from '../components/SuccessCard'
+import ThirdPartyGradebookConfirmationTable from '../components/ThirdPartyGradebookConfirmationTable'
 import WarningAlert from '../components/WarningAlert'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
@@ -14,6 +18,7 @@ import { InvalidationType } from '../models/models'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { createOutputFileName } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,14 +35,16 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     paddingTop: '20px'
   },
+  table: {
+    paddingLeft: 10,
+    paddingRight: 10
+  },
   selectContainer: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
   uploadContainer: {
-    // position: 'relative',
-    // zIndex: 0,
     textAlign: 'center'
   },
   confirmContainer: {
@@ -128,6 +135,10 @@ interface FormatThirdPartyGradebookProps extends CCMComponentProps {}
 export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradebookProps): JSX.Element {
   const classes = useStyles()
 
+  const csvParser = new FileParserWrapper(
+    Object.assign(FileParserWrapper.defaultParseConfigOptions, { transformHeader: undefined })
+  )
+
   const [activeStep, setActiveStep] = useState<FormatGradebookStep>(FormatGradebookStep.Select)
   const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
@@ -165,9 +176,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   const parseFile = (file: File): void => {
-    const csvParser = new FileParserWrapper(
-      Object.assign(FileParserWrapper.defaultParseConfigOptions, { transformHeader: undefined })
-    )
     csvParser.parseCSV(
       file,
       handleSchemaValidation,
@@ -216,6 +224,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setSchemaInvalidations(undefined)
     setFilteredRecords(undefined)
     setFilteringInvalidations(undefined)
+  }
+
+  const handleFullReset = (): void => {
+    handleResetSelect()
+    handleResetUpload()
+    setActiveStep(FormatGradebookStep.Select)
   }
 
   const handleBack = (): void => setActiveStep((prevStep) => {
@@ -279,17 +293,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             selectionUpdated={(sections) => setSelectedSection(sections[0])}
             canUnmerge={false}
           />
-          <Grid container justify='flex-end' className={classes.buttonGroup}>
-            <Button
-              color='primary'
-              variant='contained'
-              disabled={selectedSection === undefined}
-              aria-label='Select section'
-              onClick={handleSelectClick}
-            >
-              Select
-            </Button>
-          </Grid>
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading || isGetStudentsLoading}>
             <Grid container>
               <Grid item xs={12}>
@@ -301,6 +304,17 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             </Grid>
           </Backdrop>
         </div>
+        <Grid container className={classes.buttonGroup} justify='flex-end'>
+          <Button
+            color='primary'
+            variant='contained'
+            disabled={selectedSection === undefined}
+            aria-label='Select section'
+            onClick={handleSelectClick}
+          >
+            Select
+          </Button>
+        </Grid>
       </div>
     )
   }
@@ -316,8 +330,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     const gradeUploadDocsLink = 'https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades'
     return (
       <div>
-        <Typography variant='h6'>Upload your CSV File</Typography>
-        <Typography>
+        <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
+        <Typography gutterBottom>
           This tool creates a new version of the uploaded file so it only includes students in the selected section.
         </Typography>
         <Typography><strong>Requirements</strong></Typography>
@@ -325,7 +339,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           <li>
             <Typography>
               The file includes the necessary columns and a &quot;Points Possible&quot;
-              row <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>as required by Canvas.</Link>
+              row <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>as required by Canvas</Link>.
+            </Typography>
+            <Typography>
               The following headers are required (case sensitive): {requiredHeaders.map(rh => `"${rh}"`).join(', ')}
             </Typography>
           </li>
@@ -342,7 +358,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               <FileUpload onUploadComplete={(file) => setFile(file)} />
             </Grid>
           </Grid>
-          <Grid container justify='flex-end' className={classes.buttonGroup}>
+          <Grid container className={classes.buttonGroup} justify='flex-start'>
             {backButton}
           </Grid>
         </div>
@@ -350,8 +366,60 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     )
   }
 
-  const renderReview = (): JSX.Element => {
-    return <p>Review table will go here.</p>
+  const renderReview = (recordsResult: ParsedRecordsResult, filteredRecords: GradebookUploadRecord[], file: File): JSX.Element => {
+    const recordsToReview = (filteredRecords).map((r, i) => ({
+      rowNumber: i + 2,
+      'Student Name': r['Student Name'],
+      'SIS Login ID': r['SIS Login ID']
+    }))
+
+    const newData = [recordsResult.pointsPossibleRecord].concat(filteredRecords)
+    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV(newData)
+
+    return (
+      <div className={classes.confirmContainer}>
+        {file !== undefined && <CSVFileName file={file} />}
+        <Grid container>
+          <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>
+            <Grid item xs={12} sm={12} md={9} className={classes.table}>
+              <ThirdPartyGradebookConfirmationTable records={recordsToReview} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 1, md: 2, lg: 2 }}>
+            <Grid item xs={12} sm={12} md={3}>
+              <ConfirmDialog
+                message={
+                  'Your file is valid! The table shows the students found and the new row numbers for their records.' +
+                  'If this looks correct, click "Submit" to proceed with downloading.'
+                }
+                submit={() => setActiveStep(FormatGradebookStep.Confirmation)}
+                cancel={() => {
+                  handleResetUpload()
+                  setActiveStep(FormatGradebookStep.Upload)
+                }}
+                download={{
+                  fileName: createOutputFileName(file, '-puff'),
+                  data: dataToDownload
+                }}
+              />
+            </Grid>
+          </Box>
+        </Grid>
+      </div>
+    )
+  }
+
+  const renderConfirmation = (): JSX.Element => {
+    return (
+      <div>
+        <SuccessCard
+          message={<Typography>The trimmed gradebook file has been downloaded to your computer!</Typography>}
+        />
+        <Grid container className={classes.buttonGroup} justify='flex-start'>
+          <Button variant='outlined' onClick={handleFullReset}>Start Again</Button>
+        </Grid>
+      </div>
+    )
   }
 
   const renderStep = (step: FormatGradebookStep): JSX.Element => {
@@ -361,7 +429,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       case FormatGradebookStep.Upload:
         return renderUpload()
       case FormatGradebookStep.Review:
-        return renderReview()
+        if (file !== undefined && recordsResult !== undefined && filteredRecords !== undefined) {
+          return renderReview(recordsResult, filteredRecords, file)
+        }
+        return <ErrorAlert tryAgain={handleFullReset} />
+      case FormatGradebookStep.Confirmation:
+        return renderConfirmation()
       default:
         return <div>?</div>
     }

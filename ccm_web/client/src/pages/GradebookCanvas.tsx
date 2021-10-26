@@ -13,9 +13,10 @@ import GradebookUploadConfirmationTable, { StudentGrade } from '../components/Gr
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
+import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { createOutputFileName } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -80,11 +81,6 @@ enum GradebookCanvasPageState {
   Done
 }
 
-interface DownloadData {
-  data: string
-  fileName: string
-}
-
 const convertEmptyCellToUndefined = (cell: string | undefined): string | undefined => {
   if (cell !== undefined && cell.trim().length === 0) return undefined
   return cell
@@ -124,12 +120,10 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     setPageState({ state: GradebookCanvasPageState.Upload })
   }
 
+  // Would be nice to rework this so we know file is defined
   const getOutputFilename = (file: File | undefined): string => {
     if (file === undefined) return ''
-    const splitName = file.name.split('.')
-    const filenameIndex = splitName.length >= 2 ? splitName.length - 2 : 0
-    splitName[filenameIndex] = splitName[filenameIndex] + '-geff'
-    return splitName.join('.')
+    return createOutputFileName(file, '-geff')
   }
 
   const getGradeForExport = (record: GradebookRecord): string => {
