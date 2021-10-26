@@ -1,24 +1,10 @@
 import React from 'react'
-import { Button, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Button, makeStyles, Typography } from '@material-ui/core'
 import ErrorIcon from '@material-ui/icons/Error'
 
-const useStyles = makeStyles((theme) => ({
-  padding: {
-    padding: theme.spacing(1)
-  },
-  dialog: {
-    textAlign: 'center',
-    margin: 'auto',
-    marginTop: 30,
-    marginBottom: 15,
-    '& ol': {
-      margin: 'auto'
-    },
-    '& li': {
-      textAlign: 'left',
-      marginBottom: 10
-    }
-  },
+import Alert from './Alert'
+
+const useStyles = makeStyles(() => ({
   dialogIcon: {
     color: '#3F648E'
   }
@@ -50,13 +36,10 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
       : <ol>{messages.map((m, i) => <li key={i}>{m}</li>)}</ol>
 
   return (
-    <Grid item xs={12} sm={9} md={6} className={`${classes.dialog} ${classes.padding}`}>
-      <Paper className={classes.padding} role='alert'>
-        {icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
-        {Boolean(messages?.length) && preface}
-        {messageBlock}
-        {tryAgain !== undefined && <Button color='primary' onClick={props.tryAgain}>Try Again</Button>}
-      </Paper>
-    </Grid>
+    <Alert icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}>
+      {Boolean(messages?.length) && preface}
+      {messageBlock}
+      {tryAgain !== undefined && <Button color='primary' onClick={props.tryAgain}>Try Again</Button>}
+    </Alert>
   )
 }

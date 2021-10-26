@@ -7,6 +7,7 @@ import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
+import WarningAlert from '../components/WarningAlert'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
 import { InvalidationType } from '../models/models'
@@ -35,8 +36,11 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center'
   },
   uploadContainer: {
-    position: 'relative',
-    zIndex: 0,
+    // position: 'relative',
+    // zIndex: 0,
+    textAlign: 'center'
+  },
+  confirmContainer: {
     textAlign: 'center'
   },
   backdrop: {
@@ -46,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface CanvasUploadRecord extends CSVRecord {
+interface GradebookUploadRecord extends CSVRecord {
   'Student Name': string
   'Student ID': string
   'SIS User ID': string
@@ -55,8 +59,61 @@ interface CanvasUploadRecord extends CSVRecord {
 }
 const requiredHeaders = ['Student Name', 'Student ID', 'SIS User ID', 'SIS Login ID', 'Section']
 
-const isCanvasUploadRecord = (record: CSVRecord): record is CanvasUploadRecord => {
+interface ParsedRecordsResult {
+  records: GradebookUploadRecord[]
+  pointsPossibleRecord: GradebookUploadRecord
+}
+
+const isGradebookUploadRecord = (record: CSVRecord): record is GradebookUploadRecord => {
   return requiredHeaders.every(rh => typeof record[rh] === 'string')
+}
+
+interface FilteringInvalidation {
+  message: string
+  type: InvalidationType
+}
+
+interface StudentFilterResult {
+  filteredRecords: GradebookUploadRecord[]
+  filteringInvalidations: FilteringInvalidation[]
+}
+
+function handleFiltering (
+  studentLoginIds: string[], uploadRecords: GradebookUploadRecord[]
+): StudentFilterResult {
+  const filteredRecords: GradebookUploadRecord[] = []
+  const studentsWithoutRecords: string[] = []
+  const filteringInvalidations: FilteringInvalidation[] = []
+
+  for (const loginId of studentLoginIds) {
+    const filterResult = uploadRecords.filter(r => r['SIS Login ID'] === loginId)
+    if (filterResult.length === 1) {
+      filteredRecords.push(filterResult[0])
+    } else if (filterResult.length > 1) {
+      filteringInvalidations.push({
+        message: `Student with SIS Login ID ${loginId}`,
+        type: InvalidationType.Error
+      })
+    } else {
+      studentsWithoutRecords.push(loginId)
+    }
+  }
+  if (studentsWithoutRecords.length > 0) {
+    filteringInvalidations.push({
+      message: (
+        'One or more students from the section you selected were not present in the provided file: ' +
+        studentsWithoutRecords.join(', ')
+      ),
+      type: InvalidationType.Warning
+    })
+  }
+  if (filteredRecords.length === 0) {
+    filteringInvalidations.push({
+      message: 'None of the students from the section you selected were present in the provided file.',
+      type: InvalidationType.Error
+    })
+  }
+  return { filteredRecords, filteringInvalidations }
 }
 
 enum FormatGradebookStep {
@@ -76,9 +133,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
   const [studentLoginIds, setStudentLoginIds] = useState<string[] | undefined>(undefined)
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [uploadRecords, setUploadRecords] = useState<CanvasUploadRecord[] | undefined>(undefined)
+  const [recordsResult, setRecordsResult] = useState<ParsedRecordsResult | undefined>(undefined)
+  const [filteredRecords, setFilteredRecords] = useState<GradebookUploadRecord[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
+  const [filteringInvalidations, setFilteringInvalidations] = useState<FilteringInvalidation[] | undefined>(undefined)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
@@ -91,14 +150,18 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   useEffect(() => {
-    void doGetSections()
-  }, [])
+    if (getSectionsError === undefined) {
+      void doGetSections()
+    }
+  }, [getSectionsError])
 
-  const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
-    const schemaValidator = new CSVSchemaValidator<CanvasUploadRecord>(requiredHeaders, isCanvasUploadRecord)
+  const handleSchemaValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
+    const schemaValidator = new CSVSchemaValidator<GradebookUploadRecord>(requiredHeaders, isGradebookUploadRecord)
     const validationResult = schemaValidator.validate(headers, rowData)
     if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
-    return setUploadRecords(validationResult.validData)
+    const records = validationResult.validData.slice(1)
+    const pointsPossibleRecord = validationResult.validData[0]
+    return setRecordsResult({ records, pointsPossibleRecord })
   }
 
   const parseFile = (file: File): void => {
@@ -107,7 +170,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     )
     csvParser.parseCSV(
       file,
-      handleValidation,
+      handleSchemaValidation,
       message => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
     )
   }
@@ -119,33 +182,41 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }, [file])
 
   useEffect(() => {
-    if (selectedSection !== undefined && uploadRecords !== undefined) {
+    if (studentLoginIds !== undefined) {
+      setActiveStep(FormatGradebookStep.Upload)
+    }
+  }, [studentLoginIds])
+
+  const handleSelectClick = (): void => {
+    if (selectedSection !== undefined) {
       void doGetStudents(selectedSection.id)
     }
-  }, [uploadRecords])
+  }
 
   useEffect(() => {
-    if (uploadRecords !== undefined && studentLoginIds !== undefined) {
-      setActiveStep(FormatGradebookStep.Review)
+    if (studentLoginIds !== undefined && recordsResult !== undefined) {
+      const result = handleFiltering(studentLoginIds, recordsResult.records)
+      setFilteredRecords(result.filteredRecords)
+      setFilteringInvalidations(result.filteringInvalidations)
+      if (result.filteringInvalidations.length === 0) {
+        setActiveStep(FormatGradebookStep.Review)
+      }
     }
-  }, [uploadRecords, studentLoginIds])
+  }, [recordsResult])
 
-  // console.log('uploadRecords')
-  // console.log(uploadRecords)
-
-  // console.log('studentLoginIds')
-  // console.log(studentLoginIds)
+  const handleResetSelect = (): void => {
+    clearGetSectionsError()
+    setSelectedSection(undefined)
+    clearGetStudentsError()
+  }
 
   const handleResetUpload = (): void => {
     setFile(undefined)
     clearGetStudentsError()
     setSchemaInvalidations(undefined)
+    setFilteredRecords(undefined)
+    setFilteringInvalidations(undefined)
   }
-
-  const handleNext = (): void => setActiveStep((prevStep) => {
-    if (prevStep < FormatGradebookStep.Confirmation) return prevStep + 1
-    return prevStep
-  })
 
   const handleBack = (): void => setActiveStep((prevStep) => {
     if (prevStep > FormatGradebookStep.Select) return prevStep - 1
@@ -158,20 +229,39 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
     )
-    return <ErrorAlert messages={messages} tryAgain={handleResetUpload}/>
+    return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
   }
 
-  const renderAPIError = (error: Error): JSX.Element => {
-    const message = <Typography key={0}>{error.message}</Typography>
-    return <ErrorAlert messages={[message]} tryAgain={handleResetUpload} />
+  const renderFilteringInvalidations = (invalidations: FilteringInvalidation[]): JSX.Element => {
+    const errors = invalidations.filter(i => i.type === InvalidationType.Error)
+    const warnings = invalidations.filter(i => i.type === InvalidationType.Warning)
+
+    if (errors.length > 0) {
+      return (
+        <ErrorAlert
+          messages={errors.map((e, i) => <Typography key={i}>{e.message}</Typography>)}
+          tryAgain={handleResetUpload}
+        />
+      )
+    }
+    if (warnings.length > 0) {
+      return (
+        <WarningAlert
+          messages={warnings.map((w, i) => <Typography key={i}>{w.message}</Typography>)}
+          cancel={handleResetUpload}
+          cont={() => setActiveStep(FormatGradebookStep.Review)}
+        />
+      )
+    }
+    return <ErrorAlert tryAgain={handleResetUpload} />
   }
 
   const renderSelect = (): JSX.Element => {
-    if (getSectionsError !== undefined) {
+    if (getSectionsError !== undefined || getStudentsError !== undefined) {
       return (
         <ErrorAlert
           messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
-          tryAgain={clearGetSectionsError}
+          tryAgain={handleResetSelect}
         />
       )
     }
@@ -195,18 +285,18 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               variant='contained'
               disabled={selectedSection === undefined}
               aria-label='Select section'
-              onClick={handleNext}
+              onClick={handleSelectClick}
             >
               Select
             </Button>
           </Grid>
-          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Backdrop className={classes.backdrop} open={isGetSectionsLoading || isGetStudentsLoading}>
             <Grid container>
               <Grid item xs={12}>
                 <CircularProgress color='inherit' />
               </Grid>
               <Grid item xs={12}>
-                Loading sections
+                Loading section data from Canvas
               </Grid>
             </Grid>
           </Backdrop>
@@ -218,8 +308,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const renderUpload = (): JSX.Element => {
     if (schemaInvalidations !== undefined) {
       return renderSchemaInvalidations(schemaInvalidations)
-    } else if (getStudentsError !== undefined) {
-      return renderAPIError(getStudentsError)
+    }
+    if (filteringInvalidations !== undefined) {
+      return renderFilteringInvalidations(filteringInvalidations)
     }
 
     const gradeUploadDocsLink = 'https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades'
@@ -254,19 +345,13 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           <Grid container justify='flex-end' className={classes.buttonGroup}>
             {backButton}
           </Grid>
-          <Backdrop className={classes.backdrop} open={isGetStudentsLoading}>
-            <Grid container>
-              <Grid item xs={12}>
-                <CircularProgress color='inherit' />
-              </Grid>
-              <Grid item xs={12}>
-                Loading info about students enrolled in the section
-              </Grid>
-            </Grid>
-          </Backdrop>
         </div>
       </div>
     )
+  }
+
+  const renderReview = (): JSX.Element => {
+    return <p>Review table will go here.</p>
   }
 
   const renderStep = (step: FormatGradebookStep): JSX.Element => {
@@ -276,7 +361,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       case FormatGradebookStep.Upload:
         return renderUpload()
       case FormatGradebookStep.Review:
-        return <p>Review table will go here.</p>
+        return renderReview()
       default:
         return <div>?</div>
     }
