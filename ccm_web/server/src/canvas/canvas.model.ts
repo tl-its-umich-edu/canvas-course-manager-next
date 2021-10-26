@@ -4,7 +4,7 @@ import { DataTypes, Optional } from 'sequelize'
 import { User } from '../user/user.model'
 
 interface CanvasTokenAttributes {
-  id?: bigint
+  id: bigint
   userId: bigint
   accessToken: string
   refreshToken: string

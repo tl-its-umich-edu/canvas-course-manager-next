@@ -5,7 +5,7 @@ import { CanvasToken } from '../canvas/canvas.model'
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
 interface UserAttributes {
-  id?: bigint
+  id: bigint
   loginId: string
   firstName: string
   lastName: string
