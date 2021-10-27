@@ -79,7 +79,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   const [activeStep, setActiveStep] = useState<FormatGradebookStep>(FormatGradebookStep.Select)
   const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
-  const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
+  const [selectedSections, setSelectedSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
   const [studentLoginIds, setStudentLoginIds] = useState<string[] | undefined>(undefined)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [records, setRecords] = useState<GradebookUploadRecord[] | undefined>(undefined)
@@ -95,7 +95,13 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   const [doGetStudents, isGetStudentsLoading, getStudentsError, clearGetStudentsError] = usePromise(
-    async (sectionId: number) => await api.getStudentsEnrolledInSection(sectionId),
+    async (sectionIds: number[]) => {
+      const loginIds: string[] = []
+      for (const sectionId of sectionIds) {
+        loginIds.push(...(await api.getStudentsEnrolledInSection(sectionId)))
+      }
+      return [...(new Set(loginIds))] // Dropping duplicates
+    },
     (studentLoginIds: string[]) => setStudentLoginIds(studentLoginIds)
   )
 
@@ -104,6 +110,18 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       void doGetSections()
     }
   }, [getSectionsError])
+
+  useEffect(() => {
+    if (studentLoginIds !== undefined) {
+      setActiveStep(FormatGradebookStep.Upload)
+    }
+  }, [studentLoginIds])
+
+  const handleSelectClick = (): void => {
+    if (selectedSections !== undefined) {
+      void doGetStudents(selectedSections.map(s => s.id))
+    }
+  }
 
   const handleSchemaValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
     const schemaValidator = new CSVSchemaValidator<GradebookUploadRecord>([REQUIRED_LOGIN_ID_HEADER], isGradebookUploadRecord)
@@ -127,18 +145,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }, [file])
 
   useEffect(() => {
-    if (studentLoginIds !== undefined) {
-      setActiveStep(FormatGradebookStep.Upload)
-    }
-  }, [studentLoginIds])
-
-  const handleSelectClick = (): void => {
-    if (selectedSection !== undefined) {
-      void doGetStudents(selectedSection.id)
-    }
-  }
-
-  useEffect(() => {
     if (studentLoginIds !== undefined && records !== undefined) {
       const processor = new GradebookProcessor(studentLoginIds)
       const result = processor.process(records)
@@ -155,7 +161,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   const handleResetSelect = (): void => {
     clearGetSectionsError()
-    setSelectedSection(undefined)
+    setSelectedSections(undefined)
     clearGetStudentsError()
   }
 
@@ -223,15 +229,23 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
     return (
       <div>
-        <Typography align='left'>Select one section you want to collect grades from your CSV for.</Typography>
+        <Typography align='left'>
+          Select one or more sections whose students you want to collect grades from your CSV for.
+        </Typography>
         <div className={classes.selectContainer}>
           <SectionSelectorWidget
             height={300}
             search={[]}
-            multiSelect={false}
+            multiSelect={true}
             sections={sections !== undefined ? sections : []}
-            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-            selectionUpdated={(sections) => setSelectedSection(sections[0])}
+            selectedSections={selectedSections !== undefined ? selectedSections : []}
+            selectionUpdated={(sections) => {
+              if (sections.length === 0) {
+                setSelectedSections(undefined)
+              } else {
+                setSelectedSections(sections)
+              }
+            }}
             canUnmerge={false}
           />
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading || isGetStudentsLoading}>
@@ -249,11 +263,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           <Button
             color='primary'
             variant='contained'
-            disabled={selectedSection === undefined}
+            disabled={selectedSections === undefined}
             aria-label='Select section'
             onClick={handleSelectClick}
           >
-            Select
+            Select {selectedSections !== undefined ? `(${selectedSections.length})` : ''}
           </Button>
         </Grid>
       </div>
@@ -385,7 +399,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       case FormatGradebookStep.Confirmation:
         return renderConfirmation()
       default:
-        return <div>?</div>
+        return <ErrorAlert tryAgain={handleFullReset} />
     }
   }
 
