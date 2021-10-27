@@ -42,7 +42,7 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
       <Paper className={classes.padding} role='status'>
         <Typography>{props.title ?? defaultTitle}</Typography>
         <CloudDoneIcon className={classes.dialogIcon} fontSize='large' />
-        <Typography>{props.message ?? defaultMessage}</Typography>
+        <Typography gutterBottom>{props.message ?? defaultMessage}</Typography>
         <Button className={classes.dialogButton} variant='outlined' onClick={props.cancel}>Cancel</Button>
         {
           props.download !== undefined
