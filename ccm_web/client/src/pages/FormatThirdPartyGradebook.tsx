@@ -18,6 +18,10 @@ import { InvalidationType } from '../models/models'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import GradebookProcessor, {
+  GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, REQUIRED_LOGIN_ID_HEADER,
+  REQUIRED_ORDERED_HEADERS
+} from '../utils/GradebookProcessor'
 import { createOutputFileName } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
@@ -57,72 +61,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface GradebookUploadRecord extends CSVRecord {
-  'Student Name': string
-  'Student ID': string
-  'SIS User ID': string
-  'SIS Login ID': string
-  'Section': string
-}
-const requiredHeaders = ['Student Name', 'Student ID', 'SIS User ID', 'SIS Login ID', 'Section']
-
-interface ParsedRecordsResult {
-  records: GradebookUploadRecord[]
-  pointsPossibleRecord: GradebookUploadRecord
-}
-
-const isGradebookUploadRecord = (record: CSVRecord): record is GradebookUploadRecord => {
-  return requiredHeaders.every(rh => typeof record[rh] === 'string')
-}
-
-interface FilteringInvalidation {
-  message: string
-  type: InvalidationType
-}
-
-interface StudentFilterResult {
-  filteredRecords: GradebookUploadRecord[]
-  filteringInvalidations: FilteringInvalidation[]
-}
-
-function handleFiltering (
-  studentLoginIds: string[], uploadRecords: GradebookUploadRecord[]
-): StudentFilterResult {
-  const filteredRecords: GradebookUploadRecord[] = []
-  const studentsWithoutRecords: string[] = []
-  const filteringInvalidations: FilteringInvalidation[] = []
-
-  for (const loginId of studentLoginIds) {
-    const filterResult = uploadRecords.filter(r => r['SIS Login ID'] === loginId)
-    if (filterResult.length === 1) {
-      filteredRecords.push(filterResult[0])
-    } else if (filterResult.length > 1) {
-      filteringInvalidations.push({
-        message: `Student with SIS Login ID ${loginId}`,
-        type: InvalidationType.Error
-      })
-    } else {
-      studentsWithoutRecords.push(loginId)
-    }
-  }
-  if (studentsWithoutRecords.length > 0) {
-    filteringInvalidations.push({
-      message: (
-        'One or more students from the section you selected were not present in the provided file: ' +
-        studentsWithoutRecords.join(', ')
-      ),
-      type: InvalidationType.Warning
-    })
-  }
-  if (filteredRecords.length === 0) {
-    filteringInvalidations.push({
-      message: 'None of the students from the section you selected were present in the provided file.',
-      type: InvalidationType.Error
-    })
-  }
-  return { filteredRecords, filteringInvalidations }
-}
-
 enum FormatGradebookStep {
   Select = 0,
   Upload = 1,
@@ -144,11 +82,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
   const [studentLoginIds, setStudentLoginIds] = useState<string[] | undefined>(undefined)
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [recordsResult, setRecordsResult] = useState<ParsedRecordsResult | undefined>(undefined)
-  const [filteredRecords, setFilteredRecords] = useState<GradebookUploadRecord[] | undefined>(undefined)
+  const [records, setRecords] = useState<GradebookUploadRecord[] | undefined>(undefined)
+  const [processedRecords, setProcessedRecords] = useState<GradebookUploadRecord[] | undefined>(undefined)
+  const [assignmentHeader, setAssignmentHeader] = useState<string | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
-  const [filteringInvalidations, setFilteringInvalidations] = useState<FilteringInvalidation[] | undefined>(undefined)
+  const [gradebookInvalidations, setGradebookInvalidations] = useState<GradebookInvalidation[] | undefined>(undefined)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
@@ -167,12 +106,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }, [getSectionsError])
 
   const handleSchemaValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
-    const schemaValidator = new CSVSchemaValidator<GradebookUploadRecord>(requiredHeaders, isGradebookUploadRecord)
+    const schemaValidator = new CSVSchemaValidator<GradebookUploadRecord>([REQUIRED_LOGIN_ID_HEADER], isGradebookUploadRecord)
     const validationResult = schemaValidator.validate(headers, rowData)
     if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
-    const records = validationResult.validData.slice(1)
-    const pointsPossibleRecord = validationResult.validData[0]
-    return setRecordsResult({ records, pointsPossibleRecord })
+    return setRecords(validationResult.validData)
   }
 
   const parseFile = (file: File): void => {
@@ -202,15 +139,19 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   useEffect(() => {
-    if (studentLoginIds !== undefined && recordsResult !== undefined) {
-      const result = handleFiltering(studentLoginIds, recordsResult.records)
-      setFilteredRecords(result.filteredRecords)
-      setFilteringInvalidations(result.filteringInvalidations)
-      if (result.filteringInvalidations.length === 0) {
+    if (studentLoginIds !== undefined && records !== undefined) {
+      const processor = new GradebookProcessor(studentLoginIds)
+      const result = processor.process(records)
+      if (result.valid) {
+        setProcessedRecords(result.processedRecords)
+        setAssignmentHeader(result.assignmentHeader)
+      }
+      setGradebookInvalidations(result.invalidations)
+      if (result.invalidations.length === 0) {
         setActiveStep(FormatGradebookStep.Review)
       }
     }
-  }, [recordsResult])
+  }, [records])
 
   const handleResetSelect = (): void => {
     clearGetSectionsError()
@@ -222,8 +163,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setFile(undefined)
     clearGetStudentsError()
     setSchemaInvalidations(undefined)
-    setFilteredRecords(undefined)
-    setFilteringInvalidations(undefined)
+    setProcessedRecords(undefined)
+    setGradebookInvalidations(undefined)
   }
 
   const handleFullReset = (): void => {
@@ -246,7 +187,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
   }
 
-  const renderFilteringInvalidations = (invalidations: FilteringInvalidation[]): JSX.Element => {
+  const renderGradebookInvalidations = (invalidations: GradebookInvalidation[]): JSX.Element => {
     const errors = invalidations.filter(i => i.type === InvalidationType.Error)
     const warnings = invalidations.filter(i => i.type === InvalidationType.Warning)
 
@@ -323,32 +264,42 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     if (schemaInvalidations !== undefined) {
       return renderSchemaInvalidations(schemaInvalidations)
     }
-    if (filteringInvalidations !== undefined) {
-      return renderFilteringInvalidations(filteringInvalidations)
+    if (gradebookInvalidations !== undefined) {
+      return renderGradebookInvalidations(gradebookInvalidations)
     }
 
     const gradeUploadDocsLink = 'https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades'
     return (
       <div>
         <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
-        <Typography gutterBottom>
-          This tool creates a new version of the uploaded file so it only includes students in the selected section.
+        <Typography>
+          This tool creates a new version of the uploaded file so it only includes students in the selected section
+          and is formatted appropriately for uploading to Canvas.
         </Typography>
+        <br/>
         <Typography><strong>Requirements</strong></Typography>
         <ol>
           <li>
             <Typography>
-              The file includes the necessary columns and a &quot;Points Possible&quot;
-              row <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>as required by Canvas</Link>.
+              The file includes a &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; column (the Canvas equivalent of Uniqname)
+              and one other column of scores, with the column&apos;s header being the name of a new assignment.
+              Other columns required by Canvas
+              (see the <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>help docs</Link>)
+              are allowed but not required.
             </Typography>
+          </li>
+          <li>
             <Typography>
-              The following headers are required (case sensitive): {requiredHeaders.map(rh => `"${rh}"`).join(', ')}
+              The first non-header row is a &quot;Points Possible&quot; row, meaning that the value in the new
+              assignment column will be the maximum points possible for that assignment
+              and that &quot;Points Possible&quot; is present in another cell in the row
+              (such as the row&apos;s cell for &quot;{REQUIRED_LOGIN_ID_HEADER}&quot;).
             </Typography>
           </li>
           <li>
             <Typography>
               Your file must include records for at least one student in the selected section
-              (students are identified using the SIS Login ID value).
+              (students are identified using the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; value).
             </Typography>
           </li>
         </ol>
@@ -366,15 +317,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     )
   }
 
-  const renderReview = (recordsResult: ParsedRecordsResult, filteredRecords: GradebookUploadRecord[], file: File): JSX.Element => {
-    const recordsToReview = (filteredRecords).map((r, i) => ({
-      rowNumber: i + 2,
-      'Student Name': r['Student Name'],
-      'SIS Login ID': r['SIS Login ID']
-    }))
-
-    const newData = [recordsResult.pointsPossibleRecord].concat(filteredRecords)
-    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV(newData)
+  const renderReview = (processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File): JSX.Element => {
+    const recordsToReview = (processedRecords).map((r, i) => ({ rowNumber: i + 2, ...r }))
+    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV({
+      fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
+      data: processedRecords
+    })
 
     return (
       <div className={classes.confirmContainer}>
@@ -382,16 +330,17 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <Grid container>
           <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>
             <Grid item xs={12} sm={12} md={9} className={classes.table}>
-              <ThirdPartyGradebookConfirmationTable records={recordsToReview} />
+              <ThirdPartyGradebookConfirmationTable records={recordsToReview} assignmentHeader={assignmentHeader} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 1, md: 2, lg: 2 }}>
             <Grid item xs={12} sm={12} md={3}>
               <ConfirmDialog
-                message={
-                  'Your file is valid! The table shows the students found and the new row numbers for their records.' +
-                  'If this looks correct, click "Submit" to proceed with downloading.'
-                }
+                message={(
+                  'Your file is valid! If this looks correct, click "Submit" to proceed with downloading. ' +
+                  'Note that the downloaded file will order the columns ' +
+                  'and add empty ones to satisfy Canvas requirements.'
+                )}
                 submit={() => setActiveStep(FormatGradebookStep.Confirmation)}
                 cancel={() => {
                   handleResetUpload()
@@ -429,8 +378,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       case FormatGradebookStep.Upload:
         return renderUpload()
       case FormatGradebookStep.Review:
-        if (file !== undefined && recordsResult !== undefined && filteredRecords !== undefined) {
-          return renderReview(recordsResult, filteredRecords, file)
+        if (file !== undefined && processedRecords !== undefined && assignmentHeader !== undefined) {
+          return renderReview(processedRecords, assignmentHeader, file)
         }
         return <ErrorAlert tryAgain={handleFullReset} />
       case FormatGradebookStep.Confirmation:

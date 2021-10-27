@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import CustomTable from './CustomTable'
 
-interface NumberedSlimGradebookRecord {
+interface NumberedSlimGradebookRecord extends Record<string, string | number | undefined> {
   rowNumber: number
-  'Student Name': string
   'SIS Login ID': string
 }
 
 interface ThirdPartyGradebookConfirmationTableProps {
   records: NumberedSlimGradebookRecord[]
+  assignmentHeader: string
 }
 
 interface TableHeaderColumnInfoShouldUseMatUIType {
@@ -18,13 +18,13 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
   align?: 'left' | 'right' | undefined
 }
 
-const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
-  { id: 'rowNumber', label: 'New Row Number', minWidth: 25 },
-  { id: 'Student Name', label: 'Student Name', minWidth: 50 },
-  { id: 'SIS Login ID', label: 'SIS Login ID', minWidth: 100 }
-]
-
 function ThirdPartyGradebookConfirmationTable (props: ThirdPartyGradebookConfirmationTableProps): JSX.Element {
+  const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
+    { id: 'rowNumber', label: 'New Row Number', minWidth: 25 },
+    { id: 'SIS Login ID', label: 'SIS Login ID', minWidth: 100 },
+    { id: props.assignmentHeader, label: props.assignmentHeader, minWidth: 100 }
+  ]
+
   const [page, setPage] = useState<number>(0)
 
   const tableRows = props.records.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
