@@ -113,7 +113,7 @@ export default class GradebookProcessor {
     if (studentsWithoutRecords.length > 0) {
       invalidations.push({
         message: (
-          'One or more students from the section you selected were not present in the provided file: ' +
+          'One or more students from the section(s) you selected were not present in the provided file: ' +
             studentsWithoutRecords.join(', ')
         ),
         type: InvalidationType.Warning
@@ -121,7 +121,7 @@ export default class GradebookProcessor {
     }
     if (filteredRecords.length === 0) {
       invalidations.push({
-        message: 'None of the students from the section you selected were present in the provided file.',
+        message: 'None of the students from the section(s) you selected were present in the provided file.',
         type: InvalidationType.Error
       })
     }
