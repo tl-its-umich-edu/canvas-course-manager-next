@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   uploadContainer: {
     textAlign: 'center'
   },
-  confirmContainer: {
+  reviewContainer: {
     textAlign: 'center'
   },
   backdrop: {
@@ -339,7 +339,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     })
 
     return (
-      <div className={classes.confirmContainer}>
+      <div className={classes.reviewContainer}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>

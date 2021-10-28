@@ -23,9 +23,11 @@ const useStyles = makeStyles((theme) => ({
 interface ConfirmDialogProps {
   title?: string
   message?: string
+  icon?: JSX.Element
   cancel: () => void
   submit: (() => void) | (() => Promise<void>)
   download?: DownloadData
+  disabled?: boolean
 }
 
 export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
@@ -34,16 +36,26 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
   const defaultMessage = 'Your file is valid! If this looks correct, click "Submit" to proceed.'
 
   const submitButton = (
-    <Button className={classes.dialogButton} variant='contained' color='primary' onClick={props.submit}>Submit</Button>
+    <Button
+      className={classes.dialogButton}
+      variant='contained'
+      color='primary'
+      onClick={props.submit}
+      disabled={props.disabled}
+    >
+      Submit
+    </Button>
   )
 
   return (
     <div className={classes.dialog}>
       <Paper className={classes.padding} role='status'>
         <Typography>{props.title ?? defaultTitle}</Typography>
-        <CloudDoneIcon className={classes.dialogIcon} fontSize='large' />
+        {props.icon !== undefined ? props.icon : <CloudDoneIcon className={classes.dialogIcon} fontSize='large' />}
         <Typography gutterBottom>{props.message ?? defaultMessage}</Typography>
-        <Button className={classes.dialogButton} variant='outlined' onClick={props.cancel}>Cancel</Button>
+        <Button className={classes.dialogButton} variant='outlined' onClick={props.cancel} disabled={props.disabled}>
+          Cancel
+        </Button>
         {
           props.download !== undefined
             ? <Link href={props.download.data} download={props.download.fileName}>{submitButton}</Link>

@@ -1,14 +1,15 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Paper, Step, StepLabel,
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
   Stepper, Theme, Tooltip, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { CloudDone as CloudDoneIcon, HelpOutline as HelpIcon } from '@material-ui/icons'
+import { HelpOutline as HelpIcon } from '@material-ui/icons'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
+import ConfirmDialog from '../components/ConfirmDialog'
 import CreateSectionWidget from '../components/CreateSectionWidget'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
@@ -76,21 +77,9 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 0,
       textAlign: 'center'
     },
-    dialog: {
-      textAlign: 'center',
-      marginBottom: 15,
-      paddingLeft: 10,
-      paddingRight: 10
-    },
-    dialogButton: {
-      margin: 5
-    },
     table: {
       paddingLeft: 10,
       paddingRight: 10
-    },
-    dialogIcon: {
-      color: '#3F648E'
     },
     newSectionHint: {
       display: 'flex'
@@ -364,20 +353,12 @@ designer,userd`
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={classes.dialog}>
-              <Paper role='status'>
-                <Typography>Review your CSV file</Typography>
-                <CloudDoneIcon className={classes.dialogIcon} fontSize='large'/>
-                <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button className={classes.dialogButton} variant='outlined' onClick={handleUploadReset}>Cancel</Button>
-                <Button
-                  className={classes.dialogButton}
-                  variant='outlined'
-                  onClick={async () => await doAddEnrollments(section, enrollments)}
-                >
-                  Submit
-                </Button>
-              </Paper>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog
+                submit={async () => await doAddEnrollments(section, enrollments)}
+                cancel={handleUploadReset}
+                disabled={isAddEnrollmentsLoading}
+              />
             </Grid>
           </Box>
         </Grid>

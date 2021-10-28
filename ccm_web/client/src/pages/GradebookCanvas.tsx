@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
-import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import { Box, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
+import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
@@ -32,21 +32,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const useConfirmationStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
   table: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  dialogIcon: {
-    color: '#3F648E'
-  },
   dialogWarningIcon: {
-    color: '#e2cf2a'
+    color: '#E2CF2A'
   }
 }))
 
@@ -270,23 +261,13 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  const renderConfirmIcon = (isWarning: boolean): JSX.Element => {
-    if (isWarning) {
-      return (<WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large'/>)
-    } else {
-      return (<CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>)
-    }
-  }
-
-  const renderConfirmText = (isWarning: boolean): JSX.Element => {
-    if (isWarning) {
-      return (<Typography>Some assignment grades may be missing, but you’ve supplied an override grade. Continue?</Typography>)
-    } else {
-      return (<Typography>File validation successful.</Typography>)
-    }
-  }
-
   const renderConfirm = (grades: StudentGrade[], overideGradeMismatchWarning: boolean): JSX.Element => {
+    const warningIcon = <WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large'/>
+    const warningText = (
+      "Some assignment grades may be missing, but you've supplied an override grade. " +
+      'If you wish to continue with the download, click "Submit"'
+    )
+
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
@@ -297,15 +278,14 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
-              <Paper role='status'>
-                {renderConfirmIcon(overideGradeMismatchWarning)}
-                {renderConfirmText(overideGradeMismatchWarning)}
-                <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Link href={downloadData?.data} download={downloadData?.fileName}>
-                  <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
-                </Link>
-              </Paper>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog
+                message={overideGradeMismatchWarning ? warningText : undefined}
+                icon={overideGradeMismatchWarning ? warningIcon : undefined}
+                cancel={resetPageState}
+                submit={() => undefined}
+                download={downloadData}
+              />
             </Grid>
           </Box>
         </Grid>
