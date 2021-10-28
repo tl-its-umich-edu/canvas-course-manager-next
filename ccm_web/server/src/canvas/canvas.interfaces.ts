@@ -80,6 +80,9 @@ export interface CanvasEnrollment {
   course_section_id: number
   user_id: number
   type: UserEnrollmentType
+}
+
+export interface CanvasEnrollmentWithUser {
   user: { login_id: string }
 }
 

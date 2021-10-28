@@ -77,7 +77,6 @@ export interface CanvasEnrollment {
   course_section_id: number
   user_id: number
   type: CanvasRoleType
-  user: { login_id: string }
 }
 
 const clientToCanvasRoleMap: Record<ClientRoleType, CanvasRoleType> = {

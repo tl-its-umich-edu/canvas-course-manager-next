@@ -3,7 +3,9 @@ import CanvasRequestor from '@kth/canvas-api'
 import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
-import { CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, UserEnrollmentType } from '../canvas/canvas.interfaces'
+import {
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType
+} from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
@@ -36,7 +38,7 @@ export class SectionApiHandler {
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${HttpMethod.Get}"`)
-      enrollmentsResult = await this.requestor.list<CanvasEnrollment>(endpoint, queryParams).toArray()
+      enrollmentsResult = await this.requestor.list<CanvasEnrollmentWithUser>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
@@ -78,8 +80,7 @@ export class SectionApiHandler {
         course_id,
         course_section_id,
         user_id,
-        type,
-        user: { login_id: response.body.user.login_id }
+        type
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, `Login ID: ${user.loginId}; Role: ${user.type}`)
