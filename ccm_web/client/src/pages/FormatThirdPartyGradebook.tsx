@@ -222,7 +222,14 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     if (getSectionsError !== undefined || getStudentsError !== undefined) {
       return (
         <ErrorAlert
-          messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+          messages={[
+            <Typography key={0}>
+              An error occurred while loading
+              {getSectionsError !== undefined && ' section '}
+              {getStudentsError !== undefined && ' student '}
+              data from Canvas.
+            </Typography>
+          ]}
           tryAgain={handleResetSelect}
         />
       )
@@ -255,7 +262,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
                 <CircularProgress color='inherit' />
               </Grid>
               <Grid item xs={12}>
-                Loading section data from Canvas
+                Loading
+                {isGetSectionsLoading && ' section '}
+                {isGetStudentsLoading && ' student '}
+                data from Canvas
               </Grid>
             </Grid>
           </Backdrop>
@@ -344,7 +354,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     )
   }
 
-  const renderReview = (processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File): JSX.Element => {
+  const renderReview = (
+    processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
+  ): JSX.Element => {
     const recordsToReview = (processedRecords).map((r, i) => ({ rowNumber: i + 2, ...r }))
     const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV({
       fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
