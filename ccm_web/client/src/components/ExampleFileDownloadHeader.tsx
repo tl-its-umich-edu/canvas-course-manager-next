@@ -23,7 +23,7 @@ function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.
 
   return (
     <div className={classes.uploadHeader}>
-      <Typography variant='h6'component='h2'>Upload your CSV file</Typography>
+      <Typography variant='h6' component='h2'>Upload your CSV file</Typography>
       {description !== undefined && <Typography>{props.description}</Typography>}
       <br/>
       <Typography><strong>Requirement(s):</strong></Typography>
