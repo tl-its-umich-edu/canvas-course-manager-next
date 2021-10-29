@@ -10,6 +10,8 @@ const useStyles = makeStyles((theme) => ({
   },
   dialog: {
     textAlign: 'center',
+    margin: 'auto',
+    marginTop: 30,
     marginBottom: 15
   },
   dialogIcon: {
@@ -32,7 +34,7 @@ interface ConfirmDialogProps {
 
 export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
   const classes = useStyles()
-  const defaultTitle = 'Review Your CSV File'
+  const defaultTitle = 'Review your CSV file'
   const defaultMessage = 'Your file is valid! If this looks correct, click "Submit" to proceed.'
 
   const submitButton = (

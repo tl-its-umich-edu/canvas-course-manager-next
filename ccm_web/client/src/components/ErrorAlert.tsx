@@ -14,21 +14,18 @@ interface ErrorAlertProps {
   // Spacing works out best when you use Material UI Typography components or p tags.
   messages?: JSX.Element[]
   tryAgain?: () => void
+  title?: string
   icon?: JSX.Element
+  embedded?: boolean
 }
 
 export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   const classes = useStyles()
+
+  const { messages, tryAgain, title, icon, embedded } = props
+
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
-  const preface = (
-    <>
-    <Typography gutterBottom>One or more errors occurred.</Typography>
-    <Typography gutterBottom>If possible, fix the issue(s), and/or try again.</Typography>
-    </>
-  )
-
-  const { messages, tryAgain, icon } = props
-
+  const preface = <Typography gutterBottom>If possible, fix the issue(s), and/or try again.</Typography>
   const messageBlock = (messages === undefined || messages.length === 0)
     ? defaultMessage
     : messages.length === 1
@@ -36,7 +33,11 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
       : <ol>{messages.map((m, i) => <li key={i}>{m}</li>)}</ol>
 
   return (
-    <Alert icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}>
+    <Alert
+      title={title !== undefined ? title : 'Some errors occurred'}
+      icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
+      embedded={embedded}
+    >
       {Boolean(messages?.length) && preface}
       {messageBlock}
       {tryAgain !== undefined && <Button color='primary' onClick={props.tryAgain}>Try Again</Button>}

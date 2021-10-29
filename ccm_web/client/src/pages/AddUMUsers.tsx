@@ -386,7 +386,6 @@ designer,userd`
       <RowLevelErrorsContent
         table={<ValidationErrorTable invalidations={errors} />}
         title='Review your CSV file'
-        errorType='error'
         resetUpload={handleUploadReset}
       />
       </>
@@ -417,7 +416,6 @@ designer,userd`
             <RowLevelErrorsContent
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
-              errorType='error'
               resetUpload={handleUploadReset}
             />
             </>

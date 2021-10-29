@@ -227,8 +227,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
         {file !== undefined && <CSVFileName file={file} />}
         <RowLevelErrorsContent
           table={<ValidationErrorTable invalidations={invalidations} />}
-          title='Some errors occurred'
-          errorType='error'
+          title='Review your CSV file'
           message={(
             <Typography>
               There are likely blank cells in the course&apos;s gradebook.
@@ -262,7 +261,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderConfirm = (grades: StudentGrade[], overideGradeMismatchWarning: boolean): JSX.Element => {
-    const warningIcon = <WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large'/>
+    const warningIcon = <WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large' />
     const warningText = (
       "Some assignment grades may be missing, but you've supplied an override grade. " +
       'If you wish to continue with the download, click "Submit"'

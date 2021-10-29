@@ -1,9 +1,12 @@
 import React from 'react'
-import { Grid, makeStyles, Paper } from '@material-ui/core'
+import { Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   padding: {
     padding: theme.spacing(1)
+  },
+  standalone: {
+    margin: 'auto'
   },
   dialog: {
     textAlign: 'center',
@@ -22,18 +25,27 @@ const useStyles = makeStyles((theme) => ({
 
 interface AlertProps {
   children: React.ReactNode
+  title: string
   icon: JSX.Element
+  embedded?: boolean
 }
 
 export default function Alert (props: AlertProps): JSX.Element {
   const classes = useStyles()
-  const { icon, children } = props
+  const { title, icon, embedded, children } = props
+
+  const core = (
+    <Paper className={`${classes.dialog} ${classes.padding}`} role='alert'>
+      <Typography gutterBottom>{title}</Typography>
+      {icon}
+      {children}
+    </Paper>
+  )
+
+  if (embedded === true) return core
   return (
-    <Grid item xs={12} sm={9} md={6} className={`${classes.dialog} ${classes.padding}`}>
-      <Paper className={classes.padding} role='alert'>
-        {icon}
-        {children}
-      </Paper>
+    <Grid item xs={12} sm={9} md={6} className={classes.standalone}>
+      {core}
     </Grid>
   )
 }

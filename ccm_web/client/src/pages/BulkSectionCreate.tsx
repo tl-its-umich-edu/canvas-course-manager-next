@@ -310,7 +310,6 @@ Section 001`
           table={<ValidationErrorTable invalidations={pageState.rowInvalidations} />}
           resetUpload={resetPageState}
           title='Review your CSV file'
-          errorType='error'
         />
         </>
       )
@@ -341,7 +340,6 @@ Section 001`
             <RowLevelErrorsContent
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
-              errorType='error'
               resetUpload={resetPageState}
             />
             </>
