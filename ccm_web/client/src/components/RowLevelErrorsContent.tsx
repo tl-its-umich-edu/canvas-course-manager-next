@@ -18,11 +18,7 @@ interface RowLevelErrorsContentProps {
 
 function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element {
   const classes = useStyles()
-  const defaultMessage = (
-    <Typography>
-      Create a new file with corrected versions of these lines, and try again.
-    </Typography>
-  )
+  const defaultMessage = <Typography>Create a new file with corrected versions of these rows.</Typography>
 
   return (
     <Grid container justify='flex-start'>

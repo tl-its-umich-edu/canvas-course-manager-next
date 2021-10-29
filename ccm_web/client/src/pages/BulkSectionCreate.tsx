@@ -339,6 +339,7 @@ Section 001`
             <RowLevelErrorsContent
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
+              message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
               resetUpload={resetPageState}
             />
             </>
