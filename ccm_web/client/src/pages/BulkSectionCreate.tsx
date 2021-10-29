@@ -245,13 +245,11 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 `SECTION_NAME
 Section 001`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: 'Your file should include one section name per line',
+      body: <Typography>Your file should include one section name per line.</Typography>,
       fileData: fileData,
-      fileName: 'sections.csv',
-      linkText: 'Download an example',
-      titleText: 'Upload your CSV File'
+      fileName: 'sections.csv'
     }
-    return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
+    return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
   }
 
   const renderLoadingText = (): JSX.Element | undefined => {
@@ -283,11 +281,12 @@ Section 001`
   }
 
   const renderUpload = (): JSX.Element => {
-    return <div>
-      {renderUploadHeader()}
-      <br/>
-      {renderFileUpload()}
-    </div>
+    return (
+      <div>
+        {renderUploadHeader()}
+        {renderFileUpload()}
+      </div>
+    )
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {

@@ -7,6 +7,7 @@ import * as api from '../api'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
+import ExampleFileDownloadHeader from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
@@ -282,41 +283,53 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       return renderGradebookInvalidations(gradebookInvalidations)
     }
 
+    const description = (
+      'This tool creates a new version of the uploaded file so it only includes students in the selected sections' +
+      'and is formatted appropriately for uploading to Canvas.'
+    )
     const gradeUploadDocsLink = 'https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades'
+    const requirements = (
+      <ol>
+        <li>
+          <Typography>
+            The file includes a &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; column (the Canvas equivalent of Uniqname)
+            and one other column of scores, with the column&apos;s header being the name of a new assignment.
+            Other columns required by Canvas
+            (see the <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>help docs</Link>)
+            are allowed but not required.
+          </Typography>
+        </li>
+        <li>
+          <Typography>
+            The first non-header row is a &quot;Points Possible&quot; row, meaning that the value in the new
+            assignment column will be the maximum points possible for that assignment
+            and that &quot;Points Possible&quot; is present in another cell in the row
+            (such as the row&apos;s cell for &quot;{REQUIRED_LOGIN_ID_HEADER}&quot;).
+          </Typography>
+        </li>
+        <li>
+          <Typography>
+            Your file must include records for at least one student in the selected section
+            (students are identified using the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; value).
+          </Typography>
+        </li>
+      </ol>
+    )
+    const fileData = (
+      'SIS Login ID,Example Assignment\n' +
+      'Points Possible,100\n' +
+      'studentone,80\n' +
+      'studenttwo,90\n'
+    )
+
     return (
       <div>
-        <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
-        <Typography>
-          This tool creates a new version of the uploaded file so it only includes students in the selected section
-          and is formatted appropriately for uploading to Canvas.
-        </Typography>
-        <br/>
-        <Typography><strong>Requirements</strong></Typography>
-        <ol>
-          <li>
-            <Typography>
-              The file includes a &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; column (the Canvas equivalent of Uniqname)
-              and one other column of scores, with the column&apos;s header being the name of a new assignment.
-              Other columns required by Canvas
-              (see the <Link href={gradeUploadDocsLink} target='_blank' rel='noopener'>help docs</Link>)
-              are allowed but not required.
-            </Typography>
-          </li>
-          <li>
-            <Typography>
-              The first non-header row is a &quot;Points Possible&quot; row, meaning that the value in the new
-              assignment column will be the maximum points possible for that assignment
-              and that &quot;Points Possible&quot; is present in another cell in the row
-              (such as the row&apos;s cell for &quot;{REQUIRED_LOGIN_ID_HEADER}&quot;).
-            </Typography>
-          </li>
-          <li>
-            <Typography>
-              Your file must include records for at least one student in the selected section
-              (students are identified using the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; value).
-            </Typography>
-          </li>
-        </ol>
+        <ExampleFileDownloadHeader
+          description={description}
+          body={requirements}
+          fileName='third_party_gradebook.csv'
+          fileData={fileData}
+        />
         <div className={classes.uploadContainer}>
           <Grid container>
             <Grid item xs={12}>

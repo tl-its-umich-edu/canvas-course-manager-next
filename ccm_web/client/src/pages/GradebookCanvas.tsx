@@ -189,7 +189,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     return <div className={classes.uploadHeader}>
-      <Typography variant='h6'>Upload your CSV File</Typography>
+      <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
       <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
       <br/>
       <Typography><strong>Requirements</strong></Typography>

@@ -305,17 +305,16 @@ ta,userb
 observer,userc
 designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: (
-        `Your file should include a ${USER_ID_TEXT.toLocaleLowerCase()} ` +
-        `and a ${USER_ROLE_TEXT.toLocaleLowerCase()} for each user. ` +
-        MAX_ENROLLMENT_MESSAGE
+      body: (
+        <Typography>
+          Your file should include a {USER_ID_TEXT.toLocaleLowerCase()} and
+          a {USER_ROLE_TEXT.toLocaleLowerCase()} for each user. {MAX_ENROLLMENT_MESSAGE}
+        </Typography>
       ),
-      fileData: fileData,
-      fileName: 'bulk_um_enroll.csv',
-      linkText: 'Download an example',
-      titleText: 'Upload your CSV File'
+      fileData,
+      fileName: 'bulk_um_enroll.csv'
     }
-    return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
+    return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
   }
 
   const uploadComplete = (file: File): void => {
@@ -334,11 +333,10 @@ designer,userd`
 
   const getUploadContent = (): JSX.Element => {
     return (
-    <div>
-      {renderUploadHeader()}
-      <br/>
-      {renderFileUpload()}
-    </div>
+      <div>
+        {renderUploadHeader()}
+        {renderFileUpload()}
+      </div>
     )
   }
 
