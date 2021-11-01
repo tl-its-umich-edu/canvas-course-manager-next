@@ -3,7 +3,7 @@
 # - https://dev.to/chrsgrrtt/dockerising-a-next-js-project-1ck5
 
 # Base stage
-FROM node:14-slim AS base
+FROM node:16-slim AS base
 WORKDIR /base/
 
 COPY package*.json ./
@@ -14,14 +14,14 @@ ARG PORT
 EXPOSE ${PORT}
 
 # Build stage (build client and compile server to JS)
-FROM node:14-slim AS build
+FROM node:16-slim AS build
 WORKDIR /build/
 
 COPY --from=base /base ./
 RUN npm run build
 
 # Prod stage
-FROM node:14-slim AS prod
+FROM node:16-slim AS prod
 ENV NODE_ENV=production
 WORKDIR /app
 
@@ -32,7 +32,7 @@ COPY --from=base \
     /base/ecosystem.config.js \
     ./
 RUN npm install --production
-RUN npm install pm2@5.1.0 -g
+RUN npm install pm2@5.1.2 -g
 COPY --from=build /build/dist/ ./
 
 # Set PM2_HOME so that .pm2 files are written in /tmp/
