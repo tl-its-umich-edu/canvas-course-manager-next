@@ -47,7 +47,7 @@ export default class FileParserWrapper {
     )
   }
 
-  createCSV (data: Array<Record<string, unknown>> | string[][] | Papa.UnparseObject): string {
-    return Papa.unparse(data, this.unparseConfig)
+  createCSV<T extends Record<string, unknown> | string[]> (data: T[] | Papa.UnparseObject<T>): string {
+    return Papa.unparse<T>(data, this.unparseConfig)
   }
 }
