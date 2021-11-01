@@ -107,10 +107,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   useEffect(() => {
-    if (getSectionsError === undefined) {
+    if (sections === undefined) {
       void doGetSections()
     }
-  }, [getSectionsError])
+  }, [sections, getSectionsError])
 
   useEffect(() => {
     if (studentLoginIds !== undefined) {

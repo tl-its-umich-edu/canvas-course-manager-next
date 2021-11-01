@@ -264,7 +264,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     const warningIcon = <WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large' />
     const warningText = (
       "Some assignment grades may be missing, but you've supplied an override grade. " +
-      'If you wish to continue with the download, click "Submit"'
+      'If you wish to continue with the download, click "Submit".'
     )
 
     return (
