@@ -129,5 +129,5 @@ export function validateConfig (): Config {
     logger.error(error)
     throw new Error(error)
   }
-  return { server, lti, canvas, db, baseHelpURL: baseHelpURL }
+  return { server, lti, canvas, db, baseHelpURL }
 }

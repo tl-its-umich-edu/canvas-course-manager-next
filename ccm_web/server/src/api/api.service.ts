@@ -35,7 +35,7 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       },
-      baseHelpURL: this.configService.get('helpURL') as string
+      baseHelpURL: this.configService.get('baseHelpURL') as string
     }
   }
 

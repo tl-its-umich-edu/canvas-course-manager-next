@@ -16,16 +16,16 @@ interface HelpLinkProps {
 
 function Help (props: HelpLinkProps): JSX.Element {
   const classes = useStyles()
-  const { pathName, baseHelpURL: helpURL } = props
+  const { pathName, baseHelpURL } = props
   const features = allFeatures.map(f => f.features).flat()
-  let helppath = helpURL
+  let featurePathURL = baseHelpURL
   for (const f of features) {
     if (f.route.slice(1, f.route.length) === pathName) {
-      helppath = helpURL + f.helpURL
+      featurePathURL = baseHelpURL + f.helpURL
     }
   }
   return (
-    <Typography className={classes.helpText} ><Link href={helppath} target='_blank' rel="noopener">Need Help?</Link></Typography>
+    <Typography className={classes.helpText} ><Link href={featurePathURL} target='_blank' rel="noopener">Need Help?</Link></Typography>
   )
 }
 
