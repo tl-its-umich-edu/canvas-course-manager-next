@@ -13,6 +13,7 @@ interface HelpLinkProps {
   pathName: string
   helpURL: string
 }
+
 function Help (props: HelpLinkProps): JSX.Element {
   const classes = useStyles()
   const { pathName, helpURL } = props
