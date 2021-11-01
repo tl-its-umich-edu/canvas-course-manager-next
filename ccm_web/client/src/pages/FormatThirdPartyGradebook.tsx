@@ -294,7 +294,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     }
 
     const description = (
-      'This tool creates a new version of the uploaded file so it only includes students in the selected sections' +
+      'This tool creates a new version of the uploaded file so it only includes students in the selected sections ' +
       'and is formatted appropriately for uploading to Canvas.'
     )
     const gradeUploadDocsLink = 'https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades'
