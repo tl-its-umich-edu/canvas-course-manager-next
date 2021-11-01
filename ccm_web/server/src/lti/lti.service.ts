@@ -74,7 +74,10 @@ export class LTIService implements BeforeApplicationShutdown {
           loginId: loginId
         }, res)
       } catch (e) {
-        logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
+        const logMessageEnding = e instanceof Error
+          ? `error ${String(e.name)} due to ${String(e.message)}`
+          : String(e)
+        logger.error(`Something went wrong while creating user with loginId ${loginId}: ${logMessageEnding}`)
         return createLaunchErrorResponse(res)
       }
       // More data will be added to the session here later

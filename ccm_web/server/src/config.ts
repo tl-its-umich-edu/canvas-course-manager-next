@@ -127,7 +127,7 @@ export function validateConfig (): Config {
     baseHelpURL = validate<string>('HELP_URL', env.HELP_URL, isString, [isNotEmpty], 'http://localhost:4020')
   } catch (error) {
     logger.error(error)
-    throw new Error(error)
+    throw new Error(String(error))
   }
   return { server, lti, canvas, db, baseHelpURL }
 }
