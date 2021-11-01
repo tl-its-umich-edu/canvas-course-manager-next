@@ -215,16 +215,27 @@ Developers have to write `up` and `down` migration steps manually.
 5. For more information, see "[Node.js debugging in VS Code](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)" on the official documentation website.
 
 ### CCM Documentation
-1. Github pages is used for the hosting the CCM feature documentation and files are placed and served from `docs` folder
-2. In Order to test the documentation changes locally, follow the steps as below
+GitHub Pages is used for hosting the CCM feature documentation, and files are placed and served from the `docs` folder.
+
+#### Testing locally
+
+In order to test documentation changes locally, follow the steps below:
     1. `cd docs` folder
-    2. `docker compose -f docker-compose-gh-page.yml`
-    3. launch `http://locahost:4020`. recent changes to files will be automatically deployed and browser refresh with cache clear is needed to see changes.
-    4. Github follows Jeklly structure for deploying more [info](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
-3. To see the change on the github pages site go the `CCM repo -> settings -> pages -> choose the branch to deploy from and docs folder` -> save
-    1. The deployment take about few seconds and total 10 builds are allowed in hour. 
-    2. Goto https://your_github_account_name.github.io/canvas-course-manager-next to you changes from branch you selected and always select `docs` folder
-    3. More [info](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll) about this process
+    2. `docker compose -f docker-compose-gh-page.yml up`
+    3. Navigate to `http://locahost:4020` in your browser. Recent changes to files will be automatically deployed; the changes will be displayed after a browser refresh.
+    
+GitHub follows Jekyll structure for deploying. See [here](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll) for more info.
+
+#### Deploying to GitHub Pages
+
+To deploy the latest changes to the GitHub Pages site, follow the steps below:
+    1. Go to the CCM repository, then click "Settings" and then "Pages".
+    2. Choose the branch to deploy from, and then specify the `docs` folder.
+    3. Click "Save", which will begin a deployment. (It will take a few seconds, and only 10 builds are allowed per hour).
+    4. Once the site has been published, navigate to `https://{your_account}.github.io/canvas-course-manager-next`, replacing `{your_account}` with your GitHub user or organization name, to view the content.
+
+See [here](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll) for more info about this process.
+
 #### Running unit tests
 
 The backend application includes some unit and end-to-end tests built using Nest tooling
