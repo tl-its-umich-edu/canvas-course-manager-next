@@ -161,14 +161,16 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }, [records])
 
   const handleResetSelect = (): void => {
+    setSections(undefined)
     clearGetSectionsError()
     setSelectedSections(undefined)
+    setStudentLoginIds(undefined)
     clearGetStudentsError()
   }
 
   const handleResetUpload = (): void => {
     setFile(undefined)
-    clearGetStudentsError()
+    setRecords(undefined)
     setSchemaInvalidations(undefined)
     setProcessedRecords(undefined)
     setGradebookInvalidations(undefined)
@@ -278,7 +280,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             aria-label='Select section'
             onClick={handleSelectClick}
           >
-            Select {selectedSections !== undefined ? `(${selectedSections.length})` : ''}
+            Select{selectedSections !== undefined ? ` (${selectedSections.length})` : ''}
           </Button>
         </Grid>
       </div>
@@ -365,7 +367,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
     return (
       <div className={classes.reviewContainer}>
-        {file !== undefined && <CSVFileName file={file} />}
+        <CSVFileName file={file} />
         <Grid container>
           <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>
             <Grid item xs={12} sm={12} md={9} className={classes.table}>
