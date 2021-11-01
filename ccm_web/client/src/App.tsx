@@ -86,17 +86,17 @@ function App (): JSX.Element {
       <SnackbarProvider maxSnack={3}>
         <Router>
           <div>
-              <Route>
-                {({ location }) => {
-                  const pathnames = location.pathname.split('/').filter(x => x)
-                  return (
-                      <div className={classes.breadcrumbsHelpContainer}>
-                        <Breadcrumbs {...{ features, pathnames }} />
-                        <Help pathName={pathnames === undefined ? '/' : pathnames[0]} helpURL={globals.helpURL} />
-                      </div>
-                  )
-                }}
-              </Route>
+            <Route>
+              {({ location }) => {
+                const pathnames = location.pathname.split('/').filter(x => x)
+                return (
+                  <div className={classes.breadcrumbsHelpContainer}>
+                    <Breadcrumbs {...{ features, pathnames }} />
+                    <Help pathName={pathnames === undefined ? '/' : pathnames[0]} helpURL={globals.helpURL} />
+                  </div>
+                )
+              }}
+            </Route>
           </div>
           <Switch>
             <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
