@@ -65,7 +65,7 @@ function App (): JSX.Element {
       <div className='App'>
         <div className={classes.breadcrumbsHelpContainer}>
           <Breadcrumbs />
-          <Help pathName='/' helpURL={globals.helpURL} />
+          <Help pathName='/' baseHelpURL={globals.baseHelpURL} />
         </div>
         <AuthorizePrompt />
       </div>
@@ -92,7 +92,7 @@ function App (): JSX.Element {
                 return (
                   <div className={classes.breadcrumbsHelpContainer}>
                     <Breadcrumbs {...{ features, pathnames }} />
-                    <Help pathName={pathnames === undefined ? '/' : pathnames[0]} helpURL={globals.helpURL} />
+                    <Help pathName={pathnames === undefined ? '/' : pathnames[0]} baseHelpURL={globals.baseHelpURL} />
                   </div>
                 )
               }}

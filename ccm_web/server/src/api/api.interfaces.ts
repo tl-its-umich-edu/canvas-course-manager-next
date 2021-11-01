@@ -12,7 +12,7 @@ export interface Globals {
     id: number
     roles: string[]
   }
-  helpURL: string
+  baseHelpURL: string
 }
 export interface APIErrorPayload {
   canvasStatusCode: number

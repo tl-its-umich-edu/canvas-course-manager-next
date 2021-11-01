@@ -11,12 +11,12 @@ const useStyles = makeStyles((theme) => ({
 
 interface HelpLinkProps {
   pathName: string
-  helpURL: string
+  baseHelpURL: string
 }
 
 function Help (props: HelpLinkProps): JSX.Element {
   const classes = useStyles()
-  const { pathName, helpURL } = props
+  const { pathName, baseHelpURL: helpURL } = props
   const features = allFeatures.map(f => f.features).flat()
   let helppath = helpURL
   for (const f of features) {

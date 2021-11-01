@@ -234,7 +234,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
-    const helpPath = props.globals.helpURL
+    const helpPath = props.globals.baseHelpURL
     const features: FeatureUIProps[] = allFeatures.map((f: FeatureUIGroup) => f.features).flat()
     const gradebookHelpURL = features.filter(feature => feature.route === location.pathname)[0].helpURL
     return (
