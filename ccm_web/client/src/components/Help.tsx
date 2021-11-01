@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '20px'
   }
 }))
+
 interface HelpLinkProps {
   pathName: string
   helpURL: string
