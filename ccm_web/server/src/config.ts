@@ -93,7 +93,7 @@ export function validateConfig (): Config {
   let lti
   let canvas
   let db
-  let helpURL
+  let baseHelpURL
 
   try {
     server = {
@@ -124,10 +124,10 @@ export function validateConfig (): Config {
       user: validate<string>('DB_USER', env.DB_USER, isString, [isNotEmpty]),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString, [isNotEmpty])
     }
-    helpURL = validate<string>('HELP_URL', env.HELP_URL, isString, [isNotEmpty], 'http://localhost:4020')
+    baseHelpURL = validate<string>('HELP_URL', env.HELP_URL, isString, [isNotEmpty], 'http://localhost:4020')
   } catch (error) {
     logger.error(error)
     throw new Error(error)
   }
-  return { server, lti, canvas, db, helpURL }
+  return { server, lti, canvas, db, helpURL: baseHelpURL }
 }
