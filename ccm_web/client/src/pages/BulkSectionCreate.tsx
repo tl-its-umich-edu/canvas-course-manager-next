@@ -15,6 +15,7 @@ import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable from '../components/ValidationErrorTable'
@@ -445,6 +446,7 @@ Section 001`
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{createSectionsProps.title}</Typography>
       {renderComponent()}
     </div>

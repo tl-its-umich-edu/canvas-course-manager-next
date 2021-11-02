@@ -13,6 +13,7 @@ import CreateSectionWidget from '../components/CreateSectionWidget'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
@@ -495,6 +496,7 @@ designer,userd`
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{addUMUsersProps.title}</Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
