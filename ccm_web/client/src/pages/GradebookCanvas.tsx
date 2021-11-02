@@ -11,7 +11,7 @@ import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 import { canvasGradebookFormatterProps } from '../models/feature'
-import allFeatures, { CCMComponentProps, FeatureUIGroup, FeatureUIProps } from '../models/FeatureUIData'
+import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
@@ -235,8 +235,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
     const helpPath = props.globals.baseHelpURL
-    const features: FeatureUIProps[] = allFeatures.map((f: FeatureUIGroup) => f.features).flat()
-    const gradebookHelpURL = features.filter(feature => feature.route === location.pathname)[0].helpURL
+    const gradebookHelpURL = props.helpURLEnding
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}

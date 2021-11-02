@@ -2,17 +2,17 @@
 <html>
 
 <head>
- <title>{{ page.title }}</title>
- <!-- link to main stylesheet -->
- <link rel="stylesheet" type="text/css" href={{ "/assets/css/main.css" | relative_url }}>
+  <title>{{ page.title }}</title>
+  <!-- link to main stylesheet -->
+  <link rel="stylesheet" type="text/css" href={{ "/assets/css/main.css" | relative_url }}>
 </head>
 
 <body>
- <div id="page-container">
-  {% include nav.html %}
-  {{ content }}
-  {% include footer.html %}
- </div>
+  <div id="page-container">
+    {% include nav.html %}
+    {{ content }}
+    {% include footer.html %}
+  </div>
 </body>
 
 </html>

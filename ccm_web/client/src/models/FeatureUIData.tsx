@@ -17,6 +17,7 @@ import { CanvasCourseBase } from './canvas'
 export interface CCMComponentProps {
   globals: Globals
   course: CanvasCourseBase
+  helpURLEnding: string
 }
 
 interface FeatureUIGroup {
@@ -31,55 +32,48 @@ interface FeatureUIProps {
   icon: JSX.Element
   component: ComponentType<CCMComponentProps>
   route: string
-  helpURL: string
 }
 
 const mergeSectionCardProps: FeatureUIProps = {
   data: mergeSectionProps,
   icon: <MergeTypeIcon fontSize='large' />,
   component: MergeSections,
-  route: '/merge-sections',
-  helpURL: '/merge-sections.html'
+  route: '/merge-sections'
 }
 
 const canvasGradebookFormatterCardProps: FeatureUIProps = {
   data: canvasGradebookFormatterProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
   component: ConvertCanvasGradebook,
-  route: '/gradebook-canvas',
-  helpURL: '/gradebook-canvas.html'
+  route: '/gradebook-canvas'
 }
 
 const ExternalToolsGradebookFormatterCardProps: FeatureUIProps = {
   data: ExternalToolsGradebookFormatterProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
   component: MergeSections,
-  route: '/gradebook-thirdparty',
-  helpURL: '/gradebook-thirdparty.html'
+  route: '/gradebook-thirdparty'
 }
 
 const createSectionsCardProps: FeatureUIProps = {
   data: createSectionsProps,
   icon: <AccountCircleOutlinedIcon fontSize='large' />,
   component: BulkSectionCreate,
-  route: '/create-sections',
-  helpURL: '/create-sections.html'
+  route: '/create-sections'
 }
 
 const addUMUsersCardProps: FeatureUIProps = {
   data: addUMUsersProps,
   icon: <PersonAddIcon fontSize='large' />,
   component: AddUMUsers,
-  route: '/add-um-users',
-  helpURL: '/add-um-users.html'
+  route: '/add-um-users'
 }
 
 const addNonUMUsersCardProps: FeatureUIProps = {
   data: addNonUMUsersProps,
   icon: <PersonAddOutlinedIcon fontSize='large' />,
   component: MergeSections,
-  route: '/add-non-um-users',
-  helpURL: '/add-non-um-users.html'
+  route: '/add-non-um-users'
 }
 
 const allFeatures: FeatureUIGroup[] = [

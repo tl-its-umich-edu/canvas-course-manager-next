@@ -65,7 +65,7 @@ function App (): JSX.Element {
       <div className='App'>
         <div className={classes.breadcrumbsHelpContainer}>
           <Breadcrumbs />
-          <Help pathName='/' baseHelpURL={globals.baseHelpURL} />
+          <Help pathnames={[]} features={features} baseHelpURL={globals.baseHelpURL} />
         </div>
         <AuthorizePrompt />
       </div>
@@ -92,7 +92,7 @@ function App (): JSX.Element {
                 return (
                   <div className={classes.breadcrumbsHelpContainer}>
                     <Breadcrumbs {...{ features, pathnames }} />
-                    <Help pathName={pathnames === undefined ? '/' : pathnames[0]} baseHelpURL={globals.baseHelpURL} />
+                    <Help {...{ features, pathnames }} baseHelpURL={globals.baseHelpURL} />
                   </div>
                 )
               }}
@@ -101,7 +101,7 @@ function App (): JSX.Element {
           <Switch>
             <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} />}/>
+              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} helpURLEnding={feature.data.helpURLEnding} />}/>
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
