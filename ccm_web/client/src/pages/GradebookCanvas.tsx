@@ -114,7 +114,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   // Would be nice to rework this so we know file is defined
   const getOutputFilename = (file: File | undefined): string => {
     if (file === undefined) return ''
-    return createOutputFileName(file, '-geff')
+    return createOutputFileName(file.name, '-geff')
   }
 
   const getGradeForExport = (record: GradebookRecord): string => {

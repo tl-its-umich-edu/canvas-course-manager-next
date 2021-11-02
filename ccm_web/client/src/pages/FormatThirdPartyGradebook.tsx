@@ -388,7 +388,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
                   setActiveStep(FormatGradebookStep.Upload)
                 }}
                 download={{
-                  fileName: createOutputFileName(file, '-puff'),
+                  fileName: createOutputFileName(file.name, '-puff'),
                   data: dataToDownload
                 }}
               />
