@@ -28,8 +28,7 @@ export class AuthService {
 
   async loginLTI (userData: UserToUpsert, res: Response): Promise<void> {
     const user = await this.userService.upsertUser(userData)
-    // Using bigint type assertion for now, but later it may not be necessary
-    const payload = { username: user.loginId, sub: user.id as bigint }
+    const payload = { username: user.loginId, sub: user.id }
     const jwtToken = this.jwtService.sign(payload)
     this.setJWTCookie(res, jwtToken)
   }

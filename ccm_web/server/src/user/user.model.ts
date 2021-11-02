@@ -5,7 +5,7 @@ import { CanvasToken } from '../canvas/canvas.model'
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
 interface UserAttributes {
-  id?: bigint
+  id: bigint
   loginId: string
   firstName: string
   lastName: string
@@ -23,6 +23,13 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
   freezeTableName: true
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
+  @Column({
+    primaryKey: true,
+    autoIncrement: true,
+    type: DataTypes.BIGINT
+  })
+  id!: bigint
+
   @Column({
     type: DataTypes.STRING
   })
