@@ -55,6 +55,9 @@ const useStyles = makeStyles((theme) => ({
   reviewContainer: {
     textAlign: 'center'
   },
+  reviewNotes: {
+    textAlign: 'left'
+  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
@@ -371,17 +374,19 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <Grid container>
           <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>
             <Grid item xs={12} sm={12} md={9} className={classes.table}>
+              <Typography gutterBottom className={classes.reviewNotes}>
+                Notes: The first row shown below is the &quot;{POINTS_POS_TEXT}&quot; row.
+                In addition to the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; and assignment columns,
+                the downloaded file will include other columns in a specific order
+                to make it compatible with the Canvas upload process.
+              </Typography>
               <ThirdPartyGradebookConfirmationTable records={recordsToReview} assignmentHeader={assignmentHeader} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 1, md: 2, lg: 2 }}>
             <Grid item xs={12} sm={12} md={3}>
               <ConfirmDialog
-                message={(
-                  'Your file is valid! If this looks correct, click "Submit" to proceed with downloading. ' +
-                  'Note that the downloaded file will order the columns ' +
-                  'and add empty ones to satisfy Canvas requirements.'
-                )}
+                message='Your file is valid! If this looks correct, click "Submit" to proceed with downloading.'
                 submit={() => setActiveStep(FormatGradebookStep.Confirmation)}
                 cancel={() => {
                   handleResetUpload()
