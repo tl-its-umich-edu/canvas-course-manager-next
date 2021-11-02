@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
+
 import CustomTable from './CustomTable'
+import { REQUIRED_LOGIN_ID_HEADER } from '../utils/ThirdPartyGradebookProcessor'
 
 interface NumberedSlimGradebookRecord extends Record<string, string | number | undefined> {
   rowNumber: number
@@ -21,7 +23,7 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 function ThirdPartyGradebookConfirmationTable (props: ThirdPartyGradebookConfirmationTableProps): JSX.Element {
   const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
     { id: 'rowNumber', label: 'New Row Number', minWidth: 25 },
-    { id: 'SIS Login ID', label: 'SIS Login ID', minWidth: 100 },
+    { id: REQUIRED_LOGIN_ID_HEADER, label: REQUIRED_LOGIN_ID_HEADER, minWidth: 100 },
     { id: props.assignmentHeader, label: props.assignmentHeader, minWidth: 100 }
   ]
 

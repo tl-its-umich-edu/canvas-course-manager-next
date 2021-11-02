@@ -19,10 +19,10 @@ import { InvalidationType } from '../models/models'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import GradebookProcessor, {
-  GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, REQUIRED_LOGIN_ID_HEADER,
-  REQUIRED_ORDERED_HEADERS
-} from '../utils/GradebookProcessor'
+import ThirdPartyGradebookProcessor, {
+  GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, POINTS_POS_TEXT,
+  REQUIRED_LOGIN_ID_HEADER, REQUIRED_ORDERED_HEADERS
+} from '../utils/ThirdPartyGradebookProcessor'
 import { createOutputFileName } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
@@ -147,7 +147,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   useEffect(() => {
     if (studentLoginIds !== undefined && records !== undefined) {
-      const processor = new GradebookProcessor(studentLoginIds)
+      const processor = new ThirdPartyGradebookProcessor(studentLoginIds)
       const result = processor.process(records)
       if (result.valid) {
         setProcessedRecords(result.processedRecords)
@@ -313,9 +313,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         </li>
         <li>
           <Typography>
-            The first non-header row is a &quot;Points Possible&quot; row, meaning that the value in the new
+            The first non-header row is a &quot;{POINTS_POS_TEXT}&quot; row, meaning that the value in the new
             assignment column will be the maximum points possible for that assignment
-            and that &quot;Points Possible&quot; is present in another cell in the row
+            and that &quot;{POINTS_POS_TEXT}&quot; is present in another cell in the row
             (such as the row&apos;s cell for &quot;{REQUIRED_LOGIN_ID_HEADER}&quot;).
           </Typography>
         </li>
@@ -328,8 +328,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       </ol>
     )
     const fileData = (
-      'SIS Login ID,Example Assignment\n' +
-      'Points Possible,100\n' +
+      `${REQUIRED_LOGIN_ID_HEADER},Example Assignment\n` +
+      `${POINTS_POS_TEXT},100\n` +
       'studentone,80\n' +
       'studenttwo,90\n'
     )

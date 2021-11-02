@@ -10,9 +10,10 @@ const OTHER_REQUIRED_HEADERS = ['Student Name', 'Student ID', 'SIS User ID', 'Se
 export const REQUIRED_ORDERED_HEADERS = [
   ...OTHER_REQUIRED_HEADERS.slice(0, 3), REQUIRED_LOGIN_ID_HEADER, OTHER_REQUIRED_HEADERS[3]
 ]
+export const POINTS_POS_TEXT = 'Points Possible'
 
 export const isGradebookUploadRecord = (record: CSVRecord): record is GradebookUploadRecord => {
-  return typeof record['SIS Login ID'] === 'string'
+  return typeof record[REQUIRED_LOGIN_ID_HEADER] === 'string'
 }
 
 export interface GradebookInvalidation {
@@ -34,7 +35,7 @@ interface ProcessResultFailure {
 
 export type ProcessResult = ProcessResultSuccess | ProcessResultFailure
 
-export default class GradebookProcessor {
+export default class ThirdPartyGradebookProcessor {
   studentLoginIds: string[]
 
   constructor (studentLoginIds: string[]) {
@@ -42,9 +43,9 @@ export default class GradebookProcessor {
   }
 
   static detectPointsPossible (firstRecord: GradebookUploadRecord): GradebookInvalidation | undefined {
-    if (!Object.values(firstRecord).includes('Points Possible')) {
+    if (!Object.values(firstRecord).includes(POINTS_POS_TEXT)) {
       return {
-        message: 'The file you uploaded is missing a Points Possible row.',
+        message: `The file you uploaded is missing a ${POINTS_POS_TEXT} row.`,
         type: InvalidationType.Error
       }
     }
@@ -75,7 +76,7 @@ export default class GradebookProcessor {
   static addRequiredCanvasHeaders (records: GradebookUploadRecord[]): GradebookUploadRecord[] {
     let updatedRecords = records
     for (const header of OTHER_REQUIRED_HEADERS) {
-      updatedRecords = GradebookProcessor.addEmptyPropertyToData(updatedRecords, header)
+      updatedRecords = ThirdPartyGradebookProcessor.addEmptyPropertyToData(updatedRecords, header)
     }
     return updatedRecords
   }
@@ -85,10 +86,10 @@ export default class GradebookProcessor {
     const studentsWithoutRecords: string[] = []
     const invalidations: GradebookInvalidation[] = []
 
-    const pointsPossibleResult = GradebookProcessor.detectPointsPossible(uploadRecords[0])
+    const pointsPossibleResult = ThirdPartyGradebookProcessor.detectPointsPossible(uploadRecords[0])
     if (pointsPossibleResult !== undefined) invalidations.push(pointsPossibleResult)
 
-    const [assignmentHeader, assignmentInvalidation] = GradebookProcessor.detectAssignment(uploadRecords[1])
+    const [assignmentHeader, assignmentInvalidation] = ThirdPartyGradebookProcessor.detectAssignment(uploadRecords[1])
     if (assignmentInvalidation !== undefined) invalidations.push(assignmentInvalidation)
     // Is there a better way to do this that doesn't require the assignmentHeader assertion?
     if (invalidations.length > 0 || assignmentHeader === undefined) return { valid: false, invalidations }
@@ -97,12 +98,12 @@ export default class GradebookProcessor {
     const recordToFilter = uploadRecords.slice(1)
 
     for (const loginId of this.studentLoginIds) {
-      const filterResult = recordToFilter.filter(r => r['SIS Login ID'] === loginId)
+      const filterResult = recordToFilter.filter(r => r[REQUIRED_LOGIN_ID_HEADER] === loginId)
       if (filterResult.length === 1) {
         filteredRecords.push(filterResult[0])
       } else if (filterResult.length > 1) {
         invalidations.push({
-          message: `Student with SIS Login ID ${loginId} found multiple times in file.`,
+          message: `Student with ${REQUIRED_LOGIN_ID_HEADER} ${loginId} found multiple times in file.`,
           type: InvalidationType.Error
         })
       } else {
@@ -131,10 +132,10 @@ export default class GradebookProcessor {
       return { valid: false, invalidations }
     }
 
-    const newRecords = GradebookProcessor.addRequiredCanvasHeaders([pointsPossibleRecord].concat(filteredRecords))
+    const newRecords = ThirdPartyGradebookProcessor.addRequiredCanvasHeaders([pointsPossibleRecord].concat(filteredRecords))
     // Move Points Possible
     newRecords[0][REQUIRED_LOGIN_ID_HEADER] = ''
-    newRecords[0][REQUIRED_ORDERED_HEADERS[0]] = 'Points Possible'
+    newRecords[0][REQUIRED_ORDERED_HEADERS[0]] = POINTS_POS_TEXT
 
     return { valid: true, processedRecords: newRecords, invalidations, assignmentHeader }
   }
