@@ -24,6 +24,13 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
   @Column({
+    primaryKey: true,
+    autoIncrement: true,
+    type: DataTypes.BIGINT
+  })
+  id!: bigint
+
+  @Column({
     type: DataTypes.STRING
   })
   firstName!: string

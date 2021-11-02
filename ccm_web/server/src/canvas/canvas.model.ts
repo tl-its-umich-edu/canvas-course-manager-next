@@ -19,6 +19,13 @@ interface CanvasTokenCreationAttributes extends Optional<CanvasTokenAttributes, 
   timestamps: false
 })
 export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreationAttributes> {
+  @Column({
+    primaryKey: true,
+    autoIncrement: true,
+    type: DataTypes.BIGINT
+  })
+  id!: bigint
+
   @ForeignKey(() => User)
   @Column({
     type: DataTypes.BIGINT
