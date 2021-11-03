@@ -21,7 +21,6 @@ import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
-import { addUMUsersProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import { CanvasError } from '../utils/handleErrors'
@@ -475,7 +474,7 @@ designer,userd`
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{addUMUsersProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{props.title}</Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
       </Stepper>

@@ -11,7 +11,6 @@ import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
-import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
@@ -325,7 +324,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{canvasGradebookFormatterProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
     </div>
   )

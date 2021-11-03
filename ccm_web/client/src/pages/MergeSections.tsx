@@ -5,7 +5,6 @@ import { Button, Grid, LinearProgress, makeStyles, Typography } from '@material-
 import { useSnackbar } from 'notistack'
 
 import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { mergeSectionProps } from '../models/feature'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { mergeSections } from '../api'
@@ -230,7 +229,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{mergeSectionProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
     </div>
   )

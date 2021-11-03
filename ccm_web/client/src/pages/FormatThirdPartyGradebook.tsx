@@ -439,7 +439,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>Convert a Third-Party Gradebook</Typography>
+      <Typography variant='h5' component='h1'>{props.title}</Typography>
       <Stepper className={classes.stepper} activeStep={activeStep} alternativeLabel>
         {
           Object.entries(FormatGradebookStep)
