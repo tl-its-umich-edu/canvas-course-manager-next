@@ -78,7 +78,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const classes = useStyles()
 
   const csvParser = new FileParserWrapper(
-    Object.assign(FileParserWrapper.defaultParseConfigOptions, { transformHeader: undefined })
+    Object.assign({ ...FileParserWrapper.defaultParseConfigOptions }, { transformHeader: undefined })
   )
 
   const [activeStep, setActiveStep] = useState<FormatGradebookStep>(FormatGradebookStep.Select)

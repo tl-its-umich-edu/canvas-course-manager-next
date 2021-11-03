@@ -19,16 +19,16 @@ export default class FileParserWrapper {
   parseConfig?: Papa.ParseConfig
   unparseConfig?: Papa.UnparseConfig
 
-  static defaultParseConfigOptions: Papa.ParseConfig = {
+  static readonly defaultParseConfigOptions: Papa.ParseConfig = Object.freeze({
     header: true,
     transform: value => value.trim(),
     transformHeader: header => header.toUpperCase()
-  }
+  })
 
   constructor (parseConfig?: Papa.ParseConfig, unparseConfig?: Papa.UnparseConfig) {
     this.parseConfig = parseConfig !== undefined
       ? parseConfig
-      : FileParserWrapper.defaultParseConfigOptions
+      : { ...FileParserWrapper.defaultParseConfigOptions }
     this.unparseConfig = unparseConfig !== undefined ? unparseConfig : undefined
   }
 
