@@ -82,3 +82,10 @@ export enum InvalidationType {
   Error,
   Warning
 }
+
+// Files
+
+export interface DownloadData {
+  data: string
+  fileName: string
+}

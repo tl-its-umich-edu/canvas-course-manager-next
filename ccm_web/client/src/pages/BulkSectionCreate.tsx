@@ -1,8 +1,5 @@
-import {
-  Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography
-} from '@material-ui/core'
-import { CloudDone as CloudDoneIcon } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
+import { Backdrop, Box, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
@@ -12,6 +9,7 @@ import {
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
+import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
@@ -56,22 +54,10 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(1)
-  }
-}))
-
-const useConfirmationStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
   },
   table: {
     paddingLeft: 10,
     paddingRight: 10
-  },
-  dialogIcon: {
-    color: '#3F648E'
   }
 }))
 
@@ -101,7 +87,6 @@ interface BulkSectionCreatePageStateData {
 
 function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   const classes = useStyles()
-  const confirmationClasses = useConfirmationStyles()
 
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>(
     { state: BulkSectionCreatePageState.UploadPending, schemaInvalidations: [], rowInvalidations: [] }
@@ -260,13 +245,11 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 `SECTION_NAME
 Section 001`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      bodyText: 'Your file should include one section name per line',
+      body: <Typography>Your file should include one section name per line.</Typography>,
       fileData: fileData,
-      fileName: 'sections.csv',
-      linkText: 'Download an example',
-      titleText: 'Upload your CSV File'
+      fileName: 'sections.csv'
     }
-    return (<ExampleFileDownloadHeader {...fileDownloadHeaderProps} />)
+    return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
   }
 
   const renderLoadingText = (): JSX.Element | undefined => {
@@ -298,11 +281,12 @@ Section 001`
   }
 
   const renderUpload = (): JSX.Element => {
-    return <div>
-      {renderUploadHeader()}
-      <br/>
-      {renderFileUpload()}
-    </div>
+    return (
+      <div>
+        {renderUploadHeader()}
+        {renderFileUpload()}
+      </div>
+    )
   }
 
   const renderTopLevelErrors = (errors: JSX.Element[]): JSX.Element => {
@@ -325,7 +309,6 @@ Section 001`
           table={<ValidationErrorTable invalidations={pageState.rowInvalidations} />}
           resetUpload={resetPageState}
           title='Review your CSV file'
-          errorType='error'
         />
         </>
       )
@@ -356,7 +339,7 @@ Section 001`
             <RowLevelErrorsContent
               table={<CanvasAPIErrorsTable errors={error.errors} />}
               title='Some errors occurred'
-              errorType='error'
+              message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
               resetUpload={resetPageState}
             />
             </>
@@ -371,19 +354,13 @@ Section 001`
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={confirmationClasses.table}>
+            <Grid item xs={12} sm={9} className={classes.table}>
               <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
-              <Paper role='status'>
-                <Typography>Review your CSV file</Typography>
-                <CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>
-                <Typography>Your file is valid!  If this looks correct, click &quot;Submit&quot; to proceed.</Typography>
-                <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Button variant="outlined" disabled={isSubmitting()} onClick={submit}>Submit</Button>
-              </Paper>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
             </Grid>
           </Box>
         </Grid>

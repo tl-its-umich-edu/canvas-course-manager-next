@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
 
 interface SuccessCardProps {
   message: JSX.Element
-  nextAction: JSX.Element
+  nextAction?: JSX.Element
 }
 
 export default function SuccessCard (props: SuccessCardProps): JSX.Element {
@@ -34,7 +34,10 @@ export default function SuccessCard (props: SuccessCardProps): JSX.Element {
         <CheckCircle className={classes.icon} fontSize='large'/>
         {props.message}
       </CardContent>
-      <CardActions className={classes.cardFooter}>{props.nextAction}</CardActions>
+      {
+        props.nextAction !== undefined &&
+          <CardActions className={classes.cardFooter}>{props.nextAction}</CardActions>
+      }
     </Card>
   )
 }

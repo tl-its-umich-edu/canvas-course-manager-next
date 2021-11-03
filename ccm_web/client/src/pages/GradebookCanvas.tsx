@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
-import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import { Box, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
+import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
@@ -13,9 +13,10 @@ import GradebookUploadConfirmationTable, { StudentGrade } from '../components/Gr
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
 import { canvasGradebookFormatterProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
+import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { createOutputFileName } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,21 +32,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const useConfirmationStyles = makeStyles((theme) => ({
-  dialog: {
-    textAlign: 'center',
-    marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10
-  },
   table: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  dialogIcon: {
-    color: '#3F648E'
-  },
   dialogWarningIcon: {
-    color: '#e2cf2a'
+    color: '#E2CF2A'
   }
 }))
 
@@ -78,11 +70,6 @@ enum GradebookCanvasPageState {
   InvalidUpload,
   Confirm,
   Done
-}
-
-interface DownloadData {
-  data: string
-  fileName: string
 }
 
 const convertEmptyCellToUndefined = (cell: string | undefined): string | undefined => {
@@ -124,12 +111,10 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     setPageState({ state: GradebookCanvasPageState.Upload })
   }
 
+  // Would be nice to rework this so we know file is defined
   const getOutputFilename = (file: File | undefined): string => {
     if (file === undefined) return ''
-    const splitName = file.name.split('.')
-    const filenameIndex = splitName.length >= 2 ? splitName.length - 2 : 0
-    splitName[filenameIndex] = splitName[filenameIndex] + '-geff'
-    return splitName.join('.')
+    return createOutputFileName(file.name, '-geff')
   }
 
   const getGradeForExport = (record: GradebookRecord): string => {
@@ -204,7 +189,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     return <div className={classes.uploadHeader}>
-      <Typography variant='h6'>Upload your CSV File</Typography>
+      <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
       <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
       <br/>
       <Typography><strong>Requirements</strong></Typography>
@@ -242,8 +227,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
         {file !== undefined && <CSVFileName file={file} />}
         <RowLevelErrorsContent
           table={<ValidationErrorTable invalidations={invalidations} />}
-          title='Some errors occurred'
-          errorType='error'
+          title='Review your CSV file'
           message={(
             <Typography>
               There are likely blank cells in the course&apos;s gradebook.
@@ -276,23 +260,13 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  const renderConfirmIcon = (isWarning: boolean): JSX.Element => {
-    if (isWarning) {
-      return (<WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large'/>)
-    } else {
-      return (<CloudDoneIcon className={confirmationClasses.dialogIcon} fontSize='large'/>)
-    }
-  }
-
-  const renderConfirmText = (isWarning: boolean): JSX.Element => {
-    if (isWarning) {
-      return (<Typography>Some assignment grades may be missing, but you’ve supplied an override grade. Continue?</Typography>)
-    } else {
-      return (<Typography>File validation successful.</Typography>)
-    }
-  }
-
   const renderConfirm = (grades: StudentGrade[], overideGradeMismatchWarning: boolean): JSX.Element => {
+    const warningIcon = <WarningIcon className={confirmationClasses.dialogWarningIcon} fontSize='large' />
+    const warningText = (
+      "Some assignment grades may be missing, but you've supplied an override grade. " +
+      'If you wish to continue with the download, click "Submit".'
+    )
+
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
@@ -303,15 +277,14 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
             </Grid>
           </Box>
           <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3} className={confirmationClasses.dialog}>
-              <Paper role='status'>
-                {renderConfirmIcon(overideGradeMismatchWarning)}
-                {renderConfirmText(overideGradeMismatchWarning)}
-                <Button variant="outlined" onClick={(e) => resetPageState()}>Cancel</Button>
-                <Link href={downloadData?.data} download={downloadData?.fileName}>
-                  <Button disabled={downloadData === undefined} variant='outlined' color='primary'>Download</Button>
-                </Link>
-              </Paper>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog
+                message={overideGradeMismatchWarning ? warningText : undefined}
+                icon={overideGradeMismatchWarning ? warningIcon : undefined}
+                cancel={resetPageState}
+                submit={() => undefined}
+                download={downloadData}
+              />
             </Grid>
           </Box>
         </Grid>
