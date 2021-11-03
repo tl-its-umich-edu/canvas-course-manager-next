@@ -13,7 +13,6 @@ import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
 import ResponsiveHelper from './components/ResponsiveHelper'
-import Help from './components/Help'
 
 const useStyles = makeStyles((theme) => ({
   swaggerLink: {
