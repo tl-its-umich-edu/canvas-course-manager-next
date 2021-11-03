@@ -13,6 +13,7 @@ import usePromise from '../hooks/usePromise'
 import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
 import CourseSectionList from '../components/CourseSectionList'
+import Help from '../components/Help'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -228,6 +229,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{mergeSectionProps.title}</Typography>
       {renderComponent()}
     </div>

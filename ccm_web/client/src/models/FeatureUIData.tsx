@@ -17,6 +17,7 @@ import { CanvasCourseBase } from './canvas'
 export interface CCMComponentProps {
   globals: Globals
   course: CanvasCourseBase
+  helpURLEnding: string
 }
 
 interface FeatureUIGroup {

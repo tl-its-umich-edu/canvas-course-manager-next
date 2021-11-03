@@ -13,6 +13,7 @@ import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
 import ResponsiveHelper from './components/ResponsiveHelper'
+import Help from './components/Help'
 
 const useStyles = makeStyles((theme) => ({
   swaggerLink: {
@@ -59,7 +60,7 @@ function App (): JSX.Element {
     return (
       <div className='App'>
         <Breadcrumbs />
-        <AuthorizePrompt />
+        <AuthorizePrompt helpURL={globals.baseHelpURL} />
       </div>
     )
   }
@@ -88,7 +89,7 @@ function App (): JSX.Element {
           <Switch>
             <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} />}/>
+              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} helpURLEnding={feature.data.helpURLEnding} />}/>
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>

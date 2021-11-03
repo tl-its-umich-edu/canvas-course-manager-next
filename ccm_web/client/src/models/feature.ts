@@ -6,6 +6,7 @@ interface FeatureDataProps {
   description: string
   ordinality: number
   roles: RoleEnum[]
+  helpURLEnding: string
 }
 
 const mergeSectionProps: FeatureDataProps = {
@@ -13,7 +14,8 @@ const mergeSectionProps: FeatureDataProps = {
   title: 'Merge Sections',
   description: 'Combine sections into one Canvas site for easier management',
   ordinality: 1,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  helpURLEnding: '/merge-sections.html'
 }
 
 const canvasGradebookFormatterProps: FeatureDataProps = {
@@ -21,7 +23,8 @@ const canvasGradebookFormatterProps: FeatureDataProps = {
   title: 'Canvas Gradebook Formatter',
   description: 'Formats the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster.',
   ordinality: 2,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  helpURLEnding: '/gradebook-canvas.html'
 }
 
 const ExternalToolsGradebookFormatterProps: FeatureDataProps = {
@@ -29,7 +32,8 @@ const ExternalToolsGradebookFormatterProps: FeatureDataProps = {
   title: 'External Tools Gradebook Formatter',
   description: 'Formats a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
   ordinality: 3,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  helpURLEnding: '/gradebook-thirdparty.html'
 }
 
 const createSectionsProps: FeatureDataProps = {
@@ -37,7 +41,8 @@ const createSectionsProps: FeatureDataProps = {
   title: 'Create Sections',
   description: 'Create sections through csv files into your own course',
   ordinality: 4,
-  roles: [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+  roles: [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  helpURLEnding: '/create-sections.html'
 }
 
 const addUMUsersProps: FeatureDataProps = {
@@ -45,7 +50,8 @@ const addUMUsersProps: FeatureDataProps = {
   title: 'Add UM Users',
   description: 'Add UM users to your available sections',
   ordinality: 5,
-  roles: [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+  roles: [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  helpURLEnding: '/add-um-users.html'
 }
 
 const addNonUMUsersProps: FeatureDataProps = {
@@ -53,7 +59,8 @@ const addNonUMUsersProps: FeatureDataProps = {
   title: 'Add Non-UM Users',
   description: 'Enroll non-UM users to your available sections',
   ordinality: 6,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.Assistant, RoleEnum['Tool installer'], RoleEnum.TA, RoleEnum.Designer]// ?
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.Assistant, RoleEnum['Tool installer'], RoleEnum.TA, RoleEnum.Designer],
+  helpURLEnding: '/add-non-um-users.html'
 }
 
 const courseRenameRoles: RoleEnum[] = [RoleEnum['Account Admin'], RoleEnum['Subaccount admin'], RoleEnum['Support Consultant']]

@@ -6,6 +6,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
+import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
@@ -234,6 +235,8 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderRowLevelErrors = (invalidations: GradebookRowInvalidation[]): JSX.Element => {
+    const helpPath = props.globals.baseHelpURL
+    const gradebookHelpURL = props.helpURLEnding
     return (
       <div>
         {file !== undefined && <CSVFileName file={file} />}
@@ -245,7 +248,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
             <Typography>
               There are likely blank cells in the course&apos;s gradebook.
               Please enter 0 or EX (for excused) for any blank cells in the gradebook, and export a new CSV file.
-              Get <Link href='#' target='_new' rel='noopener'>help</Link> with validation errors.
+              Get <Link href={helpPath + gradebookHelpURL} target='_new' rel='noopener'>help</Link> with validation errors.
             </Typography>
           )}
           resetUpload={resetPageState}
@@ -348,6 +351,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{canvasGradebookFormatterProps.title}</Typography>
       {renderComponent()}
     </div>

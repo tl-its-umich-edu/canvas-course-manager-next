@@ -39,6 +39,7 @@ export interface Globals {
   canvasURL: string
   user: User
   course: Course
+  baseHelpURL: string
 }
 
 // API Errors
