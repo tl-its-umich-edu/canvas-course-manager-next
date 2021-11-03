@@ -15,8 +15,8 @@ import ThirdPartyGradebookConfirmationTable from '../components/ThirdPartyGradeb
 import WarningAlert from '../components/WarningAlert'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
-import { InvalidationType } from '../models/models'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import ThirdPartyGradebookProcessor, {
@@ -324,7 +324,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         </li>
         <li>
           <Typography>
-            Your file must include records for at least one student in the selected section
+            Your file must include records for at least one student in the selected sections
             (students are identified using the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; value).
           </Typography>
         </li>
@@ -362,7 +362,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const renderReview = (
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
-    const recordsToReview = (processedRecords).map((r, i) => ({ rowNumber: i + 2, ...r }))
+    const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: i + 2, ...r }))
     const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV({
       fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
       data: processedRecords

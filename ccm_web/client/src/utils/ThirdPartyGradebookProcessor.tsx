@@ -49,7 +49,7 @@ export default class ThirdPartyGradebookProcessor {
   static detectPointsPossible (firstRecord: GradebookUploadRecord): GradebookInvalidation | undefined {
     if (!Object.values(firstRecord).includes(POINTS_POS_TEXT)) {
       return {
-        message: `The file you uploaded is missing a ${POINTS_POS_TEXT} row.`,
+        message: `The file you uploaded is missing a "${POINTS_POS_TEXT}" row.`,
         type: InvalidationType.Error
       }
     }
