@@ -9,6 +9,7 @@ import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import ExampleFileDownloadHeader from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
+import Help from '../components/Help'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ThirdPartyGradebookConfirmationTable from '../components/ThirdPartyGradebookConfirmationTable'
@@ -437,6 +438,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>Convert a Third-Party Gradebook</Typography>
       <Stepper className={classes.stepper} activeStep={activeStep} alternativeLabel>
         {
