@@ -33,6 +33,10 @@ interface ProcessResultFailure {
   invalidations: GradebookInvalidation[]
 }
 
+const isCanvasEntityNameLengthValid = (value: string): boolean => {
+  return value.length > 0 && value.length <= 255
+}
+
 export type ProcessResult = ProcessResultSuccess | ProcessResultFailure
 
 export default class ThirdPartyGradebookProcessor {
@@ -52,15 +56,24 @@ export default class ThirdPartyGradebookProcessor {
   }
 
   static detectAssignment (oneRecord: GradebookUploadRecord): [string, undefined] | [undefined, GradebookInvalidation] {
+    let errorMessage: string | undefined
     const otherKeys = Object.keys(oneRecord).filter(k => !REQUIRED_ORDERED_HEADERS.includes(k))
-    if (otherKeys.length === 1) return [otherKeys[0], undefined]
-    let message: string | undefined
-    if (otherKeys.length === 0) {
-      message = 'No assignment column was found.'
+    if (otherKeys.length === 1) {
+      const assignmentName = otherKeys[0]
+      if (isCanvasEntityNameLengthValid(assignmentName)) {
+        return [assignmentName, undefined]
+      } else {
+        errorMessage = (
+          'The length of the assignment header is invalid. ' +
+          'Canvas requires assignment names to be at least one character and at most 255 characters.'
+        )
+      }
+    } else if (otherKeys.length === 0) {
+      errorMessage = 'No assignment column was found.'
     } else {
-      message = 'Multiple assignment columns were found; only one assignment column at a time is supported.'
+      errorMessage = 'Multiple assignment columns were found; only one assignment column at a time is supported.'
     }
-    return [undefined, { message, type: InvalidationType.Error }]
+    return [undefined, { message: errorMessage, type: InvalidationType.Error }]
   }
 
   static addEmptyPropertyToData (data: GradebookUploadRecord[], newHeader: string): GradebookUploadRecord[] {
@@ -91,7 +104,6 @@ export default class ThirdPartyGradebookProcessor {
 
     const [assignmentHeader, assignmentInvalidation] = ThirdPartyGradebookProcessor.detectAssignment(uploadRecords[1])
     if (assignmentInvalidation !== undefined) invalidations.push(assignmentInvalidation)
-    // Is there a better way to do this that doesn't require the assignmentHeader assertion?
     if (invalidations.length > 0 || assignmentHeader === undefined) return { valid: false, invalidations }
 
     const pointsPossibleRecord = uploadRecords[0]
