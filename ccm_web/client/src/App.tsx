@@ -19,10 +19,6 @@ const useStyles = makeStyles((theme) => ({
   swaggerLink: {
     display: 'block',
     clear: 'both'
-  },
-  breadcrumbsHelpContainer: {
-    display: 'flex',
-    alignItems: 'baseline'
   }
 }))
 
@@ -63,11 +59,8 @@ function App (): JSX.Element {
   if (!globals.user.hasCanvasToken) {
     return (
       <div className='App'>
-        <div className={classes.breadcrumbsHelpContainer}>
-          <Breadcrumbs />
-          <Help pathnames={[]} features={features} baseHelpURL={globals.baseHelpURL} />
-        </div>
-        <AuthorizePrompt />
+        <Breadcrumbs />
+        <AuthorizePrompt helpURL={globals.baseHelpURL} />
       </div>
     )
   }
@@ -89,12 +82,7 @@ function App (): JSX.Element {
             <Route>
               {({ location }) => {
                 const pathnames = location.pathname.split('/').filter(x => x)
-                return (
-                  <div className={classes.breadcrumbsHelpContainer}>
-                    <Breadcrumbs {...{ features, pathnames }} />
-                    <Help {...{ features, pathnames }} baseHelpURL={globals.baseHelpURL} />
-                  </div>
-                )
+                return <Breadcrumbs {...{ features, pathnames }} />
               }}
             </Route>
           </div>

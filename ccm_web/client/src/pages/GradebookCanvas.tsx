@@ -6,6 +6,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
+import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
@@ -350,6 +351,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{canvasGradebookFormatterProps.title}</Typography>
       {renderComponent()}
     </div>

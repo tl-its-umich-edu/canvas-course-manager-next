@@ -5,6 +5,7 @@ import { useSnackbar } from 'notistack'
 
 import InlineTextEdit from '../components/InlineTextEdit'
 import FeatureCard from '../components/FeatureCard'
+import Help from '../components/Help'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { setCourseName as apiSetCourseName } from '../api'
 import { courseRenameRoles } from '../models/feature'
@@ -100,6 +101,7 @@ function Home (props: HomeProps): JSX.Element {
     const features = allFeatures
     return (
       <>
+        <Help baseHelpURL={props.globals.baseHelpURL} />
         {renderCourseRename()}
         <Grid container spacing={3}>
           {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {

@@ -1,6 +1,8 @@
 import React from 'react'
 import { Button, makeStyles, Typography } from '@material-ui/core'
 
+import Help from './Help'
+
 const useStyles = makeStyles(() => ({
   root: {
     padding: 25,
@@ -11,10 +13,15 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-export default function AuthorizePrompt (): JSX.Element {
+interface AuthorizePromptProps {
+  helpURL: string
+}
+
+export default function AuthorizePrompt (props: AuthorizePromptProps): JSX.Element {
   const classes = useStyles()
   return (
     <div className={classes.root}>
+      <Help baseHelpURL={props.helpURL} />
       <Typography variant='h5' component='h1' gutterBottom>
         Authorize Course Manager to Access Your Canvas Account
       </Typography>
