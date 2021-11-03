@@ -23,7 +23,7 @@ const canvasGradebookFormatterProps: FeatureDataProps = {
   title: 'Canvas Gradebook Formatter',
   description: 'Formats the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster.',
   ordinality: 2,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-canvas.html'
 }
 
@@ -32,7 +32,7 @@ const externalToolsGradebookFormatterProps: FeatureDataProps = {
   title: 'External Tools Gradebook Formatter',
   description: 'Formats a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
   ordinality: 3,
-  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']],
+  roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-thirdparty.html'
 }
 
