@@ -22,7 +22,7 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 
 function ThirdPartyGradebookConfirmationTable (props: ThirdPartyGradebookConfirmationTableProps): JSX.Element {
   const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
-    { id: 'rowNumber', label: 'New Row Number', minWidth: 25 },
+    { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
     { id: REQUIRED_LOGIN_ID_HEADER, label: REQUIRED_LOGIN_ID_HEADER, minWidth: 100 },
     { id: props.assignmentHeader, label: props.assignmentHeader, minWidth: 100 }
   ]
