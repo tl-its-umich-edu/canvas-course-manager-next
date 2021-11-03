@@ -19,7 +19,6 @@ import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection } from '../models/canvas'
-import { createSectionsProps } from '../models/feature'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
@@ -424,7 +423,7 @@ Section 001`
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{createSectionsProps.title}</Typography>
+      <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
     </div>
   )

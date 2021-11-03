@@ -7,7 +7,7 @@ import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
 import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
 
 import {
-  FeatureDataProps, mergeSectionProps, canvasGradebookFormatterProps, externalToolsGradebookFormatterProps,
+  FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps
 } from './feature'
 import AddUMUsers from '../pages/AddUMUsers'
@@ -21,6 +21,7 @@ import { CanvasCourseBase } from './canvas'
 export interface CCMComponentProps {
   globals: Globals
   course: CanvasCourseBase
+  title: string
   helpURLEnding: string
 }
 
@@ -47,15 +48,15 @@ const mergeSectionCardProps: FeatureUIProps = {
   route: '/merge-sections'
 }
 
-const canvasGradebookFormatterCardProps: FeatureUIProps = {
-  data: canvasGradebookFormatterProps,
+const formatCanvasGradebookCardProps: FeatureUIProps = {
+  data: formatCanvasGradebookProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
   component: ConvertCanvasGradebook,
   route: '/gradebook-canvas'
 }
 
-const externalToolsGradebookFormatterCardProps: FeatureUIProps = {
-  data: externalToolsGradebookFormatterProps,
+const formatThirdPartyGradebookCardProps: FeatureUIProps = {
+  data: formatThirdPartyGradebookProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
   component: FormatThirdPartyGradebook,
   route: '/gradebook-thirdparty'
@@ -83,7 +84,7 @@ const addNonUMUsersCardProps: FeatureUIProps = {
 }
 
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [canvasGradebookFormatterCardProps, externalToolsGradebookFormatterCardProps] },
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [formatCanvasGradebookCardProps, formatThirdPartyGradebookCardProps] },
   { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]

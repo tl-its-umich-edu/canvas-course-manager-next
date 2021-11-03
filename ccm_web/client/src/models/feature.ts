@@ -18,19 +18,19 @@ const mergeSectionProps: FeatureDataProps = {
   helpURLEnding: '/merge-sections.html'
 }
 
-const canvasGradebookFormatterProps: FeatureDataProps = {
-  id: 'CanvasGradebookFormatter',
-  title: 'Canvas Gradebook Formatter',
-  description: 'Formats the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster.',
+const formatCanvasGradebookProps: FeatureDataProps = {
+  id: 'FormatCanvasGradebook',
+  title: 'Format Canvas Gradebook',
+  description: 'Format the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster.',
   ordinality: 2,
   roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-canvas.html'
 }
 
-const externalToolsGradebookFormatterProps: FeatureDataProps = {
-  id: 'ExternalToolsGradebookFormatter',
-  title: 'External Tools Gradebook Formatter',
-  description: 'Formats a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
+const formatThirdPartyGradebookProps: FeatureDataProps = {
+  id: 'FormatThirdPartyGradebook',
+  title: 'Format Third-Party Gradebook',
+  description: 'Format a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
   ordinality: 3,
   roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-thirdparty.html'
@@ -67,6 +67,6 @@ const courseRenameRoles: RoleEnum[] = [RoleEnum['Account Admin'], RoleEnum['Suba
 
 export type { FeatureDataProps }
 export {
-  mergeSectionProps, canvasGradebookFormatterProps, externalToolsGradebookFormatterProps,
+  mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles
 }

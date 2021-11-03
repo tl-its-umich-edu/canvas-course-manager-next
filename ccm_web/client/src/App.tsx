@@ -86,9 +86,28 @@ function App (): JSX.Element {
             </Route>
           </div>
           <Switch>
-            <Route exact={true} path="/" render={() => (<Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />)} />
+            <Route
+              exact={true}
+              path='/'
+              render={() => (
+                <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+              )}
+            />
             {features.map(feature => {
-              return <Route key={feature.data.id} path={feature.route} component={() => <feature.component globals={globals} course={course} helpURLEnding={feature.data.helpURLEnding} />}/>
+              return (
+                <Route
+                  key={feature.data.id}
+                  path={feature.route}
+                  component={() => (
+                    <feature.component
+                      globals={globals}
+                      course={course}
+                      title={feature.data.title}
+                      helpURLEnding={feature.data.helpURLEnding}
+                    />
+                  )}
+                />
+              )
             })}
             <Route render={() => (<div><em>Under Construction</em></div>)} />
           </Switch>
