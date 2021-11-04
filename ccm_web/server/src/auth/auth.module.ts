@@ -10,6 +10,8 @@ import { CSRFProtectionMiddleware } from './csrf.middleware'
 import { JwtStrategy } from './jwt.strategy'
 import { UserModule } from '../user/user.module'
 
+import { Config } from '../config'
+
 @Module({
   imports: [
     UserModule,
@@ -17,10 +19,9 @@ import { UserModule } from '../user/user.module'
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('server.tokenSecret'),
-        // JWT tokens will expire after 24 hours.
-        signOptions: { expiresIn: configService.get<number>('server.maxAgeInSec') }
+      useFactory: async (configService: ConfigService<Config, true>) => ({
+        secret: configService.get<string>('server.tokenSecret', { infer: true }),
+        signOptions: { expiresIn: configService.get<number>('server.maxAgeInSec', { infer: true }) }
       })
     })
   ],

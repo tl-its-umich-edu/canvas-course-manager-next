@@ -1,9 +1,11 @@
 import axios from 'axios'
+import got, { Options as GotOptions } from 'got'
+import { lastValueFrom } from 'rxjs'
 import CanvasRequestor from '@kth/canvas-api'
-import { HttpService, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
-import got, { Options as GotOptions } from 'got'
 
 import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
 import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
@@ -11,7 +13,7 @@ import { CanvasToken } from './canvas.model'
 import canvasScopes from './canvas.scopes'
 import { User } from '../user/user.model'
 
-import { CanvasConfig } from '../config'
+import { Config } from '../config'
 import { DatabaseError } from '../errors'
 import baseLogger from '../logger'
 
@@ -79,16 +81,17 @@ export class CanvasService {
   redirectURI: string
 
   constructor (
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService,
     @InjectModel(CanvasToken)
     private readonly canvasTokenModel: typeof CanvasToken
   ) {
-    const canvasConfig = configService.get('canvas') as CanvasConfig
+    const canvasConfig = configService.get('canvas', { infer: true })
+    const domain = configService.get('server.domain', { infer: true })
     this.clientId = canvasConfig.apiClientId
     this.secret = canvasConfig.apiSecret
     this.url = canvasConfig.instanceURL
-    this.redirectURI = `https://${this.configService.get('server.domain') as string}/canvas/returnFromOAuth`
+    this.redirectURI = `https://${domain}/canvas/returnFromOAuth`
   }
 
   getAuthURL (): string {
@@ -128,9 +131,9 @@ export class CanvasService {
     const timeOfRequest = new Date()
 
     try {
-      const response = await this.httpService.post<TokenCodeResponseBody>(
+      const response = await lastValueFrom(this.httpService.post<TokenCodeResponseBody>(
         `${this.url}/login/oauth2/token`, params
-      ).toPromise()
+      ))
       logger.debug(`Status code: ${response.status}`)
       data = response.data
     } catch (error) {
@@ -189,9 +192,9 @@ export class CanvasService {
     const timeOfRequest = new Date()
 
     try {
-      const response = await this.httpService.post<TokenRefreshResponseBody>(
+      const response = await lastValueFrom(this.httpService.post<TokenRefreshResponseBody>(
         `${this.url}/login/oauth2/token`, params
-      ).toPromise()
+      ))
       logger.debug(`Status code: ${response.status}`)
       data = response.data
     } catch (error) {

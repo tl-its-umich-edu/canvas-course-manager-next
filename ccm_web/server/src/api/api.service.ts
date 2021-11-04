@@ -14,18 +14,23 @@ import {
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import { User } from '../user/user.model'
+
+import { Config } from '../config'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
 @Injectable()
 export class APIService {
-  constructor (private readonly canvasService: CanvasService, private readonly configService: ConfigService) {}
+  constructor (
+    private readonly canvasService: CanvasService,
+    private readonly configService: ConfigService<Config, true>
+  ) {}
 
   getGlobals (user: User, sessionData: SessionData): Globals {
     return {
       environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-      canvasURL: this.configService.get('canvas.instanceURL') as string,
+      canvasURL: this.configService.get('canvas.instanceURL', { infer: true }),
       user: {
         loginId: user.loginId,
         hasCanvasToken: user.canvasToken !== null
@@ -35,7 +40,7 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       },
-      baseHelpURL: this.configService.get('baseHelpURL') as string
+      baseHelpURL: this.configService.get('baseHelpURL', { infer: true })
     }
   }
 

@@ -7,7 +7,7 @@ import Database from 'ltijs-sequelize'
 import { AuthService } from '../auth/auth.service'
 
 import baseLogger from '../logger'
-import { DatabaseConfig, LTIConfig } from '../config'
+import { Config } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -24,11 +24,11 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService, private readonly authService: AuthService) {}
+  constructor (private readonly configService: ConfigService<Config, true>, private readonly authService: AuthService) {}
 
   async setUpLTI (): Promise<void> {
-    const dbConfig = this.configService.get('db') as DatabaseConfig
-    const ltiConfig = this.configService.get('lti') as LTIConfig
+    const dbConfig = this.configService.get('db', { infer: true })
+    const ltiConfig = this.configService.get('lti', { infer: true })
 
     logger.info('Initializng ltijs as middleware')
 

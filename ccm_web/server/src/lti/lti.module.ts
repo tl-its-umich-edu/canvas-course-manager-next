@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AuthModule } from '../auth/auth.module'
 import { AuthService } from '../auth/auth.service'
+import { Config } from '../config'
 
 import { LTIMiddleware } from './lti.middleware'
 import { LTIService } from './lti.service'
@@ -13,7 +14,7 @@ import { LTIService } from './lti.service'
     {
       provide: LTIService,
       inject: [ConfigService, AuthService],
-      useFactory: async (configService: ConfigService, authService: AuthService) => {
+      useFactory: async (configService: ConfigService<Config, true>, authService: AuthService) => {
         const ltiService = new LTIService(configService, authService)
         await ltiService.setUpLTI()
         return ltiService

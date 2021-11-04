@@ -12,7 +12,7 @@ import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
 import { UserService } from './user/user.service'
 
-import { validateConfig } from './config'
+import { Config, validateConfig } from './config'
 import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -30,13 +30,13 @@ const logger = baseLogger.child({ filePath: __filename })
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService<Config, true>) => ({
         dialect: 'mysql',
-        host: configService.get('db.host'),
-        port: configService.get('db.port'),
-        username: configService.get('db.user'),
-        password: configService.get('db.password'),
-        database: configService.get('db.name'),
+        host: configService.get('db.host', { infer: true }),
+        port: configService.get('db.port', { infer: true }),
+        username: configService.get('db.user', { infer: true }),
+        password: configService.get('db.password', { infer: true }),
+        database: configService.get('db.name', { infer: true }),
         models: [CanvasToken, User],
         logging: (message: string) => logger.debug(message),
         define: { underscored: true } // Included here to ensure session table uses snake_case

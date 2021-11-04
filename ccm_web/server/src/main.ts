@@ -13,7 +13,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 
-import { ServerConfig } from './config'
+import { Config } from './config'
 import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -25,9 +25,9 @@ async function bootstrap (): Promise<void> {
     logger: !isDev ? ['warn', 'error'] : undefined
   })
 
-  const configService = app.get(ConfigService)
+  const configService = app.get<ConfigService<Config, true>>(ConfigService)
   const sequelize = app.get(Sequelize)
-  const serverConfig = configService.get('server') as ServerConfig
+  const serverConfig = configService.get('server', { infer: true })
   baseLogger.level = serverConfig.logLevel
 
   const stream = { write: (message: string) => { logger.info(message.trim()) } }

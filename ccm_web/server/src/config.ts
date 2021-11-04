@@ -2,7 +2,7 @@ import baseLogger from './logger'
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-export interface ServerConfig {
+interface ServerConfig {
   port: number
   domain: string
   logLevel: LogLevel
@@ -11,7 +11,7 @@ export interface ServerConfig {
   maxAgeInSec: number
 }
 
-export interface LTIConfig {
+interface LTIConfig {
   encryptionKey: string
   clientID: string
   platformURL: string
@@ -20,7 +20,7 @@ export interface LTIConfig {
   keysetEnding: string
 }
 
-export interface CanvasConfig {
+interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
