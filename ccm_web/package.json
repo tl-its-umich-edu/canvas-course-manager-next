@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@kth/canvas-api": "^3.0.3",
+    "@kth/canvas-api": "^3.2.0",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@nestjs/axios": "^0.0.3",
