@@ -14,13 +14,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./server/test/jest-e2e.json --detectOpenHandles"
+    "test:e2e": "jest --config ./server/test/jest-e2e.json"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@kth/canvas-api": "^3.3.0-1",
-    "@material-ui/core": "^4.11.3",
+    "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
     "@nestjs/axios": "^0.0.3",
     "@nestjs/common": "^8.2.0",
@@ -75,7 +75,7 @@
     "@types/html-webpack-plugin": "^3.2.6",
     "@types/jest": "^27.0.2",
     "@types/js-cookie": "^3.0.0",
-    "@types/material-ui": "^0.21.8",
+    "@types/material-ui": "^0.21.12",
     "@types/morgan": "^1.9.3",
     "@types/node": "^16.11.7",
     "@types/papaparse": "^5.3.1",
@@ -103,7 +103,7 @@
     "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.4",
-    "webpack": "^5.62.1",
+    "webpack": "^5.62.2",
     "webpack-cli": "^4.9.1",
     "webpack-merge": "^5.8.0"
   },
