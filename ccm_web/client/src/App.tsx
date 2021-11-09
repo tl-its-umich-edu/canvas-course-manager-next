@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 import { Link, makeStyles } from '@material-ui/core'
-import { SnackbarProvider } from 'notistack'
 
 import { getCourse, getCSRFToken } from './api'
 import AuthorizePrompt from './components/AuthorizePrompt'
@@ -24,6 +23,8 @@ const useStyles = makeStyles((theme) => ({
 function App (): JSX.Element {
   const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
+
+  const location = useLocation()
 
   const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
@@ -73,59 +74,44 @@ function App (): JSX.Element {
     )
   }
 
+  const pathnames = location !== undefined
+    ? location.pathname.split('/').filter(x => x)
+    : undefined
+
   return (
     <div className='App'>
-      <SnackbarProvider maxSnack={3}>
-        <Router>
-          <div>
-            <Route>
-              {({ location }) => {
-                const pathnames = location.pathname.split('/').filter(x => x)
-                return <Breadcrumbs {...{ features, pathnames }} />
-              }}
+      <Breadcrumbs {...{ features, pathnames }} />
+      <Switch>
+        <Route exact={true} path='/'>
+          <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+        </Route>
+        {features.map(feature => {
+          return (
+            <Route key={feature.data.id} path={feature.route}>
+              <feature.component
+                globals={globals}
+                course={course}
+                title={feature.data.title}
+                helpURLEnding={feature.data.helpURLEnding}
+              />
             </Route>
-          </div>
-          <Switch>
-            <Route
-              exact={true}
-              path='/'
-              render={() => (
-                <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
-              )}
-            />
-            {features.map(feature => {
-              return (
-                <Route
-                  key={feature.data.id}
-                  path={feature.route}
-                  component={() => (
-                    <feature.component
-                      globals={globals}
-                      course={course}
-                      title={feature.data.title}
-                      helpURLEnding={feature.data.helpURLEnding}
-                    />
-                  )}
-                />
-              )
-            })}
-            <Route render={() => (<div><em>Under Construction</em></div>)} />
-          </Switch>
-        </Router>
-        {
-          globals?.environment === 'development' &&
-          (
-            <div>
-              <div className={classes.swaggerLink}>
-                <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
-              </div>
-              <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-                <ResponsiveHelper/>
-              </div>
-            </div>
           )
-        }
-      </SnackbarProvider>
+        })}
+        <Route><div><em>Under Construction</em></div></Route>
+      </Switch>
+    {
+      globals?.environment === 'development' &&
+      (
+        <div>
+          <div className={classes.swaggerLink}>
+            <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+          </div>
+          <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
+            <ResponsiveHelper/>
+          </div>
+        </div>
+      )
+    }
     </div>
   )
 }
