@@ -8,6 +8,7 @@ import ErrorAlert from '../components/ErrorAlert'
 import FileUpload from '../components/FileUpload'
 import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
+import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable from '../components/ValidationErrorTable'
 import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
 import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
@@ -68,7 +69,7 @@ enum GradebookCanvasPageState {
   Upload,
   InvalidUpload,
   Confirm,
-  Done
+  Success
 }
 
 const convertEmptyCellToUndefined = (cell: string | undefined): string | undefined => {
@@ -281,17 +282,19 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
                 message={overideGradeMismatchWarning ? warningText : undefined}
                 icon={overideGradeMismatchWarning ? warningIcon : undefined}
                 cancel={resetPageState}
-                submit={() => undefined}
+                submit={() => setPageState({ state: GradebookCanvasPageState.Success })}
                 download={downloadData}
               />
             </Grid>
           </Box>
         </Grid>
-      </div>)
+      </div>
+    )
   }
 
-  const renderDone = (): JSX.Element => {
-    return <div>Done</div>
+  const renderSuccess = (): JSX.Element => {
+    const message = <Typography>Your gradebook has been successfully converted!</Typography>
+    return <SuccessCard message={message} />
   }
 
   const gradeBookRecordToStudentGrade = (grades: GradebookRecord[] | undefined): StudentGrade[] => {
@@ -314,8 +317,8 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
           gradeBookRecordToStudentGrade(pageState.grades),
           (pageState.invalidations !== undefined && pageState.invalidations.length > 0)
         )
-      case GradebookCanvasPageState.Done:
-        return renderDone()
+      case GradebookCanvasPageState.Success:
+        return renderSuccess()
       default:
         return <div>?</div>
     }
