@@ -21,7 +21,7 @@ function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element 
   const defaultMessage = <Typography>Create a new file with corrected versions of these rows.</Typography>
 
   return (
-    <Grid container justify='flex-start'>
+    <Grid container justifyContent='flex-start'>
       <Box clone order={{ xs: 2, sm: 1 }}>
         <Grid item xs={12} sm={8} className={classes.padding}>{props.table}</Grid>
       </Box>
