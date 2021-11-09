@@ -68,7 +68,7 @@ export class CourseApiHandler {
       const endpoint = `courses/${this.courseId}/sections`
       const queryParams = { include: ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const sectionsFull = await this.requestor.listItems<CanvasCourseSection>(endpoint, queryParams).toArray()
+      const sectionsFull = await this.requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
       return sectionsFull.map(s => ({
         id: s.id,

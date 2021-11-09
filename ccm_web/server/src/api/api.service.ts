@@ -59,7 +59,7 @@ export class APIService {
       const endpoint = 'courses'
       const queryParams = { enrollment_type: 'teacher' }
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      courses = await requestor.listItems<CanvasCourse>(endpoint, queryParams).toArray()
+      courses = await requestor.list<CanvasCourse>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
