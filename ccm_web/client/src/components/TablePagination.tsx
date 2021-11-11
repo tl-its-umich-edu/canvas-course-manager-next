@@ -11,25 +11,25 @@ const useStyles = makeStyles((theme) => ({
 
 type PageChangeCallback = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, page: number) => void
 
-function TablePaginationActions (props: { count: number, page: number, rowsPerPage: number, onChangePage: PageChangeCallback}): JSX.Element {
+function TablePaginationActions (props: { count: number, page: number, rowsPerPage: number, onPageChange: PageChangeCallback}): JSX.Element {
   const classes = useStyles()
   const theme = useTheme()
-  const { count, page, rowsPerPage, onChangePage } = props
+  const { count, page, rowsPerPage, onPageChange } = props
 
   const handleFirstPageButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-    onChangePage(event, 0)
+    onPageChange(event, 0)
   }
 
   const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-    onChangePage(event, page - 1)
+    onPageChange(event, page - 1)
   }
 
   const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-    onChangePage(event, props.page + 1)
+    onPageChange(event, props.page + 1)
   }
 
   const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
   }
 
   return (
