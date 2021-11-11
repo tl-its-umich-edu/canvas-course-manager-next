@@ -1,4 +1,4 @@
-import { HTTPError } from 'got'
+import { CanvasApiError } from '@kth/canvas-api'
 
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
@@ -18,7 +18,7 @@ export enum HttpMethod {
 
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {
   const failedInput = input === undefined ? null : input
-  if (error instanceof HTTPError) {
+  if (error instanceof CanvasApiError && error.response !== undefined) {
     const { statusCode, body } = error.response
     const bodyText = parseErrorBody(body)
     logger.error(`Received error status code: (${String(statusCode)})`)
