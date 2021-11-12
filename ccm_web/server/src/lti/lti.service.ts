@@ -7,7 +7,7 @@ import Database from 'ltijs-sequelize'
 import { AuthService } from '../auth/auth.service'
 
 import baseLogger from '../logger'
-import { DatabaseConfig, LTIConfig } from '../config'
+import { Config } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -24,11 +24,11 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService, private readonly authService: AuthService) {}
+  constructor (private readonly configService: ConfigService<Config, true>, private readonly authService: AuthService) {}
 
   async setUpLTI (): Promise<void> {
-    const dbConfig = this.configService.get('db') as DatabaseConfig
-    const ltiConfig = this.configService.get('lti') as LTIConfig
+    const dbConfig = this.configService.get('db', { infer: true })
+    const ltiConfig = this.configService.get('lti', { infer: true })
 
     logger.info('Initializng ltijs as middleware')
 
@@ -74,7 +74,10 @@ export class LTIService implements BeforeApplicationShutdown {
           loginId: loginId
         }, res)
       } catch (e) {
-        logger.error(`Something went wrong while creating user with loginId ${loginId}; error ${String(e.name)} due to ${String(e.message)}`)
+        const logMessageEnding = e instanceof Error
+          ? `error ${String(e.name)} due to ${String(e.message)}`
+          : String(e)
+        logger.error(`Something went wrong while creating user with loginId ${loginId}: ${logMessageEnding}`)
         return createLaunchErrorResponse(res)
       }
       // More data will be added to the session here later

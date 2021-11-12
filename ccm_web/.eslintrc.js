@@ -40,5 +40,4 @@ module.exports = {
     'no-void': ['error', { 'allowAsStatement': true }],
     '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }]
   }
-
 }

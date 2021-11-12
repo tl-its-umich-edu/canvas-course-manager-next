@@ -9,10 +9,12 @@ import { UserNotFoundError } from '../user/user.errors'
 import { User } from '../user/user.model'
 import { UserService } from '../user/user.service'
 
+import { Config } from '../config'
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(PassportJwtStrategy) {
   constructor (
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService<Config, true>,
     private readonly userService: UserService
   ) {
     super({
@@ -24,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(PassportJwtStrategy) {
         return null
       },
       ignoreExpiration: false,
-      secretOrKey: configService.get('server.tokenSecret') as string
+      secretOrKey: configService.get('server.tokenSecret', { infer: true })
     })
   }
 

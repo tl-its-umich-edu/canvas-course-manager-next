@@ -123,7 +123,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
     const csvData = data.map(r => [r['SIS LOGIN ID'], getGradeForExport(r)])
-    const csvString = 'data:text/csv;charset=utf-8,' + fileParser.createCSV(csvData)
+    const csvString = 'data:text/csv;charset=utf-8,' + fileParser.createCSV<string[]>(csvData)
     setDownloadData({ data: encodeURI(csvString), fileName: getOutputFilename(file) })
   }
 

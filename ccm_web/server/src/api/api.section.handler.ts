@@ -38,7 +38,7 @@ export class SectionApiHandler {
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${HttpMethod.Get}"`)
-      enrollmentsResult = await this.requestor.list<CanvasEnrollmentWithUser>(endpoint, queryParams).toArray()
+      enrollmentsResult = await this.requestor.listItems<CanvasEnrollmentWithUser>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
@@ -66,7 +66,7 @@ export class SectionApiHandler {
         }
       }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-      const response = await this.requestor.requestUrl<CanvasEnrollment>(endpoint, method, body)
+      const response = await this.requestor.request<CanvasEnrollment>(endpoint, method, body)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const {
         id,
@@ -106,7 +106,7 @@ export class SectionApiHandler {
       const endpoint = `sections/${this.sectionId}/crosslist/${targetCourseId}`
       const method = HttpMethod.Post
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
-      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
+      const response = await this.requestor.request<CanvasCourseSection>(endpoint, method)
       logger.debug(`Received response with status code ${response.statusCode}`)
       return SectionApiHandler.slimSection(response.body)
     } catch (error) {
@@ -120,7 +120,7 @@ export class SectionApiHandler {
       const endpoint = `sections/${this.sectionId}/crosslist`
       const method = HttpMethod.Delete
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
-      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method)
+      const response = await this.requestor.request<CanvasCourseSection>(endpoint, method)
       logger.debug(`Received response with status code ${response.statusCode}`)
       return SectionApiHandler.slimSection(response.body)
     } catch (error) {

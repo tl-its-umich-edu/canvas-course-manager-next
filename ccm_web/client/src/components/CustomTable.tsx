@@ -81,7 +81,7 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
                 inputProps: { 'aria-label': 'rows per page' },
                 native: true
               }}
-              onChangePage={handleChangePage}
+              onPageChange={handleChangePage}
               ActionsComponent={TablePaginationActions}
             />
           </TableRow>

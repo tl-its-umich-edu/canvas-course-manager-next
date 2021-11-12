@@ -35,7 +35,7 @@ export class AdminApiHandler {
     try {
       const endpoint = 'accounts'
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      accounts = await this.requestor.list<CanvasAccount>(endpoint).toArray()
+      accounts = await this.requestor.listItems<CanvasAccount>(endpoint).toArray()
       logger.debug('Received response (status code unknown)')
     } catch (error) {
       const errResponse = handleAPIError(error)
@@ -61,7 +61,7 @@ export class AdminApiHandler {
     try {
       const endpoint = `accounts/${accountId}/courses`
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const courses = await this.requestor.list<CanvasCourse>(endpoint, queryParams).toArray()
+      const courses = await this.requestor.listItems<CanvasCourse>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
       return courses
     } catch (error) {

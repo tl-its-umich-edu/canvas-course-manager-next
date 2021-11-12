@@ -54,7 +54,7 @@ export class CourseApiHandler {
       logger.debug(
         `Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`
       )
-      const response = await this.requestor.requestUrl<CanvasCourse>(endpoint, method, requestBody)
+      const response = await this.requestor.request<CanvasCourse>(endpoint, method, requestBody)
       logger.debug(`Received response with status code ${response.statusCode}`)
       return CourseApiHandler.slimCourse(response.body)
     } catch (error) {
@@ -68,7 +68,7 @@ export class CourseApiHandler {
       const endpoint = `courses/${this.courseId}/sections`
       const queryParams = { include: ['total_students'] } // use list for "include" values
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const sectionsFull = await this.requestor.list<CanvasCourseSection>(endpoint, queryParams).toArray()
+      const sectionsFull = await this.requestor.listItems<CanvasCourseSection>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
       return sectionsFull.map(s => ({
         id: s.id,
@@ -95,7 +95,7 @@ export class CourseApiHandler {
       const method = HttpMethod.Post
       const requestBody = { course_section: { name: sectionName } }
       logger.debug(`Sending request to Canvas - Endpoint: ${endpoint}; Method: ${method}; Body: ${JSON.stringify(requestBody)}`)
-      const response = await this.requestor.requestUrl<CanvasCourseSection>(endpoint, method, requestBody)
+      const response = await this.requestor.request<CanvasCourseSection>(endpoint, method, requestBody)
       logger.debug(`Received response with status code ${response.statusCode}`)
       const newFullSection = response.body
       return { ...SectionApiHandler.slimSection(newFullSection), total_students: 0 }

@@ -6,19 +6,21 @@ import { JwtService } from '@nestjs/jwt'
 import { UserToUpsert } from '../user/user.interfaces'
 import { UserService } from '../user/user.service'
 
+import { Config } from '../config'
+
 @Injectable()
 export class AuthService {
   readonly commonCookieOptions: CookieOptions
 
   constructor (
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService<Config, true>,
     private readonly userService: UserService,
     private readonly jwtService: JwtService
   ) {
     this.commonCookieOptions = {
       secure: true,
       sameSite: 'none',
-      maxAge: (configService.get('server.maxAgeInSec') as number) * 1000
+      maxAge: (configService.get('server.maxAgeInSec', { infer: true })) * 1000
     }
   }
 

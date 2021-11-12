@@ -276,7 +276,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             </Grid>
           </Backdrop>
         </div>
-        <Grid container className={classes.buttonGroup} justify='flex-end'>
+        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
           <Button
             color='primary'
             variant='contained'
@@ -352,7 +352,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               <FileUpload onUploadComplete={(file) => setFile(file)} />
             </Grid>
           </Grid>
-          <Grid container className={classes.buttonGroup} justify='flex-start'>
+          <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
             {backButton}
           </Grid>
         </div>
@@ -364,7 +364,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
     const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: i + 2, ...r }))
-    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV({
+    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV<GradebookUploadRecord>({
       fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
       data: processedRecords
     })
@@ -411,7 +411,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <SuccessCard
           message={<Typography>The trimmed gradebook file has been downloaded to your computer!</Typography>}
         />
-        <Grid container className={classes.buttonGroup} justify='flex-start'>
+        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button variant='outlined' onClick={handleFullReset}>Start Again</Button>
         </Grid>
       </div>
