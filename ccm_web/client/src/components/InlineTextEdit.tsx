@@ -45,15 +45,15 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
     if (isEditing) setTempTextValue(props.text)
   }, [isEditing])
 
-  const cancel = (): void => {
-    setIsEditing(false)
-    setTempTextValue(props.text)
-  }
-
   const save = async (): Promise<void> => {
     if (props.text === tempTextValue) return
     await props.save(tempTextValue)
     setIsEditing(false)
+  }
+
+  const cancel = (): void => {
+    setIsEditing(false)
+    setTempTextValue(props.text)
   }
 
   const toggleEdit = (): void => {
