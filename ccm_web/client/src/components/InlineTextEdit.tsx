@@ -102,8 +102,9 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                         className={classes.button}
                         disabled={props.text === tempTextValue || props.isSaving}
                         onClick={save}
-                        aria-label='Save course name'>
-                          Save
+                        aria-label='Save course name'
+                      >
+                        Save
                       </Button>
                       <Button
                         className={classes.button}
