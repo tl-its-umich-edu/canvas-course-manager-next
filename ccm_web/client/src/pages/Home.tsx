@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
   featureCardContainer: {
     padding: 5
   },
+  courseNameContainer: {
+    marginBottom: 15,
+    wordWrap: 'break-word'
+  },
   courseName: {
     textAlign: 'left',
     padding: 5
@@ -91,7 +95,17 @@ function Home (props: HomeProps): JSX.Element {
     if (props.course === undefined) {
       return (<div className={classes.courseName}>Error getting course name</div>)
     } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      return (<InlineTextEdit {...{ text: props.course.name, save: doSetCourseName, placeholderText: 'Course name', isSaving: setCourseNameLoading }}/>)
+      return (
+        <Typography variant='h5' component='h1'>
+          <InlineTextEdit
+            text={props.course.name}
+            placeholderText='Course name'
+            fontSize='1.5rem'
+            save={doSetCourseName}
+            isSaving={setCourseNameLoading}
+          />
+        </Typography>
+      )
     } else {
       return (<Typography className={classes.courseName} variant='h5' component='h1'>{props.course.name}</Typography>)
     }
@@ -102,7 +116,9 @@ function Home (props: HomeProps): JSX.Element {
     return (
       <>
         <Help baseHelpURL={props.globals.baseHelpURL} />
-        {renderCourseRename()}
+        <div className={classes.courseNameContainer}>
+          {renderCourseRename()}
+        </div>
         <Grid container spacing={3}>
           {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
             return isAuthorizedForAnyFeature(props.globals.course.roles, featureGroup.features)
@@ -110,7 +126,8 @@ function Home (props: HomeProps): JSX.Element {
             return (renderFeatureGroup(featureGroup))
           })}
         </Grid>
-      </>)
+      </>
+    )
   }
 
   return (
