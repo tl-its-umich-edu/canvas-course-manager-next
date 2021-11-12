@@ -100,10 +100,18 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                       <Button
                         className={classes.button}
                         disabled={props.text === tempTextValue || props.isSaving}
-                        onClick={save}>
+                        onClick={save}
+                        aria-label='Save course name'>
                           Save
                       </Button>
-                      <Button className={classes.button} disabled={props.isSaving} onClick={cancel}>Cancel</Button>
+                      <Button
+                        className={classes.button}
+                        disabled={props.isSaving}
+                        onClick={cancel}
+                        aria-label='Cancel editing course name'
+                      >
+                        Cancel
+                      </Button>
                     </Grid>
                   </Grid>
                 </form>
@@ -111,7 +119,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
             : (
                 <>
                 <Typography className={classes.buttonSep} variant='inherit'>{props.text}</Typography>
-                <Button onClick={toggleEdit} disabled={props.isSaving}>
+                <Button onClick={toggleEdit} disabled={props.isSaving} aria-label='Edit course name'>
                   <EditIcon className={classes.editIcon} style={{ fontSize: props.fontSize }} />
                 </Button>
                 </>
