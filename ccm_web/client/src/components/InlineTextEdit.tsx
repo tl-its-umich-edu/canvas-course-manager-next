@@ -41,6 +41,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   const [tempTextValue, setTempTextValue] = useState(props.text)
   const textInput = useRef(null)
 
+  // Resets tempTextValue in case when save fails
   useEffect(() => {
     if (isEditing) setTempTextValue(props.text)
   }, [isEditing])
