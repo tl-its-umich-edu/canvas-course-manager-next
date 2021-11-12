@@ -99,19 +99,19 @@ function App (): JSX.Element {
         })}
         <Route><div><em>Under Construction</em></div></Route>
       </Switch>
-    {
-      globals?.environment === 'development' &&
-      (
-        <div>
-          <div className={classes.swaggerLink}>
-            <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+      {
+        globals?.environment === 'development' &&
+        (
+          <div>
+            <div className={classes.swaggerLink}>
+              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
+            </div>
+            <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
+              <ResponsiveHelper/>
+            </div>
           </div>
-          <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-            <ResponsiveHelper/>
-          </div>
-        </div>
-      )
-    }
+        )
+      }
     </div>
   )
 }
