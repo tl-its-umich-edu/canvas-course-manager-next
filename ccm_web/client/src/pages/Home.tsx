@@ -26,10 +26,11 @@ const useStyles = makeStyles((theme) => ({
     padding: 5
   },
   courseNameContainer: {
-    marginBottom: 15,
-    wordWrap: 'break-word'
+    marginBottom: 15
   },
   courseName: {
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
     textAlign: 'left',
     padding: 5
   }
@@ -94,21 +95,32 @@ function Home (props: HomeProps): JSX.Element {
   const renderCourseRename = (): JSX.Element => {
     if (props.course === undefined) {
       return (<div className={classes.courseName}>Error getting course name</div>)
-    } else if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
-      return (
-        <Typography variant='h5' component='h1'>
-          <InlineTextEdit
-            text={props.course.name}
-            placeholderText='Course name'
-            fontSize='1.5rem'
-            save={doSetCourseName}
-            isSaving={setCourseNameLoading}
-          />
-        </Typography>
+    }
+
+    let nameBlock
+    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
+      nameBlock = (
+        <InlineTextEdit
+          text={props.course.name}
+          placeholderText='Course name'
+          fontSize='1.5rem'
+          save={doSetCourseName}
+          isSaving={setCourseNameLoading}
+        />
       )
     } else {
-      return (<Typography className={classes.courseName} variant='h5' component='h1'>{props.course.name}</Typography>)
+      nameBlock = props.course.name
     }
+
+    return (
+      <Grid className={classes.courseNameContainer} container alignItems='center'>
+        <Grid item md={8} sm={8} xs={12}>
+          <Typography className={classes.courseName} variant='h5' component='h1'>
+            {nameBlock}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
   }
 
   const renderFeatures = (): JSX.Element => {

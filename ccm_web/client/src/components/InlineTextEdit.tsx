@@ -14,9 +14,6 @@ interface InlineTextEditProps {
 
 const useStyles = makeStyles(() => ({
   root: {
-    textAlign: 'left',
-    padding: '5px',
-    whiteSpace: 'pre-wrap',
     '& .MuiInputBase-root.Mui-disabled': {
       color: 'rgba(0, 0, 0, 0.6)' // (default alpha is 0.38)
     },
@@ -73,62 +70,60 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   }
 
   return (
-    <Grid className={classes.root} container alignItems='center'>
-      <Grid item md={8} sm={8} xs={12}>
-        {
-          isEditing
-            ? (
-                <form noValidate autoComplete='off'>
-                  <Grid container>
-                    <Grid item md={9} sm={7} xs={7}>
-                      <TextField
-                        className={classes.buttonSep}
-                        aria-readonly={false}
-                        onClick={toggleEdit}
-                        fullWidth={true}
-                        inputProps={{ style: { fontSize: props.fontSize } }}
-                        ref={textInput}
-                        id='standard-basic'
-                        autoFocus={true}
-                        placeholder={props.placeholderText}
-                        value={tempTextValue}
-                        onKeyDown={keyPress}
-                        onChange={(e) => setTempTextValue(e.target.value)}
-                        disabled={!isEditing && props.isSaving}
-                      />
-                    </Grid>
-                    <Grid item md={3} sm={5} xs={5}>
-                      <Button
-                        className={classes.button}
-                        disabled={props.text === tempTextValue || props.isSaving}
-                        onClick={save}
-                        aria-label='Save course name'
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        className={classes.button}
-                        disabled={props.isSaving}
-                        onClick={cancel}
-                        aria-label='Cancel editing course name'
-                      >
-                        Cancel
-                      </Button>
-                    </Grid>
+    <div className={classes.root}>
+      {
+        isEditing
+          ? (
+              <form noValidate autoComplete='off'>
+                <Grid container>
+                  <Grid item md={9} sm={7} xs={7}>
+                    <TextField
+                      className={classes.buttonSep}
+                      aria-readonly={false}
+                      onClick={toggleEdit}
+                      fullWidth={true}
+                      inputProps={{ style: { fontSize: props.fontSize } }}
+                      ref={textInput}
+                      id='standard-basic'
+                      autoFocus={true}
+                      placeholder={props.placeholderText}
+                      value={tempTextValue}
+                      onKeyDown={keyPress}
+                      onChange={(e) => setTempTextValue(e.target.value)}
+                      disabled={!isEditing && props.isSaving}
+                    />
                   </Grid>
-                </form>
-              )
-            : (
-                <>
-                <Typography className={classes.buttonSep} variant='inherit'>{props.text}</Typography>
-                <Button onClick={toggleEdit} disabled={props.isSaving} aria-label='Edit course name'>
-                  <EditIcon className={classes.editIcon} style={{ fontSize: props.fontSize }} />
-                </Button>
-                </>
-              )
-        }
-      </Grid>
-    </Grid>
+                  <Grid item md={3} sm={5} xs={5}>
+                    <Button
+                      className={classes.button}
+                      disabled={props.text === tempTextValue || props.isSaving}
+                      onClick={save}
+                      aria-label='Save course name'
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      className={classes.button}
+                      disabled={props.isSaving}
+                      onClick={cancel}
+                      aria-label='Cancel editing course name'
+                    >
+                      Cancel
+                    </Button>
+                  </Grid>
+                </Grid>
+              </form>
+            )
+          : (
+              <>
+              <Typography className={classes.buttonSep} variant='inherit'>{props.text}</Typography>
+              <Button onClick={toggleEdit} disabled={props.isSaving} aria-label='Edit course name'>
+                <EditIcon className={classes.editIcon} style={{ fontSize: props.fontSize }} />
+              </Button>
+              </>
+            )
+      }
+    </div>
   )
 }
 
