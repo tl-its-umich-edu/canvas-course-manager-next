@@ -101,6 +101,16 @@ export class SectionApiHandler {
     return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
 
+  async enrollExternalUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+    const apiPromises = users.map(async (user) => await this.enrollUser(user))
+    const enrollmentResponses = await Promise.all(apiPromises)
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
+    return makeResponse<CanvasEnrollment>(enrollmentResponses)
+  }
+
   async mergeSection (targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
     try {
       const endpoint = `sections/${this.sectionId}/crosslist/${targetCourseId}`
