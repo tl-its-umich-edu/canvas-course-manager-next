@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { urlencoded, json } from 'express';
 
 import { AppModule } from './app.module'
 
@@ -46,6 +47,11 @@ async function bootstrap (): Promise<void> {
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
+
+  // this is to increase the size limit for request payload, which defaults to 100kb
+  // then the array element limit will be enforced by the class-validator in CreateSectionsDto
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   app.use(
     session({
