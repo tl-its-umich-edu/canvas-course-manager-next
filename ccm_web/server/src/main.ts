@@ -50,8 +50,8 @@ async function bootstrap (): Promise<void> {
 
   // this is to increase the size limit for request payload, which defaults to 100kb
   // then the array element limit will be enforced by the class-validator in CreateSectionsDto
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ extended: true, limit: '50mb' }));
+  app.use(json({ limit: '5mb' }));
+  app.use(urlencoded({ extended: true, limit: '5mb' }));
 
   app.use(
     session({
