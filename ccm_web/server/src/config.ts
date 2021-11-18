@@ -28,6 +28,11 @@ interface CanvasConfig {
   adminApiSecret: string
 }
 
+interface InvitationConfig {
+  invitationApiKey: string
+  invitationApiSecret: string
+}
+
 export interface DatabaseConfig {
   host: string
   port: number
@@ -94,6 +99,7 @@ export function validateConfig (): Config {
   let server
   let lti
   let canvas
+  let invitation
   let db
   let baseHelpURL
 
@@ -120,6 +126,10 @@ export function validateConfig (): Config {
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
       adminApiClientId: validate<string>('CANVAS_ADMIN_API_CLIENT_ID', env.CANVAS_ADMIN_API_CLIENT_ID, isString, [isNotEmpty]),
       adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty])
+    }
+    invitation = {
+      invitationApiKey: validate<string>('INVITATION_API_KEY', env.INVITATION_API_KEY, isString, [isNotEmpty]),
+      invitationApiSecret: validate<string>('INVITATION_API_SECRET', env.INVITATION_API_SECRET, isString, [isNotEmpty])
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
