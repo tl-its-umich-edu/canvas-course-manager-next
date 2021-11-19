@@ -1,4 +1,6 @@
 import {
+  IsNotEmpty,
+  MaxLength,
   ArrayMaxSize,
   ArrayMinSize,
   IsArray
@@ -7,6 +9,8 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateSectionsDto {
   @ApiProperty({ type: [String] })
+  @IsNotEmpty({ each: true })
+  @MaxLength(250, { each: true })
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(60)
@@ -16,4 +20,3 @@ export class CreateSectionsDto {
     this.sections = sections
   }
 }
-

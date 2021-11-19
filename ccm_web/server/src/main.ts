@@ -2,6 +2,7 @@ import path from 'path'
 
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
+import { urlencoded, json } from 'express'
 import session from 'express-session'
 import morgan from 'morgan'
 import { Sequelize } from 'sequelize-typescript'
@@ -10,7 +11,6 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { urlencoded, json } from 'express';
 
 import { AppModule } from './app.module'
 
@@ -48,10 +48,9 @@ async function bootstrap (): Promise<void> {
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
-  // this is to increase the size limit for request payload, which defaults to 100kb
-  // then the array element limit will be enforced by the class-validator in CreateSectionsDto
-  app.use(json({ limit: '5mb' }));
-  app.use(urlencoded({ extended: true, limit: '5mb' }));
+  // Controls size limit of data in payload and URL
+  app.use(json({ limit: '5mb' }))
+  app.use(urlencoded({ extended: true, limit: '5mb' }))
 
   app.use(
     session({
