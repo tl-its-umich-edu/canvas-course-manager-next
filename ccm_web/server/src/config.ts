@@ -29,8 +29,11 @@ interface CanvasConfig {
 }
 
 interface InvitationConfig {
-  invitationApiKey: string
-  invitationApiSecret: string
+  apiURL: string
+  apiKey: string
+  apiSecret: string
+  apiEntityID: string
+  apiSponsorName: string
 }
 
 export interface DatabaseConfig {
