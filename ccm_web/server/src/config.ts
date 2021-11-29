@@ -48,6 +48,7 @@ export interface Config {
   server: ServerConfig
   lti: LTIConfig
   canvas: CanvasConfig
+  invitation: InvitationConfig
   db: DatabaseConfig
   baseHelpURL: string
 }
@@ -131,8 +132,11 @@ export function validateConfig (): Config {
       adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty])
     }
     invitation = {
-      invitationApiKey: validate<string>('INVITATION_API_KEY', env.INVITATION_API_KEY, isString, [isNotEmpty]),
-      invitationApiSecret: validate<string>('INVITATION_API_SECRET', env.INVITATION_API_SECRET, isString, [isNotEmpty])
+      apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
+      apiKey: validate<string>('INVITATION_API_KEY', env.INVITATION_API_KEY, isString, [isNotEmpty]),
+      apiSecret: validate<string>('INVITATION_API_SECRET', env.INVITATION_API_SECRET, isString, [isNotEmpty]),
+      apiEntityID: validate<string>('INVITATION_API_ENTITY_ID', env.INVITATION_API_ENTITY_ID, isString, [isNotEmpty]),
+      apiSponsorName: validate<string>('INVITATION_API_SPONSOR_NAME', env.INVITATION_API_SPONSOR_NAME, isString, [isNotEmpty])
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
@@ -146,5 +150,5 @@ export function validateConfig (): Config {
     logger.error(error)
     throw new Error(String(error))
   }
-  return { server, lti, canvas, db, baseHelpURL }
+  return { server, lti, canvas, invitation, db, baseHelpURL }
 }
