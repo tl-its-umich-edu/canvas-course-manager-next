@@ -8,6 +8,9 @@ import {
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
+import { InvitationService } from '../invitation/invitation.service'
+import { ConfigService } from '@nestjs/config'
+import { Config } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -101,14 +104,23 @@ export class SectionApiHandler {
     return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
 
-  async enrollExternalUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+  async enrollExternalUsers (configService: ConfigService<Config, true>, users: SectionUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = users.map(async (user) => await this.enrollUser(user))
-    const enrollmentResponses = await Promise.all(apiPromises)
+
+    // TODO: create Canvas users, if needed
+
+    // TODO: invite newly created Canvas users
+    const inviteService = new InvitationService(configService)
+    const inviteResults: string = await inviteService.sendInvitations(users)
+
+    // const apiPromises = users.map(async (user) => await this.enrollUser(user))
+    // const enrollmentResponses = await Promise.all(apiPromises)
+
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
-    return makeResponse<CanvasEnrollment>(enrollmentResponses)
+    // return makeResponse<CanvasEnrollment>(enrollmentResponses)
+    return inviteResults
   }
 
   async mergeSection (targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
