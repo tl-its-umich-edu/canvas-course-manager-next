@@ -49,8 +49,9 @@ async function bootstrap (): Promise<void> {
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   // Controls size limit of data in payload and URL
-  app.use(json({ limit: '5mb' }))
-  app.use(urlencoded({ extended: true, limit: '5mb' }))
+  const payload_size_limit = '5mb'
+  app.use(json({ limit: payload_size_limit }))
+  app.use(urlencoded({ extended: true, limit: payload_size_limit }))
 
   app.use(
     session({
