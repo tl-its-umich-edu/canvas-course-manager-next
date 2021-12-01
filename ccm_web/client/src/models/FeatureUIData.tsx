@@ -17,6 +17,7 @@ import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import { Globals, RoleEnum } from './models'
 import { CanvasCourseBase } from './canvas'
+import AddNonUMUsers from '../pages/AddNonUMUsers'
 
 export interface CCMComponentProps {
   globals: Globals
@@ -38,8 +39,6 @@ interface FeatureUIProps {
   component: ComponentType<CCMComponentProps>
   route: string
 }
-
-const NotYetImplementedComponent = (): JSX.Element => <p>This feature has not been implemented yet.</p>
 
 const mergeSectionCardProps: FeatureUIProps = {
   data: mergeSectionProps,
@@ -79,7 +78,7 @@ const addUMUsersCardProps: FeatureUIProps = {
 const addNonUMUsersCardProps: FeatureUIProps = {
   data: addNonUMUsersProps,
   icon: <PersonAddOutlinedIcon fontSize='large' />,
-  component: NotYetImplementedComponent,
+  component: AddNonUMUsers,
   route: '/add-non-um-users'
 }
 

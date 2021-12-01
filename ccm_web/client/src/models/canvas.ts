@@ -1,3 +1,5 @@
+import { RoleEnum } from './models'
+
 export interface CanvasCourseBase {
   id: number
   name: string
@@ -54,7 +56,7 @@ export class CanvasCourseSectionSort_UserCount implements ICanvasCourseSectionSo
   }
 }
 
-export enum CanvasRoleType {
+export enum CanvasEnrollmentType {
   Student = 'StudentEnrollment',
   Teacher = 'TeacherEnrollment',
   TA = 'TaEnrollment',
@@ -62,36 +64,113 @@ export enum CanvasRoleType {
   Designer = 'DesignerEnrollment'
 }
 
-export enum ClientRoleType {
+export enum ClientEnrollmentType {
   Student = 'student',
   Teacher = 'teacher',
   TA = 'ta',
   Observer = 'observer',
   Designer = 'designer'
 }
-const clientStringValues = Object.values(ClientRoleType).map(m => String(m))
+const clientStringValues = Object.values(ClientEnrollmentType).map(m => String(m))
 
 export interface CanvasEnrollment {
   id: number
   course_id: number
   course_section_id: number
   user_id: number
-  type: CanvasRoleType
+  type: CanvasEnrollmentType
 }
 
-const clientToCanvasRoleMap: Record<ClientRoleType, CanvasRoleType> = {
-  student: CanvasRoleType.Student,
-  teacher: CanvasRoleType.Teacher,
-  ta: CanvasRoleType.TA,
-  observer: CanvasRoleType.Observer,
-  designer: CanvasRoleType.Designer
+const clientToCanvasRoleMap: Record<ClientEnrollmentType, CanvasEnrollmentType> = {
+  student: CanvasEnrollmentType.Student,
+  teacher: CanvasEnrollmentType.Teacher,
+  ta: CanvasEnrollmentType.TA,
+  observer: CanvasEnrollmentType.Observer,
+  designer: CanvasEnrollmentType.Designer
 }
 
-export const isValidRole = (role: string): role is ClientRoleType => {
+interface AddableRoleData {
+  addable: true
+  rank: number
+  canvasName: CanvasEnrollmentType
+  clientName: ClientEnrollmentType
+}
+
+interface NotAddableRoleData {
+  rank: number
+  addable: false
+}
+
+type RoleData = AddableRoleData | NotAddableRoleData
+
+type CanvasRoleData = Record<RoleEnum, RoleData>
+
+export const AllCanvasRoleData: CanvasRoleData = {
+  StudentEnrollment: {
+    rank: 0,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Student,
+    clientName: ClientEnrollmentType.Student
+  },
+  Observer: {
+    rank: 1,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Observer,
+    clientName: ClientEnrollmentType.Observer
+  },
+  TaEnrollment: {
+    rank: 2,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Observer,
+    clientName: ClientEnrollmentType.TA
+  },
+  DesignerEnrollment: {
+    rank: 3,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Designer,
+    clientName: ClientEnrollmentType.Designer
+  },
+  TeacherEnrollment: {
+    rank: 4,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Teacher,
+    clientName: ClientEnrollmentType.Teacher
+  },
+  'Sub-Account Admin': {
+    rank: 5,
+    addable: false
+  },
+  'Account Admin': {
+    rank: 6,
+    addable: false
+  },
+  'Tool Installer (by ITS Approval only)': {
+    rank: -1,
+    addable: false
+  },
+  'Support Consultant': {
+    rank: -1,
+    addable: false
+  },
+  Librarian: {
+    rank: -1,
+    addable: false
+  },
+  Assistant: {
+    rank: -1,
+    addable: false
+  },
+  Grader: {
+    rank: -1,
+    addable: false
+  }
+} as const
+
+export const isValidRole = (role: string): role is ClientEnrollmentType => {
   return clientStringValues.includes(role)
 }
 
-export const getCanvasRole = (clientName: ClientRoleType): CanvasRoleType => {
+export const getCanvasRole = (clientName: ClientEnrollmentType): CanvasEnrollmentType => {
   return clientToCanvasRoleMap[clientName]
 }
 
