@@ -80,8 +80,8 @@ export class CanvasController {
     const { oAuthToken } = req.session.data
     if (oAuthToken === undefined || query.state !== oAuthToken) {
       logger.warn(
-        'The state variable returned from Canvas did not match that in the session, or ' +
-        'the state variable in the session was undefined.'
+        'The state variable returned from Canvas did not match the oAuthToken value in the session, or ' +
+        'the oAuthToken value was undefined.'
       )
       throw new UnauthorizedException('You are not authorized to access this resource.')
     }
