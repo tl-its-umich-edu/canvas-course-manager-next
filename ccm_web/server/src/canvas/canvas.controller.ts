@@ -43,7 +43,7 @@ export class CanvasController {
     }
 
     const stateToken = (await generateToken(48)).toString('hex')
-    req.session.data.state = stateToken
+    req.session.data.oAuthToken = stateToken
     const fullURL = `${this.canvasService.getAuthURL()}&state=${stateToken}`
     logger.debug(`Full redirect URL: ${fullURL}`)
     req.session.save(() => { res.redirect(fullURL) })
@@ -77,8 +77,8 @@ export class CanvasController {
       throw new InternalServerErrorException('Session data could not be found.')
     }
 
-    const { state } = req.session.data
-    if (state === undefined || query.state !== state) {
+    const { oAuthToken } = req.session.data
+    if (oAuthToken === undefined || query.state !== oAuthToken) {
       logger.warn(
         'The state variable returned from Canvas did not match that in the session, or ' +
         'the state variable in the session was undefined.'
