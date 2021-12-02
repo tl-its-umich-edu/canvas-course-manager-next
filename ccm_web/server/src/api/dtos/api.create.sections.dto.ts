@@ -19,4 +19,8 @@ export class CreateSectionsDto {
   constructor (sections: string[]) {
     this.sections = sections
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0d3bb07 (issue-217 changes based on code reivews)
