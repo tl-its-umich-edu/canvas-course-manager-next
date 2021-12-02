@@ -86,7 +86,6 @@ export class LTIService implements BeforeApplicationShutdown {
         roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
       }
       const sessionData = {
-        userLoginId: loginId,
         course: course,
         isRootAdmin: isRootAdmin
       }

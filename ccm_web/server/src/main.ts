@@ -49,9 +49,9 @@ async function bootstrap (): Promise<void> {
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   // Controls size limit of data in payload and URL
-  const payload_size_limit = '5mb'
-  app.use(json({ limit: payload_size_limit }))
-  app.use(urlencoded({ extended: true, limit: payload_size_limit }))
+  const payloadSizeLimit = '5mb'
+  app.use(json({ limit: payloadSizeLimit }))
+  app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
 
   app.use(
     session({
@@ -63,7 +63,8 @@ async function bootstrap (): Promise<void> {
       cookie: {
         domain: serverConfig.domain,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        maxAge: serverConfig.maxAgeInSec * 1000
       }
     })
   )
