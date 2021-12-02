@@ -20,7 +20,7 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
 }
 
 // the array of user roles that are allowed to use CCM tool
-const allowedRoles = ['TeacherEnrollment','TaEnrollment','ObserverEnrollment','DesignerEnrollment','Account Admin','Sub-Account Admin']
+const allowedRoles = ['TeacherEnrollment', 'TaEnrollment', 'ObserverEnrollment', 'DesignerEnrollment', 'Account Admin', 'Sub-Account Admin']
 
 // ltijs docs: https://cvmcosta.me/ltijs/#/
 @Injectable()
@@ -76,7 +76,7 @@ export class LTIService implements BeforeApplicationShutdown {
       if (roleDiff.length > 0) {
         return createLaunchErrorResponse(res, 'Your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
       }
-      
+
       try {
         await this.authService.loginLTI({
           firstName: token.userInfo.given_name,
