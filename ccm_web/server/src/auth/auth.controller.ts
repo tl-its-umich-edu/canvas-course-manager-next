@@ -2,8 +2,8 @@ import { Request, Response } from 'express'
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { AuthService } from './auth.service'
+import { JwtAuthGuard } from './jwt-auth.guard'
 import { SessionGuard } from './session.guard'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
