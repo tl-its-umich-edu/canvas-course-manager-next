@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Step, StepLabel, Stepper, Typography
+  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
 
 import * as api from '../api'
@@ -14,6 +14,7 @@ import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../compone
 import SuccessCard from '../components/SuccessCard'
 import ThirdPartyGradebookConfirmationTable from '../components/ThirdPartyGradebookConfirmationTable'
 import WarningAlert from '../components/WarningAlert'
+import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -442,13 +443,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <Stepper className={classes.stepper} activeStep={activeStep} alternativeLabel>
-        {
-          Object.entries(FormatGradebookStep)
-            .filter(([key]) => isNaN(Number(key)))
-            .map(([key, value]) => <Step key={value}><StepLabel>{key}</StepLabel></Step>)
-        }
-      </Stepper>
+      <WorkflowStepper allSteps={Object(FormatGradebookStep)} activeStep={activeStep} />
       <div>{renderStep(activeStep)}</div>
     </div>
   )

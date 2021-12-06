@@ -4,6 +4,7 @@ import {
 } from '@material-ui/core'
 
 import RoleSelect from './RoleSelect'
+import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import usePromise from '../hooks/usePromise'
 import { ClientEnrollmentType } from '../models/canvas'
 
@@ -19,6 +20,7 @@ interface ExternalUserNewEnrollment extends ExternalUserEnrollment {
 
 interface UserEnrollmentFormProps {
   readonly rolesUserCanAdd: ClientEnrollmentType[]
+  sections: SelectableCanvasCourseSection[]
   enrollExistingUser: (enrollment: ExternalUserEnrollment) => Promise<void>
   enrollNewUser: (enrollment: ExternalUserNewEnrollment) => Promise<void>
 }
@@ -33,6 +35,8 @@ type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const classes = useStyles()
+
+  const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
 
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [userExists, setUserExists] = useState<boolean | undefined>(undefined)
@@ -120,6 +124,26 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               posRoles={props.rolesUserCanAdd}
               onRoleChange={(role) => setRole(role)}
               disabled={undefined}
+            />
+          </div>
+          <Typography gutterBottom>
+            Select the section you want to enroll users in.
+          </Typography>
+          <div className={classes.spacing}>
+            <SectionSelectorWidget
+              height={300}
+              search={[]}
+              multiSelect={false}
+              sections={props.sections}
+              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+              selectionUpdated={(sections) => {
+                if (sections.length === 0) {
+                  setSelectedSection(undefined)
+                } else {
+                  setSelectedSection(sections[0])
+                }
+              }}
+              canUnmerge={false}
             />
           </div>
           <Button
