@@ -82,6 +82,15 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
+export interface CanvasUser {
+  id: number
+  name: string
+  sortable_name: string
+  short_name: string
+  login_id: string
+  email: string
+}
+
 export interface CanvasEnrollmentWithUser extends CanvasEnrollment {
   user: { login_id: string }
 }
