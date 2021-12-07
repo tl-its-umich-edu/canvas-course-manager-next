@@ -17,6 +17,7 @@ import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
+import { InvitationService } from '../invitation/invitation.service'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -121,9 +122,19 @@ export class APIService {
   }
 
   async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
+    // Create all requested users, noting failures
+    const adminRequestor = await this.canvasService.createRequestorForAdmin('/api/v1/')
+    const adminHandler = new SectionApiHandler(adminRequestor, sectionId)
+    const createdUsers = await adminHandler.createExternalUsers(sectionUsers)
+
+    // Invite only new users
+    const inviteService = new InvitationService(this.configService)
+    const inviteResults: string = await inviteService.sendInvitations(createdUsers)
+
+    // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
-    return await sectionHandler.enrollExternalUsers(this.configService, sectionUsers)
+    return await sectionHandler.enrollUsers(sectionUsers)
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
