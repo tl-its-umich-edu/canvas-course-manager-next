@@ -67,7 +67,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   console.log('Roles use can add: ' + rolesUserCanAdd.toString())
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
-  const [inputMethod, setInputMethod] = useState<InputMethod | undefined>(undefined)
+  const [inputMethod, setInputMethod] = useState<InputMethod>('single')
   const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(

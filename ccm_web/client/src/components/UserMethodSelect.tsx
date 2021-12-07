@@ -6,7 +6,7 @@ import {
 type InputMethod = 'single' | 'csv'
 
 interface UserMethodSelectProps {
-  selectedInputMethod: InputMethod | undefined
+  selectedInputMethod: InputMethod
   setInputMethod: (method: InputMethod) => void
   onButtonClick: () => void
 }
