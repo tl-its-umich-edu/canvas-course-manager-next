@@ -1,5 +1,5 @@
 import {
-  Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
+  Button, Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
   Stepper, Theme, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
@@ -39,8 +39,8 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: 25,
       textAlign: 'left'
     },
-    backButton: {
-      marginRight: theme.spacing(1)
+    buttonGroup: {
+      marginTop: theme.spacing(1)
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
@@ -243,8 +243,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               selectedSection={selectedSection}
               setSelectedSection={setSelectedSection}
               onSectionCreated={sectionCreated}
-              onSelectClick={() => setActiveStep(States.UploadCSV)}
-              disabled={isGetSectionsLoading}
             />
             <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
               <Grid container>
@@ -257,6 +255,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               </Grid>
             </Backdrop>
           </div>
+          <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+            <Button
+              variant='contained'
+              color='primary'
+              disabled={selectedSection === undefined}
+              onClick={() => setActiveStep(States.UploadCSV)}
+            >
+              Select
+            </Button>
+          </Grid>
         </>
       )
     }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import { makeStyles, Tooltip, Typography } from '@material-ui/core'
 import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import CreateSectionWidget from './CreateSectionWidget'
@@ -9,9 +9,6 @@ import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 const useStyles = makeStyles((theme) => ({
   createSectionWidget: {
     width: '500px'
-  },
-  sectionSelectButton: {
-    float: 'right'
   },
   sectionSelectionContainer: {
     textAlign: 'center',
@@ -34,8 +31,6 @@ interface CreateSelectSectionWidgetProps {
   selectedSection?: SelectableCanvasCourseSection
   setSelectedSection: (section: SelectableCanvasCourseSection) => void
   onSectionCreated: (section: CanvasCourseSection) => void
-  onSelectClick: () => void
-  disabled: boolean
 }
 
 export default function CreateSelectSectionWidget (props: CreateSelectSectionWidgetProps): JSX.Element {
@@ -56,7 +51,7 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
       <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
       <div className={classes.sectionSelectionContainer}>
         <SectionSelectorWidget
-          height={400}
+          height={300}
           search={[]}
           multiSelect={false}
           sections={props.sections}
@@ -64,17 +59,6 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
           selectionUpdated={(sections) => props.setSelectedSection(sections[0])}
           canUnmerge={false}
         />
-        <div>
-          <Button
-            className={classes.sectionSelectButton}
-            variant='contained'
-            color='primary'
-            disabled={props.selectedSection === undefined}
-            onClick={props.onSelectClick}
-          >
-            Select
-          </Button>
-        </div>
       </div>
     </>
   )
