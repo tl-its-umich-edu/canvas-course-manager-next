@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service'
 
 import baseLogger from '../logger'
 import { Config } from '../config'
+import { LTIEnrollmentTypes } from '../canvas/canvas.interfaces'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -18,9 +19,6 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
   )
   return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(message)
 }
-
-// the array of user roles that are allowed to use CCM tool
-const allowedRoles = ['TeacherEnrollment', 'TaEnrollment', 'ObserverEnrollment', 'DesignerEnrollment', 'Account Admin', 'Sub-Account Admin']
 
 // ltijs docs: https://cvmcosta.me/ltijs/#/
 @Injectable()
@@ -69,10 +67,10 @@ export class LTIService implements BeforeApplicationShutdown {
       const roles = customLTIVariables.roles as string
       const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
 
-      // check whether the user roles are all included in the allowed roles set
+      // check whether the user roles are all included in the allowed LTI user roles
       // otherwise show error message to the user
       const rolesArray = roles.length > 0 ? roles.split(',') : []
-      const roleDiff = rolesArray.filter(x => !allowedRoles.includes(x))
+      const roleDiff = rolesArray.filter(x => !LTIEnrollmentTypes.includes(x))
       if (roleDiff.length > 0) {
         return createLaunchErrorResponse(res, 'Your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
       }

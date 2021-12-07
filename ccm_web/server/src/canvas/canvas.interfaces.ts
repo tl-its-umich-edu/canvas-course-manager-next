@@ -74,6 +74,18 @@ export enum UserEnrollmentType {
   TeacherEnrollment = 'TeacherEnrollment'
 }
 
+// valid role types for LTI launch
+// as defined in https://docs.google.com/spreadsheets/d/1pm5y9FX0zrDX7Zy3mOyDLxmA-iKoWfmlxvbtNkWg6Zw/edit#gid=1360549473
+export const LTIEnrollmentTypes = [
+  'Account Admin',
+  'Sub-Account Admin',
+  'Support Consultant',
+  'TeacherEnrollment',
+  'DesignerEnrollment',
+  'TaEnrollment',
+  'Assistant'
+]
+
 export interface CanvasEnrollment {
   id: number
   course_id: number
