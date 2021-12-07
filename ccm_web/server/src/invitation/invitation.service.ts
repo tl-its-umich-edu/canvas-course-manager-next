@@ -31,7 +31,7 @@ export class InvitationService {
   }
 
   async sendInvitations (users: CanvasUser[]): Promise<string> {
-    const userEmails: string[] = users.map(user => user.loginId)
+    const userEmails: string[] = users.map(user => user.email)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
     const data = new FormData()
