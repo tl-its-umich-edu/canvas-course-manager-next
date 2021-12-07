@@ -6,14 +6,14 @@ import {
 import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import Help from '../components/Help'
+import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow'
 import { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import UserEnrollmentForm from '../components/UserEnrollmentForm'
-import usePromise from '../hooks/usePromise'
-import { AllCanvasRoleData, CanvasCourseSection, ClientEnrollmentType, injectCourseName } from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
 import UserMethodSelect from '../components/UserMethodSelect'
+import usePromise from '../hooks/usePromise'
+import { AllCanvasRoleData, CanvasCourseSection, ClientEnrollmentType, injectCourseName, sortSections } from '../models/canvas'
+import { CCMComponentProps } from '../models/FeatureUIData'
 import { RoleEnum } from '../models/models'
-import WorkflowStepper from '../components/WorkflowStepper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,30 +43,6 @@ enum PageState {
   AddCSVUsers
 }
 
-enum CSVWorkflowStep {
-  Select,
-  Upload,
-  Review,
-  Success
-}
-
-interface MultipleUsersCSVWorkflowProps {
-  sections: SelectableCanvasCourseSection[]
-  activeStep: CSVWorkflowStep
-  setActiveStep: (step: CSVWorkflowStep) => void
-}
-
-function MultipleUsersCSVWorkflow (props: MultipleUsersCSVWorkflowProps): JSX.Element {
-  return (
-    <div>
-      <Grid>
-        <Typography variant='h6' component='h3'>Add Multiple Users Through CSV</Typography>
-        <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={props.activeStep} />
-      </Grid>
-    </div>
-  )
-}
-
 interface AddNonUMUsersProps extends CCMComponentProps {}
 
 export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
@@ -93,8 +69,6 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod | undefined>(undefined)
   const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
-
-  const [csvWorkflowStep, setCSVWorkflowStep] = useState<CSVWorkflowStep>(0)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
@@ -154,10 +128,18 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
         return renderAddSingleUser()
       case PageState.AddCSVUsers:
         return (
-          <MultipleUsersCSVWorkflow
+          <MultipleUserEnrollmentWorkflow
+            course={props.course}
             sections={sections ?? []}
-            activeStep={csvWorkflowStep}
-            setActiveStep={setCSVWorkflowStep}
+            onSectionCreated={
+              (newSection) => {
+                if (sections !== undefined) {
+                  setSections(
+                    sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
+                  )
+                }
+              }
+            }
           />
         )
       default:

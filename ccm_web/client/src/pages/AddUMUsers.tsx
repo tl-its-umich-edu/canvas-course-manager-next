@@ -1,26 +1,27 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
-  Stepper, Theme, Tooltip, Typography
+  Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
+  Stepper, Theme, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { HelpOutline as HelpIcon } from '@material-ui/icons'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import ConfirmDialog from '../components/ConfirmDialog'
-import CreateSectionWidget from '../components/CreateSectionWidget'
+import CreateSelectSectionWidget from '../components/CreateSelectSectionWidget'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
-import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
+import {
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, getCanvasRole, injectCourseName, isValidRole,
+  sortSections
+} from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import { CanvasError } from '../utils/handleErrors'
@@ -44,7 +45,8 @@ const useStyles = makeStyles((theme: Theme) =>
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
       color: '#fff',
-      position: 'absolute'
+      position: 'absolute',
+      textAlign: 'center'
     },
     confirmContainer: {
       position: 'relative',
@@ -55,17 +57,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
     },
-    createSectionWidget: {
-      width: '500px'
-    },
-    sectionSelectButton: {
-      float: 'right'
-    },
-    sectionSelectionContainer: {
+    createSelectSectionContainer: {
       position: 'relative',
-      zIndex: 0,
-      textAlign: 'center',
-      maxHeight: '400px'
+      zIndex: 0
     },
     stepper: {
       textAlign: 'center',
@@ -79,12 +73,6 @@ const useStyles = makeStyles((theme: Theme) =>
     table: {
       paddingLeft: 10,
       paddingRight: 10
-    },
-    newSectionHint: {
-      display: 'flex'
-    },
-    createSectionContainer: {
-      paddingBottom: '20px'
     }
   })
 )
@@ -122,7 +110,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
-    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
+    setSections(sortSections(sections))
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
@@ -248,37 +236,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     } else {
       return (
         <>
-          <div className={classes.createSectionContainer}>
-            <div className={classes.newSectionHint}>
-              <Typography>Create a new section to add users</Typography>
-              <Tooltip placement='top' title='Enter a distinct name for this section'>
-                <HelpIcon fontSize='small'/>
-              </Tooltip>
-            </div>
-            <div className={classes.createSectionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
-          </div>
-          <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
-          <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget
-              height={400}
-              search={[]}
-              multiSelect={false}
-              sections={sections !== undefined ? sections : []}
-              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-              selectionUpdated={(sections) => setSelectedSection(sections[0])}
-              canUnmerge={false}
+          <div className={classes.createSelectSectionContainer}>
+            <CreateSelectSectionWidget
+              {...props}
+              sections={sections}
+              selectedSection={selectedSection}
+              setSelectedSection={setSelectedSection}
+              onSectionCreated={sectionCreated}
+              onSelectClick={() => setActiveStep(States.UploadCSV)}
+              disabled={isGetSectionsLoading}
             />
-            <div>
-              <Button
-                className={classes.sectionSelectButton}
-                variant='contained'
-                color='primary'
-                disabled={selectedSection === undefined}
-                onClick={() => { setActiveStep(States.UploadCSV) }}
-              >
-                Select
-              </Button>
-            </div>
             <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>

@@ -177,3 +177,7 @@ export const getCanvasRole = (clientName: ClientEnrollmentType): CanvasEnrollmen
 export const injectCourseName = (sections: CanvasCourseSection[], courseName: string): CanvasCourseSectionWithCourseName[] => {
   return sections.map(section => { return { ...section, course_name: courseName } })
 }
+
+export function sortSections<T extends CanvasCourseSection> (sections: T[]): T[] {
+  return sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) })
+}
