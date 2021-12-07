@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
@@ -22,11 +22,17 @@ const ROLE_HEADER = 'ROLE'
 const FIRST_NAME_HEADER = 'FIRST_NAME'
 const LAST_NAME_HEADER = 'LAST_NAME'
 
+const REQUIRED_HEADERS = [EMAIL_HEADER, ROLE_HEADER, FIRST_NAME_HEADER, LAST_NAME_HEADER]
+
 interface UserEnrollmentRecord extends CSVRecord {
   EMAIL: string
   ROLE: string
   FIRST_NAME: string
   LAST_NAME: string
+}
+
+export const isUserEnrollmentRecord = (record: CSVRecord): record is UserEnrollmentRecord => {
+  return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
 }
 
 enum CSVWorkflowStep {
@@ -56,7 +62,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
   const [file, setFile] = useState<File | undefined>(undefined)
   const [records, setRecords] = useState<UserEnrollmentRecord[] | undefined>(undefined)
-  const [processedRecords, setProcessedRecords] = useState<UserEnrollmentRecord[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [enrollmentInvalidations, setEnrollmentInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -64,7 +69,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const handleResetUpload = (): void => {
     setFile(undefined)
     setRecords(undefined)
-    setProcessedRecords(undefined)
     setSchemaInvalidations(undefined)
     setEnrollmentInvalidations(undefined)
   }
@@ -125,12 +129,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </li>
         <li>
           <Typography>
-          &quot;{FIRST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;ss first name (between one and 255 characters in length);
+          &quot;{FIRST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s first name (between one and 255 characters in length);
           </Typography>
         </li>
         <li>
           <Typography>
-            and &quot;{LAST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;ss last name (between one and 255 characters in length).
+            and &quot;{LAST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s last name (between one and 255 characters in length).
           </Typography>
         </li>
       </ul>
@@ -146,6 +150,26 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       setActiveStep(CSVWorkflowStep.Select)
     }
 
+    const handleSchemaValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
+      const schemaValidator = new CSVSchemaValidator<UserEnrollmentRecord>(
+        REQUIRED_HEADERS, isUserEnrollmentRecord, 200
+      )
+      const validationResult = schemaValidator.validate(headers, rowData)
+      console.log(JSON.stringify(validationResult, null, 2))
+      if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
+      return setRecords(validationResult.validData)
+    }
+
+    const handleFile = (file: File): void => {
+      setFile(file)
+      const parser = new FileParserWrapper()
+      parser.parseCSV(
+        file,
+        handleSchemaValidation,
+        (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
+      )
+    }
+
     return (
       <div>
         <ExampleFileDownloadHeader
@@ -154,7 +178,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           fileName='add_non_um_users.csv'
           fileData={fileData}
         />
-        <FileUpload onUploadComplete={(file) => setFile(file)} />
+        <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
           <Button onClick={handleBackClick}>Back</Button>
         </div>
