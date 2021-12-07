@@ -114,10 +114,19 @@ export class SectionApiHandler {
     return createUserResponses
   }
 
-  async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
-    const enrollLoginId = user.loginId
-      .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
-      .replace('@', '+')
+  async enrollUser (user: SectionUserDto | SectionExternalUserDto): Promise<CanvasEnrollment | APIErrorData> {
+    let userId: string
+    let enrollId: string
+    if (user instanceof SectionUserDto) {
+      userId = user.loginId
+      enrollId = userId
+        .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
+        .replace('@', '+')
+    } else {
+      userId = user.email
+      enrollId = userId
+        .replace('@', '+')
+    }
 
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
@@ -126,7 +135,7 @@ export class SectionApiHandler {
         enrollment: {
           // 'sis_login_id:' prefix per...
           // https://canvas.instructure.com/doc/api/file.object_ids.html
-          user_id: `sis_login_id:${enrollLoginId}`,
+          user_id: `sis_login_id:${enrollId}`,
           type: user.type,
           enrollment_state: 'active',
           notify: false
@@ -150,7 +159,7 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${user.loginId}; Role: ${user.type}`)
+      const errorResponse = handleAPIError(error, `Login ID: ${userId}; Role: ${user.type}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
@@ -158,7 +167,7 @@ export class SectionApiHandler {
     }
   }
 
-  async enrollUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+  async enrollUsers (users: SectionUserDto[] | SectionExternalUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
     const apiPromises = users.map(async (user) => await this.enrollUser(user))
