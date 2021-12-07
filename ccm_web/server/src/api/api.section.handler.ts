@@ -4,13 +4,16 @@ import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType
+  CanvasCourseSection,
+  CanvasCourseSectionBase,
+  CanvasEnrollment,
+  CanvasEnrollmentWithUser,
+  CanvasUser,
+  UserEnrollmentType
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
-import { InvitationService } from '../invitation/invitation.service'
-import { ConfigService } from '@nestjs/config'
-import { Config } from '../config'
+import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -48,6 +51,67 @@ export class SectionApiHandler {
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
     return enrollmentsResult.map(e => e.user.login_id)
+  }
+
+  // async createUser (user: SectionUserDto): Promise<CanvasUser | APIErrorData> {
+  async createExternalUser (user: SectionExternalUserDto): Promise<CanvasUser> {
+    const email = user.email
+    const loginId = email.replace('@', '+')
+
+    const endpoint = 'accounts/1/users' // FIXME: parameterize account number
+    const method = HttpMethod.Post
+    const body = {
+      user: {
+        terms_of_use: true,
+        skip_registration: true
+      },
+      pseudonym: {
+        unique_id: loginId,
+        send_confirmation: false
+      },
+      communication_channel: {
+        type: 'email',
+        address: email,
+        skip_confirmation: true
+      },
+      force_validations: false
+    }
+    logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
+    const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
+    logger.debug(`Received response with status code ${response.statusCode}`)
+    const {
+      id,
+      name,
+      sortable_name,
+      short_name,
+      login_id,
+    } = response.body
+    return {
+      id,
+      name,
+      sortable_name,
+      short_name,
+      login_id,
+      email,
+    }
+  }
+
+  async createExternalUsers (users: SectionExternalUserDto[]): Promise<CanvasUser[] | APIErrorData> {
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+
+    // TODO: try creating all Canvas users; failure means user already exists
+    const createUserPromises = users.map(async (user) => await this.createExternalUser(user))
+    const createUserResponses = await Promise.all(createUserPromises)
+
+    // TODO: make invitation list for only successful user creations
+    logger.debug('createUserResponses')
+    logger.debug(createUserResponses)
+
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed to create (${users.length}) external users: (${(end - start) / NS_PER_SEC}) seconds`)
+
+    return createUserResponses
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
@@ -104,23 +168,16 @@ export class SectionApiHandler {
     return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
 
-  async enrollExternalUsers (configService: ConfigService<Config, true>, users: SectionUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
+  async enrollExternalUsers (users: SectionUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
-    // TODO: create Canvas users, if needed
-
-    // TODO: invite newly created Canvas users
-    const inviteService = new InvitationService(configService)
-    const inviteResults: string = await inviteService.sendInvitations(users)
-
-    // const apiPromises = users.map(async (user) => await this.enrollUser(user))
-    // const enrollmentResponses = await Promise.all(apiPromises)
+    const apiPromises = users.map(async (user) => await this.enrollUser(user))
+    const enrollmentResponses = await Promise.all(apiPromises)
 
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
-    // return makeResponse<CanvasEnrollment>(enrollmentResponses)
-    return inviteResults
+    return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
 
   async mergeSection (targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
