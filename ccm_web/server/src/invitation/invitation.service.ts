@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
 import { SectionUserDto } from '../api/dtos/api.section.users.dto'
+import { CanvasUser } from '../canvas/canvas.interfaces'
 
 
 // Invitation service based on Cirrus
@@ -29,7 +30,7 @@ export class InvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations (users: SectionUserDto[]): Promise<string> {
+  async sendInvitations (users: CanvasUser[]): Promise<string> {
     const userEmails: string[] = users.map(user => user.loginId)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
