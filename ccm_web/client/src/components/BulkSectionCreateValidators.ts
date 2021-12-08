@@ -43,7 +43,7 @@ class SectionNameLengthValidator implements SectionRowsValidator {
       const result = validateString(sectionName, sectionNameSchema)
       if (!result.isValid) {
         invalidations.push({
-          message: result.messages.length > 0 ? result.messages[0] : 'Section name is invalid.',
+          message: result.messages.length > 0 ? result.messages[0] : 'The section name is invalid.',
           rowNumber: row + 2,
           type: InvalidationType.Error
         })
