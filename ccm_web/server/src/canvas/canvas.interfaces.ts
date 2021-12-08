@@ -128,7 +128,7 @@ interface CanvasError {
   message: string
 }
 
-function isCanvasError(value: unknown): value is CanvasError {
+function isCanvasError (value: unknown): value is CanvasError {
   return hasKeys(value, ['message'])
 }
 
@@ -136,7 +136,7 @@ export interface CanvasErrorBody {
   errors: CanvasError[]
 }
 
-export function isCanvasErrorBody(value: unknown): value is CanvasErrorBody {
+export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
   if (!hasKeys(value, ['errors']) || !Array.isArray(value.errors)) {
     return false
   } else {
