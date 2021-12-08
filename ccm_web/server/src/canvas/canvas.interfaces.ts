@@ -28,7 +28,7 @@ export interface TokenCodeResponseBody extends TokenBaseResponseBody {
   refresh_token: string
 }
 
-export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
+export interface TokenRefreshResponseBody extends TokenBaseResponseBody { }
 
 // Entities
 
@@ -66,7 +66,11 @@ export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
-export enum UserEnrollmentType {
+export enum CanvasRoles {
+  AccountAdmin = 'Account Admin',
+  SubAccountAdmin = 'Sub-Account Admin',
+  SupportConsultant = 'Support Consultant',
+  Assistant = 'Assistant',
   DesignerEnrollment = 'DesignerEnrollment',
   ObserverEnrollment = 'ObserverEnrollment',
   StudentEnrollment = 'StudentEnrollment',
@@ -74,17 +78,25 @@ export enum UserEnrollmentType {
   TeacherEnrollment = 'TeacherEnrollment'
 }
 
+export enum UserEnrollmentType {
+  DesignerEnrollment = CanvasRoles.DesignerEnrollment,
+  ObserverEnrollment = CanvasRoles.ObserverEnrollment,
+  StudentEnrollment = CanvasRoles.StudentEnrollment,
+  TaEnrollment = CanvasRoles.TaEnrollment,
+  TeacherEnrollment = CanvasRoles.TeacherEnrollment
+}
+
 // valid role types for LTI launch
 // as defined in https://docs.google.com/spreadsheets/d/1pm5y9FX0zrDX7Zy3mOyDLxmA-iKoWfmlxvbtNkWg6Zw/edit#gid=1360549473
-export const LTIEnrollmentTypes = [
-  'Account Admin',
-  'Sub-Account Admin',
-  'Support Consultant',
-  'TeacherEnrollment',
-  'DesignerEnrollment',
-  'TaEnrollment',
-  'Assistant'
-]
+export enum LTIEnrollmentTypes {
+  AccountAdmin = CanvasRoles.AccountAdmin,
+  SubAccountAdmin = CanvasRoles.SubAccountAdmin,
+  SupportConsultant = CanvasRoles.SupportConsultant,
+  TeacherEnrollment = CanvasRoles.TeacherEnrollment,
+  DesignerEnrollment = CanvasRoles.DesignerEnrollment,
+  TaEnrollment = CanvasRoles.TaEnrollment,
+  Assistant = CanvasRoles.Assistant
+}
 
 export interface CanvasEnrollment {
   id: number
@@ -116,7 +128,7 @@ interface CanvasError {
   message: string
 }
 
-function isCanvasError (value: unknown): value is CanvasError {
+function isCanvasError(value: unknown): value is CanvasError {
   return hasKeys(value, ['message'])
 }
 
@@ -124,7 +136,7 @@ export interface CanvasErrorBody {
   errors: CanvasError[]
 }
 
-export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
+export function isCanvasErrorBody(value: unknown): value is CanvasErrorBody {
   if (!hasKeys(value, ['errors']) || !Array.isArray(value.errors)) {
     return false
   } else {
