@@ -127,7 +127,7 @@ export class LTIService implements BeforeApplicationShutdown {
     this.provider = provider
   }
 
-  getMiddleware(): Express | undefined {
+  getMiddleware (): Express | undefined {
     return this.provider?.app
   }
 
