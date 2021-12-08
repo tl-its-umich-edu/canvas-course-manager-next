@@ -10,14 +10,14 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
 
-const createCanvasNamedEntitySchema = (fieldName: string): StringSchema => {
+const createCanvasEntityNameSchema = (fieldName: string): StringSchema => {
   return string().required(createBlankMessage(fieldName))
     .max(255, ({ max }) => createExceededMessage(fieldName, max))
 }
 
-export const courseNameSchema = createCanvasNamedEntitySchema('course name')
-export const assignmentHeaderSchema = createCanvasNamedEntitySchema('assignment header')
-export const sectionNameSchema = createCanvasNamedEntitySchema('section name')
+export const courseNameSchema = createCanvasEntityNameSchema('course name')
+export const assignmentHeaderSchema = createCanvasEntityNameSchema('assignment header')
+export const sectionNameSchema = createCanvasEntityNameSchema('section name')
 
 // Type validator(s)
 
