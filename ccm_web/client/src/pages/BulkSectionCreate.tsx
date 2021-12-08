@@ -5,7 +5,7 @@ import { addCourseSections, getCourseSections } from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
-  DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator,
+  DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
 import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
@@ -223,10 +223,8 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
     const duplicateNamesInFileValidator: SectionRowsValidator = new DuplicateSectionInFileSectionRowsValidator()
     rowInvalidations.push(...duplicateNamesInFileValidator.validate(sectionNames))
-    const emptyNamesInFileValidator: EmptySectionNameValidator = new EmptySectionNameValidator()
-    rowInvalidations.push(...emptyNamesInFileValidator.validate(sectionNames))
-    const sectionNamesTooLongValidator: SectionNameTooLongValidator = new SectionNameTooLongValidator()
-    rowInvalidations.push(...sectionNamesTooLongValidator.validate(sectionNames))
+    const sectionNamesLengthValidator = new SectionNameLengthValidator()
+    rowInvalidations.push(...sectionNamesLengthValidator.validate(sectionNames))
 
     return rowInvalidations
   }

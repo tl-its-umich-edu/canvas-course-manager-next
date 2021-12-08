@@ -12,6 +12,7 @@ import { courseRenameRoles } from '../models/feature'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
+import { courseNameSchema, validateString } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -104,6 +105,7 @@ function Home (props: HomeProps): JSX.Element {
           text={props.course.name}
           placeholderText='Course name'
           fontSize='1.5rem'
+          validate={(value) => validateString(value, courseNameSchema)}
           save={doSetCourseName}
           isSaving={setCourseNameLoading}
         />
