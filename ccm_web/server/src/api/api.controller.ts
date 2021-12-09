@@ -20,6 +20,9 @@ import {
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
+import {
+  SectionExternalUserDto, SectionExternalUsersDto
+} from './dtos/api.section.external.users.dto'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')
@@ -93,8 +96,8 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<string | CanvasEnrollment[]> {
-    const users: SectionUserDto[] = sectionUsersData.users
+  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User): Promise<string | CanvasEnrollment[]> {
+    const users: SectionExternalUserDto[] = sectionExternalUsersData.users
     const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
