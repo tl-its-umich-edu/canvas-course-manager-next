@@ -115,6 +115,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
         rolesUserCanAdd={rolesUserCanAdd}
         enrollExistingUser={async () => undefined}
         enrollNewUser={async () => undefined}
+        resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
       />
       </>
     )
@@ -140,6 +141,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
                 }
               }
             }
+            resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
           />
         )
       default:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
@@ -52,6 +52,7 @@ interface MultipleUserEnrollmentWorkflowProps {
   course: CanvasCourseBase
   sections: SelectableCanvasCourseSection[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
+  resetFeature: () => void
 }
 
 export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrollmentWorkflowProps): JSX.Element {
@@ -88,10 +89,17 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
       />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+      <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+        <Button
+          onClick={props.resetFeature}
+          aria-label='Back to input method select'
+        >
+          Back
+        </Button>
         <Button
           variant='contained'
           color='primary'
+          aria-label='Select section'
           disabled={selectedSection === undefined}
           onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
         >

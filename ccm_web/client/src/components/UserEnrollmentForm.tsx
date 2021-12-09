@@ -23,11 +23,15 @@ interface UserEnrollmentFormProps {
   sections: SelectableCanvasCourseSection[]
   enrollExistingUser: (enrollment: ExternalUserEnrollment) => Promise<void>
   enrollNewUser: (enrollment: ExternalUserNewEnrollment) => Promise<void>
+  resetFeature: () => void
 }
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
     marginBottom: theme.spacing(2)
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -146,15 +150,23 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               canUnmerge={false}
             />
           </div>
-          <Button
-            color='primary'
-            variant='contained'
-            disabled={!isValid}
-            aria-label='Submit single user enrollment'
-            onClick={undefined}
-          >
-            Submit
-          </Button>
+          <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+            <Button
+              aria-label='Back to input method select'
+              onClick={props.resetFeature}
+            >
+              Back
+            </Button>
+            <Button
+              color='primary'
+              variant='contained'
+              disabled={!isValid}
+              aria-label='Submit single user enrollment'
+              onClick={undefined}
+            >
+              Submit
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </div>
