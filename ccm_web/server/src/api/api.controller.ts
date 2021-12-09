@@ -13,6 +13,7 @@ import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
 import { SectionIdsDto } from './dtos/api.section.ids.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { SessionGuard } from '../auth/session.guard'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections
 } from '../canvas/canvas.interfaces'
@@ -20,7 +21,7 @@ import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')
 export class APIController {
   constructor (private readonly apiService: APIService) {}

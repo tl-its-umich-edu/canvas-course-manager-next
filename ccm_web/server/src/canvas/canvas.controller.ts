@@ -1,3 +1,6 @@
+import crypto from 'crypto'
+import { promisify } from 'util'
+
 import { Request, Response } from 'express'
 import {
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
@@ -7,6 +10,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { SessionGuard } from '../auth/session.guard'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
@@ -14,7 +18,9 @@ import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-@UseGuards(JwtAuthGuard)
+const generateToken = promisify(crypto.randomBytes)
+
+@UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('canvas')
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}
@@ -36,9 +42,11 @@ export class CanvasController {
       return res.redirect('/')
     }
 
-    const fullURL = `${this.canvasService.getAuthURL()}&state=${req.sessionID}`
+    const stateToken = (await generateToken(48)).toString('hex')
+    req.session.data.oAuthToken = stateToken
+    const fullURL = `${this.canvasService.getAuthURL()}&state=${stateToken}`
     logger.debug(`Full redirect URL: ${fullURL}`)
-    res.redirect(fullURL)
+    req.session.save(() => { res.redirect(fullURL) })
   }
 
   @ApiExcludeEndpoint()
@@ -63,16 +71,19 @@ export class CanvasController {
     }
 
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
-    logger.debug(`Session ID: ${req.sessionID}`)
     logger.debug(`Session: ${JSON.stringify(req.session, null, 2)}`)
-    if (req.sessionID !== query.state) {
-      logger.warn('State variable returned from Canvas did not match session ID; throwing unauthorized exception...')
-      throw new UnauthorizedException('You are not authorized to access this resource.')
-    }
-
     if (req.session.data === undefined) {
       logger.warn('Failed to find needed session data; throwing an internal server error exception...')
       throw new InternalServerErrorException('Session data could not be found.')
+    }
+
+    const { oAuthToken } = req.session.data
+    if (oAuthToken === undefined || query.state !== oAuthToken) {
+      logger.warn(
+        'The state variable returned from Canvas did not match the oAuthToken value in the session, or ' +
+        'the oAuthToken value was undefined.'
+      )
+      throw new UnauthorizedException('You are not authorized to access this resource.')
     }
 
     await this.canvasService.createTokenForUser(user, query.code)

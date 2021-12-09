@@ -2,6 +2,7 @@ import path from 'path'
 
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
+import { urlencoded, json } from 'express'
 import session from 'express-session'
 import morgan from 'morgan'
 import { Sequelize } from 'sequelize-typescript'
@@ -47,6 +48,11 @@ async function bootstrap (): Promise<void> {
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
+  // Controls size limit of data in payload and URL
+  const payloadSizeLimit = '5mb'
+  app.use(json({ limit: payloadSizeLimit }))
+  app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
+
   app.use(
     session({
       store: sessionStore,
@@ -57,7 +63,8 @@ async function bootstrap (): Promise<void> {
       cookie: {
         domain: serverConfig.domain,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        maxAge: serverConfig.maxAgeInSec * 1000
       }
     })
   )
