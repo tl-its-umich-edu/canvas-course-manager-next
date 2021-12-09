@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Button, Grid, makeStyles, TextField, Typography
+  Paper, Button, Grid, makeStyles, TextField, Typography
 } from '@material-ui/core'
 
 import RoleSelect from './RoleSelect'
@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonGroup: {
     marginTop: theme.spacing(1)
+  },
+  alert: {
+    padding: theme.spacing(2)
   }
 }))
 
@@ -58,28 +61,25 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const isValid = ![firstName, lastName, email, role].includes(undefined)
 
   const nameInput = (
-    <div>
-      <Typography className={classes.spacing}>
-        The email you entered is not associated with an account in Canvas.
-        Please provide a first and last name, and we will invite them to set up a friend account.
-      </Typography>
-      <TextField
-        fullWidth
-        className={classes.spacing}
-        variant='filled'
-        label='First name'
-        placeholder='Jane'
-        onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
-      />
-      <TextField
-        fullWidth
-        className={classes.spacing}
-        variant='filled'
-        label='Last name'
-        placeholder='Doe'
-        onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
-      />
-    </div>
+    <>
+    <Typography className={classes.spacing}>
+      The email you entered is not associated with an account in Canvas.
+      Please provide a first and last name, and we will invite them to set up a friend account.
+    </Typography>
+    <TextField
+      fullWidth
+      className={classes.spacing}
+      label='First name'
+      placeholder='Jane'
+      onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
+    />
+    <TextField
+      fullWidth
+      label='Last name'
+      placeholder='Doe'
+      onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
+    />
+    </>
   )
 
   const emailField = (
@@ -121,7 +121,22 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
           </Typography>
           {emailField}
-          {userExists === false && nameInput}
+          {
+            userExists !== undefined && (
+              <Paper className={`${classes.alert} ${classes.spacing}`} role='alert' variant='outlined'>
+                {
+                  !userExists
+                    ? nameInput
+                    : (
+                        <Typography>
+                          This email is already associated with a Canvas user.
+                          Finish the form to enroll them in the section.
+                        </Typography>
+                      )
+                }
+              </Paper>
+            )
+          }
           <div className={classes.spacing}>
             <RoleSelect
               selectedRole={role}
@@ -131,7 +146,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             />
           </div>
           <Typography gutterBottom>
-            Select the section you want to enroll users in.
+            Select the section you want to enroll the user in.
           </Typography>
           <div className={classes.spacing}>
             <SectionSelectorWidget

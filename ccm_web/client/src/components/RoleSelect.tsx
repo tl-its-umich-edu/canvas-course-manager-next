@@ -28,9 +28,8 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
       <Grid item xs={8} sm={6}>
         <Select
           fullWidth={true}
-          variant='filled'
+          variant='outlined'
           id='role-select'
-          label='Role'
           labelId='role-select-label'
           value={props.selectedRole ?? ''}
           onChange={handleRoleSelectChange}
