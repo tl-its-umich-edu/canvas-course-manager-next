@@ -4,11 +4,11 @@
   link: /merge-sections.html
 - name: Create Sections
   link: /create-sections.html
-- name: Canvas Gradebook Formatter
+- name: Format Gradebook Formatter
   link: /gradebook-canvas.html
-- name: External Tools Gradebook Formatter
+- name: Format Third&#8209;Party Gradebook
   link: /gradebook-thirdparty.html
-- name: Add UM Users
+- name: Add U&#8209;M Users
   link: /add-um-users.html
-- name: Add Non-UM Users
+- name: Add Non&#8209;UM Users
   link: /add-non-um-users.html
