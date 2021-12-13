@@ -62,64 +62,75 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const nameInput = (
     <>
-    <Typography className={classes.spacing}>
+    <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
       Please provide a first and last name, and we will invite them to set up a friend account.
     </Typography>
-    <TextField
-      fullWidth
-      className={classes.spacing}
-      label='First name'
-      placeholder='Jane'
-      onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
-    />
-    <TextField
-      fullWidth
-      label='Last name'
-      placeholder='Doe'
-      onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
-    />
+    <Grid container spacing={2}>
+      <Grid item md={6} xs={6}>
+        <TextField
+          fullWidth
+          className={classes.spacing}
+          label='First name'
+          placeholder='Jane'
+          variant='outlined'
+          onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
+        />
+      </Grid>
+      <Grid item md={6} xs={6}>
+        <TextField
+          fullWidth
+          variant='outlined'
+          label='Last name'
+          placeholder='Doe'
+          onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
+        />
+      </Grid>
+    </Grid>
     </>
   )
 
   const emailField = (
-    <Grid container spacing={2} alignItems='center'>
-      <Grid item md={10} sm={8} xs={8}>
-        <TextField
-          className={classes.spacing}
-          fullWidth
-          label='Email address'
-          placeholder='user@example.com'
-          onChange={(e: TextChangeEvent) => {
-            setUserExists(undefined)
-            setFirstName(undefined)
-            setLastName(undefined)
-            setEmail(e.currentTarget.value)
-          }}
-          disabled={isSearchForUserLoading}
-        />
+    <div className={classes.spacing}>
+      <Typography className={classes.spacing}>
+        Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
+      </Typography>
+      <Grid container spacing={2} alignItems='center'>
+        <Grid item md={10} sm={8} xs={8}>
+          <TextField
+            className={classes.spacing}
+            variant='outlined'
+            fullWidth
+            label='Email address'
+            placeholder='user@example.com'
+            onChange={(e: TextChangeEvent) => {
+              setUserExists(undefined)
+              setFirstName(undefined)
+              setLastName(undefined)
+              setEmail(e.currentTarget.value)
+            }}
+            disabled={isSearchForUserLoading}
+          />
+        </Grid>
+        <Grid item md={2} sm={4} xs={4}>
+          <Button
+            color='primary'
+            variant='contained'
+            aria-label='Search for user in Canvas'
+            onClick={async () => { if (email !== undefined) await doSearchForUser(email) }}
+            disabled={email === undefined || userExists !== undefined}
+          >
+            Search
+          </Button>
+        </Grid>
       </Grid>
-      <Grid item md={2} sm={4} xs={4}>
-        <Button
-          color='primary'
-          variant='contained'
-          aria-label='Search for user in Canvas'
-          onClick={async () => { if (email !== undefined) await doSearchForUser(email) }}
-          disabled={email === undefined || userExists !== undefined}
-        >
-          Search
-        </Button>
-      </Grid>
-    </Grid>
+    </div>
   )
 
   return (
     <div id='single-add-user' aria-live='polite'>
       <Grid container>
         <Grid item xs={12} sm={9} md={9}>
-          <Typography>
-            Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
-          </Typography>
           {emailField}
           {
             userExists !== undefined && (
