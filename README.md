@@ -241,7 +241,7 @@ for more info.
 To deploy the latest changes to the GitHub Pages site, follow the steps below:
 1. Go to the CCM repository, then click "Settings" and then "Pages".
 2. Choose the branch to deploy from, and then specify the `docs` folder.
-3. Click "Save", which will begin a deployment. (It will take a few seconds, and only 10 builds are allowed per hour).
+3. Click "Save", which will begin a deployment. (It will take a few seconds, and only 10 builds are allowed per hour.)
 4. Once the site has been published, navigate to `https://{your_account}.github.io/canvas-course-manager-next`,
 replacing `{your_account}` with your GitHub user or organization name, to view the content.
 
