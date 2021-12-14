@@ -79,6 +79,7 @@ export class CanvasService {
   secret: string
   adminClientId: string
   adminSecret: string
+  adminToken: string
   url: string
   redirectURI: string
 
@@ -94,6 +95,7 @@ export class CanvasService {
     this.secret = canvasConfig.apiSecret
     this.adminClientId = canvasConfig.adminApiClientId
     this.adminSecret = canvasConfig.adminApiSecret
+    this.adminToken = canvasConfig.adminApiToken
     this.url = canvasConfig.instanceURL
     this.redirectURI = `https://${domain}/canvas/returnFromOAuth`
   }
@@ -247,7 +249,7 @@ export class CanvasService {
   }
 
   async createRequestorForAdmin (endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
-    const requestor = new CanvasRequestor(this.url + endpoint, this.adminSecret, requestorOptions)
+    const requestor = new CanvasRequestor(this.url + endpoint, this.adminToken, requestorOptions)
     return requestor
   }
 }
