@@ -306,7 +306,7 @@ designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
         <Typography>
-          Your file should include a {USER_ID_TEXT.toLocaleLowerCase()} and
+          Your file should include a {USER_ID_TEXT.toLocaleLowerCase()} (uniqname) and
           a {USER_ROLE_TEXT.toLocaleLowerCase()} for each user. {MAX_ENROLLMENT_MESSAGE}
         </Typography>
       ),
