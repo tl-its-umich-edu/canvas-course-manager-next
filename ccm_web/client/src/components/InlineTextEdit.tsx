@@ -4,11 +4,14 @@ import { Button, Grid, TextField, Typography } from '@material-ui/core'
 import { Edit as EditIcon } from '@material-ui/icons'
 import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
+import { ValidationResult } from '../utils/validation'
+
 interface InlineTextEditProps {
   text: string
   placeholderText: string
   fontSize: string
   isSaving: boolean
+  validate: (value: string | undefined) => ValidationResult
   save: (text: string) => Promise<void>
 }
 
@@ -36,6 +39,8 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   const classes = useStyles()
   const [isEditing, setIsEditing] = useState(false)
   const [tempTextValue, setTempTextValue] = useState(props.text)
+  const [validationResult, setValidationResult] = useState<ValidationResult | undefined>(undefined)
+
   const textInput = useRef(null)
 
   // Resets tempTextValue in case when save fails
@@ -45,6 +50,10 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
 
   const save = async (): Promise<void> => {
     if (props.text === tempTextValue) return
+    const result = props.validate(tempTextValue)
+    if (!result.isValid) {
+      return setValidationResult(result)
+    }
     await props.save(tempTextValue)
     setIsEditing(false)
   }
@@ -52,6 +61,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   const cancel = (): void => {
     setIsEditing(false)
     setTempTextValue(props.text)
+    setValidationResult(undefined)
   }
 
   const toggleEdit = (): void => {
@@ -68,6 +78,13 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
       cancel()
     }
   }
+
+  const error = validationResult !== undefined && !validationResult.isValid
+  const helpMessage = validationResult === undefined || validationResult.isValid
+    ? undefined
+    : validationResult.messages.length > 0
+      ? validationResult.messages[0]
+      : 'Value for the field is invalid.'
 
   return (
     <div className={classes.root}>
@@ -89,8 +106,13 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                       placeholder={props.placeholderText}
                       value={tempTextValue}
                       onKeyDown={keyPress}
-                      onChange={(e) => setTempTextValue(e.target.value)}
+                      onChange={(e) => {
+                        setValidationResult(undefined)
+                        setTempTextValue(e.target.value)
+                      }}
                       disabled={!isEditing && props.isSaving}
+                      error={error}
+                      helperText={helpMessage}
                     />
                   </Grid>
                   <Grid item md={3} sm={5} xs={5}>

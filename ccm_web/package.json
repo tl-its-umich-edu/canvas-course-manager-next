@@ -61,7 +61,8 @@
     "swagger-ui-express": "^4.1.6",
     "umzug": "^3.0.0-beta.16",
     "wait-port": "^0.2.9",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@nestjs/testing": "^8.2.0",
