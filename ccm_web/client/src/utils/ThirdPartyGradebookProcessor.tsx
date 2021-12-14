@@ -61,7 +61,7 @@ export default class ThirdPartyGradebookProcessor {
       if (result.isValid) {
         return [assignmentName, undefined]
       } else {
-        errorMessage = result.messages.length > 0 ? result.messages[0] : 'The assignment header is invalid.'
+        errorMessage = result.messages.length > 0 ? result.messages[0] : 'Value for the assignment header is invalid.'
       }
     } else if (otherKeys.length === 0) {
       errorMessage = 'No assignment column was found.'
