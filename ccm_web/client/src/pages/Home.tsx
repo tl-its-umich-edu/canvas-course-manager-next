@@ -57,7 +57,7 @@ function Home (props: HomeProps): JSX.Element {
     setCourseNameAsync,
     (course: CanvasCourseBase|undefined) => {
       props.setCourse(course)
-      enqueueSnackbar('Course name saved', { variant: 'success' })
+      enqueueSnackbar('Course name saved, please refresh page.', { variant: 'success' })
     }
   )
 
