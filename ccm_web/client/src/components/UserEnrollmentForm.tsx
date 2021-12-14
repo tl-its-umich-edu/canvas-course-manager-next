@@ -7,7 +7,7 @@ import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import usePromise from '../hooks/usePromise'
 import { ClientEnrollmentType } from '../models/canvas'
-import { validateString, ValidationResult } from '../utils/validation'
+import { emailSchema, validateString, ValidationResult } from '../utils/validation'
 
 interface ExternalUserEnrollment {
   email: string
@@ -47,6 +47,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
 
   const [email, setEmail] = useState<string | undefined>(undefined)
+  const [emailValidationResult, setEmailValidationResult] = useState<ValidationResult | undefined>(undefined)
   const [userExists, setUserExists] = useState<boolean | undefined>(undefined)
 
   const [firstName, setFirstName] = useState<string | undefined>('')
@@ -60,6 +61,12 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   )
 
   const isValid = ![firstName, lastName, email, role].includes(undefined)
+
+  const handleSearchClick = async (): Promise<void> => {
+    const result = validateString(email, emailSchema)
+    if (!result.isValid || email === undefined) return setEmailValidationResult(result)
+    return await doSearchForUser(email)
+  }
 
   const emailField = (
     <div className={classes.spacing}>
@@ -79,8 +86,17 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               setFirstName(undefined)
               setLastName(undefined)
               setEmail(e.currentTarget.value)
+              setEmailValidationResult(undefined)
             }}
             disabled={isSearchForUserLoading}
+            error={emailValidationResult !== undefined && !emailValidationResult.isValid}
+            helperText={
+              emailValidationResult === undefined || emailValidationResult.isValid
+                ? undefined
+                : emailValidationResult.messages.length > 0
+                  ? emailValidationResult.messages[0]
+                  : 'Value for email is invalid.'
+            }
           />
         </Grid>
         <Grid item md={2} sm={4} xs={4}>
@@ -88,7 +104,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             color='primary'
             variant='contained'
             aria-label='Search for user in Canvas'
-            onClick={async () => { if (email !== undefined) await doSearchForUser(email) }}
+            onClick={handleSearchClick}
             disabled={email === undefined || userExists !== undefined}
           >
             Search
