@@ -103,7 +103,7 @@ export class SectionApiHandler {
     }
   }
 
-  async createExternalUsers (account: number, users: SectionExternalUserDto[]): Promise<(CanvasUser | APIErrorData)[]> {
+  async createExternalUsers (account: number, users: SectionExternalUserDto[]): Promise<Array<CanvasUser | APIErrorData>> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
