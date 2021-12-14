@@ -24,9 +24,10 @@ interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
-  adminApiClientId: string
-  adminApiSecret: string
+  // adminApiClientId: string
+  // adminApiSecret: string
   adminApiToken: string
+  newUserAccountID: number
 }
 
 interface InvitationConfig {
@@ -129,9 +130,10 @@ export function validateConfig (): Config {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
-      adminApiClientId: validate<string>('CANVAS_ADMIN_API_CLIENT_ID', env.CANVAS_ADMIN_API_CLIENT_ID, isString, [isNotEmpty]),
-      adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty]),
-      adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty])
+      // adminApiClientId: validate<string>('CANVAS_ADMIN_API_CLIENT_ID', env.CANVAS_ADMIN_API_CLIENT_ID, isString, [isNotEmpty]),
+      // adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty]),
+      adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty]),
+      newUserAccountID: validate<number>('CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1),
     }
     invitation = {
       apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
