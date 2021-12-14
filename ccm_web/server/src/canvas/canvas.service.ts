@@ -248,7 +248,7 @@ export class CanvasService {
     return requestor
   }
 
-  async createRequestorForAdmin (endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+  createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor {
     const requestor = new CanvasRequestor(this.url + endpoint, this.adminToken, requestorOptions)
     return requestor
   }
