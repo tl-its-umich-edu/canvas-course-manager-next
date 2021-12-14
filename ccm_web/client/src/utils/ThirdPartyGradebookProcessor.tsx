@@ -1,5 +1,6 @@
 import { CSVRecord } from '../utils/FileParserWrapper'
 import { InvalidationType } from '../models/models'
+import { assignmentHeaderSchema, validateString } from './validation'
 
 export interface GradebookUploadRecord extends CSVRecord {
   'SIS Login ID': string
@@ -33,10 +34,6 @@ interface ProcessResultFailure {
   invalidations: GradebookInvalidation[]
 }
 
-const isCanvasEntityNameLengthValid = (value: string): boolean => {
-  return value.length > 0 && value.length <= 255
-}
-
 export type ProcessResult = ProcessResultSuccess | ProcessResultFailure
 
 export default class ThirdPartyGradebookProcessor {
@@ -60,13 +57,11 @@ export default class ThirdPartyGradebookProcessor {
     const otherKeys = Object.keys(oneRecord).filter(k => !REQUIRED_ORDERED_HEADERS.includes(k))
     if (otherKeys.length === 1) {
       const assignmentName = otherKeys[0]
-      if (isCanvasEntityNameLengthValid(assignmentName)) {
+      const result = validateString(assignmentName, assignmentHeaderSchema)
+      if (result.isValid) {
         return [assignmentName, undefined]
       } else {
-        errorMessage = (
-          'The length of the assignment header is invalid. ' +
-          'Canvas requires assignment names to be at least one character and at most 255 characters.'
-        )
+        errorMessage = result.messages.length > 0 ? result.messages[0] : 'Value for the assignment header is invalid.'
       }
     } else if (otherKeys.length === 0) {
       errorMessage = 'No assignment column was found.'

@@ -1,4 +1,5 @@
 import { InvalidationType } from '../models/models'
+import { sectionNameSchema, validateString } from '../utils/validation'
 
 // For validating row level issues
 interface SectionsRowInvalidation {
@@ -35,24 +36,17 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
   }
 }
 
-class EmptySectionNameValidator implements SectionRowsValidator {
+class SectionNameLengthValidator implements SectionRowsValidator {
   validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
     const invalidations: SectionsRowInvalidation[] = []
     sectionNames.forEach((sectionName, row) => {
-      if (sectionName.trim().length === 0) {
-        invalidations.push({ message: 'Empty section name is not allowed', rowNumber: row + 2, type: InvalidationType.Error })
-      }
-    })
-    return invalidations
-  }
-}
-
-class SectionNameTooLongValidator implements SectionRowsValidator {
-  validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
-    const invalidations: SectionsRowInvalidation[] = []
-    sectionNames.forEach((sectionName, row) => {
-      if (sectionName.trim().length > 255) {
-        invalidations.push({ message: 'Section name must be 255 characters or less', rowNumber: row + 2, type: InvalidationType.Error })
+      const result = validateString(sectionName, sectionNameSchema)
+      if (!result.isValid) {
+        invalidations.push({
+          message: result.messages.length > 0 ? result.messages[0] : 'Value for the section name is invalid.',
+          rowNumber: row + 2,
+          type: InvalidationType.Error
+        })
       }
     })
     return invalidations
@@ -60,4 +54,4 @@ class SectionNameTooLongValidator implements SectionRowsValidator {
 }
 
 export type { SectionsRowInvalidation, SectionRowsValidator }
-export { InvalidationType, DuplicateSectionInFileSectionRowsValidator, EmptySectionNameValidator, SectionNameTooLongValidator }
+export { InvalidationType, DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator }
