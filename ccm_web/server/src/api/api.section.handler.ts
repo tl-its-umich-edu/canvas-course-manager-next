@@ -53,12 +53,12 @@ export class SectionApiHandler {
     return enrollmentsResult.map(e => e.user.login_id)
   }
 
-  async createExternalUser (account: number, user: SectionExternalUserDto): Promise<CanvasUser|APIErrorData> {
+  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUser | APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
 
     try {
-      const endpoint = `accounts/${account}/users`
+      const endpoint = `accounts/${accountID}/users`
       const method = HttpMethod.Post
       const body = {
         user: {
@@ -103,12 +103,12 @@ export class SectionApiHandler {
     }
   }
 
-  async createExternalUsers (account: number, users: SectionExternalUserDto[]): Promise<Array<CanvasUser | APIErrorData>> {
+  async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUser | APIErrorData>> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
     // TODO: try creating all Canvas users; failure means user already exists
-    const createUserPromises = users.map(async (user) => await this.createExternalUser(account, user))
+    const createUserPromises = users.map(async (user) => await this.createExternalUser(user, accountID))
     const createUserResponses = await Promise.all(createUserPromises)
 
     // TODO: make invitation list for only successful user creations
