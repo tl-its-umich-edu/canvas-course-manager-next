@@ -80,9 +80,11 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
   }
 
   const error = validationResult !== undefined && !validationResult.isValid
-  const helpMessage = validationResult !== undefined && validationResult.messages.length > 0
-    ? validationResult.messages[0]
-    : undefined
+  const helpMessage = validationResult === undefined || validationResult.isValid
+    ? undefined
+    : validationResult.messages.length > 0
+      ? validationResult.messages[0]
+      : 'Value for the field is invalid.'
 
   return (
     <div className={classes.root}>
