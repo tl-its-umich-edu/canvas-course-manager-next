@@ -9,7 +9,12 @@ import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CanvasCourse,
+  CanvasCourseBase,
+  CanvasCourseSection,
+  CanvasCourseSectionBase,
+  CanvasEnrollment,
+  CanvasUser,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -124,17 +129,19 @@ export class APIService {
 
   async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
     // Create all requested users, noting failures
-    const adminRequestor = await this.canvasService.createRequestorForAdmin('/api/v1/')
+    const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new SectionApiHandler(adminRequestor, sectionId)
-    const createdUsers = await adminHandler.createExternalUsers(sectionUsers)
+    const createUserResponses = await adminHandler.createExternalUsers(1, sectionUsers) //FIXME: parameterize account
+    const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
 
-    if (isAPIErrorData(createdUsers)) return createdUsers
+    // FIXME: required?
+    // if (isAPIErrorData(createUserResponses)) return createUserResponses
 
-    // TODO: Invite only new users in `createdUsers`
+    // Invite only new users
     const inviteService = new InvitationService(this.configService)
-    const inviteResults: string = await inviteService.sendInvitations(createdUsers)
+    const inviteResults: string = await inviteService.sendInvitations(newUsers)
 
-    // TODO: Enroll all users
+    // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
     return await sectionHandler.enrollUsers(sectionUsers)
