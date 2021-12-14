@@ -10,9 +10,10 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
 
+const canvasMaxNameLength = 255
 const createCanvasEntityNameSchema = (fieldName: string): StringSchema => {
   return string().required(createBlankMessage(fieldName))
-    .max(255, ({ max }) => createExceededMessage(fieldName, max))
+    .max(canvasMaxNameLength, ({ max }) => createExceededMessage(fieldName, max))
 }
 
 export const courseNameSchema = createCanvasEntityNameSchema('course name')
