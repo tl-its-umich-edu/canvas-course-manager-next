@@ -409,7 +409,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     return (
       <div>
         <SuccessCard
-          message={<Typography>The trimmed gradebook file has been downloaded to your computer!</Typography>}
+          message={<Typography>The formatted gradebook file has been downloaded to your computer!</Typography>}
         />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button variant='outlined' onClick={handleFullReset}>Start Again</Button>
