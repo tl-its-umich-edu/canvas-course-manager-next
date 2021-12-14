@@ -26,6 +26,7 @@ interface CanvasConfig {
   apiSecret: string
   adminApiClientId: string
   adminApiSecret: string
+  adminApiToken: string
 }
 
 interface InvitationConfig {
@@ -129,7 +130,8 @@ export function validateConfig (): Config {
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
       adminApiClientId: validate<string>('CANVAS_ADMIN_API_CLIENT_ID', env.CANVAS_ADMIN_API_CLIENT_ID, isString, [isNotEmpty]),
-      adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty])
+      adminApiSecret: validate<string>('CANVAS_ADMIN_API_SECRET', env.CANVAS_ADMIN_API_SECRET, isString, [isNotEmpty]),
+      adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty])
     }
     invitation = {
       apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
