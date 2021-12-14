@@ -131,7 +131,8 @@ export class APIService {
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new SectionApiHandler(adminRequestor, sectionId)
-    const createUserResponses = await adminHandler.createExternalUsers(1, sectionUsers) //FIXME: parameterize account
+    const canvasConfig = this.configService.get('canvas', { infer: true })
+    const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
 
     // FIXME: required?
@@ -140,6 +141,7 @@ export class APIService {
     // Invite only new users
     const inviteService = new InvitationService(this.configService)
     const inviteResults: string = await inviteService.sendInvitations(newUsers)
+    // FIXME: handle errors from invitation process
 
     // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
