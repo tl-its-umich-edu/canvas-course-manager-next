@@ -62,6 +62,8 @@ export class SectionApiHandler {
     const method = HttpMethod.Post
     const body = {
       user: {
+        name: `${user.givenName} ${user.surname}`,
+        sortable_name: `${user.surname}, ${user.givenName}`,
         terms_of_use: true,
         skip_registration: true
       },
