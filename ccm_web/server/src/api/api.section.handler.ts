@@ -53,7 +53,6 @@ export class SectionApiHandler {
     return enrollmentsResult.map(e => e.user.login_id)
   }
 
-  // async createUser (user: SectionUserDto): Promise<CanvasUser | APIErrorData> {
   async createExternalUser (account: number, user: SectionExternalUserDto): Promise<CanvasUser|APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
