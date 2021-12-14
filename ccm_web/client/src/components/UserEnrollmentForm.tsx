@@ -7,6 +7,7 @@ import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import usePromise from '../hooks/usePromise'
 import { ClientEnrollmentType } from '../models/canvas'
+import { validateString, ValidationResult } from '../utils/validation'
 
 interface ExternalUserEnrollment {
   email: string
@@ -60,36 +61,6 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const isValid = ![firstName, lastName, email, role].includes(undefined)
 
-  const nameInput = (
-    <>
-    <Typography className={classes.spacing} gutterBottom>
-      The email you entered is not associated with an account in Canvas.
-      Please provide a first and last name, and we will invite them to set up a friend account.
-    </Typography>
-    <Grid container spacing={2}>
-      <Grid item md={6} xs={6}>
-        <TextField
-          fullWidth
-          className={classes.spacing}
-          label='First name'
-          placeholder='Jane'
-          variant='outlined'
-          onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
-        />
-      </Grid>
-      <Grid item md={6} xs={6}>
-        <TextField
-          fullWidth
-          variant='outlined'
-          label='Last name'
-          placeholder='Doe'
-          onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
-        />
-      </Grid>
-    </Grid>
-    </>
-  )
-
   const emailField = (
     <div className={classes.spacing}>
       <Typography className={classes.spacing}>
@@ -125,6 +96,36 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         </Grid>
       </Grid>
     </div>
+  )
+
+  const nameInput = (
+    <>
+    <Typography className={classes.spacing} gutterBottom>
+      The email you entered is not associated with an account in Canvas.
+      Please provide a first and last name, and we will invite them to set up a friend account.
+    </Typography>
+    <Grid container spacing={2}>
+      <Grid item md={6} xs={6}>
+        <TextField
+          fullWidth
+          className={classes.spacing}
+          label='First name'
+          placeholder='Jane'
+          variant='outlined'
+          onChange={(e: TextChangeEvent) => setFirstName(e.currentTarget.value)}
+        />
+      </Grid>
+      <Grid item md={6} xs={6}>
+        <TextField
+          fullWidth
+          variant='outlined'
+          label='Last name'
+          placeholder='Doe'
+          onChange={(e: TextChangeEvent) => setLastName(e.currentTarget.value)}
+        />
+      </Grid>
+    </Grid>
+    </>
   )
 
   return (
