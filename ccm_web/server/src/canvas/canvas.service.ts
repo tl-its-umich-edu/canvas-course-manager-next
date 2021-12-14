@@ -77,9 +77,10 @@ const requestorOptions: GotOptions = {
 export class CanvasService {
   clientId: string
   secret: string
-  adminClientId: string
-  adminSecret: string
+  // adminClientId: string
+  // adminSecret: string
   adminToken: string
+  newUserAccountID: number
   url: string
   redirectURI: string
 
@@ -93,9 +94,10 @@ export class CanvasService {
     const domain = configService.get('server.domain', { infer: true })
     this.clientId = canvasConfig.apiClientId
     this.secret = canvasConfig.apiSecret
-    this.adminClientId = canvasConfig.adminApiClientId
-    this.adminSecret = canvasConfig.adminApiSecret
+    // this.adminClientId = canvasConfig.adminApiClientId
+    // this.adminSecret = canvasConfig.adminApiSecret
     this.adminToken = canvasConfig.adminApiToken
+    this.newUserAccountID = canvasConfig.newUserAccountID
     this.url = canvasConfig.instanceURL
     this.redirectURI = `https://${domain}/canvas/returnFromOAuth`
   }
