@@ -54,56 +54,62 @@ export class SectionApiHandler {
   }
 
   // async createUser (user: SectionUserDto): Promise<CanvasUser | APIErrorData> {
-  async createExternalUser (user: SectionExternalUserDto): Promise<CanvasUser> {
+  async createExternalUser (account: number, user: SectionExternalUserDto): Promise<CanvasUser|APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
 
-    const endpoint = 'accounts/1/users' // FIXME: parameterize account number
-    const method = HttpMethod.Post
-    const body = {
-      user: {
-        name: `${user.givenName} ${user.surname}`,
-        sortable_name: `${user.surname}, ${user.givenName}`,
-        terms_of_use: true,
-        skip_registration: true
-      },
-      pseudonym: {
-        unique_id: loginId,
-        send_confirmation: false
-      },
-      communication_channel: {
-        type: 'email',
-        address: email,
-        skip_confirmation: true
-      },
-      force_validations: false
-    }
-    logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-    const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
-    logger.debug(`Received response with status code ${response.statusCode}`)
-    const {
-      id,
-      name,
-      sortable_name, // eslint-disable-lint
-      short_name, // eslint-disable-lint
-      login_id // eslint-disable-lint
-    } = response.body
-    return {
-      id,
-      name,
-      sortable_name,
-      short_name,
-      login_id,
-      email
+    try {
+      const endpoint = `accounts/${account}/users`
+      const method = HttpMethod.Post
+      const body = {
+        user: {
+          terms_of_use: true,
+          skip_registration: true
+        },
+        pseudonym: {
+          unique_id: loginId,
+          send_confirmation: false
+        },
+        communication_channel: {
+          type: 'email',
+          address: email,
+          skip_confirmation: true
+        },
+        force_validations: false
+      }
+      logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
+      const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      const {
+        id,
+        name,
+        sortable_name, // eslint-disable-lint
+        short_name, // eslint-disable-lint
+        login_id // eslint-disable-lint
+      } = response.body
+      return {
+        id,
+        name,
+        sortable_name,
+        short_name,
+        login_id,
+        email
+      }
+    } catch (error) {
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
+      return {
+        statusCode: errorResponse.canvasStatusCode,
+        errors: [errorResponse]
+      }
     }
   }
 
-  async createExternalUsers (users: SectionExternalUserDto[]): Promise<CanvasUser[] | APIErrorData> {
+  async createExternalUsers (account: number, users: SectionExternalUserDto[]): Promise<(CanvasUser | APIErrorData)[]> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
     // TODO: try creating all Canvas users; failure means user already exists
-    const createUserPromises = users.map(async (user) => await this.createExternalUser(user))
+    const createUserPromises = users.map(async (user) => await this.createExternalUser(account, user))
     const createUserResponses = await Promise.all(createUserPromises)
 
     // TODO: make invitation list for only successful user creations
