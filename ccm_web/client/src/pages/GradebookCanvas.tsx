@@ -293,7 +293,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderSuccess = (): JSX.Element => {
-    const message = <Typography>Your gradebook has been successfully converted!</Typography>
+    const message = <Typography>Your gradebook has been successfully converted and downloaded to your computer!</Typography>
     return <SuccessCard message={message} />
   }
 
