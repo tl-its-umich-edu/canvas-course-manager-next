@@ -8,7 +8,7 @@ import { AuthService } from '../auth/auth.service'
 
 import baseLogger from '../logger'
 import { Config } from '../config'
-import { LTIEnrollmentTypes } from '../canvas/canvas.interfaces'
+import { LTIEnrollmentType } from '../canvas/canvas.interfaces'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -70,12 +70,13 @@ export class LTIService implements BeforeApplicationShutdown {
       // check whether the user has at least one of the allowed LTI user roles
       // otherwise block tool access and show error message
       const rolesLTI = roles.length > 0 ? roles.split(',') : []
+      const ltiEnrollmentTypeEntries = Object.entries(LTIEnrollmentType)
       const ltiAllowedRoles = rolesLTI.filter(
-        x => Object.entries(LTIEnrollmentTypes).find(
+        x => ltiEnrollmentTypeEntries.find(
           ([key, value]) => value === x)
       )
       if (ltiAllowedRoles.length === 0) {
-        return createLaunchErrorResponse(res, 'Your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
+        return createLaunchErrorResponse(res, 'your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
       }
 
       try {

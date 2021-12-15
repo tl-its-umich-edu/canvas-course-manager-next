@@ -66,7 +66,7 @@ export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
-export enum CanvasRoles {
+export enum CanvasRole {
   AccountAdmin = 'Account Admin',
   SubAccountAdmin = 'Sub-Account Admin',
   SupportConsultant = 'Support Consultant',
@@ -79,23 +79,23 @@ export enum CanvasRoles {
 }
 
 export enum UserEnrollmentType {
-  DesignerEnrollment = CanvasRoles.DesignerEnrollment,
-  ObserverEnrollment = CanvasRoles.ObserverEnrollment,
-  StudentEnrollment = CanvasRoles.StudentEnrollment,
-  TaEnrollment = CanvasRoles.TaEnrollment,
-  TeacherEnrollment = CanvasRoles.TeacherEnrollment
+  DesignerEnrollment = CanvasRole.DesignerEnrollment,
+  ObserverEnrollment = CanvasRole.ObserverEnrollment,
+  StudentEnrollment = CanvasRole.StudentEnrollment,
+  TaEnrollment = CanvasRole.TaEnrollment,
+  TeacherEnrollment = CanvasRole.TeacherEnrollment
 }
 
 // valid role types for LTI launch
 // as defined in https://docs.google.com/spreadsheets/d/1pm5y9FX0zrDX7Zy3mOyDLxmA-iKoWfmlxvbtNkWg6Zw/edit#gid=1360549473
-export enum LTIEnrollmentTypes {
-  AccountAdmin = CanvasRoles.AccountAdmin,
-  SubAccountAdmin = CanvasRoles.SubAccountAdmin,
-  SupportConsultant = CanvasRoles.SupportConsultant,
-  TeacherEnrollment = CanvasRoles.TeacherEnrollment,
-  DesignerEnrollment = CanvasRoles.DesignerEnrollment,
-  TaEnrollment = CanvasRoles.TaEnrollment,
-  Assistant = CanvasRoles.Assistant
+export enum LTIEnrollmentType {
+  AccountAdmin = CanvasRole.AccountAdmin,
+  SubAccountAdmin = CanvasRole.SubAccountAdmin,
+  SupportConsultant = CanvasRole.SupportConsultant,
+  TeacherEnrollment = CanvasRole.TeacherEnrollment,
+  DesignerEnrollment = CanvasRole.DesignerEnrollment,
+  TaEnrollment = CanvasRole.TaEnrollment,
+  Assistant = CanvasRole.Assistant
 }
 
 export interface CanvasEnrollment {
