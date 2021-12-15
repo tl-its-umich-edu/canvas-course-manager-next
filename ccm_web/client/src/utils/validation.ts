@@ -22,6 +22,8 @@ export const sectionNameSchema = createCanvasEntityNameSchema('section name')
 export const emailSchema = createCanvasEntityNameSchema('email address')
   .email('The value is not a valid email address.')
   .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
+export const firstNameSchema = createCanvasEntityNameSchema('first name')
+export const lastNameSchema = createCanvasEntityNameSchema('last name')
 
 // Type validator(s)
 
