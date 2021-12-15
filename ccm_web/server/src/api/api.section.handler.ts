@@ -62,6 +62,9 @@ export class SectionApiHandler {
       const method = HttpMethod.Post
       const body = {
         user: {
+          // API doesn't offer fields for given and surname separately
+          name: `${user.givenName} ${user.surname}`,
+          sortable_name: `${user.surname}, ${user.givenName}`,
           terms_of_use: true,
           skip_registration: true
         },
