@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service'
 
 import baseLogger from '../logger'
 import { Config } from '../config'
+import { LTIEnrollmentType } from '../canvas/canvas.interfaces'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -24,7 +25,7 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
 export class LTIService implements BeforeApplicationShutdown {
   provider: LTIProvider | undefined
 
-  constructor (private readonly configService: ConfigService<Config, true>, private readonly authService: AuthService) {}
+  constructor (private readonly configService: ConfigService<Config, true>, private readonly authService: AuthService) { }
 
   async setUpLTI (): Promise<void> {
     const dbConfig = this.configService.get('db', { infer: true })
@@ -65,6 +66,18 @@ export class LTIService implements BeforeApplicationShutdown {
       const courseId = customLTIVariables.course_id as number
       const roles = customLTIVariables.roles as string
       const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
+
+      // check whether the user has at least one of the allowed LTI user roles
+      // otherwise block tool access and show error message
+      const rolesLTI = roles.length > 0 ? roles.split(',') : []
+      const ltiEnrollmentTypeEntries = Object.entries(LTIEnrollmentType)
+      const ltiAllowedRoles = rolesLTI.filter(
+        x => ltiEnrollmentTypeEntries.find(
+          ([key, value]) => value === x)
+      )
+      if (ltiAllowedRoles.length === 0) {
+        return createLaunchErrorResponse(res, 'your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
+      }
 
       try {
         await this.authService.loginLTI({

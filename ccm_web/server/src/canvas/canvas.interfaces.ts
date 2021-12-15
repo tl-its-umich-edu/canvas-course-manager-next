@@ -28,7 +28,7 @@ export interface TokenCodeResponseBody extends TokenBaseResponseBody {
   refresh_token: string
 }
 
-export interface TokenRefreshResponseBody extends TokenBaseResponseBody {}
+export interface TokenRefreshResponseBody extends TokenBaseResponseBody { }
 
 // Entities
 
@@ -66,12 +66,36 @@ export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
 }
 
-export enum UserEnrollmentType {
+export enum CanvasRole {
+  AccountAdmin = 'Account Admin',
+  SubAccountAdmin = 'Sub-Account Admin',
+  SupportConsultant = 'Support Consultant',
+  Assistant = 'Assistant',
   DesignerEnrollment = 'DesignerEnrollment',
   ObserverEnrollment = 'ObserverEnrollment',
   StudentEnrollment = 'StudentEnrollment',
   TaEnrollment = 'TaEnrollment',
   TeacherEnrollment = 'TeacherEnrollment'
+}
+
+export enum UserEnrollmentType {
+  DesignerEnrollment = CanvasRole.DesignerEnrollment,
+  ObserverEnrollment = CanvasRole.ObserverEnrollment,
+  StudentEnrollment = CanvasRole.StudentEnrollment,
+  TaEnrollment = CanvasRole.TaEnrollment,
+  TeacherEnrollment = CanvasRole.TeacherEnrollment
+}
+
+// valid role types for LTI launch
+// as defined in https://docs.google.com/spreadsheets/d/1pm5y9FX0zrDX7Zy3mOyDLxmA-iKoWfmlxvbtNkWg6Zw/edit#gid=1360549473
+export enum LTIEnrollmentType {
+  AccountAdmin = CanvasRole.AccountAdmin,
+  SubAccountAdmin = CanvasRole.SubAccountAdmin,
+  SupportConsultant = CanvasRole.SupportConsultant,
+  TeacherEnrollment = CanvasRole.TeacherEnrollment,
+  DesignerEnrollment = CanvasRole.DesignerEnrollment,
+  TaEnrollment = CanvasRole.TaEnrollment,
+  Assistant = CanvasRole.Assistant
 }
 
 export interface CanvasEnrollment {
