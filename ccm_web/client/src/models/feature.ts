@@ -21,7 +21,7 @@ const mergeSectionProps: FeatureDataProps = {
 const formatCanvasGradebookProps: FeatureDataProps = {
   id: 'FormatCanvasGradebook',
   title: 'Format Canvas Gradebook',
-  description: 'Format the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster.',
+  description: 'Format the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster',
   ordinality: 2,
   roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-canvas.html'
@@ -30,7 +30,7 @@ const formatCanvasGradebookProps: FeatureDataProps = {
 const formatThirdPartyGradebookProps: FeatureDataProps = {
   id: 'FormatThirdPartyGradebook',
   title: 'Format Third\u2011Party Gradebook',
-  description: 'Format a CSV file exported from an external tool for importing grades into the Canvas Gradebook.',
+  description: 'Format a CSV file exported from an external tool for importing grades into the Canvas Gradebook',
   ordinality: 3,
   roles: [RoleEnum.Teacher, RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant'], RoleEnum.TA],
   helpURLEnding: '/gradebook-thirdparty.html'
