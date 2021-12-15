@@ -2,19 +2,25 @@ import React, { useState } from 'react'
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
+import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
+import RowLevelErrorsContent from './RowLevelErrorsContent'
 import { SelectableCanvasCourseSection } from './SectionSelectorWidget'
+import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
-import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollmentType, ClientEnrollmentType, getCanvasRole, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
-interface EnrollmentInvalidation {
-  message: string
-  type: InvalidationType
+interface ExternalEnrollment {
+  email: string
+  role: CanvasEnrollmentType
+  firstName: string
+  lastName: string
 }
 
 const EMAIL_HEADER = 'EMAIL'
@@ -24,14 +30,14 @@ const LAST_NAME_HEADER = 'LAST_NAME'
 
 const REQUIRED_HEADERS = [EMAIL_HEADER, ROLE_HEADER, FIRST_NAME_HEADER, LAST_NAME_HEADER]
 
-interface UserEnrollmentRecord extends CSVRecord {
+interface ExternalEnrollmentRecord extends CSVRecord {
   EMAIL: string
   ROLE: string
   FIRST_NAME: string
   LAST_NAME: string
 }
 
-export const isUserEnrollmentRecord = (record: CSVRecord): record is UserEnrollmentRecord => {
+export const isExternalEnrollmentRecord = (record: CSVRecord): record is ExternalEnrollmentRecord => {
   return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
 }
 
@@ -52,6 +58,7 @@ interface MultipleUserEnrollmentWorkflowProps {
   course: CanvasCourseBase
   sections: SelectableCanvasCourseSection[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
+  rolesUserCanAdd: ClientEnrollmentType[]
   resetFeature: () => void
 }
 
@@ -62,16 +69,16 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [records, setRecords] = useState<UserEnrollmentRecord[] | undefined>(undefined)
+  const [validRecords, setValidRecords] = useState<ExternalEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
-  const [enrollmentInvalidations, setEnrollmentInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
+  const [rowValidationErrors, setRowValidationErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const handleResetUpload = (): void => {
     setFile(undefined)
-    setRecords(undefined)
+    setValidRecords(undefined)
     setSchemaInvalidations(undefined)
-    setEnrollmentInvalidations(undefined)
+    setRowValidationErrors(undefined)
   }
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
@@ -79,6 +86,19 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
     )
     return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
+  }
+
+  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<ValidationErrorTable invalidations={errors} />}
+        title='Review your CSV file'
+        resetUpload={handleResetUpload}
+      />
+      </>
+    )
   }
 
   const renderSelect = (): JSX.Element => {
@@ -111,9 +131,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderUpload = (): JSX.Element => {
-    if (schemaInvalidations !== undefined) {
-      return renderSchemaInvalidations(schemaInvalidations)
-    }
+    if (schemaInvalidations !== undefined) return renderSchemaInvalidations(schemaInvalidations)
+    if (rowValidationErrors !== undefined) return renderRowValidationErrors(rowValidationErrors)
 
     const description = (
       'This tool will try to enroll non-UM users in the selected section. ' +
@@ -158,14 +177,50 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       setActiveStep(CSVWorkflowStep.Select)
     }
 
-    const handleSchemaValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
-      const schemaValidator = new CSVSchemaValidator<UserEnrollmentRecord>(
-        REQUIRED_HEADERS, isUserEnrollmentRecord, 200
+    const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
+      const schemaValidator = new CSVSchemaValidator<ExternalEnrollmentRecord>(
+        REQUIRED_HEADERS, isExternalEnrollmentRecord, 200
       )
       const validationResult = schemaValidator.validate(headers, rowData)
-      console.log(JSON.stringify(validationResult, null, 2))
       if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
-      return setRecords(validationResult.validData)
+
+      const getMessage = (result: ValidationResult, fieldName: string): string => {
+        return result.messages.length > 0 ? result.messages[0] : `Value for ${fieldName} is invalid.`
+      }
+
+      const externalEnrollments: ExternalEnrollment[] = []
+      const externalRecords = validationResult.validData
+      const errors: RowValidationError[] = []
+      externalRecords.forEach((r, i) => {
+        const rowNumber = i + 2
+        const email = r[EMAIL_HEADER]
+        const emailValidationResult = validateString(email, emailSchema)
+        const role = r[ROLE_HEADER]
+        const firstName = r[FIRST_NAME_HEADER]
+        const firstNameValidationResult = validateString(firstName, firstNameSchema)
+        const lastName = r[LAST_NAME_HEADER]
+        const lastNameValidationResult = validateString(lastName, lastNameSchema)
+        if (!emailValidationResult.isValid) {
+          errors.push({ rowNumber, message: getMessage(emailValidationResult, 'email address') })
+        } else if (!isValidRole(role) || !props.rolesUserCanAdd.includes(role)) {
+          console.log(role)
+          errors.push({
+            rowNumber,
+            message: (
+              `Value for ${ROLE_HEADER.toLowerCase()} '${role}' is invalid. ` +
+              'Ensure it is a valid Canvas role and is less privileged than your own role.'
+            )
+          })
+        } else if (!firstNameValidationResult.isValid) {
+          errors.push({ rowNumber, message: getMessage(firstNameValidationResult, 'first name') })
+        } else if (!lastNameValidationResult.isValid) {
+          errors.push({ rowNumber, message: getMessage(lastNameValidationResult, 'last name') })
+        } else {
+          externalEnrollments.push({ email, role: getCanvasRole(role), firstName, lastName })
+        }
+      })
+      if (errors.length > 0) return setRowValidationErrors(errors)
+      return setValidRecords(externalEnrollments)
     }
 
     const handleFile = (file: File): void => {
@@ -173,7 +228,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const parser = new FileParserWrapper()
       parser.parseCSV(
         file,
-        handleSchemaValidation,
+        handleValidation,
         (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
       )
     }

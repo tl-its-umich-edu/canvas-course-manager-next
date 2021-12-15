@@ -141,6 +141,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
                 }
               }
             }
+            rolesUserCanAdd={rolesUserCanAdd}
             resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
           />
         )
