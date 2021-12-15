@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import {
-  Paper, Button, Grid, makeStyles, TextField, Typography
-} from '@material-ui/core'
+import { Paper, Button, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
+import ValidatedFormField from './ValidatedFormField'
 import usePromise from '../hooks/usePromise'
 import { ClientEnrollmentType } from '../models/canvas'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
@@ -39,8 +38,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const classes = useStyles()
 
@@ -52,6 +49,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [firstName, setFirstName] = useState<string | undefined>(undefined)
   const [firstNameValidationResult, setFirstNameValidationResult] = useState<ValidationResult | undefined>(undefined)
+
   const [lastName, setLastName] = useState<string | undefined>(undefined)
   const [lastNameValidationResult, setLastNameValidationResult] = useState<ValidationResult | undefined>(undefined)
   const [role, setRole] = useState<ClientEnrollmentType | undefined>(undefined)
@@ -122,25 +120,17 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       </Typography>
       <Grid container spacing={2} alignItems='center'>
         <Grid item md={10} sm={8} xs={8}>
-          <TextField
-            className={classes.spacing}
-            variant='outlined'
-            fullWidth
-            label='Email address'
+          <ValidatedFormField
+            fieldName='Email address'
             placeholder='user@example.com'
-            onChange={(e: TextChangeEvent) => {
+            value={email}
+            validationResult={emailValidationResult}
+            onChange={e => {
               resetNameEntryState()
               setEmail(e.currentTarget.value)
             }}
+            fullWidth={true}
             disabled={isSearchForUserLoading}
-            error={emailValidationResult !== undefined && !emailValidationResult.isValid}
-            helperText={
-              emailValidationResult === undefined || emailValidationResult.isValid
-                ? undefined
-                : emailValidationResult.messages.length > 0
-                  ? emailValidationResult.messages[0]
-                  : 'Value for email is invalid.'
-            }
           />
         </Grid>
         <Grid item md={2} sm={4} xs={4}>
@@ -166,43 +156,26 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     </Typography>
     <Grid container spacing={2}>
       <Grid item md={6} xs={6}>
-        <TextField
-          fullWidth
-          className={classes.spacing}
-          label='First name'
+        <ValidatedFormField
+          fieldName='First name'
           placeholder='Jane'
-          variant='outlined'
-          onChange={(e: TextChangeEvent) => {
-            setFirstNameValidationResult(undefined)
-            setFirstName(e.currentTarget.value)
-          }}
-          error={firstNameValidationResult !== undefined && !firstNameValidationResult.isValid}
-          helperText={
-            firstNameValidationResult === undefined || firstNameValidationResult.isValid
-              ? undefined
-              : firstNameValidationResult.messages.length > 0
-                ? firstNameValidationResult.messages[0]
-                : 'Value for first name is invalid.'
-          }
+          value={firstName}
+          validationResult={firstNameValidationResult}
+          fullWidth={true}
+          onChange={e => setFirstName(e.currentTarget.value)}
+          disabled={false} // disable later if enrollment loading
+          autoFocus={true}
         />
       </Grid>
       <Grid item md={6} xs={6}>
-        <TextField
-          fullWidth
-          variant='outlined'
-          label='Last name'
+        <ValidatedFormField
+          fieldName='Last name'
           placeholder='Doe'
-          onChange={(e: TextChangeEvent) => {
-            setLastName(e.currentTarget.value)
-          }}
-          error={lastNameValidationResult !== undefined && !lastNameValidationResult.isValid}
-          helperText={
-            lastNameValidationResult === undefined || lastNameValidationResult.isValid
-              ? undefined
-              : lastNameValidationResult.messages.length > 0
-                ? lastNameValidationResult.messages[0]
-                : 'Value for first name is invalid.'
-          }
+          value={lastName}
+          validationResult={lastNameValidationResult}
+          onChange={e => setLastName(e.currentTarget.value)}
+          fullWidth={true}
+          disabled={false} // disable later if enrollment loading
         />
       </Grid>
     </Grid>
