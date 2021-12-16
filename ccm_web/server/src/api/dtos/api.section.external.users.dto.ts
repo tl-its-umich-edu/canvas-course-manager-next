@@ -38,7 +38,7 @@ export class SectionExternalUsersDto {
   @ApiProperty({ type: [SectionExternalUserDto] })
   @IsArray()
   @ArrayMinSize(1)
-  @ArrayMaxSize(400)
+  @ArrayMaxSize(200)
   @ValidateNested({ each: true })
   @Type(() => SectionExternalUserDto)
   users: SectionExternalUserDto[]
