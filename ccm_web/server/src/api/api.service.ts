@@ -127,7 +127,7 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
+  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<string> {
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new SectionApiHandler(adminRequestor, sectionId)
@@ -137,13 +137,18 @@ export class APIService {
 
     // Invite only new users
     const inviteService = new InvitationService(this.configService)
-    const inviteResults: string = await inviteService.sendInvitations(newUsers)
-    // FIXME: handle errors from invitation process
+    const inviteResults: string | null = await inviteService.sendInvitations(newUsers)
 
     // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
-    return await sectionHandler.enrollUsers(sectionUsers)
+    const userEnrollments = await sectionHandler.enrollUsers(sectionUsers)
+
+    return JSON.stringify({
+      usersCreated: createUserResponses,
+      inviteResults: inviteResults,
+      userEnrollments: userEnrollments
+    })
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
