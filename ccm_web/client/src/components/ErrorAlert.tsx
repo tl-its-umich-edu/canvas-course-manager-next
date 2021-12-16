@@ -4,9 +4,9 @@ import ErrorIcon from '@material-ui/icons/Error'
 
 import Alert from './Alert'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   dialogIcon: {
-    color: '#3F648E'
+    color: theme.palette.error.main
   }
 }))
 

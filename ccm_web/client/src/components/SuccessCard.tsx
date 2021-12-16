@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent, CardActions, makeStyles } from '@material-ui/core'
 import CheckCircle from '@material-ui/icons/CheckCircle'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     textAlign: 'center'
   },
@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center'
   },
   icon: {
-    color: '#306430',
+    color: theme.palette.success.main,
     width: 100,
     height: 100
   }

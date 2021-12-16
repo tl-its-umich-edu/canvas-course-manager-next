@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 15
   },
   dialogIcon: {
-    color: '#3F648E'
+    color: theme.palette.info.main
   },
   dialogButton: {
     margin: 5

@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles, Typography } from '@material-ui/core'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   fileNameContainer: {
     marginBottom: 15,
     paddingLeft: 10,
@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'left'
   },
   fileName: {
-    color: '#3F648E',
+    color: theme.palette.info.main,
     fontFamily: 'monospace'
   }
 }))
