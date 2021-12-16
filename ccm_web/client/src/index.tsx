@@ -16,7 +16,7 @@ ReactDOM.render(
         <App />
       </BrowserRouter>
     </SnackbarProvider>
-    </ThemeProvider>
+   </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )

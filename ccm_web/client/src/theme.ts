@@ -2,6 +2,9 @@ import { createTheme } from '@material-ui/core/styles'
 
 const ccmTheme = createTheme({
   palette: {
+    primary: {
+      main: '#00274C'
+    },
     error: {
       main: '#E31C3D'
     },
