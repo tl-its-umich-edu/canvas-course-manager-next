@@ -62,7 +62,7 @@ export class SectionApiHandler {
       const method = HttpMethod.Post
       const body = {
         user: {
-          // API doesn't offer fields for given and surname separately
+          // API doesn't provide separate given- and surname fields
           name: `${user.givenName} ${user.surname}`,
           sortable_name: `${user.surname}, ${user.givenName}`,
           terms_of_use: true,
@@ -110,13 +110,9 @@ export class SectionApiHandler {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
-    // TODO: try creating all Canvas users; failure means user already exists
+    // Try creating all Canvas users; failure means user already exists
     const createUserPromises = users.map(async (user) => await this.createExternalUser(user, accountID))
     const createUserResponses = await Promise.all(createUserPromises)
-
-    // TODO: make invitation list for only successful user creations
-    logger.debug('createUserResponses')
-    logger.debug(createUserResponses)
 
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to create (${users.length}) external users: (${(end - start) / NS_PER_SEC}) seconds`)
@@ -186,19 +182,6 @@ export class SectionApiHandler {
     logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
     return makeResponse<CanvasEnrollment>(enrollmentResponses)
   }
-
-  // FIXME: may not be needed if enrollUsers() can be used for external users
-  // async enrollExternalUsers (users: SectionUserDto[]): Promise<string | CanvasEnrollment[] | APIErrorData> {
-  //   const NS_PER_SEC = BigInt(1e9)
-  //   const start = process.hrtime.bigint()
-  //
-  //   const apiPromises = users.map(async (user) => await this.enrollUser(user))
-  //   const enrollmentResponses = await Promise.all(apiPromises)
-  //
-  //   const end = process.hrtime.bigint()
-  //   logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)
-  //   return makeResponse<CanvasEnrollment>(enrollmentResponses)
-  // }
 
   async mergeSection (targetCourseId: number): Promise<CanvasCourseSectionBase | APIErrorData> {
     try {

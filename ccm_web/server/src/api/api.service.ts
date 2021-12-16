@@ -135,9 +135,6 @@ export class APIService {
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
 
-    // FIXME: required?
-    // if (isAPIErrorData(createUserResponses)) return createUserResponses
-
     // Invite only new users
     const inviteService = new InvitationService(this.configService)
     const inviteResults: string = await inviteService.sendInvitations(newUsers)
