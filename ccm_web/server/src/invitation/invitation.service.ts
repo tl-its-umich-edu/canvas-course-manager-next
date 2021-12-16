@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Config } from '../config'
-import { HttpService } from '@nestjs/axios'
 import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
-import { SectionUserDto } from '../api/dtos/api.section.users.dto'
 import { CanvasUser } from '../canvas/canvas.interfaces'
-
 
 // Invitation service based on Cirrus
 
@@ -30,7 +27,7 @@ export class InvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations (users: CanvasUser[]): Promise<string> {
+  async sendInvitations (users: CanvasUser[]): Promise<string | null> {
     const userEmails: string[] = users.map(user => user.email)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
@@ -40,7 +37,7 @@ export class InvitationService {
     data.append('sponsorEppn', this.sponsorName)
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
-    let results: string = 'n/a'
+    let results: string | null = null
 
     axios({
       method: 'POST',
@@ -53,7 +50,7 @@ export class InvitationService {
       data: data
     })
       .then((response) => {
-        const results: string = JSON.stringify(response.data)
+        results = JSON.stringify(response.data)
         console.log(results)
       })
       .catch((error) => {

@@ -85,9 +85,9 @@ export class SectionApiHandler {
       const {
         id,
         name,
-        sortable_name, // eslint-disable-lint
-        short_name, // eslint-disable-lint
-        login_id // eslint-disable-lint
+        sortable_name, // eslint-disable-line
+        short_name, // eslint-disable-line
+        login_id // eslint-disable-line
       } = response.body
       return {
         id,
