@@ -48,11 +48,14 @@ interface AddNonUMUsersProps extends CCMComponentProps {}
 export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const classes = useStyles()
 
-  const { roles } = props.globals.course
-  console.log('Roles: ' + roles.toString())
-  if (roles.length === 0) return <ErrorAlert />
+  const { course, canvasURL } = props.globals
 
-  const mostPrivRole = roles.sort(
+  const settingsURL = `${canvasURL}/courses/${course.id}/settings`
+
+  console.log('Roles: ' + course.roles.toString())
+  if (course.roles.length === 0) return <ErrorAlert />
+
+  const mostPrivRole = course.roles.sort(
     (a, b) => AllCanvasRoleData[a].rank > AllCanvasRoleData[b].rank ? -1 : 1
   )[0]
   const mostPrivRoleData = AllCanvasRoleData[mostPrivRole]
@@ -64,7 +67,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
       rolesUserCanAdd.push(roleData.clientName)
     }
   }
-  console.log('Roles use can add: ' + rolesUserCanAdd.toString())
+  console.log('Roles user can add: ' + rolesUserCanAdd.toString())
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>('single')
@@ -143,6 +146,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
             }
             rolesUserCanAdd={rolesUserCanAdd}
             resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
+            settingsURL={settingsURL}
           />
         )
       default:
