@@ -37,7 +37,6 @@ export class InvitationService {
     data.append('sponsorEppn', this.sponsorName)
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
-
     return axios({
       method: 'POST',
       url: this.url,
@@ -57,6 +56,5 @@ export class InvitationService {
         console.log(error)
         throw new InvitationAPIError()
       })
-
   }
 }

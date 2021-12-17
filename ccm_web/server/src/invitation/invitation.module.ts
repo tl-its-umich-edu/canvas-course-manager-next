@@ -7,7 +7,7 @@ import { InvitationService } from './invitation.service'
 @Module({
   imports: [
     ConfigModule,
-    HttpModule,
+    HttpModule
   ],
   providers: [InvitationService],
   exports: [InvitationService, HttpModule]

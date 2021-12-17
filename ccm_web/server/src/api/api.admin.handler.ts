@@ -138,7 +138,7 @@ export class AdminApiHandler {
       }
       logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
-      logger.debug(`Received response with status code ${response.statusCode}`)
+      logger.debug(`Received response with status code ${response.statusCode||"n/a"}`)
       const {
         id,
         name,
