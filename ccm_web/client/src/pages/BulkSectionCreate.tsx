@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Backdrop, Box, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
-import ErrorAlert from '../components/ErrorAlert'
+import BulkApiErrorContent from '../components/BulkApiErrorContent'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
   DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
-import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
+import ErrorAlert from '../components/ErrorAlert'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import Help from '../components/Help'
@@ -23,7 +23,6 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { CanvasError } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -324,27 +323,6 @@ Section 001`
     )
   }
 
-  const renderPartialSuccess = (error: Error): JSX.Element => {
-    const apiErrorMessage = (
-      <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
-    )
-    return (
-      error instanceof CanvasError
-        ? (
-            <>
-            {file !== undefined && <CSVFileName file={file} />}
-            <RowLevelErrorsContent
-              table={<CanvasAPIErrorsTable errors={error.errors} />}
-              title='Some errors occurred'
-              message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
-              resetUpload={resetPageState}
-            />
-            </>
-          )
-        : <ErrorAlert messages={[apiErrorMessage]} tryAgain={resetPageState} />
-    )
-  }
-
   const renderConfirm = (sectionNames: Section[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
@@ -410,7 +388,7 @@ Section 001`
         return renderSuccess()
       case BulkSectionCreatePageState.CreateSectionsError:
         if (addSectionsError !== undefined) {
-          return renderPartialSuccess(addSectionsError)
+          return <BulkApiErrorContent error={addSectionsError} file={file} tryAgain={resetPageState} />
         }
         return
       default:

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
+import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
@@ -87,7 +88,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowValidationErrors, setRowValidationErrors] = useState<RowValidationError[] | undefined>(undefined)
 
-  const [doAddExternalEnrollments, isAddExternalEnrollmentsLoading, AddExternalEnrollmentsError] = usePromise(
+  const [
+    doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError, clearAddExternalEnrollmentsError
+  ] = usePromise(
     async (enrollments: AddExternalUserEnrollment[]) => undefined, // Mocking this for now
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
@@ -95,6 +98,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const handleResetUpload = (): void => {
     setFile(undefined)
     setValidEnrollments(undefined)
+    clearAddExternalEnrollmentsError()
     setSchemaInvalidations(undefined)
     setRowValidationErrors(undefined)
   }
@@ -330,6 +334,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         return renderUpload()
       case CSVWorkflowStep.Review:
         if (validEnrollments === undefined) return <ErrorAlert />
+        if (addExternalEnrollmentsError !== undefined) {
+          return <BulkApiErrorContent error={addExternalEnrollmentsError} file={file} tryAgain={handleResetUpload} />
+        }
         return renderReview(validEnrollments)
       case CSVWorkflowStep.Confirmation:
         return renderSuccess()

@@ -5,9 +5,9 @@ import {
 import React, { useEffect, useState } from 'react'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
+import BulkApiErrorContent from '../components/BulkApiErrorContent'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
-import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CreateSelectSectionWidget from '../components/CreateSelectSectionWidget'
 import CSVFileName from '../components/CSVFileName'
@@ -24,7 +24,6 @@ import {
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
-import { CanvasError } from '../utils/handleErrors'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
@@ -376,34 +375,13 @@ designer,userd`
     )
   }
 
-  const renderPostError = (error: Error): JSX.Element => {
-    const apiErrorMessage = (
-      <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
-    )
-    return (
-      error instanceof CanvasError
-        ? (
-            <>
-            {file !== undefined && <CSVFileName file={file} />}
-            <RowLevelErrorsContent
-              table={<CanvasAPIErrorsTable errors={error.errors} />}
-              title='Some errors occurred'
-              message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
-              resetUpload={handleUploadReset}
-            />
-            </>
-          )
-        : <ErrorAlert messages={[apiErrorMessage]} tryAgain={handleUploadReset} />
-    )
-  }
-
   const getReviewContent = (): JSX.Element => {
     if (rowErrors !== undefined) {
       return renderRowValidationErrors(rowErrors)
     } else if (schemaInvalidations !== undefined) {
       return renderSchemaInvalidations(schemaInvalidations)
     } else if (addEnrollmentsError !== undefined) {
-      return renderPostError(addEnrollmentsError)
+      return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
     } else if (selectedSection !== undefined && enrollments !== undefined) {
       return renderConfirm(selectedSection, enrollments)
     } else {
