@@ -2,10 +2,16 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError, makeResponse } from './api.utils'
-import { CanvasAccount, CanvasCourse, CourseWithSections, CourseWorkflowState } from '../canvas/canvas.interfaces'
+import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import {
+  CanvasAccount,
+  CanvasCourse, CanvasUser,
+  CourseWithSections,
+  CourseWorkflowState
+} from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
+import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -102,5 +108,72 @@ export class AdminApiHandler {
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
     return finalResult
+  }
+
+  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUser | APIErrorData> {
+    const email = user.email
+    const loginId = email.replace('@', '+')
+
+    try {
+      const endpoint = `accounts/${accountID}/users`
+      const method = HttpMethod.Post
+      const body = {
+        user: {
+          // API doesn't provide separate given- and surname fields
+          name: `${user.givenName} ${user.surname}`,
+          sortable_name: `${user.surname}, ${user.givenName}`,
+          terms_of_use: true,
+          skip_registration: true
+        },
+        pseudonym: {
+          unique_id: loginId,
+          send_confirmation: false
+        },
+        communication_channel: {
+          type: 'email',
+          address: email,
+          skip_confirmation: true
+        },
+        force_validations: false
+      }
+      logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
+      const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
+      logger.debug(`Received response with status code ${response.statusCode}`)
+      const {
+        id,
+        name,
+        sortable_name, // eslint-disable-line
+        short_name, // eslint-disable-line
+        login_id // eslint-disable-line
+      } = response.body
+      return {
+        id,
+        name,
+        sortable_name,
+        short_name,
+        login_id,
+        email
+      }
+    } catch (error) {
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
+      return {
+        statusCode: errorResponse.canvasStatusCode,
+        errors: [errorResponse]
+      }
+    }
+  }
+
+  async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUser | APIErrorData>> {
+    const NS_PER_SEC = BigInt(1e9)
+    const start = process.hrtime.bigint()
+
+    // Try creating all Canvas users; failure means user already exists
+    const createUserPromises = users.map(async (user) => await this.createExternalUser(user, accountID))
+    const createUserResponses = await Promise.all(createUserPromises)
+
+    const end = process.hrtime.bigint()
+    logger.debug(`Time elapsed to create (${users.length}) external users: (${(end - start) / NS_PER_SEC}) seconds`)
+
+    return createUserResponses
   }
 }

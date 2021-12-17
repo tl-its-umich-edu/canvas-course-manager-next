@@ -130,7 +130,7 @@ export class APIService {
   async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<string> {
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
-    const adminHandler = new SectionApiHandler(adminRequestor, sectionId)
+    const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
     const canvasConfig = this.configService.get('canvas', { infer: true })
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
