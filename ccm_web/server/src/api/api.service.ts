@@ -31,7 +31,8 @@ const logger = baseLogger.child({ filePath: __filename })
 export class APIService {
   constructor (
     private readonly canvasService: CanvasService,
-    private readonly configService: ConfigService<Config, true>
+    private readonly configService: ConfigService<Config, true>,
+    private readonly invitationService: InvitationService
   ) {}
 
   getGlobals (user: User, sessionData: SessionData): Globals {
@@ -136,8 +137,7 @@ export class APIService {
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
 
     // Invite only new users
-    const inviteService = new InvitationService(this.configService)
-    const inviteResults: string | null = await inviteService.sendInvitations(newUsers)
+    const inviteResults: string | null = await this.invitationService.sendInvitations(newUsers)
 
     // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
