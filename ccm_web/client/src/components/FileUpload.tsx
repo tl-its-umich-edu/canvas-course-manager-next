@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 
   },
   uploadIcon: {
-    color: '#3F648E'
+    color: theme.palette.info.main
   }
 }))
 

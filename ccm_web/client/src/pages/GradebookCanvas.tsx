@@ -37,7 +37,7 @@ const useConfirmationStyles = makeStyles((theme) => ({
     paddingRight: 10
   },
   dialogWarningIcon: {
-    color: '#E2CF2A'
+    color: theme.palette.warning.main
   }
 }))
 
