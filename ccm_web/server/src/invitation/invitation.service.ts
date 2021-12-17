@@ -27,7 +27,7 @@ export class InvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations (users: CanvasUser[]): Promise<string | null> {
+  async sendInvitations (users: CanvasUser[]): Promise<string> {
     const userEmails: string[] = users.map(user => user.email)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
@@ -37,9 +37,8 @@ export class InvitationService {
     data.append('sponsorEppn', this.sponsorName)
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
-    let results: string | null = null
 
-    axios({
+    return axios({
       method: 'POST',
       url: this.url,
       auth: {
@@ -50,14 +49,14 @@ export class InvitationService {
       data: data
     })
       .then((response) => {
-        results = JSON.stringify(response.data)
+        const results: string = JSON.stringify(response.data)
         console.log(results)
+        return results
       })
       .catch((error) => {
         console.log(error)
         throw new InvitationAPIError()
       })
 
-    return results
   }
 }
