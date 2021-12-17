@@ -6,23 +6,14 @@ import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionS
 import ValidatedFormField from './ValidatedFormField'
 import usePromise from '../hooks/usePromise'
 import { ClientEnrollmentType } from '../models/canvas'
+import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
-
-interface ExternalUserEnrollment {
-  email: string
-  role: ClientEnrollmentType
-}
-
-interface ExternalUserNewEnrollment extends ExternalUserEnrollment {
-  firstName: string
-  lastName: string
-}
 
 interface UserEnrollmentFormProps {
   readonly rolesUserCanAdd: ClientEnrollmentType[]
   sections: SelectableCanvasCourseSection[]
-  enrollExistingUser: (enrollment: ExternalUserEnrollment) => Promise<void>
-  enrollNewUser: (enrollment: ExternalUserNewEnrollment) => Promise<void>
+  enrollExistingUser: (enrollment: AddExternalUserEnrollment) => Promise<void>
+  enrollNewUser: (enrollment: AddNewExternalUserEnrollment) => Promise<void>
   resetFeature: () => void
 }
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
-import { Button, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
+import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
+import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
@@ -10,18 +12,12 @@ import RowLevelErrorsContent from './RowLevelErrorsContent'
 import { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollmentType, ClientEnrollmentType, getCanvasRole, isValidRole } from '../models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType, isValidRole } from '../models/canvas'
+import { AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
-
-interface ExternalEnrollment {
-  email: string
-  role: CanvasEnrollmentType
-  firstName: string
-  lastName: string
-}
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -45,12 +41,26 @@ enum CSVWorkflowStep {
   Select,
   Upload,
   Review,
-  Success
+  Confirmation
 }
 
 const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    position: 'absolute',
+    textAlign: 'center'
+  },
+  confirmContainer: {
+    position: 'relative',
+    zIndex: 0
+  },
   buttonGroup: {
     marginTop: theme.spacing(1)
+  },
+  table: {
+    paddingLeft: 10,
+    paddingRight: 10
   }
 }))
 
@@ -69,7 +79,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validRecords, setValidRecords] = useState<ExternalEnrollment[] | undefined>(undefined)
+  const [validRecords, setValidRecords] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowValidationErrors, setRowValidationErrors] = useState<RowValidationError[] | undefined>(undefined)
@@ -188,7 +198,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         return result.messages.length > 0 ? result.messages[0] : `Value for ${fieldName} is invalid.`
       }
 
-      const externalEnrollments: ExternalEnrollment[] = []
+      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = []
       const externalRecords = validationResult.validData
       const errors: RowValidationError[] = []
       externalRecords.forEach((r, i) => {
@@ -216,10 +226,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         } else if (!lastNameValidationResult.isValid) {
           errors.push({ rowNumber, message: getMessage(lastNameValidationResult, 'last name') })
         } else {
-          externalEnrollments.push({ email, role: getCanvasRole(role), firstName, lastName })
+          externalEnrollments.push({ rowNumber, email, role, firstName, lastName })
         }
       })
       if (errors.length > 0) return setRowValidationErrors(errors)
+      setValidRecords(externalEnrollments)
+      setActiveStep(CSVWorkflowStep.Review)
       return setValidRecords(externalEnrollments)
     }
 
@@ -249,12 +261,55 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
+  const renderReview = (enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
+    return (
+      <div className={classes.confirmContainer}>
+        {file !== undefined && <CSVFileName file={file} />}
+        <Grid container>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={classes.table}>
+              <BulkEnrollExternalUserConfirmationTable enrollments={enrollments} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog
+                submit={async () => undefined}
+                cancel={() => {
+                  handleResetUpload()
+                  setActiveStep(CSVWorkflowStep.Upload)
+                }}
+                disabled={false} // Disable this while enrollments are processing
+              />
+            </Grid>
+          </Box>
+        </Grid>
+        <Backdrop className={classes.backdrop} open={false}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color='inherit' />
+            </Grid>
+            <Grid item xs={12}>
+              Loading...
+            </Grid>
+            <Grid item xs={12}>
+              Please stay on the page. This may take up to a couple of minutes for larger files.
+            </Grid>
+          </Grid>
+        </Backdrop>
+      </div>
+    )
+  }
+
   const renderActiveStep = (activeStep: CSVWorkflowStep): JSX.Element => {
     switch (activeStep) {
       case CSVWorkflowStep.Select:
         return renderSelect()
       case CSVWorkflowStep.Upload:
         return renderUpload()
+      case CSVWorkflowStep.Review:
+        if (validRecords === undefined) return <ErrorAlert />
+        return renderReview(validRecords)
       default:
         return <ErrorAlert />
     }
