@@ -5,7 +5,8 @@ import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import {
   CanvasAccount,
-  CanvasCourse, CanvasUser,
+  CanvasCourse,
+  CanvasUser,
   CourseWithSections,
   CourseWorkflowState
 } from '../canvas/canvas.interfaces'
@@ -175,5 +176,38 @@ export class AdminApiHandler {
     logger.debug(`Time elapsed to create (${users.length}) external users: (${(end - start) / NS_PER_SEC}) seconds`)
 
     return createUserResponses
+  }
+
+  async getUserInfo (loginId: string): Promise<CanvasUser | APIErrorData> {
+    const safeLoginId = loginId.replace('@', '+')
+
+    try {
+      const endpoint = `users/sis_login_id:${safeLoginId}`
+      const method = HttpMethod.Get
+      logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"`)
+      const response = await this.requestor.get<CanvasUser>(endpoint)
+      logger.debug(`Received response with status code (${String(response.statusCode)})`)
+      const {
+        id,
+        name,
+        sortable_name, // eslint-disable-line
+        short_name // eslint-disable-line
+      } = response.body
+      return {
+        id,
+        name,
+        sortable_name,
+        short_name,
+        login_id: loginId,
+        email: undefined as any
+      }
+    } catch (error) {
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}`)
+      return {
+        statusCode: errorResponse.canvasStatusCode,
+        errors: [errorResponse]
+      }
+    }
+
   }
 }

@@ -15,7 +15,7 @@ import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { SessionGuard } from '../auth/session.guard'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections, CanvasUser
 } from '../canvas/canvas.interfaces'
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
@@ -99,6 +99,16 @@ export class APIController {
   async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User): Promise<string> {
     const users: SectionExternalUserDto[] = sectionExternalUsersData.users
     const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, users)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor) @Get('admin/user/:loginId')
+  async getUserInfoAsAdmin (
+    @Param('loginId') loginId: string,
+    @UserDec() user: User
+  ): Promise<CanvasUser> {
+    const result = await this.apiService.getUserInfoAsAdmin(user, loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
