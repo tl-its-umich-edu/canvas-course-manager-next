@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Paper, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
@@ -27,6 +27,16 @@ const useStyles = makeStyles((theme) => ({
   },
   alert: {
     padding: theme.spacing(2)
+  },
+  container: {
+    position: 'relative',
+    zIndex: 0
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#FFF',
+    position: 'absolute',
+    textAlign: 'center'
   }
 }))
 
@@ -49,7 +59,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [success, setSuccess] = useState<true | undefined>(undefined)
 
   const [doSearchForUser, isSearchForUserLoading, SearchForUserError] = usePromise(
-    async (loginId: string): Promise<boolean> => false, // Mocking this for now
+    async (loginId: string): Promise<boolean> => {
+      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
+      await promise
+      return false // Math.random() < 0.5
+    },
     (result: boolean) => setUserExists(result)
   )
 
@@ -70,6 +84,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     },
     () => setSuccess(true)
   )
+
+  const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
 
   const roleAndSectionComplete = role !== undefined && selectedSection !== undefined
   const userExistsComplete = email !== undefined && userExists === true && roleAndSectionComplete
@@ -124,7 +140,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const emailField = (
-    <div className={classes.spacing}>
+    <div className={`${classes.spacing} ${classes.container}`}>
       <Typography className={classes.spacing}>
         Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
       </Typography>
@@ -155,6 +171,16 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           </Button>
         </Grid>
       </Grid>
+      <Backdrop className={classes.backdrop} open={isSearchForUserLoading}>
+        <Grid container>
+          <Grid item xs={12}>
+            <CircularProgress color='inherit' />
+          </Grid>
+          <Grid item xs={12}>
+            Loading section data from Canvas
+          </Grid>
+        </Grid>
+      </Backdrop>
     </div>
   )
 
@@ -194,7 +220,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const renderForm = (): JSX.Element => {
     return (
-      <Grid container>
+      <Grid container className={classes.container}>
         <Grid item xs={12} sm={9} md={9}>
           {emailField}
           {
@@ -218,7 +244,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               selectedRole={role}
               posRoles={props.rolesUserCanAdd}
               onRoleChange={(role) => setRole(role)}
-              disabled={isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading}
+              disabled={isEnrollmentLoading}
             />
           </div>
           <Typography gutterBottom>
@@ -251,7 +277,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             <Button
               color='primary'
               variant='contained'
-              disabled={!isFormComplete}
+              disabled={!isFormComplete || isEnrollmentLoading}
               aria-label='Submit single user enrollment'
               onClick={handleSubmitClick}
             >
@@ -259,6 +285,14 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             </Button>
           </Grid>
         </Grid>
+        <Backdrop className={classes.backdrop} open={isEnrollmentLoading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color='inherit' />
+            </Grid>
+            <Grid item xs={12}>Sending user and enrollment data to Canvas</Grid>
+          </Grid>
+        </Backdrop>
       </Grid>
     )
   }
