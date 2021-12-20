@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Paper, Button, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Paper, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
+import SuccessCard from './SuccessCard'
 import ValidatedFormField from './ValidatedFormField'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
@@ -13,9 +14,8 @@ import { emailSchema, firstNameSchema, lastNameSchema, validateString, Validatio
 interface UserEnrollmentFormProps {
   readonly rolesUserCanAdd: ClientEnrollmentType[]
   sections: SelectableCanvasCourseSection[]
-  enrollExistingUser: (enrollment: AddExternalUserEnrollment) => Promise<void>
-  enrollNewUser: (enrollment: AddNewExternalUserEnrollment) => Promise<void>
   resetFeature: () => void
+  settingsURL: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -46,6 +46,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [lastNameValidationResult, setLastNameValidationResult] = useState<ValidationResult | undefined>(undefined)
   const [role, setRole] = useState<ClientEnrollmentType | undefined>(undefined)
 
+  const [success, setSuccess] = useState<true | undefined>(undefined)
+
   const [doSearchForUser, isSearchForUserLoading, SearchForUserError] = usePromise(
     async (loginId: string): Promise<boolean> => false, // Mocking this for now
     (result: boolean) => setUserExists(result)
@@ -54,7 +56,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
       sectionId, [{ loginId: enrollment.email, type: getCanvasRole(enrollment.role) }]
-    )
+    ),
+    () => setSuccess(true)
   )
 
   const [
@@ -64,7 +67,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     async (sectionId: number, enrollment: AddNewExternalUserEnrollment) => {
       const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
       return await promise
-    }
+    },
+    () => setSuccess(true)
   )
 
   const roleAndSectionComplete = role !== undefined && selectedSection !== undefined
@@ -188,8 +192,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     </>
   )
 
-  return (
-    <div id='single-add-user' aria-live='polite'>
+  const renderForm = (): JSX.Element => {
+    return (
       <Grid container>
         <Grid item xs={12} sm={9} md={9}>
           {emailField}
@@ -256,6 +260,35 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           </Grid>
         </Grid>
       </Grid>
+    )
+  }
+
+  const renderSuccess = (userExists: boolean): JSX.Element => {
+    const settingsLink = (
+      <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
+    )
+    const messageText = (
+      userExists
+        ? 'The existing user was'
+        : 'The new user was invited to create a friend account, added to Canvas, and'
+    ) + ' enrolled in the selected section!'
+    const nextAction = (
+      <span>See the user in the course&apos;s sections on the {settingsLink} for your course.</span>
+    )
+
+    return (
+      <>
+      <SuccessCard message={<Typography>{messageText}</Typography>} nextAction={nextAction} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
+      </Grid>
+      </>
+    )
+  }
+
+  return (
+    <div id='single-add-user' aria-live='polite'>
+      {success !== true || userExists === undefined ? renderForm() : renderSuccess(userExists)}
     </div>
   )
 }

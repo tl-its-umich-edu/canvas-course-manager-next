@@ -116,9 +116,8 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
       <UserEnrollmentForm
         sections={sections ?? []}
         rolesUserCanAdd={rolesUserCanAdd}
-        enrollExistingUser={async () => undefined}
-        enrollNewUser={async () => undefined}
         resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
+        settingsURL={settingsURL}
       />
       </>
     )
