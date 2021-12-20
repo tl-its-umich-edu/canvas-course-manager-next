@@ -13,7 +13,7 @@ import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../mode
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
 interface UserEnrollmentFormProps {
-  readonly rolesUserCanAdd: ClientEnrollmentType[]
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
   sections: SelectableCanvasCourseSection[]
   resetFeature: () => void
   settingsURL: string
@@ -278,7 +278,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           <div className={classes.spacing}>
             <RoleSelect
               selectedRole={role}
-              posRoles={props.rolesUserCanAdd}
+              posRoles={props.rolesUserCanEnroll}
               onRoleChange={(role) => setRole(role)}
               disabled={isEnrollmentLoading}
             />

@@ -71,7 +71,7 @@ interface MultipleUserEnrollmentWorkflowProps {
   course: CanvasCourseBase
   sections: SelectableCanvasCourseSection[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
-  rolesUserCanAdd: ClientEnrollmentType[]
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
   resetFeature: () => void
   settingsURL: string
 }
@@ -227,7 +227,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         const lastNameValidationResult = validateString(lastName, lastNameSchema)
         if (!emailValidationResult.isValid) {
           errors.push({ rowNumber, message: getMessage(emailValidationResult, 'email address') })
-        } else if (!isValidRole(role) || !props.rolesUserCanAdd.includes(role)) {
+        } else if (!isValidRole(role) || !props.rolesUserCanEnroll.includes(role)) {
           console.log(role)
           errors.push({
             rowNumber,

@@ -11,9 +11,8 @@ import { SelectableCanvasCourseSection } from '../components/SectionSelectorWidg
 import UserEnrollmentForm from '../components/UserEnrollmentForm'
 import UserMethodSelect from '../components/UserMethodSelect'
 import usePromise from '../hooks/usePromise'
-import { AllCanvasRoleData, CanvasCourseSection, ClientEnrollmentType, injectCourseName, sortSections } from '../models/canvas'
+import { CanvasCourseSection, getRolesUserCanEnroll, injectCourseName, sortSections } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { RoleEnum } from '../models/models'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,19 +54,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   console.log('Roles: ' + course.roles.toString())
   if (course.roles.length === 0) return <ErrorAlert />
 
-  const mostPrivRole = course.roles.sort(
-    (a, b) => AllCanvasRoleData[a].rank > AllCanvasRoleData[b].rank ? -1 : 1
-  )[0]
-  const mostPrivRoleData = AllCanvasRoleData[mostPrivRole]
-  console.log('Most privileged role: ' + mostPrivRole)
-  const rolesUserCanAdd: ClientEnrollmentType[] = []
-  for (const role of Object.keys(AllCanvasRoleData)) {
-    const roleData = AllCanvasRoleData[role as RoleEnum]
-    if (roleData.addable && roleData.rank < mostPrivRoleData.rank) {
-      rolesUserCanAdd.push(roleData.clientName)
-    }
-  }
-  console.log('Roles user can add: ' + rolesUserCanAdd.toString())
+  const rolesUserCanEnroll = getRolesUserCanEnroll(course.roles)
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>('single')
@@ -87,7 +74,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const getSectionsErrorAlert = (
     <ErrorAlert
       messages={
-        [<Typography key={0}>An error occurred while loading section data from Canvas</Typography>]
+        [<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]
       }
       tryAgain={clearGetSectionsError}
     />
@@ -115,7 +102,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
       <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
       <UserEnrollmentForm
         sections={sections ?? []}
-        rolesUserCanAdd={rolesUserCanAdd}
+        rolesUserCanEnroll={rolesUserCanEnroll}
         resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
         settingsURL={settingsURL}
       />
@@ -143,7 +130,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
                 }
               }
             }
-            rolesUserCanAdd={rolesUserCanAdd}
+            rolesUserCanEnroll={rolesUserCanEnroll}
             resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
             settingsURL={settingsURL}
           />

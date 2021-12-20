@@ -112,23 +112,21 @@ export const AllCanvasRoleData: CanvasRoleData = {
     canvasName: CanvasEnrollmentType.Student,
     clientName: ClientEnrollmentType.Student
   },
-  Observer: {
+  Assistant: {
     rank: 1,
+    addable: false
+  },
+  Observer: {
+    rank: 2,
     addable: true,
     canvasName: CanvasEnrollmentType.Observer,
     clientName: ClientEnrollmentType.Observer
   },
   TaEnrollment: {
-    rank: 2,
+    rank: 3,
     addable: true,
     canvasName: CanvasEnrollmentType.Observer,
     clientName: ClientEnrollmentType.TA
-  },
-  DesignerEnrollment: {
-    rank: 3,
-    addable: true,
-    canvasName: CanvasEnrollmentType.Designer,
-    clientName: ClientEnrollmentType.Designer
   },
   TeacherEnrollment: {
     rank: 4,
@@ -136,12 +134,18 @@ export const AllCanvasRoleData: CanvasRoleData = {
     canvasName: CanvasEnrollmentType.Teacher,
     clientName: ClientEnrollmentType.Teacher
   },
-  'Sub-Account Admin': {
+  DesignerEnrollment: {
     rank: 5,
+    addable: true,
+    canvasName: CanvasEnrollmentType.Designer,
+    clientName: ClientEnrollmentType.Designer
+  },
+  'Sub-Account Admin': {
+    rank: 6,
     addable: false
   },
   'Account Admin': {
-    rank: 6,
+    rank: 7,
     addable: false
   },
   'Tool Installer (by ITS Approval only)': {
@@ -156,15 +160,33 @@ export const AllCanvasRoleData: CanvasRoleData = {
     rank: -1,
     addable: false
   },
-  Assistant: {
-    rank: -1,
-    addable: false
-  },
   Grader: {
     rank: -1,
     addable: false
   }
 } as const
+
+const getMostPrivilegedRole = (roles: RoleEnum[]): RoleEnum => {
+  if (roles.length === 0) throw new Error('Roles array must contain one or more roles.')
+  return roles.sort(
+    (a, b) => AllCanvasRoleData[a].rank > AllCanvasRoleData[b].rank ? -1 : 1
+  )[0]
+}
+
+export const getRolesUserCanEnroll = (roles: RoleEnum[]): ClientEnrollmentType[] => {
+  const mostPrivRole = getMostPrivilegedRole(roles)
+  const mostPrivRoleData = AllCanvasRoleData[mostPrivRole]
+  console.log('Most privileged role: ' + mostPrivRole)
+  const rolesUserCanEnroll: ClientEnrollmentType[] = []
+  for (const role of Object.keys(AllCanvasRoleData)) {
+    const roleData = AllCanvasRoleData[role as RoleEnum]
+    if (roleData.addable && roleData.rank < mostPrivRoleData.rank) {
+      rolesUserCanEnroll.push(roleData.clientName)
+    }
+  }
+  console.log('Roles user can add: ' + rolesUserCanEnroll.toString())
+  return rolesUserCanEnroll
+}
 
 export const isValidRole = (role: string): role is ClientEnrollmentType => {
   return clientStringValues.includes(role)
