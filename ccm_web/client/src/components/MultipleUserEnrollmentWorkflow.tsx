@@ -16,7 +16,7 @@ import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType, isValidRole } from '../models/canvas'
-import { AddExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
+import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
@@ -91,7 +91,10 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [
     doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError, clearAddExternalEnrollmentsError
   ] = usePromise(
-    async (enrollments: AddExternalUserEnrollment[]) => undefined, // Mocking this for now
+    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]) => {
+      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
+      return await promise
+    },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
 
@@ -272,7 +275,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderReview = (enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
+  const renderReview = (sectionId: number, enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
@@ -286,7 +289,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
             <Grid item xs={12} sm={3}>
               <ConfirmDialog
                 submit={async () => {
-                  await doAddExternalEnrollments(enrollments.map(({ rowNumber, ...others }) => others))
+                  await doAddExternalEnrollments(sectionId, enrollments.map(({ rowNumber, ...others }) => others))
                 }}
                 cancel={() => {
                   handleResetUpload()
@@ -333,11 +336,11 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       case CSVWorkflowStep.Upload:
         return renderUpload()
       case CSVWorkflowStep.Review:
-        if (validEnrollments === undefined) return <ErrorAlert />
+        if (validEnrollments === undefined || selectedSection === undefined) return <ErrorAlert />
         if (addExternalEnrollmentsError !== undefined) {
           return <BulkApiErrorContent error={addExternalEnrollmentsError} file={file} tryAgain={handleResetUpload} />
         }
-        return renderReview(validEnrollments)
+        return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
         return renderSuccess()
       default:

@@ -4,8 +4,9 @@ import { Paper, Button, Grid, makeStyles, Typography } from '@material-ui/core'
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import ValidatedFormField from './ValidatedFormField'
+import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { ClientEnrollmentType } from '../models/canvas'
+import { ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
@@ -46,9 +47,24 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [role, setRole] = useState<ClientEnrollmentType | undefined>(undefined)
 
   const [doSearchForUser, isSearchForUserLoading, SearchForUserError] = usePromise(
-    // Mocking this for now
-    async (loginId: string): Promise<boolean> => false,
+    async (loginId: string): Promise<boolean> => false, // Mocking this for now
     (result: boolean) => setUserExists(result)
+  )
+
+  const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
+    async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
+      sectionId, [{ loginId: enrollment.email, type: getCanvasRole(enrollment.role) }]
+    )
+  )
+
+  const [
+    doAddNewExternalEnrollment, isAddNewExternalEnrollmentLoading, addNewExternalEnrollmentError,
+    clearAddNewExternalEnrollmentError
+  ] = usePromise(
+    async (sectionId: number, enrollment: AddNewExternalUserEnrollment) => {
+      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
+      return await promise
+    }
   )
 
   const roleAndSectionComplete = role !== undefined && selectedSection !== undefined
@@ -80,27 +96,26 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     return await doSearchForUser(email)
   }
 
-  const handleSubmitClick = (): void => {
+  const handleSubmitClick = async (): Promise<void> => {
+    if (email === undefined || userExists === undefined) return
+
+    const sectionAndRoleComplete = selectedSection !== undefined && role !== undefined
+    if (userExists && sectionAndRoleComplete) {
+      return await doAddEnrollment(selectedSection.id, { email, role })
+    }
     const firstNameResult = validateString(firstName, firstNameSchema)
     setFirstNameValidationResult(firstNameResult)
     const lastNameResult = validateString(lastName, lastNameSchema)
     setLastNameValidationResult(lastNameResult)
     if (
-      email !== undefined &&
       emailValidationResult?.isValid === true &&
-      userExists !== undefined &&
       firstName !== undefined &&
       firstNameResult.isValid &&
       lastName !== undefined &&
       lastNameResult.isValid &&
-      role !== undefined &&
-      selectedSection !== undefined
+      sectionAndRoleComplete
     ) {
-      if (userExists) {
-        console.log('We start a simple enroll process here.')
-      } else {
-        console.log('We start a full enroll/invite process here.')
-      }
+      await doAddNewExternalEnrollment(selectedSection.id, { email, role, firstName, lastName })
     }
   }
 
@@ -121,7 +136,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               setEmail(e.currentTarget.value)
             }}
             fullWidth={true}
-            disabled={isSearchForUserLoading}
+            disabled={isSearchForUserLoading || isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading}
           />
         </Grid>
         <Grid item md={2} sm={4} xs={4}>
@@ -154,7 +169,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           validationResult={firstNameValidationResult}
           fullWidth={true}
           onChange={e => setFirstName(e.currentTarget.value)}
-          disabled={false} // disable later if enrollment loading
+          disabled={isAddNewExternalEnrollmentLoading}
           autoFocus={true}
         />
       </Grid>
@@ -166,7 +181,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           validationResult={lastNameValidationResult}
           onChange={e => setLastName(e.currentTarget.value)}
           fullWidth={true}
-          disabled={false} // disable later if enrollment loading
+          disabled={isAddNewExternalEnrollmentLoading}
         />
       </Grid>
     </Grid>
@@ -199,7 +214,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               selectedRole={role}
               posRoles={props.rolesUserCanAdd}
               onRoleChange={(role) => setRole(role)}
-              disabled={undefined}
+              disabled={isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading}
             />
           </div>
           <Typography gutterBottom>
