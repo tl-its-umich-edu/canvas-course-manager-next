@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 
+import ErrorAlert from './ErrorAlert'
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import SuccessCard from './SuccessCard'
@@ -58,11 +59,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [success, setSuccess] = useState<true | undefined>(undefined)
 
-  const [doSearchForUser, isSearchForUserLoading, SearchForUserError] = usePromise(
+  const [doSearchForUser, isSearchForUserLoading, searchForUserError, clearSearchForUserError] = usePromise(
     async (loginId: string): Promise<boolean> => {
-      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
+      const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
       await promise
-      return false // Math.random() < 0.5
+      return false
     },
     (result: boolean) => setUserExists(result)
   )
@@ -79,7 +80,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     clearAddNewExternalEnrollmentError
   ] = usePromise(
     async (sectionId: number, enrollment: AddNewExternalUserEnrollment) => {
-      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
+      const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
       return await promise
     },
     () => setSuccess(true)
@@ -107,6 +108,20 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     setEmailValidationResult(undefined)
     setFirstNameValidationResult(undefined)
     setLastNameValidationResult(undefined)
+  }
+
+  const resetErrors = (): void => {
+    clearSearchForUserError()
+    clearAddEnrollmentError()
+    clearAddNewExternalEnrollmentError()
+  }
+
+  const resetAll = (): void => {
+    setEmail(undefined)
+    setRole(undefined)
+    setSelectedSection(undefined)
+    resetNameEntryState()
+    resetErrors()
   }
 
   const handleSearchClick = async (): Promise<void> => {
@@ -219,6 +234,27 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   )
 
   const renderForm = (): JSX.Element => {
+    if (
+      searchForUserError !== undefined ||
+      addEnrollmentError !== undefined ||
+      addNewExternalEnrollmentError !== undefined
+    ) {
+      return (
+        <ErrorAlert
+          messages={[
+            <Typography key={0}>
+              An error occurred while
+              {searchForUserError !== undefined && ' searching for the user in'}
+              {addEnrollmentError !== undefined && ' enrolling the user in a section in '}
+              {addNewExternalEnrollmentError !== undefined && ' adding the new external user to '}
+              Canvas.
+            </Typography>
+          ]}
+          tryAgain={resetAll}
+        />
+      )
+    }
+
     return (
       <Grid container className={classes.container}>
         <Grid item xs={12} sm={9} md={9}>
