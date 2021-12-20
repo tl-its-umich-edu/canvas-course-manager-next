@@ -326,7 +326,15 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     const nextAction = (
       <span>See the users in the course&apos;s sections on the {settingsLink} for your course.</span>
     )
-    return <SuccessCard {...{ message, nextAction }} />
+    return (
+      <>
+      <SuccessCard {...{ message, nextAction }} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
+      </Grid>
+      </>
+
+    )
   }
 
   const renderActiveStep = (activeStep: CSVWorkflowStep): JSX.Element => {
