@@ -26,6 +26,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -194,19 +195,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     const enrollmentRecords = validationResult.validData.map(r => ({ LOGIN_ID: r.LOGIN_ID, ROLE: r.ROLE }))
 
     const enrollments: IAddUMUserEnrollment[] = []
-    const errors: RowValidationError[] = []
-    enrollmentRecords.forEach((r, i) => {
-      const role = r.ROLE
-      const loginId = r.LOGIN_ID
-      const rowNumber = i + 2
-      if (!isValidRole(role)) {
-        errors.push({ rowNumber, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
-      } else if (!isValidLoginId(loginId)) {
-        errors.push({ rowNumber, message: `Invalid ${USER_ID_TEXT.replace(' ', '_').toUpperCase()} '${loginId}'` })
-      } else {
-        enrollments.push({ rowNumber, loginId, role })
-      }
-    })
+    const errors: EnrollmentInvalidation[] = []
+    const roles = enrollmentRecords.map(r => r.ROLE)
+    const rolesValidator = new RoleRowsValidator()
+    errors.push(...rolesValidator.validate(roles))
+
+    const loginIDs = enrollmentRecords.map(r => r.LOGIN_ID)
+    const loginIDsValidator = new LoginIDRowsValidator()
+    errors.push(...loginIDsValidator.validate(loginIDs))
 
     if (errors.length === 0) {
       handleParseSuccess(enrollments)

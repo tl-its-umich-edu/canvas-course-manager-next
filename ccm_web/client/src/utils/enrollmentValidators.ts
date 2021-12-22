@@ -1,7 +1,9 @@
 import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation } from '../utils/rowValidation'
-import { emailSchema, lastNameSchema, firstNameSchema, validateString, ValidationResult } from '../utils/validation'
+import {
+  emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, validateString, ValidationResult
+} from '../utils/validation'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 
@@ -84,7 +86,24 @@ export class RoleRowsValidator implements EnrollmentRowsValidator {
       } else if (allowedRoles !== undefined && !allowedRoles.includes(role)) {
         invalidations.push({
           rowNumber: i + 2,
-          message: `You are not allowed to enroll users with provided role: "${role}"`,
+          message: `You are not allowed to enroll users with the provided role: "${role}"`,
+          type: InvalidationType.Error
+        })
+      }
+    })
+    return invalidations
+  }
+}
+
+export class LoginIDRowsValidator implements EnrollmentRowsValidator {
+  validate (loginIDs: string[]): EnrollmentInvalidation[] {
+    const invalidations: EnrollmentInvalidation[] = []
+    loginIDs.forEach((loginID, i) => {
+      const loginIDValidationResult = validateString(loginID, loginIDSchema)
+      if (!loginIDValidationResult.isValid) {
+        invalidations.push({
+          rowNumber: i + 2,
+          message: getMessage(loginIDValidationResult, 'login ID'),
           type: InvalidationType.Error
         })
       }

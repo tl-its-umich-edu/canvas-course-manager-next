@@ -19,6 +19,7 @@ const createCanvasEntityNameSchema = (fieldName: string): StringSchema => {
 export const courseNameSchema = createCanvasEntityNameSchema('course name')
 export const assignmentHeaderSchema = createCanvasEntityNameSchema('assignment header')
 export const sectionNameSchema = createCanvasEntityNameSchema('section name')
+export const loginIDSchema = createCanvasEntityNameSchema('login ID')
 export const emailSchema = createCanvasEntityNameSchema('email address')
   .email('The value is not a valid email address.')
   .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
