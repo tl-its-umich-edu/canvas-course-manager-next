@@ -213,7 +213,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           value={firstName}
           validationResult={firstNameValidationResult}
           fullWidth={true}
-          onChange={e => setFirstName(e.currentTarget.value)}
+          onChange={e => {
+            setFirstNameValidationResult(undefined)
+            setFirstName(e.currentTarget.value)
+          }}
           disabled={isAddNewExternalEnrollmentLoading}
           autoFocus={true}
         />
@@ -224,7 +227,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           placeholder='Doe'
           value={lastName}
           validationResult={lastNameValidationResult}
-          onChange={e => setLastName(e.currentTarget.value)}
+          onChange={e => {
+            setLastNameValidationResult(undefined)
+            setLastName(e.currentTarget.value)
+          }}
           fullWidth={true}
           disabled={isAddNewExternalEnrollmentLoading}
         />
@@ -305,6 +311,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           </div>
           <Grid container className={classes.buttonGroup} justifyContent='space-between'>
             <Button
+              variant='outlined'
               aria-label='Back to input method select'
               onClick={props.resetFeature}
             >

@@ -136,6 +136,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       />
       <Grid container className={classes.buttonGroup} justifyContent='space-between'>
         <Button
+          variant='outlined'
           onClick={props.resetFeature}
           aria-label='Back to input method select'
         >
@@ -269,7 +270,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         />
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
-          <Button onClick={handleBackClick}>Back</Button>
+          <Button variant='outlined' onClick={handleBackClick}>Back</Button>
         </div>
       </div>
     )

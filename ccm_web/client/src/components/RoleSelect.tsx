@@ -21,7 +21,7 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
   return (
     <>
     <Typography gutterBottom id='role-select-label'>
-      Select a Canvas role that the user will have the section.
+      Select a Canvas role that the user will have in the section.
       Only roles less privileged than your own are allowed.
     </Typography>
     <Grid container>
