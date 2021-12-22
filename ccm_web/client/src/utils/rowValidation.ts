@@ -12,7 +12,7 @@ interface RowStringValuesValidator {
   validate: (values: string[]) => RowInvalidation[]
 }
 
-export class DuplicateStringIdentifierInRowsValidator implements RowStringValuesValidator {
+export class DuplicateIdentifierInRowsValidator implements RowStringValuesValidator {
   valueName: string
   constructor (valueName: string) {
     this.valueName = valueName
