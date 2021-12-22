@@ -289,26 +289,24 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               disabled={isEnrollmentLoading}
             />
           </div>
-          <Typography gutterBottom>
+          <Typography className={classes.spacing}>
             Select the section you want to enroll the user in.
           </Typography>
-          <div className={classes.spacing}>
-            <SectionSelectorWidget
-              height={300}
-              search={[]}
-              multiSelect={false}
-              sections={props.sections}
-              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-              selectionUpdated={(sections) => {
-                if (sections.length === 0) {
-                  setSelectedSection(undefined)
-                } else {
-                  setSelectedSection(sections[0])
-                }
-              }}
-              canUnmerge={false}
-            />
-          </div>
+          <SectionSelectorWidget
+            height={300}
+            search={[]}
+            multiSelect={false}
+            sections={props.sections}
+            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+            selectionUpdated={(sections) => {
+              if (sections.length === 0) {
+                setSelectedSection(undefined)
+              } else {
+                setSelectedSection(sections[0])
+              }
+            }}
+            canUnmerge={false}
+          />
           <Grid container className={classes.buttonGroup} justifyContent='space-between'>
             <Button
               variant='outlined'

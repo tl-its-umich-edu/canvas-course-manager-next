@@ -7,6 +7,9 @@ import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionS
 import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 
 const useStyles = makeStyles((theme) => ({
+  spacing: {
+    marginBottom: theme.spacing(2)
+  },
   createSectionWidget: {
     width: '500px'
   },
@@ -38,7 +41,7 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
   return (
     <>
       <div className={classes.createSectionContainer}>
-        <div className={classes.newSectionHint}>
+        <div className={`${classes.newSectionHint} ${classes.spacing}`}>
           <Typography>Create a new section to add users</Typography>
           <Tooltip className={classes.tooltip} placement='top' title='Enter a distinct name for this section'>
             <HelpOutline fontSize='small'/>
@@ -48,7 +51,9 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
           <CreateSectionWidget {...props} />
         </div>
       </div>
-      <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
+      <Typography variant='subtitle1' className={classes.spacing}>
+        Or select an existing section to add users to
+      </Typography>
       <div className={classes.sectionSelectionContainer}>
         <SectionSelectorWidget
           height={300}

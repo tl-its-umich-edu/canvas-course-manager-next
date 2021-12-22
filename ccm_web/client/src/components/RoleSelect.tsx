@@ -1,7 +1,13 @@
 import React from 'react'
-import { Grid, MenuItem, Select, Typography } from '@material-ui/core'
+import { Grid, MenuItem, makeStyles, Select, Typography } from '@material-ui/core'
 
 import { ClientEnrollmentType } from '../models/canvas'
+
+const useStyles = makeStyles((theme) => ({
+  spacing: {
+    marginBottom: theme.spacing(2)
+  }
+}))
 
 interface RoleSelectProps {
   disabled: boolean | undefined
@@ -11,6 +17,7 @@ interface RoleSelectProps {
 }
 
 export default function RoleSelect (props: RoleSelectProps): JSX.Element {
+  const classes = useStyles()
   const handleRoleSelectChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
     const value = event.target.value
     if (typeof value === 'string' && Object.values<string>(ClientEnrollmentType).includes(value)) {
@@ -20,7 +27,7 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
 
   return (
     <>
-    <Typography gutterBottom id='role-select-label'>
+    <Typography id='role-select-label' className={classes.spacing}>
       Select a Canvas role that the user will have in the section.
       Only roles less privileged than your own are allowed.
     </Typography>
