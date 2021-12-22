@@ -15,13 +15,16 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType, isValidRole } from '../models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType } from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+import {
+  DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
+  LastNameRowsValidator, RoleRowsValidator
+} from '../utils/enrollmentValidators'
+
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { DuplicateIdentifierInRowsValidator } from '../utils/rowValidation'
-import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -211,48 +214,34 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const validationResult = schemaValidator.validate(headers, rowData)
       if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
 
-      const getMessage = (result: ValidationResult, fieldName: string): string => {
-        return result.messages.length > 0 ? result.messages[0] : `Value for ${fieldName} is invalid.`
-      }
-
-      // Cell-level validation
-      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = []
       const externalRecords = validationResult.validData
-      const errors: RowValidationError[] = []
-      externalRecords.forEach((r, i) => {
-        const rowNumber = i + 2
-        const email = r[EMAIL_HEADER]
-        const emailValidationResult = validateString(email, emailSchema)
-        const role = r[ROLE_HEADER]
-        const firstName = r[FIRST_NAME_HEADER]
-        const firstNameValidationResult = validateString(firstName, firstNameSchema)
-        const lastName = r[LAST_NAME_HEADER]
-        const lastNameValidationResult = validateString(lastName, lastNameSchema)
-        if (!emailValidationResult.isValid) {
-          errors.push({ rowNumber, message: getMessage(emailValidationResult, 'email address') })
-        } else if (!isValidRole(role) || !props.rolesUserCanEnroll.includes(role)) {
-          console.log(role)
-          errors.push({
-            rowNumber,
-            message: (
-              `Value for ${ROLE_HEADER.toLowerCase()} '${role}' is invalid. ` +
-              'Ensure it is a valid Canvas role and is less privileged than your own role.'
-            )
-          })
-        } else if (!firstNameValidationResult.isValid) {
-          errors.push({ rowNumber, message: getMessage(firstNameValidationResult, 'first name') })
-        } else if (!lastNameValidationResult.isValid) {
-          errors.push({ rowNumber, message: getMessage(lastNameValidationResult, 'last name') })
-        } else {
-          externalEnrollments.push({ rowNumber, email, role, firstName, lastName })
-        }
-      })
+      const errors: EnrollmentInvalidation[] = []
+
+      const emails = externalRecords.map(r => r[EMAIL_HEADER])
+      const emailValidators = [new EmailRowsValidator(), new DuplicateEmailRowsValidator()]
+      emailValidators.map(validator => errors.push(...validator.validate(emails)))
+
+      const firstNames = externalRecords.map(r => r[FIRST_NAME_HEADER])
+      const firstNameValidator = new FirstNameRowsValidator()
+      errors.push(...firstNameValidator.validate(firstNames))
+
+      const lastNames = externalRecords.map(r => r[LAST_NAME_HEADER])
+      const lastNameValidator = new LastNameRowsValidator()
+      errors.push(...lastNameValidator.validate(lastNames))
+
+      const roles = externalRecords.map(r => r[ROLE_HEADER])
+      const rolesValidator = new RoleRowsValidator()
+      errors.push(...rolesValidator.validate(roles, props.rolesUserCanEnroll))
+
       if (errors.length > 0) return setRowValidationErrors(errors)
 
-      // Across row validation
-      const dupEmailValidator = new DuplicateIdentifierInRowsValidator('email address')
-      const dupInvalidations = dupEmailValidator.validate(externalEnrollments.map(e => e.email))
-      if (dupInvalidations.length > 0) return setRowValidationErrors(dupInvalidations)
+      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
+        rowNumber: i + 2,
+        email: r[EMAIL_HEADER],
+        role: r[ROLE_HEADER] as ClientEnrollmentType,
+        firstName: r[FIRST_NAME_HEADER],
+        lastName: r[LAST_NAME_HEADER]
+      }))
 
       setValidEnrollments(externalEnrollments)
       setActiveStep(CSVWorkflowStep.Review)
@@ -342,7 +331,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
       </Grid>
       </>
-
     )
   }
 
