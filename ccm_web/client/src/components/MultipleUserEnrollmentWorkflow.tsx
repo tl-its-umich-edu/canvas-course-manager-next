@@ -20,6 +20,7 @@ import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } fr
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { DuplicateStringIdentifierInRowsValidator } from '../utils/rowValidation'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
 const EMAIL_HEADER = 'EMAIL'
@@ -214,6 +215,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         return result.messages.length > 0 ? result.messages[0] : `Value for ${fieldName} is invalid.`
       }
 
+      // Cell-level validation
       const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = []
       const externalRecords = validationResult.validData
       const errors: RowValidationError[] = []
@@ -246,6 +248,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         }
       })
       if (errors.length > 0) return setRowValidationErrors(errors)
+
+      // Across row validation
+      const dupEmailValidator = new DuplicateStringIdentifierInRowsValidator('email address')
+      const dupInvalidations = dupEmailValidator.validate(externalEnrollments.map(e => e.email))
+      if (dupInvalidations.length > 0) return setRowValidationErrors(dupInvalidations)
+
       setValidEnrollments(externalEnrollments)
       setActiveStep(CSVWorkflowStep.Review)
     }
