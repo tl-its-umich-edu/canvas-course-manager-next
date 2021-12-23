@@ -11,7 +11,7 @@ import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
 import SuccessCard from './SuccessCard'
-import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
+import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
@@ -81,7 +81,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [validEnrollments, setValidEnrollments] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
-  const [rowValidationErrors, setRowValidationErrors] = useState<RowValidationError[] | undefined>(undefined)
+  const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
   const [
     doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError, clearAddExternalEnrollmentsError
@@ -98,7 +98,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     setValidEnrollments(undefined)
     clearAddExternalEnrollmentsError()
     setSchemaInvalidations(undefined)
-    setRowValidationErrors(undefined)
+    setRowInvalidations(undefined)
   }
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
@@ -108,7 +108,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
   }
 
-  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
+  const renderRowValidationErrors = (errors: EnrollmentInvalidation[]): JSX.Element => {
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
@@ -153,7 +153,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
   const renderUpload = (): JSX.Element => {
     if (schemaInvalidations !== undefined) return renderSchemaInvalidations(schemaInvalidations)
-    if (rowValidationErrors !== undefined) return renderRowValidationErrors(rowValidationErrors)
+    if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
     const description = (
       'This tool will try to enroll non-UM users in the selected section. ' +
@@ -225,7 +225,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const rolesValidator = new RoleRowsValidator()
       errors.push(...rolesValidator.validate(roles, props.rolesUserCanEnroll))
 
-      if (errors.length > 0) return setRowValidationErrors(errors)
+      if (errors.length > 0) return setRowInvalidations(errors)
 
       const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
         rowNumber: i + 2,
