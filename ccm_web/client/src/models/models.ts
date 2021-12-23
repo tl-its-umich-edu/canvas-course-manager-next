@@ -89,3 +89,12 @@ export interface DownloadData {
   data: string
   fileName: string
 }
+
+// CSV Workflow
+
+export enum CSVWorkflowStep {
+  Select = 0, // Select Section
+  Upload = 1, // Upload CSV
+  Review = 2, // Review Data
+  Confirmation = 3 // Success Confirmation
+}

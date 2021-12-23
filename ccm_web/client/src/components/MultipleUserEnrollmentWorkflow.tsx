@@ -17,7 +17,7 @@ import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType } from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
-import { InvalidationType } from '../models/models'
+import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
@@ -42,13 +42,6 @@ interface ExternalEnrollmentRecord extends CSVRecord {
 
 export const isExternalEnrollmentRecord = (record: CSVRecord): record is ExternalEnrollmentRecord => {
   return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
-}
-
-enum CSVWorkflowStep {
-  Select,
-  Upload,
-  Review,
-  Confirmation
 }
 
 const useStyles = makeStyles((theme) => ({

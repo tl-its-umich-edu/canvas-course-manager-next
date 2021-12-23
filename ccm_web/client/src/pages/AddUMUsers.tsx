@@ -1,6 +1,5 @@
 import {
-  Button, Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
-  Stepper, Theme, Typography
+  Button, Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
@@ -23,17 +22,18 @@ import {
   sortSections
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
+import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
+import WorkflowStepper from '../components/WorkflowStepper'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
 const MAX_ENROLLMENT_RECORDS = 400
 const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       padding: 25,
@@ -60,10 +60,6 @@ const useStyles = makeStyles((theme: Theme) =>
     createSelectSectionContainer: {
       position: 'relative',
       zIndex: 0
-    },
-    stepper: {
-      textAlign: 'center',
-      paddingTop: '20px'
     },
     uploadContainer: {
       position: 'relative',
@@ -92,15 +88,8 @@ const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
 interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
-  enum States {
-    SelectSection = 0,
-    UploadCSV = 1,
-    ReviewCSV = 2,
-    Confirmation = 3
-  }
-
   const classes = useStyles()
-  const [activeStep, setActiveStep] = useState(States.SelectSection)
+  const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
 
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
@@ -125,7 +114,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
       await addSectionEnrollments(section.id, apiEnrollments)
     },
-    () => { setActiveStep(States.Confirmation) }
+    () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
 
   useEffect(() => {
@@ -139,11 +128,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       parseFile(file)
     }
   }, [file])
-
-  const getSteps = (): string[] => {
-    return ['Select', 'Upload', 'Review', 'Confirmation']
-  }
-  const steps = getSteps()
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
@@ -159,18 +143,18 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
     setEnrollments(enrollments)
     setRowErrors(undefined)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleParseFailure = (errors: RowValidationError[]): void => {
     setEnrollments(undefined)
     setRowErrors(errors)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
     setSchemaInvalidations(invalidations)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleEnrollmentsReset = (): void => {
@@ -183,7 +167,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const handleUploadReset = (): void => {
     handleEnrollmentsReset()
-    setActiveStep(States.UploadCSV)
+    setActiveStep(CSVWorkflowStep.Upload)
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
@@ -255,7 +239,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               variant='contained'
               color='primary'
               disabled={selectedSection === undefined}
-              onClick={() => setActiveStep(States.UploadCSV)}
+              onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
             >
               Select
             </Button>
@@ -405,15 +389,15 @@ designer,userd`
     return (<div>Unexpected step</div>)
   }
 
-  const getStepContent = (stepIndex: number): JSX.Element => {
-    switch (stepIndex) {
-      case States.SelectSection:
+  const getStepContent = (step: CSVWorkflowStep): JSX.Element => {
+    switch (step) {
+      case CSVWorkflowStep.Select:
         return getSelectContent()
-      case States.UploadCSV:
+      case CSVWorkflowStep.Upload:
         return getUploadContent()
-      case States.ReviewCSV:
+      case CSVWorkflowStep.Review:
         return getReviewContent()
-      case States.Confirmation:
+      case CSVWorkflowStep.Confirmation:
         return getSuccessContent()
       default:
         return getShouldNotHappenContent()
@@ -424,9 +408,7 @@ designer,userd`
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
-      </Stepper>
+      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div>{getStepContent(activeStep)}</div>
     </div>
   )
