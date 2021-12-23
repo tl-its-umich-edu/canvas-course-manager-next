@@ -157,7 +157,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
     const description = (
       'This tool will try to enroll non-UM users in the selected section. ' +
-      'If they have not yet been invited to create a friend account, they will be sent an invite and added to Canvas.'
+      'If they do not have an account in Canvas, they will be sent an invitation to create a friend account and added to Canvas ' +
+      'before they are added to the section.'
     )
     const requirements = (
       <>
@@ -172,7 +173,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </li>
         <li>
           <Typography>
-            &quot;{ROLE_HEADER.toLowerCase()}&quot; with a new Canvas role for each user that is less privileged than your role;
+            &quot;{ROLE_HEADER.toLowerCase()}&quot; with one of the Canvas roles you are allowed to enroll users as (see documentation);
           </Typography>
         </li>
         <li>
