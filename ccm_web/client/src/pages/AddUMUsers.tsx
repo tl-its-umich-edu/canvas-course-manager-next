@@ -18,7 +18,7 @@ import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseSection, CanvasCourseSectionWithCourseName, getCanvasRole, injectCourseName, isValidRole,
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, getCanvasRole, injectCourseName,
   sortSections
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -133,11 +133,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
     updateSections(sections.concat(newSectionWithCourseName))
     setSelectedSection(newSectionWithCourseName)
-  }
-
-  const isValidLoginId = (loginId: string): boolean => {
-    if (loginId.trim().length === 0) return false
-    return true
   }
 
   const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
