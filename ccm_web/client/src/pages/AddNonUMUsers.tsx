@@ -8,7 +8,7 @@ import ErrorAlert from '../components/ErrorAlert'
 import Help from '../components/Help'
 import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow'
 import UserEnrollmentForm from '../components/UserEnrollmentForm'
-import UserMethodSelect from '../components/UserMethodSelect'
+import MethodSelect from '../components/MethodSelect'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName, sortSections } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
@@ -81,9 +81,15 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
 
   const renderSelectInputMethod = (): JSX.Element => {
     return (
-      <UserMethodSelect
-        selectedInputMethod={inputMethod}
-        setInputMethod={setInputMethod}
+      <MethodSelect<InputMethod>
+        label='Choose how you want to add users'
+        options={[
+          { key: 'single', label: 'Add one user manually' },
+          { key: 'csv', label: 'Add multiple users by uploading a CSV' }
+        ]}
+        typeGuard={(v): v is InputMethod => v === 'single' || v === 'csv'}
+        selectedMethod={inputMethod}
+        setMethod={setInputMethod}
         onButtonClick={() => {
           if (inputMethod === 'csv') {
             setActivePageState(PageState.AddCSVUsers)
