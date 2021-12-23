@@ -10,12 +10,11 @@ import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
-import { SelectableCanvasCourseSection } from './SectionSelectorWidget'
 import SuccessCard from './SuccessCard'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSection, ClientEnrollmentType } from '../models/canvas'
+import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
@@ -23,7 +22,6 @@ import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
   LastNameRowsValidator, RoleRowsValidator
 } from '../utils/enrollmentValidators'
-
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
 const EMAIL_HEADER = 'EMAIL'
@@ -66,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface MultipleUserEnrollmentWorkflowProps {
   course: CanvasCourseBase
-  sections: SelectableCanvasCourseSection[]
+  sections: CanvasCourseSectionWithCourseName[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
   readonly rolesUserCanEnroll: ClientEnrollmentType[]
   resetFeature: () => void
@@ -77,7 +75,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const classes = useStyles()
 
   const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
-  const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)

@@ -7,11 +7,10 @@ import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
 import Help from '../components/Help'
 import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow'
-import { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import UserEnrollmentForm from '../components/UserEnrollmentForm'
 import UserMethodSelect from '../components/UserMethodSelect'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, getRolesUserCanEnroll, injectCourseName, sortSections } from '../models/canvas'
+import { CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName, sortSections } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
@@ -58,7 +57,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>('single')
-  const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
+  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),

@@ -3,8 +3,8 @@ import { makeStyles, Tooltip, Typography } from '@material-ui/core'
 import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import CreateSectionWidget from './CreateSectionWidget'
-import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
-import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
+import SectionSelectorWidget from './SectionSelectorWidget'
+import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName } from '../models/canvas'
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -30,9 +30,9 @@ const useStyles = makeStyles((theme) => ({
 
 interface CreateSelectSectionWidgetProps {
   course: CanvasCourseBase
-  sections: SelectableCanvasCourseSection[]
-  selectedSection?: SelectableCanvasCourseSection
-  setSelectedSection: (section: SelectableCanvasCourseSection) => void
+  sections: CanvasCourseSectionWithCourseName[]
+  selectedSection?: CanvasCourseSectionWithCourseName
+  setSelectedSection: (section: CanvasCourseSectionWithCourseName) => void
   onSectionCreated: (section: CanvasCourseSection) => void
 }
 
@@ -44,7 +44,7 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
         <div className={`${classes.newSectionHint} ${classes.spacing}`}>
           <Typography>Create a new section to add users</Typography>
           <Tooltip className={classes.tooltip} placement='top' title='Enter a distinct name for this section'>
-            <HelpOutline fontSize='small'/>
+            <HelpOutline fontSize='small' />
           </Tooltip>
         </div>
         <div className={classes.createSectionWidget}>
