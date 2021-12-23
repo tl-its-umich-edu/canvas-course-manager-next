@@ -95,26 +95,19 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     )
   }
 
-  const renderAddSingleUser = (): JSX.Element => {
-    return (
-      <>
-      <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
-      <UserEnrollmentForm
-        sections={sections ?? []}
-        rolesUserCanEnroll={rolesUserCanEnroll}
-        resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
-        settingsURL={settingsURL}
-      />
-      </>
-    )
-  }
-
   const renderActivePageState = (state: PageState): JSX.Element => {
     switch (state) {
       case PageState.SelectInputMethod:
         return renderSelectInputMethod()
       case PageState.AddSingleUser:
-        return renderAddSingleUser()
+        return (
+          <UserEnrollmentForm
+            sections={sections ?? []}
+            rolesUserCanEnroll={rolesUserCanEnroll}
+            resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
+            settingsURL={settingsURL}
+          />
+        )
       case PageState.AddCSVUsers:
         return (
           <MultipleUserEnrollmentWorkflow

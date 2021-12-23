@@ -363,6 +363,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   return (
     <div id='single-add-user' aria-live='polite'>
+      <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
       {success !== true || userExists === undefined ? renderForm() : renderSuccess(userExists)}
     </div>
   )
