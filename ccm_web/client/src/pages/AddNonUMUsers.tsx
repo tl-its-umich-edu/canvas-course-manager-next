@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Backdrop, CircularProgress, Grid, makeStyles, Typography
-} from '@material-ui/core'
+import { Backdrop, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
@@ -10,7 +8,10 @@ import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollment
 import UserEnrollmentForm from '../components/UserEnrollmentForm'
 import MethodSelect from '../components/MethodSelect'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName, sortSections } from '../models/canvas'
+import {
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName,
+  sortSections
+} from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +49,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
 
   const { course, canvasURL } = props.globals
   if (course.roles.length === 0) return <ErrorAlert />
+
   const settingsURL = `${canvasURL}/courses/${course.id}/settings`
   const rolesUserCanEnroll = getRolesUserCanEnroll(course.roles)
 
@@ -76,25 +78,39 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   )
 
   const renderSelectInputMethod = (): JSX.Element => {
+    if (getSectionsError !== undefined) return getSectionsErrorAlert
+
     return (
-      <MethodSelect<InputMethod>
-        label='Choose how you want to add users'
-        options={[
-          { key: 'single', label: 'Add one user manually' },
-          { key: 'csv', label: 'Add multiple users by uploading a CSV' }
-        ]}
-        typeGuard={(v): v is InputMethod => v === 'single' || v === 'csv'}
-        selectedMethod={inputMethod}
-        setMethod={setInputMethod}
-        disabled={isGetSectionsLoading}
-        onButtonClick={() => {
-          if (inputMethod === 'csv') {
-            setActivePageState(PageState.AddCSVUsers)
-          } else {
-            setActivePageState(PageState.AddSingleUser)
-          }
-        }}
-      />
+      <div className={classes.container}>
+        <MethodSelect<InputMethod>
+          label='Choose how you want to add users'
+          options={[
+            { key: 'single', label: 'Add one user manually' },
+            { key: 'csv', label: 'Add multiple users by uploading a CSV' }
+          ]}
+          typeGuard={(v): v is InputMethod => v === 'single' || v === 'csv'}
+          selectedMethod={inputMethod}
+          setMethod={setInputMethod}
+          disabled={isGetSectionsLoading}
+          onButtonClick={() => {
+            if (inputMethod === 'csv') {
+              setActivePageState(PageState.AddCSVUsers)
+            } else {
+              setActivePageState(PageState.AddSingleUser)
+            }
+          }}
+        />
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color='inherit' />
+            </Grid>
+            <Grid item xs={12}>
+              Loading section data from Canvas
+            </Grid>
+          </Grid>
+        </Backdrop>
+      </div>
     )
   }
 
@@ -141,25 +157,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' gutterBottom>{props.title}</Typography>
-      {
-        getSectionsError !== undefined
-          ? getSectionsErrorAlert
-          : (
-              <div className={classes.container}>
-                {renderActivePageState(activePageState)}
-                <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-                  <Grid container>
-                    <Grid item xs={12}>
-                      <CircularProgress color='inherit' />
-                    </Grid>
-                    <Grid item xs={12}>
-                      Loading section data from Canvas
-                    </Grid>
-                  </Grid>
-                </Backdrop>
-              </div>
-            )
-      }
+      {renderActivePageState(activePageState)}
     </div>
   )
 }
