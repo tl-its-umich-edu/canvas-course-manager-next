@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, MenuItem, makeStyles, Select, Typography } from '@material-ui/core'
+import { Grid, makeStyles, MenuItem, Select, Typography } from '@material-ui/core'
 
 import { ClientEnrollmentType } from '../models/canvas'
 
@@ -10,10 +10,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface RoleSelectProps {
-  disabled: boolean | undefined
-  posRoles: ClientEnrollmentType[]
+  roles: ClientEnrollmentType[]
   selectedRole: ClientEnrollmentType | undefined
   onRoleChange: (role: ClientEnrollmentType) => void
+  disabled: boolean | undefined
 }
 
 export default function RoleSelect (props: RoleSelectProps): JSX.Element {
@@ -29,7 +29,7 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
     <>
     <Typography id='role-select-label' className={classes.spacing}>
       Select a Canvas role that the user will have in the section.
-      Only roles less privileged than your own are allowed.
+      The available roles are determined by your own role(s) in the course.
     </Typography>
     <Grid container>
       <Grid item xs={8} sm={6}>
@@ -42,7 +42,7 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
           onChange={handleRoleSelectChange}
           disabled={props.disabled}
         >
-          {props.posRoles.map((r, i) => <MenuItem key={i} value={r}>{r.toLowerCase()}</MenuItem>)}
+          {props.roles.map((r, i) => <MenuItem key={i} value={r}>{r.toLowerCase()}</MenuItem>)}
         </Select>
       </Grid>
     </Grid>

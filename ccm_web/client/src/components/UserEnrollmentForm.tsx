@@ -63,7 +63,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     async (loginId: string): Promise<boolean> => {
       const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
       await promise
-      return false
+      return true
     },
     (result: boolean) => setUserExists(result)
   )
@@ -283,9 +283,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           }
           <div className={classes.spacing}>
             <RoleSelect
+              roles={props.rolesUserCanEnroll}
               selectedRole={role}
-              posRoles={props.rolesUserCanEnroll}
-              onRoleChange={(role) => setRole(role)}
+              onRoleChange={setRole}
               disabled={isEnrollmentLoading}
             />
           </div>
