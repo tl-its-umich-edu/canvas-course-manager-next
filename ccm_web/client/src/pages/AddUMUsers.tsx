@@ -1,5 +1,5 @@
 import {
-  Button, Backdrop, Box, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 
@@ -16,17 +16,17 @@ import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
+import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseSection, CanvasCourseSectionWithCourseName, getCanvasRole, injectCourseName,
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole, injectCourseName,
   sortSections
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
-import WorkflowStepper from '../components/WorkflowStepper'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -171,19 +171,21 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     )
     const validationResult = csvValidator.validate(headers, data)
     if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
-    const enrollmentRecords = validationResult.validData.map(r => ({ LOGIN_ID: r.LOGIN_ID, ROLE: r.ROLE }))
+    const enrollmentRecords = validationResult.validData.map((r) => ({ role: r.ROLE, loginId: r.LOGIN_ID }))
 
-    const enrollments: IAddUMUserEnrollment[] = []
     const errors: EnrollmentInvalidation[] = []
-    const roles = enrollmentRecords.map(r => r.ROLE)
     const rolesValidator = new RoleRowsValidator()
-    errors.push(...rolesValidator.validate(roles))
+    errors.push(...rolesValidator.validate(enrollmentRecords.map(r => r.role)))
 
-    const loginIDs = enrollmentRecords.map(r => r.LOGIN_ID)
     const loginIDsValidator = new LoginIDRowsValidator()
-    errors.push(...loginIDsValidator.validate(loginIDs))
+    errors.push(...loginIDsValidator.validate(enrollmentRecords.map(r => r.loginId)))
 
     if (errors.length === 0) {
+      const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
+        rowNumber: i + 2,
+        loginId: r.loginId,
+        role: r.role as ClientEnrollmentType
+      }))
       handleParseSuccess(enrollments)
     } else {
       handleParseFailure(errors)
