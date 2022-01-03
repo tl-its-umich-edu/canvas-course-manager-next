@@ -18,7 +18,7 @@ export class DuplicateIdentifierInRowsValidator implements RowStringValuesValida
     this.valueName = valueName
   }
 
-  validate = (values: string[]): RowInvalidation[] => {
+  validate (values: string[]): RowInvalidation[] {
     const sortedValues = values.map(n => { return n.toUpperCase() }).sort((a, b) => { return a.localeCompare(b) })
     const duplicates: string[] = []
     for (let i = 1; i < sortedValues.length; ++i) {

@@ -121,7 +121,6 @@ const getMostPrivilegedRole = (roles: RoleEnum[]): RoleEnum => {
 
 export const getRolesUserCanEnroll = (roles: RoleEnum[]): ClientEnrollmentType[] => {
   const mostPrivRole = getMostPrivilegedRole(roles)
-  console.log('Most privileged role: ' + mostPrivRole)
   const rank = rankedRoleData[mostPrivRole]
   switch (rank) {
     case 1:
