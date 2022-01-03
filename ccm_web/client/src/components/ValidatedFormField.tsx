@@ -35,9 +35,13 @@ export default function ValidatedFormField (props: ValidatedFormFieldProps): JSX
       placeholder={props.placeholder ?? props.fieldName}
       label={props.fieldName}
       aria-label={props.ariaLabel ?? props.fieldName}
+      value={props.value !== undefined ? props.value : ''}
+      onChange={props.onChange}
       error={error}
       helperText={helpMessage}
-      {...props}
+      fullWidth={props.fullWidth}
+      disabled={props.disabled}
+      autoFocus={props.autoFocus}
     />
   )
 }
