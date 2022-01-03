@@ -1,8 +1,8 @@
 import React from 'react'
 import { Typography } from '@material-ui/core'
 
-import CSVFileName from './CSVFileName'
 import CanvasAPIErrorsTable from './CanvasAPIErrorsTable'
+import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
 import { CanvasError } from '../utils/handleErrors'
