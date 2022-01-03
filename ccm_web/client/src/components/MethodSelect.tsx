@@ -15,6 +15,7 @@ interface MethodSelectProps<T extends string> {
   typeGuard: (v: string) => v is T
   setMethod: (method: T) => void
   onButtonClick: () => void
+  disabled: boolean | undefined
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -50,7 +51,7 @@ export default function UserInputMethodSelect<T extends string> (props: MethodSe
                 <FormControlLabel
                   key={i}
                   value={o.key}
-                  control={<Radio color='primary' />}
+                  control={<Radio color='primary' disabled={props.disabled} />}
                   label={o.label}
                 />
               )
@@ -62,7 +63,7 @@ export default function UserInputMethodSelect<T extends string> (props: MethodSe
     <Button
       color='primary'
       variant='contained'
-      disabled={props.selectedMethod === undefined}
+      disabled={props.disabled}
       aria-label='Select method'
       onClick={props.onButtonClick}
     >

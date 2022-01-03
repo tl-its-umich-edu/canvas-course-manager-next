@@ -47,12 +47,8 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const classes = useStyles()
 
   const { course, canvasURL } = props.globals
-
-  const settingsURL = `${canvasURL}/courses/${course.id}/settings`
-
-  console.log('Roles: ' + course.roles.toString())
   if (course.roles.length === 0) return <ErrorAlert />
-
+  const settingsURL = `${canvasURL}/courses/${course.id}/settings`
   const rolesUserCanEnroll = getRolesUserCanEnroll(course.roles)
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
@@ -65,7 +61,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   )
 
   useEffect(() => {
-    if (sections === undefined) {
+    if (sections === undefined && getSectionsError === undefined) {
       void doGetSections()
     }
   }, [sections, getSectionsError])
@@ -90,6 +86,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
         typeGuard={(v): v is InputMethod => v === 'single' || v === 'csv'}
         selectedMethod={inputMethod}
         setMethod={setInputMethod}
+        disabled={isGetSectionsLoading}
         onButtonClick={() => {
           if (inputMethod === 'csv') {
             setActivePageState(PageState.AddCSVUsers)
@@ -101,6 +98,8 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     )
   }
 
+  const resetFeature = (): void => setActivePageState(PageState.SelectInputMethod)
+
   const renderActivePageState = (state: PageState): JSX.Element => {
     switch (state) {
       case PageState.SelectInputMethod:
@@ -110,7 +109,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
           <UserEnrollmentForm
             sections={sections ?? []}
             rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
+            resetFeature={resetFeature}
             settingsURL={settingsURL}
           />
         )
@@ -129,7 +128,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
               }
             }
             rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={() => setActivePageState(PageState.SelectInputMethod)}
+            resetFeature={resetFeature}
             settingsURL={settingsURL}
           />
         )
