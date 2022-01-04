@@ -110,15 +110,20 @@ Explicit steps for setting up CCM in a development environment.
 ##### Configure Canvas API key
 
 12. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
-13. Enter a name in the "Key Name" field, and under "Redirect URIs" enter:
+13. Enter a name in the "Key Name" field.  
+    > 💡 The name of this key is used as the title and in the body of
+    > the authorization dialog box shown to the user.  Be sure to pick
+    > a meaningful name for this key.  For example, name it "Canvas
+    > Course Manager", **_NOT_** "CCM API key".
+14. In the "Redirect URIs" field, enter:
      `https://{ccm_app_hostname}/canvas/returnFromOAuth`
      Where `{ccm_app_hostname}` is the ngrok hostname copied earlier (in step 2).
      ***Note:*** Do ***NOT*** use the "Redirect URI (Legacy)" field.
-14. Enable the "Enforce Scopes" option, then add all scopes needed by the application (i.e., those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`).
-15. Click the "Save" button.
-16. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like "`17700000000000nnn`".
-17. Click the "Show Key" button underneath the ID located in step 15, and copy the secret that appears in the dialog.
-18. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+15. Enable the "Enforce Scopes" option, then add all scopes needed by the application (i.e., those listed in `ccm_web/server/src/canvas/canvas.scopes.ts`).
+16. Click the "Save" button.
+17. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like "`17700000000000nnn`".
+18. Click the "Show Key" button underneath the ID located in step 16, and copy the secret that appears in the dialog.
+19. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
 
 ##### Configure Canvas API admin token
 
@@ -146,18 +151,17 @@ Explicit steps for setting up CCM in a development environment.
         be `https://canvas-test.it.umich.edu`.  Note that this is the URL
         that would be used by the user to access Canvas.  It may be 
         different from the value of the `LTI_PLATFORM_URL` key.
-     5. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 16).
-     6. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 17).
+     5. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 17).
+     6. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 18).
      7. Add to the `CANVAS_ADMIN_API_TOKEN` key the API token copied earlier
         (in step 20).
      8. Configure invitation API settings.  The invitation API used by CCM is
         currently based on Cirrus Identity services.  Provide values for each
         of the following keys:
-        1. `INVITATION_API_URL`
-        2. `INVITATION_API_KEY`
-        3. `INVITATION_API_SECRET`
-        4. `INVITATION_API_ENTITY_ID`
-        5. `INVITATION_API_SPONSOR_NAME` — Note that this is an email address,
+        1. `INVITATION_API_KEY`
+        2. `INVITATION_API_SECRET`
+        3. `INVITATION_API_ENTITY_ID`
+        4. `INVITATION_API_SPONSOR_NAME` — Note that this is an email address,
            which Cirrus uses to identify the sponsor's name.
     
 ##### Build, start, and run application
