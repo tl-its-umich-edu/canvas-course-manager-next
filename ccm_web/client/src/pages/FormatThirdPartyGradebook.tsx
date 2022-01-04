@@ -180,13 +180,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setActiveStep(CSVWorkflowStep.Select)
   }
 
-  const handleBack = (): void => setActiveStep((prevStep) => {
-    if (prevStep > CSVWorkflowStep.Select) return prevStep - 1
-    return prevStep
-  })
-
-  const backButton = <Button className={classes.backButton} onClick={handleBack}>Back</Button>
-
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
@@ -347,7 +340,14 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             </Grid>
           </Grid>
           <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-            {backButton}
+            <Button
+              className={classes.backButton}
+              variant='outlined'
+              aria-label='Back to Select Section'
+              onClick={() => setActiveStep(CSVWorkflowStep.Select)}
+            >
+              Back
+            </Button>
           </Grid>
         </div>
       </div>
@@ -408,7 +408,13 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           message={<Typography>The formatted gradebook file has been downloaded to your computer!</Typography>}
         />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-          <Button variant='outlined' onClick={handleFullReset}>Start Again</Button>
+          <Button
+            variant='outlined'
+            aria-label='Start Format Third-Party Gradebook again'
+            onClick={handleFullReset}
+          >
+            Start Again
+          </Button>
         </Grid>
       </div>
     )
