@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Box, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -21,13 +21,13 @@ import { createOutputFileName } from '../utils/fileUtils'
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left',
-    '& button': {
-      margin: 5
-    }
+    textAlign: 'left'
   },
   uploadHeader: {
     paddingTop: 15
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -294,7 +294,20 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderSuccess = (): JSX.Element => {
     const message = <Typography>Your gradebook has been successfully converted and downloaded to your computer!</Typography>
-    return <SuccessCard message={message} />
+    return (
+      <>
+      <SuccessCard message={message} />
+        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button
+          variant='outlined'
+          aria-label='Start Format Canvas Gradebook again'
+          onClick={resetPageState}
+        >
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const gradeBookRecordToStudentGrade = (grades: GradebookRecord[] | undefined): StudentGrade[] => {
