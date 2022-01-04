@@ -45,7 +45,7 @@ export const isExternalEnrollmentRecord = (record: CSVRecord): record is Externa
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
+    color: '#FFF',
     position: 'absolute',
     textAlign: 'center'
   },
@@ -173,7 +173,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </li>
         <li>
           <Typography>
-            &quot;{ROLE_HEADER.toLowerCase()}&quot; with one of the Canvas roles you are allowed to enroll users as (see documentation);
+            &quot;{ROLE_HEADER.toLowerCase()}&quot; with one of the Canvas roles you are allowed to enroll users with (see documentation);
           </Typography>
         </li>
         <li>
@@ -213,17 +213,14 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const emailValidators = [new EmailRowsValidator(), new DuplicateEmailRowsValidator()]
       emailValidators.map(validator => errors.push(...validator.validate(emails)))
 
-      const firstNames = externalRecords.map(r => r[FIRST_NAME_HEADER])
       const firstNameValidator = new FirstNameRowsValidator()
-      errors.push(...firstNameValidator.validate(firstNames))
+      errors.push(...firstNameValidator.validate(externalRecords.map(r => r[FIRST_NAME_HEADER])))
 
-      const lastNames = externalRecords.map(r => r[LAST_NAME_HEADER])
       const lastNameValidator = new LastNameRowsValidator()
-      errors.push(...lastNameValidator.validate(lastNames))
+      errors.push(...lastNameValidator.validate(externalRecords.map(r => r[LAST_NAME_HEADER])))
 
-      const roles = externalRecords.map(r => r[ROLE_HEADER])
       const rolesValidator = new RoleRowsValidator()
-      errors.push(...rolesValidator.validate(roles, props.rolesUserCanEnroll))
+      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER]), props.rolesUserCanEnroll))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
@@ -259,7 +256,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         />
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
-          <Button variant='outlined' onClick={handleBackClick}>Back</Button>
+          <Button variant='outlined' aria-label='Back to select section' onClick={handleBackClick}>Back</Button>
         </div>
       </div>
     )
