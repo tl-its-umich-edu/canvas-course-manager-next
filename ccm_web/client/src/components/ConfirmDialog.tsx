@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Button, makeStyles, Paper, Typography } from '@material-ui/core'
 import CloudDoneIcon from '@material-ui/icons/CloudDone'
 
 import { DownloadData } from '../models/models'
