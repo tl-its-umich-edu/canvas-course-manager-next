@@ -3,21 +3,15 @@ import { Backdrop, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typo
 
 import ErrorAlert from './ErrorAlert'
 import RoleSelect from './RoleSelect'
-import SectionSelectorWidget, { SelectableCanvasCourseSection } from './SectionSelectorWidget'
+import SectionSelectorWidget from './SectionSelectorWidget'
 import SuccessCard from './SuccessCard'
 import ValidatedFormField from './ValidatedFormField'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
+import { CanvasError } from '../utils/handleErrors'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
-
-interface UserEnrollmentFormProps {
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  sections: SelectableCanvasCourseSection[]
-  resetFeature: () => void
-  settingsURL: string
-}
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -41,10 +35,22 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+interface APIErrorWithContext {
+  error: Error
+  context: string
+}
+
+interface UserEnrollmentFormProps {
+  sections: CanvasCourseSectionWithCourseName[]
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
+  resetFeature: () => void
+  settingsURL: string
+}
+
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const classes = useStyles()
 
-  const [selectedSection, setSelectedSection] = useState<SelectableCanvasCourseSection | undefined>(undefined)
+  const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [emailValidationResult, setEmailValidationResult] = useState<ValidationResult | undefined>(undefined)
@@ -63,7 +69,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     async (loginId: string): Promise<boolean> => {
       const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
       await promise
-      return true
+      return Math.random() > 0.5
     },
     (result: boolean) => setUserExists(result)
   )
@@ -85,6 +91,12 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     },
     () => setSuccess(true)
   )
+
+  const errorsWithContext = [
+    { error: searchForUserError, context: 'searching for the user' },
+    { error: addEnrollmentError, context: 'enrolling the user in a section' },
+    { error: addNewExternalEnrollmentError, context: 'adding the new external user' }
+  ].filter(d => d.error !== undefined) as APIErrorWithContext[]
 
   const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
 
@@ -134,8 +146,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const handleSubmitClick = async (): Promise<void> => {
     if (email === undefined || userExists === undefined) return
 
-    const sectionAndRoleComplete = selectedSection !== undefined && role !== undefined
-    if (userExists && sectionAndRoleComplete) {
+    if (userExists && roleAndSectionComplete) {
       return await doAddEnrollment(selectedSection.id, { email, role })
     }
     const firstNameResult = validateString(firstName, firstNameSchema)
@@ -148,7 +159,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       firstNameResult.isValid &&
       lastName !== undefined &&
       lastNameResult.isValid &&
-      sectionAndRoleComplete
+      roleAndSectionComplete
     ) {
       await doAddNewExternalEnrollment(selectedSection.id, { email, role, firstName, lastName })
     }
@@ -240,25 +251,20 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   )
 
   const renderForm = (): JSX.Element => {
-    if (
-      searchForUserError !== undefined ||
-      addEnrollmentError !== undefined ||
-      addNewExternalEnrollmentError !== undefined
-    ) {
-      return (
-        <ErrorAlert
-          messages={[
-            <Typography key={0}>
-              An error occurred while
-              {searchForUserError !== undefined && ' searching for the user in'}
-              {addEnrollmentError !== undefined && ' enrolling the user in a section in '}
-              {addNewExternalEnrollmentError !== undefined && ' adding the new external user to '}
-              Canvas.
-            </Typography>
-          ]}
-          tryAgain={resetAll}
-        />
-      )
+    if (errorsWithContext.length > 0) {
+      const { error, context } = errorsWithContext[0]
+      const prefix = `An error occurred while ${context}`
+      let message
+      if (error instanceof CanvasError) {
+        message = (
+          <Typography>
+            {prefix}: {error.errors.length > 0 ? error.errors[0].message : 'unknown API error from Canvas.'}
+          </Typography>
+        )
+      } else {
+        message = <Typography key={0}>{prefix}: {error.message}.</Typography>
+      }
+      return <ErrorAlert messages={[message]} tryAgain={resetAll} />
     }
 
     return (
