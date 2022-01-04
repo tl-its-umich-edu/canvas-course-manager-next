@@ -114,9 +114,7 @@ export const rankedRoleData: RankedRoleData = {
 
 const getMostPrivilegedRole = (roles: RoleEnum[]): RoleEnum => {
   if (roles.length === 0) throw new Error('Roles array must contain one or more roles.')
-  return roles.sort(
-    (a, b) => rankedRoleData[a] > rankedRoleData[b] ? -1 : 1
-  )[0]
+  return roles.sort((a, b) => rankedRoleData[a] > rankedRoleData[b] ? -1 : 1)[0]
 }
 
 export const getRolesUserCanEnroll = (roles: RoleEnum[]): ClientEnrollmentType[] => {
