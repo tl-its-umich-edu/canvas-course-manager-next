@@ -37,6 +37,15 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
   const defaultTitle = 'Review your CSV file'
   const defaultMessage = 'Your file is valid! If this looks correct, click "Submit" to proceed.'
 
+  let downloadProps
+  if (props.download !== undefined) {
+    downloadProps = {
+      component: 'a',
+      href: props.download.data,
+      download: props.download.fileName
+    }
+  }
+
   const submitButton = (
     <Button
       className={classes.dialogButton}
@@ -44,6 +53,7 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
       color='primary'
       onClick={props.submit}
       disabled={props.disabled}
+      {...downloadProps}
     >
       Submit
     </Button>
@@ -58,11 +68,7 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
         <Button className={classes.dialogButton} variant='outlined' onClick={props.cancel} disabled={props.disabled}>
           Cancel
         </Button>
-        {
-          props.download !== undefined
-            ? <Link href={props.download.data} download={props.download.fileName}>{submitButton}</Link>
-            : submitButton
-        }
+        {submitButton}
       </Paper>
     </div>
   )
