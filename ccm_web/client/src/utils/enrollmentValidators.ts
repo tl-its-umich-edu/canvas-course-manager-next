@@ -43,11 +43,11 @@ export class LastNameRowsValidator implements EnrollmentRowsValidator {
   validate (lastNames: string[]): EnrollmentInvalidation[] {
     const invalidations: EnrollmentInvalidation[] = []
     lastNames.forEach((lastName, i) => {
-      const lastNameValidtionResult = validateString(lastName, lastNameSchema)
-      if (!lastNameValidtionResult.isValid) {
+      const lastNameValidationResult = validateString(lastName, lastNameSchema)
+      if (!lastNameValidationResult.isValid) {
         invalidations.push({
           rowNumber: i + 2,
-          message: getMessage(lastNameValidtionResult, 'last name'),
+          message: getMessage(lastNameValidationResult, 'last name'),
           type: InvalidationType.Error
         })
       }
