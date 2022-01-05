@@ -92,7 +92,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
 
-  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
+  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
   const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
@@ -119,10 +119,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   useEffect(() => {
-    if (getSectionsError === undefined) {
+    if (sections === undefined && getSectionsError === undefined) {
       void doGetSections()
     }
-  }, [getSectionsError])
+  }, [sections, getSectionsError])
 
   useEffect(() => {
     if (file !== undefined) {
@@ -132,7 +132,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
-    updateSections(sections.concat(newSectionWithCourseName))
+    const existingSections = sections !== undefined ? sections : []
+    updateSections(existingSections.concat(newSectionWithCourseName))
     setSelectedSection(newSectionWithCourseName)
   }
 
@@ -153,6 +154,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setActiveStep(CSVWorkflowStep.Review)
   }
 
+  const handleSectionsReset = (): void => {
+    setSections(undefined)
+    setSelectedSection(undefined)
+    clearGetSectionsError()
+  }
+
   const handleEnrollmentsReset = (): void => {
     clearAddEnrollmentsError()
     setEnrollments(undefined)
@@ -164,6 +171,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const handleUploadReset = (): void => {
     handleEnrollmentsReset()
     setActiveStep(CSVWorkflowStep.Upload)
+  }
+
+  const handleFullReset = (): void => {
+    handleSectionsReset()
+    handleEnrollmentsReset()
+    setActiveStep(CSVWorkflowStep.Select)
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
@@ -212,39 +225,37 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       )
     } else {
       return (
-        <>
-          <div className={classes.createSelectSectionContainer}>
-            <CreateSelectSectionWidget
-              sections={sections}
-              selectedSection={selectedSection}
-              setSelectedSection={setSelectedSection}
-              // Only admins have access to the Add UM Users feature, and they can create sections.
-              canCreate={true}
-              course={props.course}
-              onSectionCreated={sectionCreated}
-            />
-            <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-              <Grid container>
-                <Grid item xs={12}>
-                  <CircularProgress color='inherit' />
-                </Grid>
-                <Grid item xs={12}>
-                  Loading sections
-                </Grid>
+        <div className={classes.createSelectSectionContainer}>
+          <CreateSelectSectionWidget
+            sections={sections ?? []}
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+            // Only admins have access to the Add UM Users feature, and they can create sections.
+            canCreate={true}
+            course={props.course}
+            onSectionCreated={sectionCreated}
+          />
+          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}>
+                <CircularProgress color='inherit' />
               </Grid>
-            </Backdrop>
-          </div>
+              <Grid item xs={12}>
+                Loading sections
+              </Grid>
+            </Grid>
+          </Backdrop>
           <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
             <Button
               variant='contained'
               color='primary'
-              disabled={selectedSection === undefined}
+              disabled={selectedSection === undefined || isGetSectionsLoading}
               onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
             >
               Select
             </Button>
           </Grid>
-        </>
+        </div>
       )
     }
   }
@@ -289,6 +300,15 @@ designer,userd`
       <div>
         {renderUploadHeader()}
         {renderFileUpload()}
+        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+          <Button
+            variant='outlined'
+            aria-label='Back to Select Section'
+            onClick={() => setActiveStep(CSVWorkflowStep.Select)}
+          >
+            Back
+          </Button>
+        </Grid>
       </div>
     )
   }
@@ -382,7 +402,20 @@ designer,userd`
         See the users in the course&apos;s sections on the {settingsLink} for your course.
       </span>
     )
-    return <SuccessCard {...{ message, nextAction }} />
+    return (
+      <>
+      <SuccessCard {...{ message, nextAction }} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button
+          variant='outlined'
+          aria-label='Start Add U-M Users again'
+          onClick={handleFullReset}
+        >
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const getShouldNotHappenContent = (): JSX.Element => {
