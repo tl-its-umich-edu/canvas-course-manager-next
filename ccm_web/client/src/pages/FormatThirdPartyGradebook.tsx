@@ -35,9 +35,6 @@ const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     marginTop: theme.spacing(1)
   },
-  backButton: {
-    marginRight: theme.spacing(1)
-  },
   stepper: {
     textAlign: 'center',
     paddingTop: '20px'
@@ -341,7 +338,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           </Grid>
           <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
             <Button
-              className={classes.backButton}
               variant='outlined'
               aria-label='Back to Select Section'
               onClick={() => setActiveStep(CSVWorkflowStep.Select)}
