@@ -364,10 +364,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
     const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: i + 2, ...r }))
-    const dataToDownload = 'data:text/csv;charset=utf-8,' + csvParser.createCSV<GradebookUploadRecord>({
-      fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
-      data: processedRecords
-    })
+    const dataToDownload = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+      csvParser.createCSV<GradebookUploadRecord>({
+        fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
+        data: processedRecords
+      })
+    )
 
     return (
       <div className={classes.reviewContainer}>
