@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
 
 import ErrorAlert from './ErrorAlert'
+import InlineErrorAlert from './InlineErrorAlert'
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget from './SectionSelectorWidget'
 import SuccessCard from './SuccessCard'
@@ -55,6 +56,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [emailValidationResult, setEmailValidationResult] = useState<ValidationResult | undefined>(undefined)
   const [userExists, setUserExists] = useState<boolean | undefined>(undefined)
+  const [showIncompleteAlerts, setShowIncompleteAlerts] = useState<boolean>(false)
 
   const [firstName, setFirstName] = useState<string | undefined>(undefined)
   const [firstNameValidationResult, setFirstNameValidationResult] = useState<ValidationResult | undefined>(undefined)
@@ -99,17 +101,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   ].filter(d => d.error !== undefined) as APIErrorWithContext[]
 
   const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
+  const isLoading = isSearchForUserLoading || isEnrollmentLoading
 
   const roleAndSectionComplete = role !== undefined && selectedSection !== undefined
-  const userExistsComplete = email !== undefined && userExists === true && roleAndSectionComplete
-  const userDoesNotExistComplete = (
-    email !== undefined &&
-    userExists === false &&
-    firstName !== undefined &&
-    lastName !== undefined &&
-    roleAndSectionComplete
-  )
-  const isFormComplete = userExistsComplete || userDoesNotExistComplete
 
   // Handlers
 
@@ -144,7 +138,12 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const handleSubmitClick = async (): Promise<void> => {
-    if (email === undefined || userExists === undefined) return
+    if (userExists === undefined) return setShowIncompleteAlerts(true)
+    // Won't happen, cause userExists depends on it
+    if (email === undefined) return
+    if (role === undefined) return setShowIncompleteAlerts(true)
+    if (selectedSection === undefined) return setShowIncompleteAlerts(true)
+    setShowIncompleteAlerts(false)
 
     if (userExists && roleAndSectionComplete) {
       return await doAddEnrollment(selectedSection.id, { email, role })
@@ -170,6 +169,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       <Typography className={classes.spacing}>
         Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
       </Typography>
+      {
+        showIncompleteAlerts && userExists === undefined &&
+          <InlineErrorAlert>You must search for the user to complete the form.</InlineErrorAlert>
+      }
       <Grid container spacing={2} alignItems='center'>
         <Grid item md={10} sm={8} xs={8}>
           <ValidatedFormField
@@ -182,7 +185,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               setEmail(e.currentTarget.value)
             }}
             fullWidth={true}
-            disabled={isSearchForUserLoading || isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading}
+            disabled={isLoading}
           />
         </Grid>
         <Grid item md={2} sm={4} xs={4}>
@@ -191,7 +194,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             variant='contained'
             aria-label='Search for user in Canvas'
             onClick={handleSearchClick}
-            disabled={email === undefined || userExists !== undefined}
+            disabled={isLoading}
           >
             Search
           </Button>
@@ -288,6 +291,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             )
           }
           <div className={classes.spacing}>
+            {
+              showIncompleteAlerts && role === undefined &&
+                <InlineErrorAlert>You must select a Canvas role from the dropdown.</InlineErrorAlert>
+            }
             <RoleSelect
               roles={props.rolesUserCanEnroll}
               selectedRole={role}
@@ -298,6 +305,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           <Typography className={classes.spacing}>
             Select the section you want to enroll the user in.
           </Typography>
+          {
+            showIncompleteAlerts && selectedSection === undefined &&
+              <InlineErrorAlert>You must select one section from the list below.</InlineErrorAlert>
+          }
           <SectionSelectorWidget
             height={300}
             search={[]}
@@ -324,7 +335,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             <Button
               color='primary'
               variant='contained'
-              disabled={!isFormComplete || isEnrollmentLoading}
+              disabled={isLoading}
               aria-label='Submit single user enrollment'
               onClick={handleSubmitClick}
             >
