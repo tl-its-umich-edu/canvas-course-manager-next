@@ -111,6 +111,9 @@ export interface CanvasUser {
   name: string
   sortable_name: string
   short_name: string
+}
+
+export interface CanvasUserLoginEmail extends CanvasUser{
   login_id: string
   email: string
 }

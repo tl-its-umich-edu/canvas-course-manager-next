@@ -7,6 +7,7 @@ import {
   CanvasAccount,
   CanvasCourse,
   CanvasUser,
+  CanvasUserLoginEmail,
   CourseWithSections,
   CourseWorkflowState
 } from '../canvas/canvas.interfaces'
@@ -111,7 +112,7 @@ export class AdminApiHandler {
     return finalResult
   }
 
-  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUser | APIErrorData> {
+  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
 
@@ -138,7 +139,7 @@ export class AdminApiHandler {
         force_validations: false
       }
       logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-      const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
+      const response = await this.requestor.request<CanvasUserLoginEmail>(endpoint, method, body)
       logger.debug(`Received response with status code (${String(response.statusCode)})`)
       const {
         id,
@@ -164,7 +165,7 @@ export class AdminApiHandler {
     }
   }
 
-  async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUser | APIErrorData>> {
+  async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUserLoginEmail | APIErrorData>> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
@@ -198,8 +199,6 @@ export class AdminApiHandler {
         name,
         sortable_name,
         short_name,
-        login_id: loginId,
-        email: undefined as any
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, `Login ID: ${loginId}`)

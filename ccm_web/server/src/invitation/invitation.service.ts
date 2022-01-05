@@ -5,7 +5,7 @@ import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
-import { CanvasUser } from '../canvas/canvas.interfaces'
+import { CanvasUser, CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
 
 // Invitation service based on Cirrus
 
@@ -27,7 +27,7 @@ export class InvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations (users: CanvasUser[]): Promise<string> {
+  async sendInvitations (users: CanvasUserLoginEmail[]): Promise<string> {
     const userEmails: string[] = users.map(user => user.email)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 

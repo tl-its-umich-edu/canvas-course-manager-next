@@ -15,6 +15,7 @@ import {
   CanvasCourseSectionBase,
   CanvasEnrollment,
   CanvasUser,
+  CanvasUserLoginEmail,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -134,7 +135,7 @@ export class APIService {
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
     const canvasConfig = this.configService.get('canvas', { infer: true })
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
-    const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUser[]
+    const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUserLoginEmail[]
 
     // Invite only new users
     const inviteResults: string | null = await this.invitationService.sendInvitations(newUsers)
