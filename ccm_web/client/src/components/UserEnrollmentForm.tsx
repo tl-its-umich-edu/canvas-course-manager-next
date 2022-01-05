@@ -203,7 +203,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             <CircularProgress color='inherit' />
           </Grid>
           <Grid item xs={12}>
-            Loading section data from Canvas
+            Searching for the user in Canvas
           </Grid>
         </Grid>
       </Backdrop>
