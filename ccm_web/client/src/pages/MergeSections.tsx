@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
   },
   submitButton: {
     float: 'right'
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -209,21 +212,44 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getSelectSections = (): JSX.Element => {
     return (
       <>
-        <Grid container spacing={5} style={{ marginBottom: '0px', marginTop: '0px' }}>
-          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
-            {getSelectSectionsUnstaged()}
-          </Grid>
-          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
-            {getSelectSectionsStaged()}
-          </Grid>
+      <Grid container spacing={5} style={{ marginBottom: '0px', marginTop: '0px' }}>
+        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
+          {getSelectSectionsUnstaged()}
         </Grid>
-        <Button className={classes.submitButton} onClick={submit} variant='contained' color='primary' disabled={!canMerge()}>{mergeButtonText(mergableSections())}</Button>
+        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
+          {getSelectSectionsStaged()}
+        </Grid>
+      </Grid>
+      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+        <Button
+          className={classes.submitButton}
+          onClick={submit}
+          variant='contained'
+          color='primary'
+          disabled={!canMerge()}
+        >
+          {mergeButtonText(mergableSections())}
+        </Button>
+      </Grid>
       </>
     )
   }
 
   const getMergeSuccess = (): JSX.Element => {
-    return (<CourseSectionList canUnmerge={isAdmin()} {...props}/>)
+    return (
+      <>
+      <CourseSectionList canUnmerge={isAdmin()} {...props}/>
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button
+          variant='outlined'
+          aria-label='Start Merge Sections again'
+          onClick={() => setPageState(PageState.SelectSections)}
+        >
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   return (
