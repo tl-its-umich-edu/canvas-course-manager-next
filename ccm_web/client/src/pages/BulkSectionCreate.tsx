@@ -374,7 +374,7 @@ Section 001`
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
         <Button
           variant='outlined'
-          aria-label='Start creating sections again'
+          aria-label={`Start ${props.title} again`}
           onClick={resetPageState}
         >
           Start Again

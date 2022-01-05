@@ -406,7 +406,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button
             variant='outlined'
-            aria-label='Start Format Third-Party Gradebook again'
+            aria-label={`Start ${props.title} again`}
             onClick={handleFullReset}
           >
             Start Again
