@@ -242,7 +242,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
         <Button
           variant='outlined'
-          aria-label='Start Merge Sections again'
+          aria-label={`Start ${props.title} again`}
           onClick={() => setPageState(PageState.SelectSections)}
         >
           Start Again
