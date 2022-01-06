@@ -103,8 +103,6 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
   const isLoading = isSearchForUserLoading || isEnrollmentLoading
 
-  const roleAndSectionComplete = role !== undefined && selectedSection !== undefined
-
   // Handlers
 
   const resetNameEntryState = (): void => {
@@ -138,14 +136,17 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const handleSubmitClick = async (): Promise<void> => {
-    if (userExists === undefined) return setShowIncompleteAlerts(true)
-    // Won't happen, cause userExists depends on it
-    if (email === undefined) return
-    if (role === undefined) return setShowIncompleteAlerts(true)
-    if (selectedSection === undefined) return setShowIncompleteAlerts(true)
+    if (
+      email === undefined ||
+      userExists === undefined ||
+      role === undefined ||
+      selectedSection === undefined
+    ) {
+      return setShowIncompleteAlerts(true)
+    }
     setShowIncompleteAlerts(false)
 
-    if (userExists && roleAndSectionComplete) {
+    if (userExists) {
       return await doAddEnrollment(selectedSection.id, { email, role })
     }
     const firstNameResult = validateString(firstName, firstNameSchema)
@@ -157,8 +158,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       firstName !== undefined &&
       firstNameResult.isValid &&
       lastName !== undefined &&
-      lastNameResult.isValid &&
-      roleAndSectionComplete
+      lastNameResult.isValid
     ) {
       await doAddNewExternalEnrollment(selectedSection.id, { email, role, firstName, lastName })
     }
