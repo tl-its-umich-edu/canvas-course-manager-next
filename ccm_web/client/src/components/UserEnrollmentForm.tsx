@@ -217,7 +217,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     <>
     <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
-      Please provide a first and last name, and we will invite them to set up a login method.
+      Please provide a first and last name, and we will send them an email invitation
+      to set up a login method and add them to Canvas.
     </Typography>
     <Grid container spacing={2}>
       <Grid item md={6} xs={6}>
@@ -362,7 +363,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     const messageText = (
       userExists
         ? 'The existing user was'
-        : 'The new user was invited to create a friend account, added to Canvas, and'
+        : 'The new user was sent an email invitation to choose a login method, added to Canvas, and'
     ) + ' enrolled in the selected section!'
     const nextAction = (
       <span>See the user in the course&apos;s sections on the {settingsLink} for your course.</span>

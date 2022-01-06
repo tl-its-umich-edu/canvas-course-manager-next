@@ -157,8 +157,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
     const description = (
       'This tool will try to enroll non-UM users in the selected section. ' +
-      'If they do not have an account in Canvas, they will be sent an invitation to choose a login method and added to Canvas ' +
-      'before they are added to the section.'
+      'If they do not have an account in Canvas, they will be sent an email ' +
+      'invitation to choose a login method and added to Canvas before they are enrolled in the section.'
     )
     const requirements = (
       <>
@@ -309,7 +309,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
     )
     // Need to process actual result here somehow
-    const message = <Typography>New non-UM users have been added to Canvas and your sections!</Typography>
+    const message = (
+      <Typography>
+        Non-UM Users have been added to the selected section!
+        New users have also been added to Canvas and sent an email invitation to choose a login method.
+      </Typography>
+    )
     const nextAction = (
       <span>See the users in the course&apos;s sections on the {settingsLink} for your course.</span>
     )
