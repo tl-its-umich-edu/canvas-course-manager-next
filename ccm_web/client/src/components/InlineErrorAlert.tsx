@@ -22,8 +22,7 @@ interface InlineAlertProps {
 
 /*
 Temporary implementation of inline Alert. This is implemented in Material UI 4's lab package
-but is part of the core later on.
-
+but is part of the core later in 5. We can use that once we update.
 */
 
 export default function InlineErrorAlert (props: InlineAlertProps): JSX.Element {
