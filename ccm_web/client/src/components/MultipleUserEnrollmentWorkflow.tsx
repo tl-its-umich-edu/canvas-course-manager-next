@@ -157,7 +157,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
     const description = (
       'This tool will try to enroll non-UM users in the selected section. ' +
-      'If they do not have an account in Canvas, they will be sent an invitation to create a friend account and added to Canvas ' +
+      'If they do not have an account in Canvas, they will be sent an invitation to choose a login method and added to Canvas ' +
       'before they are added to the section.'
     )
     const requirements = (
