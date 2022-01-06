@@ -217,7 +217,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     <>
     <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
-      Please provide a first and last name, and we will invite them to set up a friend account.
+      Please provide a first and last name, and we will invite them to set up a login method.
     </Typography>
     <Grid container spacing={2}>
       <Grid item md={6} xs={6}>
