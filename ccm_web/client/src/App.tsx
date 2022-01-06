@@ -12,6 +12,7 @@ import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
 import './App.css'
 import ResponsiveHelper from './components/ResponsiveHelper'
+import AccessDenied from './components/AccessDenied'
 
 const useStyles = makeStyles((theme) => ({
   swaggerLink: {
@@ -51,7 +52,8 @@ function App (): JSX.Element {
   if (globals === undefined || !isAuthenticated) {
     return (
       <div className='App'>
-        <p>You were not properly authenticated to the application.</p>
+        {/* <p>You were not properly authenticated to the application.</p> */}
+        <AccessDenied/>
       </div>
     )
   }
