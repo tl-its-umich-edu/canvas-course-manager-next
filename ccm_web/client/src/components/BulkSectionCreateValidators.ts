@@ -1,5 +1,5 @@
 import { InvalidationType } from '../models/models'
-import { DuplicateIdentifierInRowsValidator, RowInvalidation } from '../utils/rowValidation'
+import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
 import { sectionNameSchema, validateString } from '../utils/validation'
 
 interface SectionsRowInvalidation extends RowInvalidation {}
@@ -17,18 +17,8 @@ class DuplicateSectionInFileSectionRowsValidator implements SectionRowsValidator
 
 class SectionNameLengthValidator implements SectionRowsValidator {
   validate = (sectionNames: string[]): SectionsRowInvalidation[] => {
-    const invalidations: SectionsRowInvalidation[] = []
-    sectionNames.forEach((sectionName, row) => {
-      const result = validateString(sectionName, sectionNameSchema)
-      if (!result.isValid) {
-        invalidations.push({
-          message: result.messages.length > 0 ? result.messages[0] : 'Value for the section name is invalid.',
-          rowNumber: row + 2,
-          type: InvalidationType.Error
-        })
-      }
-    })
-    return invalidations
+    const sectionNameValidator = new StringRowsSchemaValidator(sectionNameSchema, 'section name')
+    return sectionNameValidator.validate(sectionNames)
   }
 }
 

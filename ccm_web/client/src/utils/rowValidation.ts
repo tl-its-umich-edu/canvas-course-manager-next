@@ -1,3 +1,6 @@
+import { StringSchema } from 'yup'
+
+import { validateString, ValidationResult } from './validation'
 import { InvalidationType } from '../models/models'
 
 // For validating row level issues
@@ -8,12 +11,12 @@ export interface RowInvalidation {
 }
 
 interface RowStringValuesValidator {
-  valueName: string
+  readonly valueName: string
   validate: (values: string[]) => RowInvalidation[]
 }
 
 export class DuplicateIdentifierInRowsValidator implements RowStringValuesValidator {
-  valueName: string
+  readonly valueName: string
   constructor (valueName: string) {
     this.valueName = valueName
   }
@@ -35,6 +38,35 @@ export class DuplicateIdentifierInRowsValidator implements RowStringValuesValida
         invalidations.push({
           message: `Duplicate ${this.valueName} found in this file: "${value}"`,
           rowNumber: i + 2,
+          type: InvalidationType.Error
+        })
+      }
+    })
+    return invalidations
+  }
+}
+
+export class StringRowsSchemaValidator implements RowStringValuesValidator {
+  readonly schema: StringSchema
+  readonly valueName: string
+
+  constructor (schema: StringSchema, valueName: string) {
+    this.schema = schema
+    this.valueName = valueName
+  }
+
+  private getMessage (result: ValidationResult): string {
+    return result.messages.length > 0 ? result.messages[0] : `Value for ${this.valueName} is invalid.`
+  }
+
+  validate (values: string[]): RowInvalidation[] {
+    const invalidations: RowInvalidation[] = []
+    values.forEach((value, i) => {
+      const validationResult = validateString(value, this.schema)
+      if (!validationResult.isValid) {
+        invalidations.push({
+          rowNumber: i + 2,
+          message: this.getMessage(validationResult),
           type: InvalidationType.Error
         })
       }

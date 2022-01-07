@@ -1,9 +1,7 @@
 import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
-import { DuplicateIdentifierInRowsValidator, RowInvalidation } from '../utils/rowValidation'
-import {
-  emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, validateString, ValidationResult
-} from '../utils/validation'
+import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
+import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema } from '../utils/validation'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 
@@ -11,24 +9,10 @@ interface EnrollmentRowsValidator {
   validate: (values: string[]) => EnrollmentInvalidation[]
 }
 
-const getMessage = (result: ValidationResult, fieldName: string): string => {
-  return result.messages.length > 0 ? result.messages[0] : `Value for ${fieldName} is invalid.`
-}
-
 export class EmailRowsValidator implements EnrollmentRowsValidator {
   validate (emails: string[]): EnrollmentInvalidation[] {
-    const invalidations: EnrollmentInvalidation[] = []
-    emails.forEach((email, i) => {
-      const emailValidationResult = validateString(email, emailSchema)
-      if (!emailValidationResult.isValid) {
-        invalidations.push({
-          rowNumber: i + 2,
-          message: getMessage(emailValidationResult, 'email address'),
-          type: InvalidationType.Error
-        })
-      }
-    })
-    return invalidations
+    const emailValidator = new StringRowsSchemaValidator(emailSchema, 'email address')
+    return emailValidator.validate(emails)
   }
 }
 
@@ -41,35 +25,15 @@ export class DuplicateEmailRowsValidator implements EnrollmentRowsValidator {
 
 export class LastNameRowsValidator implements EnrollmentRowsValidator {
   validate (lastNames: string[]): EnrollmentInvalidation[] {
-    const invalidations: EnrollmentInvalidation[] = []
-    lastNames.forEach((lastName, i) => {
-      const lastNameValidationResult = validateString(lastName, lastNameSchema)
-      if (!lastNameValidationResult.isValid) {
-        invalidations.push({
-          rowNumber: i + 2,
-          message: getMessage(lastNameValidationResult, 'last name'),
-          type: InvalidationType.Error
-        })
-      }
-    })
-    return invalidations
+    const lastNamesValidator = new StringRowsSchemaValidator(lastNameSchema, 'last name')
+    return lastNamesValidator.validate(lastNames)
   }
 }
 
 export class FirstNameRowsValidator implements EnrollmentRowsValidator {
   validate (firstNames: string[]): EnrollmentInvalidation[] {
-    const invalidations: EnrollmentInvalidation[] = []
-    firstNames.forEach((firstName, i) => {
-      const firstNameValidationResult = validateString(firstName, firstNameSchema)
-      if (!firstNameValidationResult.isValid) {
-        invalidations.push({
-          rowNumber: i + 2,
-          message: getMessage(firstNameValidationResult, 'first name'),
-          type: InvalidationType.Error
-        })
-      }
-    })
-    return invalidations
+    const firstNameValidator = new StringRowsSchemaValidator(firstNameSchema, 'first name')
+    return firstNameValidator.validate(firstNames)
   }
 }
 
@@ -97,17 +61,7 @@ export class RoleRowsValidator implements EnrollmentRowsValidator {
 
 export class LoginIDRowsValidator implements EnrollmentRowsValidator {
   validate (loginIDs: string[]): EnrollmentInvalidation[] {
-    const invalidations: EnrollmentInvalidation[] = []
-    loginIDs.forEach((loginID, i) => {
-      const loginIDValidationResult = validateString(loginID, loginIDSchema)
-      if (!loginIDValidationResult.isValid) {
-        invalidations.push({
-          rowNumber: i + 2,
-          message: getMessage(loginIDValidationResult, 'login ID'),
-          type: InvalidationType.Error
-        })
-      }
-    })
-    return invalidations
+    const loginIDValidator = new StringRowsSchemaValidator(loginIDSchema, 'login ID')
+    return loginIDValidator.validate(loginIDs)
   }
 }
