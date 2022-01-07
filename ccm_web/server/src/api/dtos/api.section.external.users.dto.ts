@@ -1,9 +1,5 @@
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  ValidateNested
+  ArrayMaxSize, ArrayMinSize, IsArray, IsNotEmpty, MaxLength, ValidateNested
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
@@ -12,14 +8,17 @@ import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
 export class SectionExternalUserDto {
   @ApiProperty()
   @IsNotEmpty()
+  @MaxLength(255)
   email: string
 
   @ApiProperty()
   @IsNotEmpty()
+  @MaxLength(255)
   givenName: string
 
   @ApiProperty()
   @IsNotEmpty()
+  @MaxLength(255)
   surname: string
 
   @ApiProperty({ enum: UserEnrollmentType })
