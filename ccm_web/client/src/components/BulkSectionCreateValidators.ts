@@ -1,6 +1,6 @@
 import { InvalidationType } from '../models/models'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
-import { sectionNameSchema, validateString } from '../utils/validation'
+import { sectionNameSchema } from '../utils/validation'
 
 interface SectionsRowInvalidation extends RowInvalidation {}
 
