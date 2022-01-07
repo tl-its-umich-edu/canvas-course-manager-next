@@ -28,7 +28,7 @@ but is part of the core later in 5. We can use that once we update.
 export default function InlineErrorAlert (props: InlineAlertProps): JSX.Element {
   const classes = useStyles()
   return (
-    <Paper className={classes.alert} elevation={0} aria-role='alert'>
+    <Paper className={classes.alert} elevation={0} role='alert'>
       <Grid container spacing={2} alignItems='center' direction='row'>
         <Grid item><ErrorIcon className={classes.icon} /></Grid>
         <Grid item>{props.children}</Grid>
