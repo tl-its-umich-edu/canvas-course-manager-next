@@ -129,7 +129,7 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<string> {
+  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<object> {
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
@@ -137,7 +137,7 @@ export class APIService {
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUserLoginEmail[]
 
-    // Invite only new users
+    // Results of inviting only new users
     const inviteResults: string | null = await this.invitationService.sendInvitations(newUsers)
 
     // Enroll all users
@@ -145,11 +145,11 @@ export class APIService {
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
     const userEnrollments = await sectionHandler.enrollUsers(sectionUsers)
 
-    return JSON.stringify({
+    return {
       usersCreated: createUserResponses,
       inviteResults: inviteResults,
       userEnrollments: userEnrollments
-    })
+    }
   }
 
   async getUserInfoAsAdmin (user: User, loginId: string): Promise<CanvasUser | APIErrorData> {
