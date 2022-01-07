@@ -103,7 +103,8 @@ export class APIController {
     return result
   }
 
-  @UseInterceptors(InvalidTokenInterceptor) @Get('admin/user/:loginId')
+  @UseInterceptors(InvalidTokenInterceptor)
+  @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string,
     @UserDec() user: User
