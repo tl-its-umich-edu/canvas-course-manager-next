@@ -8,6 +8,7 @@ import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
+import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasCourse,
   CanvasCourseBase,
@@ -19,12 +20,11 @@ import {
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
+import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
 import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
-import { InvitationService } from '../invitation/invitation.service'
-import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -33,7 +33,7 @@ export class APIService {
   constructor (
     private readonly canvasService: CanvasService,
     private readonly configService: ConfigService<Config, true>,
-    private readonly invitationService: InvitationService
+    private readonly invitationService: CirrusInvitationService
   ) {}
 
   getGlobals (user: User, sessionData: SessionData): Globals {
