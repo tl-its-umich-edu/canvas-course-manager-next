@@ -6,6 +6,10 @@ import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
 import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
+import { HttpMethod } from '../api/api.utils'
+import baseLogger from '../logger'
+
+const logger = baseLogger.child({ filePath: __filename })
 
 @Injectable()
 export class CirrusInvitationService {
@@ -34,24 +38,23 @@ export class CirrusInvitationService {
     data.append('sponsorEppn', this.sponsorName)
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
-    return axios({
-      method: 'POST',
-      url: this.url,
-      auth: {
-        username: this.key,
-        password: this.secret
-      },
-      headers: { ...data.getHeaders() },
-      data: data
-    })
-      .then((response) => {
-        const results: string = JSON.stringify(response.data)
-        console.log(results)
-        return results
+    try {
+      const response = await axios({
+        method: HttpMethod.Post,
+        url: this.url,
+        auth: {
+          username: this.key,
+          password: this.secret
+        },
+        headers: { ...data.getHeaders() },
+        data: data
       })
-      .catch((error) => {
-        console.log(error)
-        throw new InvitationAPIError()
-      })
+
+      logger.debug(response.data)
+      return response.data
+    } catch (error) {
+      logger.debug(`Caught error while sending invitations: ${error}`)
+      throw new InvitationAPIError(error)
+    }
   }
 }
