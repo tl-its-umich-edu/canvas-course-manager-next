@@ -7,8 +7,6 @@ import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
 import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
 
-// Invitation service based on Cirrus
-
 @Injectable()
 export class CirrusInvitationService {
   url: string
@@ -19,7 +17,6 @@ export class CirrusInvitationService {
 
   constructor (private readonly configService: ConfigService<Config, true>) {
     const invitationConfig = configService.get('invitation', { infer: true })
-    // const domain = configService.get('server.domain', { infer: true })
     this.url = invitationConfig.apiURL
     this.entityID = invitationConfig.apiEntityID
     this.sponsorName = invitationConfig.apiSponsorName
