@@ -5,12 +5,12 @@ import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { InvitationAPIError } from './invitation.errors'
-import { CanvasUser, CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
+import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
 
 // Invitation service based on Cirrus
 
 @Injectable()
-export class InvitationService {
+export class CirrusInvitationService {
   url: string
   entityID: string
   sponsorName: string
