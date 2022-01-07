@@ -2,14 +2,14 @@ import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { InvitationService } from './invitation.service'
+import { CirrusInvitationService } from './cirrus-invitation.service'
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule
   ],
-  providers: [InvitationService],
-  exports: [InvitationService, HttpModule]
+  providers: [CirrusInvitationService],
+  exports: [CirrusInvitationService, HttpModule]
 })
-export class InvitationModule {}
+export class CirrusInvitationModule {}
