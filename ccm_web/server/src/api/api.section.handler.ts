@@ -3,6 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
+import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
@@ -12,7 +13,6 @@ import {
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
-import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 
 const logger = baseLogger.child({ filePath: __filename })
 
