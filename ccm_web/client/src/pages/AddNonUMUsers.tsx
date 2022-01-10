@@ -34,7 +34,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-type InputMethod = 'single' | 'csv'
+enum InputMethod {
+  Single = 'single',
+  CSV = 'csv'
+}
 
 enum PageState {
   SelectInputMethod,
@@ -54,7 +57,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const rolesUserCanEnroll = getRolesUserCanEnroll(course.roles)
 
   const [activePageState, setActivePageState] = useState<PageState>(PageState.SelectInputMethod)
-  const [inputMethod, setInputMethod] = useState<InputMethod>('single')
+  const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.Single)
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
@@ -85,15 +88,15 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
         <MethodSelect<InputMethod>
           label='Choose how you want to add users'
           options={[
-            { key: 'single', label: 'Add one user manually' },
-            { key: 'csv', label: 'Add multiple users by uploading a CSV' }
+            { key: InputMethod.Single, label: 'Add one user manually' },
+            { key: InputMethod.CSV, label: 'Add multiple users by uploading a CSV' }
           ]}
-          typeGuard={(v): v is InputMethod => v === 'single' || v === 'csv'}
+          typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
           selectedMethod={inputMethod}
           setMethod={setInputMethod}
           disabled={isGetSectionsLoading}
           onButtonClick={() => {
-            if (inputMethod === 'csv') {
+            if (inputMethod === InputMethod.CSV) {
               setActivePageState(PageState.AddCSVUsers)
             } else {
               setActivePageState(PageState.AddSingleUser)
