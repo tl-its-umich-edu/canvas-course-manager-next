@@ -124,7 +124,6 @@ export class AdminApiHandler {
           // API doesn't provide separate given- and surname fields
           name: `${user.givenName} ${user.surname}`,
           sortable_name: `${user.surname}, ${user.givenName}`,
-          terms_of_use: true,
           skip_registration: true
         },
         pseudonym: {
