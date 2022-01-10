@@ -11,14 +11,20 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
 
 const canvasMaxNameLength = 255
-const createCanvasEntityNameSchema = (fieldName: string): StringSchema => {
+const createCanvasNameSchema = (fieldName: string): StringSchema => {
   return string().required(createBlankMessage(fieldName))
     .max(canvasMaxNameLength, ({ max }) => createExceededMessage(fieldName, max))
 }
 
-export const courseNameSchema = createCanvasEntityNameSchema('course name')
-export const assignmentHeaderSchema = createCanvasEntityNameSchema('assignment header')
-export const sectionNameSchema = createCanvasEntityNameSchema('section name')
+export const courseNameSchema = createCanvasNameSchema('course name')
+export const assignmentHeaderSchema = createCanvasNameSchema('assignment header')
+export const sectionNameSchema = createCanvasNameSchema('section name')
+export const loginIDSchema = createCanvasNameSchema('login ID')
+export const emailSchema = createCanvasNameSchema('email address')
+  .email('The value is not a valid email address.')
+  .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
+export const firstNameSchema = createCanvasNameSchema('first name')
+export const lastNameSchema = createCanvasNameSchema('last name')
 
 // Type validator(s)
 

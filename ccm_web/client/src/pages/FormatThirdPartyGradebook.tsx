@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Step, StepLabel, Stepper, Typography
+  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
 
 import * as api from '../api'
@@ -14,17 +14,18 @@ import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../compone
 import SuccessCard from '../components/SuccessCard'
 import ThirdPartyGradebookConfirmationTable from '../components/ThirdPartyGradebookConfirmationTable'
 import WarningAlert from '../components/WarningAlert'
+import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
+import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import ThirdPartyGradebookProcessor, {
   GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, POINTS_POS_TEXT,
   REQUIRED_LOGIN_ID_HEADER, REQUIRED_ORDERED_HEADERS
 } from '../utils/ThirdPartyGradebookProcessor'
-import { createOutputFileName } from '../utils/fileUtils'
+import { createOutputFileName, getRowNumber } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,13 +67,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-enum FormatGradebookStep {
-  Select = 0,
-  Upload = 1,
-  Review = 2,
-  Confirmation = 3
-}
-
 interface FormatThirdPartyGradebookProps extends CCMComponentProps {}
 
 export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradebookProps): JSX.Element {
@@ -82,7 +76,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     Object.assign({ ...FileParserWrapper.defaultParseConfigOptions }, { transformHeader: undefined })
   )
 
-  const [activeStep, setActiveStep] = useState<FormatGradebookStep>(FormatGradebookStep.Select)
+  const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
   const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
   const [selectedSections, setSelectedSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
   const [studentLoginIds, setStudentLoginIds] = useState<string[] | undefined>(undefined)
@@ -118,7 +112,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   useEffect(() => {
     if (studentLoginIds !== undefined) {
-      setActiveStep(FormatGradebookStep.Upload)
+      setActiveStep(CSVWorkflowStep.Upload)
     }
   }, [studentLoginIds])
 
@@ -159,7 +153,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       }
       setGradebookInvalidations(result.invalidations)
       if (result.invalidations.length === 0) {
-        setActiveStep(FormatGradebookStep.Review)
+        setActiveStep(CSVWorkflowStep.Review)
       }
     }
   }, [records])
@@ -183,11 +177,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const handleFullReset = (): void => {
     handleResetSelect()
     handleResetUpload()
-    setActiveStep(FormatGradebookStep.Select)
+    setActiveStep(CSVWorkflowStep.Select)
   }
 
   const handleBack = (): void => setActiveStep((prevStep) => {
-    if (prevStep > FormatGradebookStep.Select) return prevStep - 1
+    if (prevStep > CSVWorkflowStep.Select) return prevStep - 1
     return prevStep
   })
 
@@ -217,7 +211,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <WarningAlert
           messages={warnings.map((w, i) => <Typography key={i}>{w.message}</Typography>)}
           cancel={handleResetUpload}
-          cont={() => setActiveStep(FormatGradebookStep.Review)}
+          cont={() => setActiveStep(CSVWorkflowStep.Review)}
         />
       )
     }
@@ -363,7 +357,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const renderReview = (
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
-    const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: i + 2, ...r }))
+    const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: getRowNumber(i), ...r }))
     const dataToDownload = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
       csvParser.createCSV<GradebookUploadRecord>({
         fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
@@ -390,10 +384,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             <Grid item xs={12} sm={12} md={3}>
               <ConfirmDialog
                 message='Your file is valid! If this looks correct, click "Submit" to proceed with downloading.'
-                submit={() => setActiveStep(FormatGradebookStep.Confirmation)}
+                submit={() => setActiveStep(CSVWorkflowStep.Confirmation)}
                 cancel={() => {
                   handleResetUpload()
-                  setActiveStep(FormatGradebookStep.Upload)
+                  setActiveStep(CSVWorkflowStep.Upload)
                 }}
                 download={{
                   fileName: createOutputFileName(file.name, '-puff'),
@@ -420,18 +414,18 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     )
   }
 
-  const renderStep = (step: FormatGradebookStep): JSX.Element => {
+  const renderStep = (step: CSVWorkflowStep): JSX.Element => {
     switch (step) {
-      case FormatGradebookStep.Select:
+      case CSVWorkflowStep.Select:
         return renderSelect()
-      case FormatGradebookStep.Upload:
+      case CSVWorkflowStep.Upload:
         return renderUpload()
-      case FormatGradebookStep.Review:
+      case CSVWorkflowStep.Review:
         if (file !== undefined && processedRecords !== undefined && assignmentHeader !== undefined) {
           return renderReview(processedRecords, assignmentHeader, file)
         }
         return <ErrorAlert tryAgain={handleFullReset} />
-      case FormatGradebookStep.Confirmation:
+      case CSVWorkflowStep.Confirmation:
         return renderConfirmation()
       default:
         return <ErrorAlert tryAgain={handleFullReset} />
@@ -442,13 +436,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <Stepper className={classes.stepper} activeStep={activeStep} alternativeLabel>
-        {
-          Object.entries(FormatGradebookStep)
-            .filter(([key]) => isNaN(Number(key)))
-            .map(([key, value]) => <Step key={value}><StepLabel>{key}</StepLabel></Step>)
-        }
-      </Stepper>
+      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div>{renderStep(activeStep)}</div>
     </div>
   )

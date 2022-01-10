@@ -1,50 +1,53 @@
 import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Step, StepLabel,
-  Stepper, Theme, Tooltip, Typography
+  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { HelpOutline as HelpIcon } from '@material-ui/icons'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
+import BulkApiErrorContent from '../components/BulkApiErrorContent'
 import ErrorAlert from '../components/ErrorAlert'
 import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
-import CanvasAPIErrorsTable from '../components/CanvasAPIErrorsTable'
 import ConfirmDialog from '../components/ConfirmDialog'
-import CreateSectionWidget from '../components/CreateSectionWidget'
+import CreateSelectSectionWidget from '../components/CreateSelectSectionWidget'
 import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import Help from '../components/Help'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
-import SectionSelectorWidget from '../components/SectionSelectorWidget'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
+import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, injectCourseName, CanvasCourseSectionWithCourseName, getCanvasRole, isValidRole } from '../models/canvas'
+import {
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole, injectCourseName,
+  sortSections
+} from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
-import { CanvasError } from '../utils/handleErrors'
+import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { getRowNumber } from '../utils/fileUtils'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
 const MAX_ENROLLMENT_RECORDS = 400
 const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       padding: 25,
       textAlign: 'left'
     },
-    backButton: {
-      marginRight: theme.spacing(1)
+    buttonGroup: {
+      marginTop: theme.spacing(1)
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
       color: '#fff',
-      position: 'absolute'
+      position: 'absolute',
+      textAlign: 'center'
     },
     confirmContainer: {
       position: 'relative',
@@ -55,21 +58,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
     },
-    createSectionWidget: {
-      width: '500px'
-    },
-    sectionSelectButton: {
-      float: 'right'
-    },
-    sectionSelectionContainer: {
+    createSelectSectionContainer: {
       position: 'relative',
-      zIndex: 0,
-      textAlign: 'center',
-      maxHeight: '400px'
-    },
-    stepper: {
-      textAlign: 'center',
-      paddingTop: '20px'
+      zIndex: 0
     },
     uploadContainer: {
       position: 'relative',
@@ -79,12 +70,6 @@ const useStyles = makeStyles((theme: Theme) =>
     table: {
       paddingLeft: 10,
       paddingRight: 10
-    },
-    newSectionHint: {
-      display: 'flex'
-    },
-    createSectionContainer: {
-      paddingBottom: '20px'
     }
   })
 )
@@ -104,15 +89,8 @@ const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
 interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
-  enum States {
-    SelectSection = 0,
-    UploadCSV = 1,
-    ReviewCSV = 2,
-    Confirmation = 3
-  }
-
   const classes = useStyles()
-  const [activeStep, setActiveStep] = useState(States.SelectSection)
+  const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
 
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
@@ -122,7 +100,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
-    setSections(sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) }))
+    setSections(sortSections(sections))
   }
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
@@ -137,7 +115,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
       await addSectionEnrollments(section.id, apiEnrollments)
     },
-    () => { setActiveStep(States.Confirmation) }
+    () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
 
   useEffect(() => {
@@ -152,37 +130,27 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
   }, [file])
 
-  const getSteps = (): string[] => {
-    return ['Select', 'Upload', 'Review', 'Confirmation']
-  }
-  const steps = getSteps()
-
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
     updateSections(sections.concat(newSectionWithCourseName))
     setSelectedSection(newSectionWithCourseName)
   }
 
-  const isValidLoginId = (loginId: string): boolean => {
-    if (loginId.trim().length === 0) return false
-    return true
-  }
-
   const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
     setEnrollments(enrollments)
     setRowErrors(undefined)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleParseFailure = (errors: RowValidationError[]): void => {
     setEnrollments(undefined)
     setRowErrors(errors)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
     setSchemaInvalidations(invalidations)
-    setActiveStep(States.ReviewCSV)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleEnrollmentsReset = (): void => {
@@ -195,7 +163,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const handleUploadReset = (): void => {
     handleEnrollmentsReset()
-    setActiveStep(States.UploadCSV)
+    setActiveStep(CSVWorkflowStep.Upload)
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
@@ -204,24 +172,21 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     )
     const validationResult = csvValidator.validate(headers, data)
     if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
-    const enrollmentRecords = validationResult.validData.map(r => ({ LOGIN_ID: r.LOGIN_ID, ROLE: r.ROLE }))
+    const enrollmentRecords = validationResult.validData.map((r) => ({ role: r.ROLE, loginId: r.LOGIN_ID }))
 
-    const enrollments: IAddUMUserEnrollment[] = []
-    const errors: RowValidationError[] = []
-    enrollmentRecords.forEach((r, i) => {
-      const role = r.ROLE
-      const loginId = r.LOGIN_ID
-      const rowNumber = i + 2
-      if (!isValidRole(role)) {
-        errors.push({ rowNumber, message: `Invalid ${USER_ROLE_TEXT.toUpperCase()} '${role}'` })
-      } else if (!isValidLoginId(loginId)) {
-        errors.push({ rowNumber, message: `Invalid ${USER_ID_TEXT.replace(' ', '_').toUpperCase()} '${loginId}'` })
-      } else {
-        enrollments.push({ rowNumber, loginId, role })
-      }
-    })
+    const errors: EnrollmentInvalidation[] = []
+    const rolesValidator = new RoleRowsValidator()
+    errors.push(...rolesValidator.validate(enrollmentRecords.map(r => r.role)))
+
+    const loginIDsValidator = new LoginIDRowsValidator()
+    errors.push(...loginIDsValidator.validate(enrollmentRecords.map(r => r.loginId)))
 
     if (errors.length === 0) {
+      const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
+        rowNumber: getRowNumber(i),
+        loginId: r.loginId,
+        role: r.role as ClientEnrollmentType
+      }))
       handleParseSuccess(enrollments)
     } else {
       handleParseFailure(errors)
@@ -248,37 +213,14 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     } else {
       return (
         <>
-          <div className={classes.createSectionContainer}>
-            <div className={classes.newSectionHint}>
-              <Typography>Create a new section to add users</Typography>
-              <Tooltip placement='top' title='Enter a distinct name for this section'>
-                <HelpIcon fontSize='small'/>
-              </Tooltip>
-            </div>
-            <div className={classes.createSectionWidget}><CreateSectionWidget {...props} onSectionCreated={sectionCreated}/></div>
-          </div>
-          <Typography variant='subtitle1'>Or select an existing section to add users to</Typography>
-          <div className={classes.sectionSelectionContainer}>
-            <SectionSelectorWidget
-              height={400}
-              search={[]}
-              multiSelect={false}
-              sections={sections !== undefined ? sections : []}
-              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-              selectionUpdated={(sections) => setSelectedSection(sections[0])}
-              canUnmerge={false}
+          <div className={classes.createSelectSectionContainer}>
+            <CreateSelectSectionWidget
+              {...props}
+              sections={sections}
+              selectedSection={selectedSection}
+              setSelectedSection={setSelectedSection}
+              onSectionCreated={sectionCreated}
             />
-            <div>
-              <Button
-                className={classes.sectionSelectButton}
-                variant='contained'
-                color='primary'
-                disabled={selectedSection === undefined}
-                onClick={() => { setActiveStep(States.UploadCSV) }}
-              >
-                Select
-              </Button>
-            </div>
             <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
               <Grid container>
                 <Grid item xs={12}>
@@ -290,6 +232,16 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               </Grid>
             </Backdrop>
           </div>
+          <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+            <Button
+              variant='contained'
+              color='primary'
+              disabled={selectedSection === undefined}
+              onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+            >
+              Select
+            </Button>
+          </Grid>
         </>
       )
     }
@@ -401,34 +353,13 @@ designer,userd`
     )
   }
 
-  const renderPostError = (error: Error): JSX.Element => {
-    const apiErrorMessage = (
-      <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
-    )
-    return (
-      error instanceof CanvasError
-        ? (
-            <>
-            {file !== undefined && <CSVFileName file={file} />}
-            <RowLevelErrorsContent
-              table={<CanvasAPIErrorsTable errors={error.errors} />}
-              title='Some errors occurred'
-              message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
-              resetUpload={handleUploadReset}
-            />
-            </>
-          )
-        : <ErrorAlert messages={[apiErrorMessage]} tryAgain={handleUploadReset} />
-    )
-  }
-
   const getReviewContent = (): JSX.Element => {
     if (rowErrors !== undefined) {
       return renderRowValidationErrors(rowErrors)
     } else if (schemaInvalidations !== undefined) {
       return renderSchemaInvalidations(schemaInvalidations)
     } else if (addEnrollmentsError !== undefined) {
-      return renderPostError(addEnrollmentsError)
+      return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
     } else if (selectedSection !== undefined && enrollments !== undefined) {
       return renderConfirm(selectedSection, enrollments)
     } else {
@@ -456,15 +387,15 @@ designer,userd`
     return (<div>Unexpected step</div>)
   }
 
-  const getStepContent = (stepIndex: number): JSX.Element => {
-    switch (stepIndex) {
-      case States.SelectSection:
+  const getStepContent = (step: CSVWorkflowStep): JSX.Element => {
+    switch (step) {
+      case CSVWorkflowStep.Select:
         return getSelectContent()
-      case States.UploadCSV:
+      case CSVWorkflowStep.Upload:
         return getUploadContent()
-      case States.ReviewCSV:
+      case CSVWorkflowStep.Review:
         return getReviewContent()
-      case States.Confirmation:
+      case CSVWorkflowStep.Confirmation:
         return getSuccessContent()
       default:
         return getShouldNotHappenContent()
@@ -475,9 +406,7 @@ designer,userd`
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
-      </Stepper>
+      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div>{getStepContent(activeStep)}</div>
     </div>
   )

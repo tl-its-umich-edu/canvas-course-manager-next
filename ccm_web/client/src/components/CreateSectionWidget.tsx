@@ -2,8 +2,7 @@ import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
 import React, { ChangeEvent, useState } from 'react'
 import { useSnackbar } from 'notistack'
 import { addCourseSections } from '../api'
-import { CanvasCourseSection } from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
 import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
 
@@ -20,7 +19,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export interface CreateSectionWidgetProps extends CCMComponentProps {
+export interface CreateSectionWidgetProps {
+  course: CanvasCourseBase
   onSectionCreated: (newSection: CanvasCourseSection) => void
 }
 
@@ -29,7 +29,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const [newSectionName, setNewSectionName] = useState<string>('')
   const [isCreating, setIsCreating] = useState(false)
-  const nameValidator = new CanvasCoursesSectionNameValidator(props.globals.course)
+  const nameValidator = new CanvasCoursesSectionNameValidator(props.course.id)
 
   const newSectionNameChanged = (event: ChangeEvent<HTMLInputElement>): void => {
     setNewSectionName(event.target.value)
@@ -49,7 +49,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     setIsCreating(true)
     nameValidator.validateSectionName(newSectionName).then(errors => {
       if (errors.length === 0) {
-        addCourseSections(props.globals.course.id, [newSectionName])
+        addCourseSections(props.course.id, [newSectionName])
           .then(newSections => {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')

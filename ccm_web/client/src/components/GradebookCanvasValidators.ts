@@ -1,11 +1,8 @@
 import { InvalidationType } from '../models/models'
 import { GradebookRecord } from '../pages/GradebookCanvas'
+import { RowInvalidation } from '../utils/rowValidation'
 
-interface GradebookRowInvalidation {
-  message: string
-  rowNumber: number
-  type: InvalidationType
-}
+interface GradebookRowInvalidation extends RowInvalidation {}
 
 class CurrentAndFinalGradeInvalidation implements GradebookRowInvalidation {
   message: string

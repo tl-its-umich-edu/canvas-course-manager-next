@@ -1,7 +1,6 @@
 import { sectionNameSchema, validateString } from './validation'
 import { getCourseSections } from '../api'
 import { CanvasCourseSection } from '../models/canvas'
-import { Course } from '../models/models'
 
 export interface ICanvasSectionNameInvalidError {
   reason: string
@@ -31,17 +30,17 @@ class SectionNameLengthValidator implements IValidator {
 }
 
 export class CanvasCoursesSectionNameValidator {
-  course: Course
+  courseId: number
   _this = this
   validators: IValidator[] = [new DuplicateSectionNameValidator(), new SectionNameLengthValidator()]
 
-  constructor (course: Course) {
-    this.course = course
+  constructor (courseId: number) {
+    this.courseId = courseId
   }
 
   public async validateSectionName (newName: string): Promise<ICanvasSectionNameInvalidError[]> {
     const errors: ICanvasSectionNameInvalidError[] = []
-    const sections = await getCourseSections(this.course.id)
+    const sections = await getCourseSections(this.courseId)
     this.validators.forEach(validator => {
       const error = validator.validate(sections, newName)
       if (error !== undefined) {

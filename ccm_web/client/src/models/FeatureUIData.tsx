@@ -10,6 +10,7 @@ import {
   FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps
 } from './feature'
+import AddNonUMUsers from '../pages/AddNonUMUsers'
 import AddUMUsers from '../pages/AddUMUsers'
 import BulkSectionCreate from '../pages/BulkSectionCreate'
 import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
@@ -38,8 +39,6 @@ interface FeatureUIProps {
   component: ComponentType<CCMComponentProps>
   route: string
 }
-
-const NotYetImplementedComponent = (): JSX.Element => <p>This feature has not been implemented yet.</p>
 
 const mergeSectionCardProps: FeatureUIProps = {
   data: mergeSectionProps,
@@ -79,7 +78,7 @@ const addUMUsersCardProps: FeatureUIProps = {
 const addNonUMUsersCardProps: FeatureUIProps = {
   data: addNonUMUsersProps,
   icon: <PersonAddOutlinedIcon fontSize='large' />,
-  component: NotYetImplementedComponent,
+  component: AddNonUMUsers,
   route: '/add-non-um-users'
 }
 
