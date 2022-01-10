@@ -137,7 +137,6 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const handleSubmitClick = async (): Promise<void> => {
     if (
-      email === undefined ||
       userExists === undefined ||
       role === undefined ||
       selectedSection === undefined
@@ -145,6 +144,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       return setShowIncompleteAlerts(true)
     }
     setShowIncompleteAlerts(false)
+
+    // Included to ensure types and as a precaution; userExists depends on email being valid.
+    if (email === undefined || emailValidationResult?.isValid !== true) return
 
     if (userExists) {
       return await doAddEnrollment(selectedSection.id, { email, role })
@@ -154,7 +156,6 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     const lastNameResult = validateString(lastName, lastNameSchema)
     setLastNameValidationResult(lastNameResult)
     if (
-      emailValidationResult?.isValid === true &&
       firstName !== undefined &&
       firstNameResult.isValid &&
       lastName !== undefined &&
