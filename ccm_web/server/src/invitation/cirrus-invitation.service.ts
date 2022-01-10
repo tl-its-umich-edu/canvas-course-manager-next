@@ -53,8 +53,8 @@ export class CirrusInvitationService {
       logger.debug(response.data)
       return response.data
     } catch (error) {
-      logger.info(`Caught error while sending invitations: ${error}`)
-      throw new InvitationAPIError(error)
+      logger.info(`Caught error while sending invitations: ${String(error)}`)
+      throw new InvitationAPIError(String(error))
     }
   }
 }

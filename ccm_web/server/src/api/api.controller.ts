@@ -107,7 +107,7 @@ export class APIController {
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string,
-    @UserDec() user: User
+      @UserDec() user: User
   ): Promise<CanvasUser> {
     const result = await this.apiService.getUserInfoAsAdmin(user, loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)

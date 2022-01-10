@@ -197,7 +197,7 @@ export class AdminApiHandler {
         id,
         name,
         sortable_name,
-        short_name,
+        short_name
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, `Login ID: ${loginId}`)
