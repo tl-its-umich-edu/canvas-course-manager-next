@@ -225,6 +225,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       )
     } else {
       return (
+        <>
         <div className={classes.createSelectSectionContainer}>
           <CreateSelectSectionWidget
             sections={sections ?? []}
@@ -245,17 +246,18 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               </Grid>
             </Grid>
           </Backdrop>
-          <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
-            <Button
-              variant='contained'
-              color='primary'
-              disabled={selectedSection === undefined || isGetSectionsLoading}
-              onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-            >
-              Select
-            </Button>
-          </Grid>
         </div>
+        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+          <Button
+            variant='contained'
+            color='primary'
+            disabled={selectedSection === undefined || isGetSectionsLoading}
+            onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+          >
+            Select
+          </Button>
+        </Grid>
+        </>
       )
     }
   }
