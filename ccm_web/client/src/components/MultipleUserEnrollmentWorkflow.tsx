@@ -23,6 +23,7 @@ import {
   LastNameRowsValidator, RoleRowsValidator
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { getRowNumber } from '../utils/fileUtils'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -225,7 +226,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       if (errors.length > 0) return setRowInvalidations(errors)
 
       const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
-        rowNumber: i + 2,
+        rowNumber: getRowNumber(i),
         email: r[EMAIL_HEADER],
         role: r[ROLE_HEADER] as ClientEnrollmentType,
         firstName: r[FIRST_NAME_HEADER],

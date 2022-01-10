@@ -1,5 +1,6 @@
 import { StringSchema } from 'yup'
 
+import { getRowNumber } from './fileUtils'
 import { validateString, ValidationResult } from './validation'
 import { InvalidationType } from '../models/models'
 
@@ -37,7 +38,7 @@ export class DuplicateIdentifierInRowsValidator implements RowStringValuesValida
       if (duplicates.includes(value.toUpperCase())) {
         invalidations.push({
           message: `Duplicate ${this.valueName} found in this file: "${value}"`,
-          rowNumber: i + 2,
+          rowNumber: getRowNumber(i),
           type: InvalidationType.Error
         })
       }
@@ -65,7 +66,7 @@ export class StringRowsSchemaValidator implements RowStringValuesValidator {
       const validationResult = validateString(value, this.schema)
       if (!validationResult.isValid) {
         invalidations.push({
-          rowNumber: i + 2,
+          rowNumber: getRowNumber(i),
           message: this.getMessage(validationResult),
           type: InvalidationType.Error
         })

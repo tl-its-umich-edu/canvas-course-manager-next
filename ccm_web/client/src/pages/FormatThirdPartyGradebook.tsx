@@ -25,7 +25,7 @@ import ThirdPartyGradebookProcessor, {
   GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, POINTS_POS_TEXT,
   REQUIRED_LOGIN_ID_HEADER, REQUIRED_ORDERED_HEADERS
 } from '../utils/ThirdPartyGradebookProcessor'
-import { createOutputFileName } from '../utils/fileUtils'
+import { createOutputFileName, getRowNumber } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -357,7 +357,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const renderReview = (
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
-    const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: i + 2, ...r }))
+    const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: getRowNumber(i), ...r }))
     const dataToDownload = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
       csvParser.createCSV<GradebookUploadRecord>({
         fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],

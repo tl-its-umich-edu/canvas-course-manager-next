@@ -23,6 +23,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { getRowNumber } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -153,12 +154,14 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
       }
 
       const invalidations: SectionsRowInvalidation[] = []
-      let i = 1
-      sectionNames.forEach(sectionName => {
+      sectionNames.forEach((sectionName, i) => {
         if (duplicates.includes(sectionName.toUpperCase())) {
-          invalidations.push({ message: 'Section name already used in this course: "' + sectionName + '"', rowNumber: i + 1, type: InvalidationType.Error })
+          invalidations.push({
+            message: 'Section name already used in this course: "' + sectionName + '"',
+            rowNumber: getRowNumber(i),
+            type: InvalidationType.Error
+          })
         }
-        ++i
       })
 
       return invalidations
@@ -353,7 +356,7 @@ Section 001`
   }
 
   const sectionNamesToSection = (sectionNames: string[]): Section[] => {
-    return sectionNames.map((name, i) => ({ rowNumber: i + 2, sectionName: name })) // Add extra 1 for expected headers
+    return sectionNames.map((name, i) => ({ rowNumber: getRowNumber(i), sectionName: name }))
   }
 
   const renderSuccess = (): JSX.Element => {

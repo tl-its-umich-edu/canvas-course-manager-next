@@ -1,5 +1,6 @@
 import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
+import { getRowNumber } from './fileUtils'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
 import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema } from '../utils/validation'
 
@@ -43,13 +44,13 @@ export class RoleRowsValidator implements EnrollmentRowsValidator {
     roles.forEach((role, i) => {
       if (!isValidRole(role)) {
         invalidations.push({
-          rowNumber: i + 2,
+          rowNumber: getRowNumber(i),
           message: `Value for role is invalid: "${role}"`,
           type: InvalidationType.Error
         })
       } else if (allowedRoles !== undefined && !allowedRoles.includes(role)) {
         invalidations.push({
-          rowNumber: i + 2,
+          rowNumber: getRowNumber(i),
           message: `You are not allowed to enroll users with the provided role: "${role}"`,
           type: InvalidationType.Error
         })

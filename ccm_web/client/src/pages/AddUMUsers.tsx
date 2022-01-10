@@ -27,6 +27,7 @@ import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+import { getRowNumber } from '../utils/fileUtils'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -182,7 +183,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
     if (errors.length === 0) {
       const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
-        rowNumber: i + 2,
+        rowNumber: getRowNumber(i),
         loginId: r.loginId,
         role: r.role as ClientEnrollmentType
       }))
