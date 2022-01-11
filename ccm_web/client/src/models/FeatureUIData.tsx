@@ -26,6 +26,14 @@ export interface CCMComponentProps {
   helpURLEnding: string
 }
 
+export interface AddNonUMUsersLeafProps {
+  sections: CanvasCourseSectionWithCourseName[]
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
+  featureTitle: string
+  resetFeature: () => void
+  settingsURL: string
+}
+
 interface FeatureUIGroup {
   id: string
   title: string
@@ -38,14 +46,6 @@ interface FeatureUIProps {
   icon: JSX.Element
   component: ComponentType<CCMComponentProps>
   route: string
-}
-
-interface AddNonUMUsersLeafProps {
-  sections: CanvasCourseSectionWithCourseName[]
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  featureTitle: string
-  resetFeature: () => void
-  settingsURL: string
 }
 
 const mergeSectionCardProps: FeatureUIProps = {
@@ -110,5 +110,5 @@ const isAuthorizedForAnyFeature = (roles: RoleEnum[], features: FeatureUIProps[]
 }
 
 export type { FeatureUIGroup, FeatureUIProps }
-export { AddNonUMUsersLeafProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles }
+export { isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles }
 export default allFeatures
