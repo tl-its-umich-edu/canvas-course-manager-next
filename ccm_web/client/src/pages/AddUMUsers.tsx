@@ -13,6 +13,7 @@ import CSVFileName from '../components/CSVFileName'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
 import FileUpload from '../components/FileUpload'
 import Help from '../components/Help'
+import MethodSelect from '../components/MethodSelect'
 import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
 import SuccessCard from '../components/SuccessCard'
 import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
@@ -40,6 +41,9 @@ const useStyles = makeStyles((theme) =>
       padding: 25,
       textAlign: 'left'
     },
+    spacing: {
+      marginBottom: theme.spacing(2)
+    },
     buttonGroup: {
       marginTop: theme.spacing(1)
     },
@@ -47,11 +51,6 @@ const useStyles = makeStyles((theme) =>
       zIndex: theme.zIndex.drawer + 1,
       color: '#fff',
       position: 'absolute',
-      textAlign: 'center'
-    },
-    confirmContainer: {
-      position: 'relative',
-      zIndex: 0,
       textAlign: 'center'
     },
     instructions: {
@@ -62,17 +61,22 @@ const useStyles = makeStyles((theme) =>
       position: 'relative',
       zIndex: 0
     },
-    uploadContainer: {
-      position: 'relative',
-      zIndex: 0,
-      textAlign: 'center'
-    },
     table: {
       paddingLeft: 10,
       paddingRight: 10
     }
   })
 )
+
+enum PageState {
+  SelectInputMethod,
+  CSVWorkflow
+}
+
+enum InputMethod {
+  CSVSingleSection = 'single',
+  CSVMultipleSections = 'multiple'
+}
 
 interface EnrollmentRecord extends CSVRecord {
   LOGIN_ID: string
@@ -90,6 +94,8 @@ interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
+  const [pageState, setPageState] = useState<PageState>(PageState.SelectInputMethod)
+  const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.CSVSingleSection)
   const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
 
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
@@ -214,7 +220,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     )
   }
 
-  const getSelectContent = (): JSX.Element => {
+  const getSelectInput = (): JSX.Element => {
     if (getSectionsError !== undefined) {
       return (
         <ErrorAlert
@@ -225,39 +231,62 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           }}
         />
       )
-    } else {
-      return (
-        <>
-        <div className={classes.container}>
-          <CreateSelectSectionWidget
-            sections={sections ?? []}
-            selectedSection={selectedSection}
-            setSelectedSection={setSelectedSection}
-            // Only admins have access to the Add UM Users feature, and they can create sections.
-            canCreate={true}
-            course={props.course}
-            onSectionCreated={sectionCreated}
-          />
-          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>Loading section data from Canvas</Grid>
-            </Grid>
-          </Backdrop>
-        </div>
-        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
-          <Button
-            variant='contained'
-            color='primary'
-            disabled={selectedSection === undefined || isGetSectionsLoading}
-            onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-          >
-            Select
-          </Button>
-        </Grid>
-        </>
-      )
     }
+
+    return (
+      <div className={classes.container}>
+        <MethodSelect<InputMethod>
+          label='Add U-M users through a CSV'
+          options={[
+            { key: InputMethod.CSVSingleSection, label: 'One section at a time' },
+            { key: InputMethod.CSVMultipleSections, label: 'Using multiple sections' }
+          ]}
+          typeGuard={(v): v is InputMethod => {
+            return v === InputMethod.CSVSingleSection || v === InputMethod.CSVMultipleSections
+          }}
+          selectedMethod={inputMethod}
+          setMethod={setInputMethod}
+          disabled={isGetSectionsLoading}
+          onButtonClick={() => setPageState(PageState.CSVWorkflow)}
+        />
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color='inherit' />
+            </Grid>
+            <Grid item xs={12}>
+              Loading sections
+            </Grid>
+          </Grid>
+        </Backdrop>
+      </div>
+    )
+  }
+
+  const getSelectContent = (): JSX.Element => {
+    return (
+      <>
+      <CreateSelectSectionWidget
+        sections={sections ?? []}
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+        // Only admins have access to the Add UM Users feature, and they can create sections.
+        canCreate={true}
+        course={props.course}
+        onSectionCreated={sectionCreated}
+      />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+        <Button
+          variant='contained'
+          color='primary'
+          disabled={selectedSection === undefined}
+          onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+        >
+          Select
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const renderUploadHeader = (): JSX.Element => {
@@ -286,13 +315,7 @@ designer,userd`
   }
 
   const renderFileUpload = (): JSX.Element => {
-    return <div className={classes.uploadContainer}>
-      <Grid container>
-        <Grid item xs={12}>
-          <FileUpload onUploadComplete={uploadComplete}></FileUpload>
-        </Grid>
-      </Grid>
-    </div>
+    return <FileUpload onUploadComplete={uploadComplete} />
   }
 
   const getUploadContent = (): JSX.Element => {
@@ -319,7 +342,7 @@ designer,userd`
 
   const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
     return (
-      <div className={classes.confirmContainer}>
+      <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
@@ -338,18 +361,18 @@ designer,userd`
           </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
-        <Grid container>
-          <Grid item xs={12}>
-            <CircularProgress color="inherit" />
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item xs={12}>
+              Loading...
+            </Grid>
+            <Grid item xs={12}>
+              Please stay on the page. This may take up to a couple of minutes for larger files.
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            Loading...
-          </Grid>
-          <Grid item xs={12}>
-            Please stay on the page. This may take up to a couple of minutes for larger files.
-          </Grid>
-        </Grid>
-      </Backdrop>
+        </Backdrop>
       </div>
     )
   }
@@ -440,9 +463,21 @@ designer,userd`
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-      <div>{getStepContent(activeStep)}</div>
+      <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
+      <div>
+        {
+        pageState === PageState.SelectInputMethod
+          ? getSelectInput()
+          : inputMethod === InputMethod.CSVSingleSection
+            ? (
+                <>
+                <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
+                {getStepContent(activeStep)}
+                </>
+              )
+            : <Typography>Multiple sections flow will start here.</Typography>
+        }
+      </div>
     </div>
   )
 }
