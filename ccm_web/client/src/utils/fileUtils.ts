@@ -13,4 +13,9 @@ function createOutputFileName (oldFileName: string, newfileEnding: string): stri
   return splitName.join('.')
 }
 
-export { createOutputFileName }
+// Add 1 to convert to one-based index, then add number of header rows, one being the default
+function getRowNumber (index: number, numHeaderRows = 1): number {
+  return index + 1 + numHeaderRows
+}
+
+export { createOutputFileName, getRowNumber }
