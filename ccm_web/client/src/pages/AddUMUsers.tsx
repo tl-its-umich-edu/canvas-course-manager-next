@@ -466,16 +466,16 @@ designer,userd`
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>
         {
-        pageState === PageState.SelectInputMethod
-          ? getSelectInput()
-          : inputMethod === InputMethod.CSVSingleSection
-            ? (
-                <>
-                <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-                {getStepContent(activeStep)}
-                </>
-              )
-            : <Typography>Multiple sections flow will start here.</Typography>
+          pageState === PageState.SelectInputMethod
+            ? getSelectInput()
+            : inputMethod === InputMethod.CSVSingleSection
+              ? (
+                  <>
+                  <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
+                  {getStepContent(activeStep)}
+                  </>
+                )
+              : <Typography>Multiple sections flow will start here.</Typography>
         }
       </div>
     </div>
