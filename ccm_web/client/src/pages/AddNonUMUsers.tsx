@@ -117,7 +117,10 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     )
   }
 
-  const resetFeature = (): void => setActivePageState(PageState.SelectInputMethod)
+  const resetFeature = (): void => {
+    setSections(undefined)
+    setActivePageState(PageState.SelectInputMethod)
+  }
 
   const renderActivePageState = (state: PageState): JSX.Element => {
     const commonProps = {
