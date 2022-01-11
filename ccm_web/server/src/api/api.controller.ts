@@ -15,7 +15,13 @@ import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { SessionGuard } from '../auth/session.guard'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections, CanvasUser
+  CanvasCourseBase,
+  CanvasCourseSection,
+  CanvasCourseSectionBase,
+  CanvasEnrollment,
+  CourseWithSections,
+  CanvasUser,
+  ExternalEnrollment
 } from '../canvas/canvas.interfaces'
 import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
@@ -96,7 +102,7 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User): Promise<object> {
+  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User): Promise<ExternalEnrollment> {
     const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
     const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, sectionUsers)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)

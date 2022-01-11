@@ -17,7 +17,8 @@ import {
   CanvasEnrollment,
   CanvasUser,
   CanvasUserLoginEmail,
-  CourseWithSections
+  CourseWithSections,
+  ExternalEnrollment
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
@@ -129,7 +130,7 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<object> {
+  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment> {
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
