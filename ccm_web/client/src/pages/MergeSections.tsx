@@ -127,7 +127,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const isSubAccountAdminOrAccountAdmin = (): boolean => {
-    return isAuthorizedForRoles([RoleEnum['Subaccount admin'], RoleEnum['Account Admin']], props.globals.course.roles, 'MergeSections')
+    return isAuthorizedForRoles([RoleEnum['Subaccount admin'], RoleEnum['Account Admin']], props.globals.course.roles)
   }
 
   const stageSections = (): void => {

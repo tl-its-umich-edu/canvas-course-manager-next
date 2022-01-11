@@ -4,7 +4,7 @@ import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typogr
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
-import CreateSelectSectionWidget from './CreateSelectSectionWidget'
+import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
@@ -16,7 +16,9 @@ import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
-import { CSVWorkflowStep, InvalidationType } from '../models/models'
+import { createSectionRoles } from '../models/feature'
+import { isAuthorizedForRoles } from '../models/FeatureUIData'
+import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
@@ -70,6 +72,7 @@ interface MultipleUserEnrollmentWorkflowProps {
   readonly rolesUserCanEnroll: ClientEnrollmentType[]
   resetFeature: () => void
   settingsURL: string
+  userCourseRoles: RoleEnum[]
 }
 
 export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrollmentWorkflowProps): JSX.Element {
@@ -123,12 +126,18 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderSelect = (): JSX.Element => {
+    const canCreate = isAuthorizedForRoles(props.userCourseRoles, createSectionRoles)
+    const createProps: CreateSelectSectionWidgetCreateProps = canCreate
+      ? { canCreate: true, course: props.course, onSectionCreated: props.onSectionCreated }
+      : { canCreate: false }
+
     return (
       <>
       <CreateSelectSectionWidget
-        {...props}
+        sections={props.sections}
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
+        {...createProps}
       />
       <Grid container className={classes.buttonGroup} justifyContent='space-between'>
         <Button

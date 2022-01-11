@@ -88,13 +88,13 @@ const allFeatures: FeatureUIGroup[] = [
   { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
 ]
 
-const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[], featureDescriptionForLogging: string): boolean => {
+const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[]): boolean => {
   const rolesAllowingAccess = userRoles.filter(userRole => requiredRoles.includes(userRole))
   return rolesAllowingAccess.length > 0
 }
 
 const isAuthorizedForFeature = (roles: RoleEnum[], feature: FeatureUIProps): boolean => {
-  return isAuthorizedForRoles(roles, feature.data.roles, feature.route)
+  return isAuthorizedForRoles(roles, feature.data.roles)
 }
 
 const isAuthorizedForAnyFeature = (roles: RoleEnum[], features: FeatureUIProps[]): boolean => {

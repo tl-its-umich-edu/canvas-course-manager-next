@@ -99,7 +99,7 @@ function Home (props: HomeProps): JSX.Element {
     }
 
     let nameBlock
-    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles, 'Course Rename')) {
+    if (isAuthorizedForRoles(props.globals.course.roles, courseRenameRoles)) {
       nameBlock = (
         <InlineTextEdit
           text={props.course.name}
