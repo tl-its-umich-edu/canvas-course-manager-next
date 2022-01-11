@@ -120,35 +120,29 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const resetFeature = (): void => setActivePageState(PageState.SelectInputMethod)
 
   const renderActivePageState = (state: PageState): JSX.Element => {
+    const commonProps = {
+      sections: sections ?? [], rolesUserCanEnroll, featureTitle: props.title, resetFeature, settingsURL
+    }
+
+    const onSectionCreated = (newSection: CanvasCourseSection): void => {
+      if (sections !== undefined) {
+        setSections(
+          sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
+        )
+      }
+    }
+
     switch (state) {
       case PageState.SelectInputMethod:
         return renderSelectInputMethod()
       case PageState.AddSingleUser:
-        return (
-          <UserEnrollmentForm
-            sections={sections ?? []}
-            rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={resetFeature}
-            settingsURL={settingsURL}
-          />
-        )
+        return <UserEnrollmentForm {...commonProps} />
       case PageState.AddCSVUsers:
         return (
           <MultipleUserEnrollmentWorkflow
+            {...commonProps}
             course={props.course}
-            sections={sections ?? []}
-            onSectionCreated={
-              (newSection) => {
-                if (sections !== undefined) {
-                  setSections(
-                    sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
-                  )
-                }
-              }
-            }
-            rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={resetFeature}
-            settingsURL={settingsURL}
+            onSectionCreated={onSectionCreated}
             userCourseRoles={props.globals.course.roles}
           />
         )

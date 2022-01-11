@@ -17,7 +17,7 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
-import { isAuthorizedForRoles } from '../models/FeatureUIData'
+import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
@@ -65,13 +65,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MultipleUserEnrollmentWorkflowProps {
+interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
-  sections: CanvasCourseSectionWithCourseName[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  resetFeature: () => void
-  settingsURL: string
   userCourseRoles: RoleEnum[]
 }
 
@@ -332,7 +328,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <>
       <SuccessCard {...{ message, nextAction }} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
+        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+          Start Again
+        </Button>
       </Grid>
       </>
     )

@@ -17,7 +17,7 @@ import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import { Globals, RoleEnum } from './models'
-import { CanvasCourseBase } from './canvas'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas'
 
 export interface CCMComponentProps {
   globals: Globals
@@ -38,6 +38,14 @@ interface FeatureUIProps {
   icon: JSX.Element
   component: ComponentType<CCMComponentProps>
   route: string
+}
+
+interface AddNonUMUsersLeafProps {
+  sections: CanvasCourseSectionWithCourseName[]
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
+  featureTitle: string
+  resetFeature: () => void
+  settingsURL: string
 }
 
 const mergeSectionCardProps: FeatureUIProps = {
@@ -102,5 +110,5 @@ const isAuthorizedForAnyFeature = (roles: RoleEnum[], features: FeatureUIProps[]
 }
 
 export type { FeatureUIGroup, FeatureUIProps }
-export { isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles }
+export { AddNonUMUsersLeafProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles }
 export default allFeatures

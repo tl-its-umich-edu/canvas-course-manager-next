@@ -11,6 +11,7 @@ import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
+import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
@@ -41,12 +42,7 @@ interface APIErrorWithContext {
   context: string
 }
 
-interface UserEnrollmentFormProps {
-  sections: CanvasCourseSectionWithCourseName[]
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  resetFeature: () => void
-  settingsURL: string
-}
+interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const classes = useStyles()
@@ -374,7 +370,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       <>
       <SuccessCard message={<Typography>{messageText}</Typography>} nextAction={nextAction} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
+        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+          Start Again
+        </Button>
       </Grid>
       </>
     )
