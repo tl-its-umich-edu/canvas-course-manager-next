@@ -298,11 +298,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       <>
       <SuccessCard message={message} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button
-          variant='outlined'
-          aria-label={`Start ${props.title} again`}
-          onClick={resetPageState}
-        >
+        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
           Start Again
         </Button>
       </Grid>

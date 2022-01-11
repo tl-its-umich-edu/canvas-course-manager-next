@@ -238,7 +238,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getMergeSuccess = (): JSX.Element => {
     return (
       <>
-      <CourseSectionList canUnmerge={isAdmin()} {...props}/>
+      <CourseSectionList canUnmerge={isAdmin()} {...props} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
         <Button
           variant='outlined'

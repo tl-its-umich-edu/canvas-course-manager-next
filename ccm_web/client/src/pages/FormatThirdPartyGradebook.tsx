@@ -404,11 +404,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           message={<Typography>The formatted gradebook file has been downloaded to your computer!</Typography>}
         />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-          <Button
-            variant='outlined'
-            aria-label={`Start ${props.title} again`}
-            onClick={handleFullReset}
-          >
+          <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={handleFullReset}>
             Start Again
           </Button>
         </Grid>
