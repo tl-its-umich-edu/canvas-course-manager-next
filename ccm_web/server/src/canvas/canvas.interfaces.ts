@@ -1,4 +1,5 @@
 import { hasKeys } from '../typeUtils'
+import { APIErrorData } from '../api/api.interfaces'
 
 // OAuth
 
@@ -106,6 +107,12 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
+export interface ExternalEnrollment {
+  usersCreated: (CanvasUserLoginEmail | APIErrorData)[]
+  inviteResults: string | null
+  userEnrollments: CanvasEnrollment[] | APIErrorData
+}
+
 export interface CanvasUser {
   id: number
   name: string
@@ -113,7 +120,7 @@ export interface CanvasUser {
   short_name: string
 }
 
-export interface CanvasUserLoginEmail extends CanvasUser{
+export interface CanvasUserLoginEmail extends CanvasUser {
   login_id: string
   email: string
 }
