@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
-import { Button, makeStyles, Typography } from '@material-ui/core'
+import {
+  Button, Grid, makeStyles, TableHead, TableContainer, Table, TableBody, TableCell, TableRow,
+  Typography
+} from '@material-ui/core'
 
+import Accordion from './Accordion'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
@@ -18,7 +22,6 @@ import {
 import { getRowNumber } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
-
 enum CSVWorkflowState {
   Upload,
   Review,
@@ -28,8 +31,14 @@ enum CSVWorkflowState {
 const REQUIRED_HEADERS = ['LOGIN_ID', 'ROLE', 'SECTION_ID']
 
 const useStyles = makeStyles((theme) => ({
+  spacing: {
+    marginBottom: theme.spacing(2)
+  },
   buttonGroup: {
     marginTop: theme.spacing(1)
+  },
+  sectionIDTable: {
+    maxHeight: 300
   }
 }))
 
@@ -98,6 +107,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     const requirements = (
       <Typography>
         Your file should include a login ID (uniqname), a role, and a section ID for each user.
+        A section ID reference table (and a CSV version download) are available below.
         The maximum number of user enrollments allowed is 400.
       </Typography>
     )
@@ -156,6 +166,29 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       )
     }
 
+    const sectionIDsTable = (
+      <TableContainer className={classes.sectionIDTable}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Section Name</TableCell>
+              <TableCell>Section ID</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {
+              props.sections.map((s, i) => (
+                <TableRow key={i}>
+                  <TableCell>{s.name}</TableCell>
+                  <TableCell>{s.id}</TableCell>
+                </TableRow>
+              ))
+            }
+          </TableBody>
+        </Table>
+      </TableContainer>
+    )
+
     return (
       <div>
         <ExampleFileDownloadHeader
@@ -163,6 +196,13 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           fileName='add_non_um_users_with_sections.csv'
           fileData={fileData}
         />
+        <Grid container className={classes.spacing}>
+          <Grid item md={6} sm={9} xs={12}>
+            <Accordion title='Canvas Course Section IDs' id='section-ids'>
+              {sectionIDsTable}
+            </Accordion>
+          </Grid>
+        </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
           <Button variant='outlined' aria-label='Back to select section' onClick={() => undefined}>Back</Button>
