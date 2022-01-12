@@ -4,8 +4,8 @@ import { Button, Grid, LinearProgress, makeStyles, Typography } from '@material-
 
 import { useSnackbar } from 'notistack'
 
-import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { adminRoles } from '../models/feature'
+import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { mergeSections } from '../api'
