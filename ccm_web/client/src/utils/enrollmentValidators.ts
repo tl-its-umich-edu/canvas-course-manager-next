@@ -2,7 +2,7 @@ import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
 import { getRowNumber } from './fileUtils'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
-import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema } from '../utils/validation'
+import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIDSchema } from '../utils/validation'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 
@@ -64,5 +64,34 @@ export class LoginIDRowsValidator implements EnrollmentRowsValidator {
   validate (loginIDs: string[]): EnrollmentInvalidation[] {
     const loginIDValidator = new StringRowsSchemaValidator(loginIDSchema, 'login ID')
     return loginIDValidator.validate(loginIDs)
+  }
+}
+
+export class NumericSectionIDRowsValidator implements EnrollmentRowsValidator {
+  validate (sectionIDs: string[]): EnrollmentInvalidation[] {
+    const sectionIDValidator = new StringRowsSchemaValidator(sectionIDSchema, 'section ID')
+    return sectionIDValidator.validate(sectionIDs)
+  }
+}
+
+export class ExistingSectionIDRowsValidator implements EnrollmentRowsValidator {
+  existingSectionIDs: number[]
+  constructor (existingSectionIDs: number[]) {
+    this.existingSectionIDs = existingSectionIDs
+  }
+
+  validate (sectionIDs: string[]): EnrollmentInvalidation[] {
+    const sectionIDNums = sectionIDs.map(s => Number(s))
+    const invalidations: EnrollmentInvalidation[] = []
+    sectionIDNums.forEach((sectionIDNum, i) => {
+      if (!this.existingSectionIDs.includes(sectionIDNum)) {
+        invalidations.push({
+          rowNumber: getRowNumber(i),
+          message: `This course does not have a section with ID "${sectionIDNum}".`,
+          type: InvalidationType.Error
+        })
+      }
+    })
+    return invalidations
   }
 }

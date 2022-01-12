@@ -1,13 +1,19 @@
 import { ClientEnrollmentType } from './canvas'
 
+interface RowNumberedData {
+  rowNumber: number
+}
+
 export interface AddEnrollment {
-  loginId: string
+  loginID: string
   role: ClientEnrollmentType
 }
 
 export interface AddEnrollmentWithSectionID extends AddEnrollment {
   sectionID: number
 }
+
+export interface AddRowNumberedEnrollmentWithSectionID extends AddEnrollmentWithSectionID, RowNumberedData {}
 
 export interface AddExternalUserEnrollment {
   email: string
@@ -19,6 +25,4 @@ export interface AddNewExternalUserEnrollment extends AddExternalUserEnrollment 
   lastName: string
 }
 
-export interface AddNumberedNewExternalUserEnrollment extends AddNewExternalUserEnrollment {
-  rowNumber: number
-}
+export interface AddNumberedNewExternalUserEnrollment extends AddNewExternalUserEnrollment, RowNumberedData {}
