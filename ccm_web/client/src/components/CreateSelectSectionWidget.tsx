@@ -30,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface WidgetWithoutCreateProps {
   readonly canCreate: false
+  course?: never
+  onSectionCreated?: never
 }
 
 interface WidgetWithCreateProps {
