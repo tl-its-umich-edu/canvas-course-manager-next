@@ -128,12 +128,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     void doGetSections()
   }, [])
 
-  useEffect(() => {
-    if (file !== undefined) {
-      parseFile(file)
-    }
-  }, [file])
-
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
     const existingSections = sections ?? []
@@ -310,12 +304,8 @@ designer,userd`
     return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
   }
 
-  const uploadComplete = (file: File): void => {
-    setFile(file)
-  }
-
   const renderFileUpload = (): JSX.Element => {
-    return <FileUpload onUploadComplete={uploadComplete} />
+    return <FileUpload onUploadComplete={(file) => parseFile(file)} />
   }
 
   const getUploadContent = (): JSX.Element => {
