@@ -149,6 +149,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
             rolesUserCanEnroll={rolesUserCanEnroll}
             resetFeature={resetFeature}
             settingsURL={settingsURL}
+            userCourseRoles={props.globals.course.roles}
           />
         )
       default:

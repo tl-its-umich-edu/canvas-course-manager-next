@@ -215,10 +215,12 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         <>
           <div className={classes.createSelectSectionContainer}>
             <CreateSelectSectionWidget
-              {...props}
               sections={sections}
               selectedSection={selectedSection}
               setSelectedSection={setSelectedSection}
+              // Only admins have access to the Add UM Users feature, and they can create sections.
+              canCreate={true}
+              course={props.course}
               onSectionCreated={sectionCreated}
             />
             <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
