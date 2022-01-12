@@ -9,7 +9,9 @@ interface FeatureDataProps {
   helpURLEnding: string
 }
 
-const adminRoles = [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+const adminRoles: RoleEnum[] = [RoleEnum['Subaccount admin'], RoleEnum['Account Admin'], RoleEnum['Support Consultant']]
+const courseRenameRoles: RoleEnum[] = adminRoles
+const createSectionRoles: RoleEnum[] = [RoleEnum.Teacher, ...adminRoles]
 
 const mergeSectionProps: FeatureDataProps = {
   id: 'MergeSections',
@@ -65,11 +67,8 @@ const addNonUMUsersProps: FeatureDataProps = {
   helpURLEnding: '/add-non-um-users.html'
 }
 
-const courseRenameRoles: RoleEnum[] = adminRoles
-const createSectionRoles: RoleEnum[] = [RoleEnum.Teacher, ...adminRoles]
-
 export type { FeatureDataProps }
 export {
   mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
-  createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles, createSectionRoles
+  createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles, createSectionRoles, adminRoles
 }
