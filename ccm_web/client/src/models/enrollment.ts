@@ -1,5 +1,14 @@
 import { ClientEnrollmentType } from './canvas'
 
+export interface AddEnrollment {
+  loginId: string
+  role: ClientEnrollmentType
+}
+
+export interface AddEnrollmentWithSectionID extends AddEnrollment {
+  sectionID: number
+}
+
 export interface AddExternalUserEnrollment {
   email: string
   role: ClientEnrollmentType

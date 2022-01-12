@@ -29,6 +29,7 @@ import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValida
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
+import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow'
 
 const USER_ROLE_TEXT = 'Role'
 const USER_ID_TEXT = 'Login ID'
@@ -205,7 +206,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
   }
 
-  const parseFile = (file: File): void => {
+  const handleFile = (file: File): void => {
+    setFile(file)
     const parser = new FileParserWrapper()
     parser.parseCSV(
       file,
@@ -305,7 +307,7 @@ designer,userd`
   }
 
   const renderFileUpload = (): JSX.Element => {
-    return <FileUpload onUploadComplete={(file) => parseFile(file)} />
+    return <FileUpload onUploadComplete={(file) => handleFile(file)} />
   }
 
   const getUploadContent = (): JSX.Element => {
@@ -465,7 +467,7 @@ designer,userd`
                   {getStepContent(activeStep)}
                   </>
                 )
-              : <Typography>Multiple sections flow will start here.</Typography>
+              : <MultipleSectionEnrollmentWorkflow sections={sections} />
         }
       </div>
     </div>
