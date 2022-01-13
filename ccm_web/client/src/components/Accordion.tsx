@@ -6,6 +6,9 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingTop: theme.spacing(1)
+  },
   summary: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText
@@ -24,18 +27,20 @@ interface AccordionProps {
 export default function Accordion (props: AccordionProps): JSX.Element {
   const classes = useStyles()
   return (
-    <MUIAccordion defaultExpanded>
-      <MUIAccordionSummary
-        className={classes.summary}
-        expandIcon={<ExpandMoreIcon className={classes.icon} />}
-        id={`${props.id}-header`}
-        aria-controls={`${props.id}-content`}
-      >
-        {props.title}
-      </MUIAccordionSummary>
-      <MUIAccordionDetails>
-        {props.children}
-      </MUIAccordionDetails>
-    </MUIAccordion>
+    <div className={classes.container}>
+      <MUIAccordion defaultExpanded >
+        <MUIAccordionSummary
+          className={classes.summary}
+          expandIcon={<ExpandMoreIcon className={classes.icon} />}
+          id={`${props.id}-header`}
+          aria-controls={`${props.id}-content`}
+        >
+          {props.title}
+        </MUIAccordionSummary>
+        <MUIAccordionDetails>
+          {props.children}
+        </MUIAccordionDetails>
+      </MUIAccordion>
+    </div>
   )
 }

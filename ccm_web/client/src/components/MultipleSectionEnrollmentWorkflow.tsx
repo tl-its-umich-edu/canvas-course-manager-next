@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
-  Button, Grid, makeStyles, TableHead, TableContainer, Table, TableBody, TableCell, TableRow,
-  Typography
+  Button, Grid, Link, makeStyles, TableHead, TableContainer, Table, TableBody, TableCell,
+  TableRow, Typography
 } from '@material-ui/core'
 
 import Accordion from './Accordion'
@@ -19,7 +19,7 @@ import {
   EnrollmentInvalidation, ExistingSectionIDRowsValidator, LoginIDRowsValidator, NumericSectionIDRowsValidator,
   RoleRowsValidator
 } from '../utils/enrollmentValidators'
-import { getRowNumber } from '../utils/fileUtils'
+import { CSV_LINK_DOWNLOAD_PREFIX, getRowNumber } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
 enum CSVWorkflowState {
@@ -57,12 +57,11 @@ interface MultipleSectionEnrollmentWorkflowProps {
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
-  const classes = useStyles()
-
+  const parser = new FileParserWrapper()
   const sectionIDs = props.sections.map(s => s.id)
 
+  const classes = useStyles()
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
-
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<AddRowNumberedEnrollmentWithSectionID[] | undefined>(undefined)
 
@@ -158,13 +157,19 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
     const handleFile = (file: File): void => {
       setFile(file)
-      const parser = new FileParserWrapper()
       parser.parseCSV(
         file,
         handleValidation,
         (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
       )
     }
+
+    const sectionDataToDownload = CSV_LINK_DOWNLOAD_PREFIX + encodeURIComponent(
+      parser.createCSV<string[]>([
+        ['SECTION_NAME', 'SECTION_ID'],
+        ...props.sections.map(s => [s.name, String(s.id)])
+      ])
+    )
 
     const sectionIDsTable = (
       <TableContainer className={classes.sectionIDTable}>
@@ -191,14 +196,19 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
     return (
       <div>
-        <ExampleFileDownloadHeader
-          body={requirements}
-          fileName='add_non_um_users_with_sections.csv'
-          fileData={fileData}
-        />
+        <div className={classes.spacing}>
+          <ExampleFileDownloadHeader
+            body={requirements}
+            fileName='add_non_um_users_with_sections.csv'
+            fileData={fileData}
+          />
+        </div>
         <Grid container className={classes.spacing}>
           <Grid item md={6} sm={9} xs={12}>
-            <Accordion title='Canvas Course Section IDs' id='section-ids'>
+            <Link href={sectionDataToDownload} download='course_section_ids.csv'>
+              Download a CSV with the Canvas Course Section IDs data
+            </Link>
+            <Accordion title='Course Section Canvas IDs' id='section-ids'>
               {sectionIDsTable}
             </Accordion>
           </Grid>
