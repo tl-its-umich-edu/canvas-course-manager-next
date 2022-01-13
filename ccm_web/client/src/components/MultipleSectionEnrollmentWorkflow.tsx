@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import {
-  Button, Grid, Link, makeStyles, TableHead, TableContainer, Table, TableBody, TableCell,
-  TableRow, Typography
+  Backdrop, Button, Box, CircularProgress, Grid, Link, makeStyles, TableHead, TableContainer, Table, TableBody,
+  TableCell, TableRow, Typography
 } from '@material-ui/core'
 
 import Accordion from './Accordion'
+import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable'
+import ConfirmDialog from './ConfirmDialog'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
@@ -39,6 +41,20 @@ const useStyles = makeStyles((theme) => ({
   },
   sectionIDTable: {
     maxHeight: 300
+  },
+  confirmationTable: {
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1)
+  },
+  container: {
+    position: 'relative',
+    zIndex: 0
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#FFF',
+    position: 'absolute',
+    textAlign: 'center'
   }
 }))
 
@@ -71,7 +87,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const resetUpload = (): void => {
     setSchemaInvalidations(undefined)
     setRowInvalidations(undefined)
-    setFile(undefined)
+    setValidEnrollments(undefined)
+    setWorkflowState(CSVWorkflowState.Upload)
   }
 
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
@@ -215,8 +232,47 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
-          <Button variant='outlined' aria-label='Back to select section' onClick={() => undefined}>Back</Button>
+          <Button variant='outlined' aria-label='Back to select input method' onClick={() => undefined}>
+            Back
+          </Button>
         </div>
+      </div>
+    )
+  }
+
+  const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionID[]): JSX.Element => {
+    return (
+      <div className={classes.container}>
+        {file !== undefined && <CSVFileName file={file} />}
+        <Grid container>
+          <Box clone order={{ xs: 2, sm: 1 }}>
+            <Grid item xs={12} sm={9} className={classes.confirmationTable}>
+              <BulkEnrollUMUserToSectionsConfirmationTable enrollments={enrollments} />
+            </Grid>
+          </Box>
+          <Box clone order={{ xs: 1, sm: 2 }}>
+            <Grid item xs={12} sm={3}>
+              <ConfirmDialog
+                submit={() => undefined}
+                cancel={resetUpload}
+                disabled={undefined}
+              />
+            </Grid>
+          </Box>
+        </Grid>
+        <Backdrop className={classes.backdrop} open={false}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item xs={12}>
+              Loading...
+            </Grid>
+            <Grid item xs={12}>
+              Please stay on the page. This may take up to a couple of minutes for larger files.
+            </Grid>
+          </Grid>
+        </Backdrop>
       </div>
     )
   }
@@ -225,6 +281,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     switch (state) {
       case CSVWorkflowState.Upload:
         return renderUpload()
+      case CSVWorkflowState.Review:
+        if (validEnrollments === undefined) return <ErrorAlert />
+        return renderReview(validEnrollments)
       default:
         return <ErrorAlert />
     }
