@@ -234,7 +234,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         <MethodSelect<InputMethod>
           label='Add U-M users through a CSV'
           options={[
-            { key: InputMethod.CSVSingleSection, label: 'One section at a time' },
+            { key: InputMethod.CSVSingleSection, label: '1 section at a time' },
             { key: InputMethod.CSVMultipleSections, label: 'Using multiple sections' }
           ]}
           typeGuard={(v): v is InputMethod => {
