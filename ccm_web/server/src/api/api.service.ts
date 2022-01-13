@@ -7,6 +7,7 @@ import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
 import { handleAPIError, makeResponse } from './api.utils'
+import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
@@ -118,6 +119,19 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
     return await sectionHandler.enrollUsers(sectionUsers)
+  }
+
+  async createSectionEnrollments (
+    user: User, courseId: number, enrollments: SectionEnrollmentDto[]
+  ): Promise<CanvasEnrollment[] | APIErrorData> {
+    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
+    const apiPromises = enrollments.map(async (e) => {
+      const { sectionId, ...sectionUser } = e
+      const sectionHandler = new SectionApiHandler(requestor, e.sectionId)
+      return await sectionHandler.enrollUser(sectionUser)
+    })
+    const enrollmentResults = await Promise.all(apiPromises)
+    return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
