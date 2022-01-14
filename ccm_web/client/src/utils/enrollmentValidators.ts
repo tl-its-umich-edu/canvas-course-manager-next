@@ -2,7 +2,7 @@ import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
 import { getRowNumber } from './fileUtils'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
-import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIDSchema } from '../utils/validation'
+import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIdSchema } from '../utils/validation'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 
@@ -68,26 +68,26 @@ export class LoginIDRowsValidator implements EnrollmentRowsValidator {
 }
 
 export class NumericSectionIDRowsValidator implements EnrollmentRowsValidator {
-  validate (sectionIDs: string[]): EnrollmentInvalidation[] {
-    const sectionIDValidator = new StringRowsSchemaValidator(sectionIDSchema, 'section ID')
-    return sectionIDValidator.validate(sectionIDs)
+  validate (sectionIds: string[]): EnrollmentInvalidation[] {
+    const sectionIdValidator = new StringRowsSchemaValidator(sectionIdSchema, 'section ID')
+    return sectionIdValidator.validate(sectionIds)
   }
 }
 
-export class ExistingSectionIDRowsValidator implements EnrollmentRowsValidator {
+export class ExistingSectionIdRowsValidator implements EnrollmentRowsValidator {
   existingSectionIDs: number[]
   constructor (existingSectionIDs: number[]) {
     this.existingSectionIDs = existingSectionIDs
   }
 
-  validate (sectionIDs: string[]): EnrollmentInvalidation[] {
-    const sectionIDNums = sectionIDs.map(s => Number(s))
+  validate (sectionIds: string[]): EnrollmentInvalidation[] {
+    const sectionIdNums = sectionIds.map(s => Number(s))
     const invalidations: EnrollmentInvalidation[] = []
-    sectionIDNums.forEach((sectionIDNum, i) => {
-      if (!this.existingSectionIDs.includes(sectionIDNum)) {
+    sectionIdNums.forEach((sectionIdNum, i) => {
+      if (!this.existingSectionIDs.includes(sectionIdNum)) {
         invalidations.push({
           rowNumber: getRowNumber(i),
-          message: `This course does not have a section with ID "${sectionIDNum}".`,
+          message: `This course does not have a section with ID "${sectionIdNum}".`,
           type: InvalidationType.Error
         })
       }

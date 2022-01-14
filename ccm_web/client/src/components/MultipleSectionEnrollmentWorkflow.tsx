@@ -18,11 +18,11 @@ import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
-import { AddEnrollmentWithSectionID, AddRowNumberedEnrollmentWithSectionID } from '../models/enrollment'
+import { AddEnrollmentWithSectionId, AddRowNumberedEnrollmentWithSectionId } from '../models/enrollment'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
-  EnrollmentInvalidation, ExistingSectionIDRowsValidator, LoginIDRowsValidator, NumericSectionIDRowsValidator,
+  EnrollmentInvalidation, ExistingSectionIdRowsValidator, LoginIDRowsValidator, NumericSectionIDRowsValidator,
   RoleRowsValidator
 } from '../utils/enrollmentValidators'
 import { CSV_LINK_DOWNLOAD_PREFIX, getRowNumber } from '../utils/fileUtils'
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     marginTop: theme.spacing(1)
   },
-  sectionIDTable: {
+  sectionIdTable: {
     maxHeight: 300
   },
   confirmationTable: {
@@ -82,20 +82,20 @@ interface MultipleSectionEnrollmentWorkflowProps {
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
-  const sectionIDs = props.sections.map(s => s.id)
+  const sectionIds = props.sections.map(s => s.id)
 
   const classes = useStyles()
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validEnrollments, setValidEnrollments] = useState<AddRowNumberedEnrollmentWithSectionID[] | undefined>(undefined)
+  const [validEnrollments, setValidEnrollments] = useState<AddRowNumberedEnrollmentWithSectionId[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError] = usePromise(
-    async (courseId: number, enrollments: AddEnrollmentWithSectionID[]) => {
+    async (courseId: number, enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(courseId, enrollments.map(e => ({
-        loginId: e.loginID, type: getCanvasRole(e.role), sectionId: e.sectionID
+        loginId: e.loginID, type: getCanvasRole(e.role), sectionId: e.sectionId
       })))
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
@@ -172,20 +172,20 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       errors.push(...roleValidator.validate(enrollmentRecords.map(r => r.ROLE)))
 
       const specifiedSectionIDs = enrollmentRecords.map(r => r.SECTION_ID)
-      const sectionIDValidators = [new NumericSectionIDRowsValidator(), new ExistingSectionIDRowsValidator(sectionIDs)]
-      sectionIDValidators.map(validator => errors.push(...validator.validate(specifiedSectionIDs)))
+      const sectionIdValidators = [new NumericSectionIDRowsValidator(), new ExistingSectionIdRowsValidator(sectionIds)]
+      sectionIdValidators.map(validator => errors.push(...validator.validate(specifiedSectionIDs)))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
-      const enrollmentsWithSectionIDs: AddRowNumberedEnrollmentWithSectionID[] = enrollmentRecords.map((r, i) => {
+      const enrollmentsWithSectionIds: AddRowNumberedEnrollmentWithSectionId[] = enrollmentRecords.map((r, i) => {
         return {
           rowNumber: getRowNumber(i),
           loginID: r.LOGIN_ID,
           role: r.ROLE as ClientEnrollmentType,
-          sectionID: Number(r.SECTION_ID)
+          sectionId: Number(r.SECTION_ID)
         }
       })
-      setValidEnrollments(enrollmentsWithSectionIDs)
+      setValidEnrollments(enrollmentsWithSectionIds)
       setWorkflowState(CSVWorkflowState.Review)
     }
 
@@ -205,8 +205,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       ])
     )
 
-    const sectionIDsTable = (
-      <TableContainer className={classes.sectionIDTable}>
+    const sectionIdsTable = (
+      <TableContainer className={classes.sectionIdTable}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -243,7 +243,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
               Download a CSV with the Canvas Course Section IDs data
             </Link>
             <Accordion title='Course Section Canvas IDs' id='section-ids'>
-              {sectionIDsTable}
+              {sectionIdsTable}
             </Accordion>
           </Grid>
         </Grid>
@@ -257,7 +257,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     )
   }
 
-  const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionID[]): JSX.Element => {
+  const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionId[]): JSX.Element => {
     if (addEnrollmentsError !== undefined) {
       return <BulkApiErrorContent error={addEnrollmentsError} tryAgain={resetUpload} />
     }

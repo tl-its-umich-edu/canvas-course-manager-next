@@ -9,11 +9,11 @@ export interface AddEnrollment {
   role: ClientEnrollmentType
 }
 
-export interface AddEnrollmentWithSectionID extends AddEnrollment {
-  sectionID: number
+export interface AddEnrollmentWithSectionId extends AddEnrollment {
+  sectionId: number
 }
 
-export interface AddRowNumberedEnrollmentWithSectionID extends AddEnrollmentWithSectionID, RowNumberedData {}
+export interface AddRowNumberedEnrollmentWithSectionId extends AddEnrollmentWithSectionId, RowNumberedData {}
 
 export interface AddExternalUserEnrollment {
   email: string

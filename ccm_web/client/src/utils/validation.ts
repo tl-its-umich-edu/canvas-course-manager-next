@@ -18,7 +18,7 @@ const createCanvasNameSchema = (fieldName: string): StringSchema => {
 
 export const courseNameSchema = createCanvasNameSchema('course name')
 export const assignmentHeaderSchema = createCanvasNameSchema('assignment header')
-export const sectionIDSchema = string().matches(/^\d+$/, 'Value for the section ID must be an integer (i.e. contain only digits).')
+export const sectionIdSchema = string().matches(/^\d+$/, 'Value for the section ID must be an integer (i.e. contain only digits).')
 export const sectionNameSchema = createCanvasNameSchema('section name')
 export const loginIDSchema = createCanvasNameSchema('login ID')
 export const emailSchema = createCanvasNameSchema('email address')
