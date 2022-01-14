@@ -94,6 +94,9 @@ const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
 interface AddUMUsersProps extends CCMComponentProps {}
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
+  const { canvasURL, course } = props.globals
+  const settingsURL = `${canvasURL}/courses/${course.id}/settings`
+
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.CSVSingleSection)
@@ -409,12 +412,7 @@ designer,userd`
   }
 
   const getSuccessContent = (): JSX.Element => {
-    const { canvasURL, course } = props.globals
-    const settingsLink = (
-      <Link href={`${canvasURL}/courses/${course.id}/settings`} target='_parent'>
-        Canvas Settings page
-      </Link>
-    )
+    const settingsLink = <Link href={settingsURL} target='_parent'>Canvas Settings page</Link>
     const message = <Typography>New users have been added to the section!</Typography>
     const nextAction = (
       <span>
@@ -467,7 +465,14 @@ designer,userd`
                   {getStepContent(activeStep)}
                   </>
                 )
-              : <MultipleSectionEnrollmentWorkflow sections={sections} />
+              : (
+                  <MultipleSectionEnrollmentWorkflow
+                    course={props.course}
+                    sections={sections}
+                    featureTitle={props.title}
+                    settingsURL={settingsURL}
+                  />
+                )
         }
       </div>
     </div>

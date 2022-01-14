@@ -5,6 +5,7 @@ import {
 } from '@material-ui/core'
 
 import Accordion from './Accordion'
+import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
 import CSVFileName from './CSVFileName'
@@ -12,10 +13,13 @@ import ErrorAlert from './ErrorAlert'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
-import { CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
-import { AddRowNumberedEnrollmentWithSectionID } from '../models/enrollment'
-import { InvalidationType } from '../models/models'
+import SuccessCard from './SuccessCard'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
+import * as api from '../api'
+import usePromise from '../hooks/usePromise'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { AddEnrollmentWithSectionID, AddRowNumberedEnrollmentWithSectionID } from '../models/enrollment'
+import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
   EnrollmentInvalidation, ExistingSectionIDRowsValidator, LoginIDRowsValidator, NumericSectionIDRowsValidator,
@@ -27,7 +31,7 @@ import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 enum CSVWorkflowState {
   Upload,
   Review,
-  Confirm
+  Confirmation
 }
 
 const REQUIRED_HEADERS = ['LOGIN_ID', 'ROLE', 'SECTION_ID']
@@ -69,7 +73,10 @@ const isEnrollmentWithSectionIDRecord = (record: CSVRecord): record is Enrollmen
 }
 
 interface MultipleSectionEnrollmentWorkflowProps {
+  course: CanvasCourseBase
   sections: CanvasCourseSectionWithCourseName[]
+  settingsURL: string
+  featureTitle: string
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
@@ -83,6 +90,15 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
+
+  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError] = usePromise(
+    async (courseId: number, enrollments: AddEnrollmentWithSectionID[]) => {
+      await api.addEnrollmentsToSections(courseId, enrollments.map(e => ({
+        loginId: e.loginID, type: getCanvasRole(e.role), sectionId: e.sectionID
+      })))
+    },
+    () => setWorkflowState(CSVWorkflowState.Confirmation)
+  )
 
   const resetUpload = (): void => {
     setSchemaInvalidations(undefined)
@@ -241,6 +257,11 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionID[]): JSX.Element => {
+    if (addEnrollmentsError !== undefined) {
+      return <BulkApiErrorContent error={addEnrollmentsError} tryAgain={resetUpload} />
+    }
+
+    const enrollmentData = enrollments.map(({ rowNumber, ...enrollmentData }) => enrollmentData)
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
@@ -253,14 +274,14 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3}>
               <ConfirmDialog
-                submit={() => undefined}
+                submit={async () => await doAddEnrollments(props.course.id, enrollmentData)}
                 cancel={resetUpload}
-                disabled={undefined}
+                disabled={isAddEnrollmentsLoading}
               />
             </Grid>
           </Box>
         </Grid>
-        <Backdrop className={classes.backdrop} open={false}>
+        <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
             <Grid item xs={12}>
               <CircularProgress color="inherit" />
@@ -277,6 +298,26 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     )
   }
 
+  const renderConfirm = (): JSX.Element => {
+    const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
+    const message = <Typography>New users have been added to the section!</Typography>
+    const nextAction = (
+      <span>
+        See the users in the course&apos;s sections on the {settingsLink} for your course.
+      </span>
+    )
+    return (
+      <>
+      <SuccessCard {...{ message, nextAction }} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={undefined}>
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
+  }
+
   const renderWorkflowState = (state: CSVWorkflowState): JSX.Element => {
     switch (state) {
       case CSVWorkflowState.Upload:
@@ -284,6 +325,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       case CSVWorkflowState.Review:
         if (validEnrollments === undefined) return <ErrorAlert />
         return renderReview(validEnrollments)
+      case CSVWorkflowState.Confirmation:
+        return renderConfirm()
       default:
         return <ErrorAlert />
     }
