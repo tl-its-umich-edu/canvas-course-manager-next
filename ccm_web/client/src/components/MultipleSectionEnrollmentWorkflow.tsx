@@ -77,6 +77,7 @@ interface MultipleSectionEnrollmentWorkflowProps {
   sections: CanvasCourseSectionWithCourseName[]
   settingsURL: string
   featureTitle: string
+  resetFeature: () => void
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
@@ -248,7 +249,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
-          <Button variant='outlined' aria-label='Back to select input method' onClick={() => undefined}>
+          <Button variant='outlined' aria-label='Back to select input method' onClick={props.resetFeature}>
             Back
           </Button>
         </div>
@@ -310,7 +311,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       <>
       <SuccessCard {...{ message, nextAction }} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={undefined}>
+        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
           Start Again
         </Button>
       </Grid>

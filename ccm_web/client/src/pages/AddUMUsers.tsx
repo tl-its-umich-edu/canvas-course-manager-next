@@ -162,6 +162,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     clearGetSectionsError()
   }
 
+  const resetFeature = (): void => setPageState(PageState.SelectInputMethod)
+
   const handleEnrollmentsReset = (): void => {
     clearAddEnrollmentsError()
     setEnrollments(undefined)
@@ -471,6 +473,7 @@ designer,userd`
                     sections={sections}
                     featureTitle={props.title}
                     settingsURL={settingsURL}
+                    resetFeature={resetFeature}
                   />
                 )
         }
