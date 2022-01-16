@@ -23,6 +23,10 @@ import {
   CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole, injectCourseName,
   sortSections
 } from '../models/canvas'
+import {
+  EnrollmentRecord, isEnrollmentRecord, MAX_ENROLLMENT_MESSAGE, MAX_ENROLLMENT_RECORDS,
+  REQUIRED_ENROLLMENT_HEADERS, USER_ID_TEXT, USER_ROLE_TEXT
+} from '../models/enrollment'
 import { CCMComponentProps } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
@@ -30,11 +34,6 @@ import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from 
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
 import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow'
-
-const USER_ROLE_TEXT = 'Role'
-const USER_ID_TEXT = 'Login ID'
-const MAX_ENROLLMENT_RECORDS = 400
-const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -77,18 +76,6 @@ enum PageState {
 enum InputMethod {
   CSVSingleSection = 'single',
   CSVMultipleSections = 'multiple'
-}
-
-interface EnrollmentRecord extends CSVRecord {
-  LOGIN_ID: string
-  ROLE: string
-}
-
-const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
-  return (
-    typeof record.LOGIN_ID === 'string' &&
-    typeof record.ROLE === 'string'
-  )
 }
 
 interface AddUMUsersProps extends CCMComponentProps {}
@@ -186,7 +173,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
-      ['LOGIN_ID', 'ROLE'], isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
+      REQUIRED_ENROLLMENT_HEADERS, isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
     const validationResult = csvValidator.validate(headers, data)
     if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
@@ -292,7 +279,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`${USER_ROLE_TEXT.toUpperCase()},${USER_ID_TEXT.replace(' ', '_').toUpperCase()}
+`${REQUIRED_ENROLLMENT_HEADERS.join(',')}
 student,studenta
 teacher,usera
 ta,userb
@@ -301,8 +288,7 @@ designer,userd`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
         <Typography>
-          Your file should include a {USER_ID_TEXT.toLocaleLowerCase()} (uniqname) and
-          a {USER_ROLE_TEXT.toLocaleLowerCase()} for each user. {MAX_ENROLLMENT_MESSAGE}
+          Your file should include a {USER_ID_TEXT} (uniqname) and a {USER_ROLE_TEXT} for each user. {MAX_ENROLLMENT_MESSAGE}
         </Typography>
       ),
       fileData,
@@ -360,7 +346,7 @@ designer,userd`
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
             <Grid item xs={12}>
-              <CircularProgress color="inherit" />
+              <CircularProgress color='inherit' />
             </Grid>
             <Grid item xs={12}>
               Loading...

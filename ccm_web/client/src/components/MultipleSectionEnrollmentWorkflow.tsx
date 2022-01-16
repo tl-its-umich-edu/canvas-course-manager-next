@@ -18,7 +18,11 @@ import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
-import { AddEnrollmentWithSectionId, AddRowNumberedEnrollmentWithSectionId } from '../models/enrollment'
+import {
+  AddEnrollmentWithSectionId, AddRowNumberedEnrollmentWithSectionId, EnrollmentWithSectionIdRecord,
+  isEnrollmentWithSectionIdRecord, MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE,
+  REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
+} from '../models/enrollment'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
@@ -33,8 +37,6 @@ enum CSVWorkflowState {
   Review,
   Confirmation
 }
-
-const REQUIRED_HEADERS = ['LOGIN_ID', 'ROLE', 'SECTION_ID']
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -61,16 +63,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center'
   }
 }))
-
-interface EnrollmentWithSectionIDRecord extends CSVRecord {
-  LOGIN_ID: string
-  ROLE: string
-  SECTION_ID: string
-}
-
-const isEnrollmentWithSectionIDRecord = (record: CSVRecord): record is EnrollmentWithSectionIDRecord => {
-  return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
-}
 
 interface MultipleSectionEnrollmentWorkflowProps {
   course: CanvasCourseBase
@@ -139,14 +131,13 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
     const requirements = (
       <Typography>
-        Your file should include a login ID (uniqname), a role, and a section ID for each user.
-        A section ID reference table (and a CSV version download) are available below.
-        The maximum number of user enrollments allowed is 400.
+        Your file should include a {USER_ID_TEXT} (uniqname), a {USER_ROLE_TEXT}, and a {SECTION_ID_TEXT} for each user.
+        A {SECTION_ID_TEXT} reference table (and a CSV version download) are available below. {MAX_ENROLLMENT_MESSAGE}
       </Typography>
     )
 
     const fileData = (
-      'LOGIN_ID,ROLE,SECTION_ID\n' +
+      `${REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS.join(',')}\n` +
       'teacherone,teacher,1001\n' +
       'teacherone,teacher,1002\n' +
       'studentone,student,1001\n' +
@@ -156,8 +147,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     )
 
     const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
-      const schemaValidator = new CSVSchemaValidator<EnrollmentWithSectionIDRecord>(
-        REQUIRED_HEADERS, isEnrollmentWithSectionIDRecord, 400
+      const schemaValidator = new CSVSchemaValidator<EnrollmentWithSectionIdRecord>(
+        REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, isEnrollmentWithSectionIdRecord, MAX_ENROLLMENT_RECORDS
       )
       const validationResult = schemaValidator.validate(headers, rowData)
       if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
@@ -285,7 +276,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
             <Grid item xs={12}>
-              <CircularProgress color="inherit" />
+              <CircularProgress color='inherit' />
             </Grid>
             <Grid item xs={12}>
               Loading...
@@ -301,7 +292,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderConfirm = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>New users have been added to the section!</Typography>
+    const message = <Typography>New users have been added to the section(s)!</Typography>
     const nextAction = (
       <span>
         See the users in the course&apos;s sections on the {settingsLink} for your course.
