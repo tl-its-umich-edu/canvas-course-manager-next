@@ -26,7 +26,7 @@ export default function AuthorizePrompt (props: AuthorizePromptProps): JSX.Eleme
         Authorize Course Manager to Access Your Canvas Account
       </Typography>
       <Typography gutterBottom>
-      This is third party tool. You must authorize this tool before you can use it.
+        This is third party tool. You must authorize this tool before you can use it.
       </Typography>
       <Typography gutterBottom>
         Use the <b>GO TO AUTHORIZE PAGE button</b> to start the authorization process.
