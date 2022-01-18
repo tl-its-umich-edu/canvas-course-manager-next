@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) =>
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(1)
     },
-    createSelectSectionContainer: {
+    container: {
       position: 'relative',
       zIndex: 0
     },
@@ -103,7 +103,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setSections(sortSections(sections))
   }
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateSections(injectCourseName(sections, props.course.name))
@@ -119,10 +119,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   )
 
   useEffect(() => {
-    if (sections === undefined && getSectionsError === undefined) {
-      void doGetSections()
-    }
-  }, [sections, getSectionsError])
+    void doGetSections()
+  }, [])
 
   useEffect(() => {
     if (file !== undefined) {
@@ -157,7 +155,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const handleSectionsReset = (): void => {
     setSections(undefined)
     setSelectedSection(undefined)
-    clearGetSectionsError()
   }
 
   const handleEnrollmentsReset = (): void => {
@@ -173,10 +170,11 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setActiveStep(CSVWorkflowStep.Upload)
   }
 
-  const handleFullReset = (): void => {
+  const handleFullReset = async (): Promise<void> => {
     handleSectionsReset()
     handleEnrollmentsReset()
     setActiveStep(CSVWorkflowStep.Select)
+    await doGetSections()
   }
 
   const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
@@ -220,33 +218,21 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       return (
         <ErrorAlert
           messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
-          tryAgain={clearGetSectionsError}
+          tryAgain={doGetSections}
         />
       )
     } else {
       return (
         <>
-        <div className={classes.createSelectSectionContainer}>
-          <CreateSelectSectionWidget
-            sections={sections ?? []}
-            selectedSection={selectedSection}
-            setSelectedSection={setSelectedSection}
-            // Only admins have access to the Add UM Users feature, and they can create sections.
-            canCreate={true}
-            course={props.course}
-            onSectionCreated={sectionCreated}
-          />
-          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}>
-                <CircularProgress color='inherit' />
-              </Grid>
-              <Grid item xs={12}>
-                Loading sections
-              </Grid>
-            </Grid>
-          </Backdrop>
-        </div>
+        <CreateSelectSectionWidget
+          sections={sections ?? []}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          // Only admins have access to the Add UM Users feature, and they can create sections.
+          canCreate={true}
+          course={props.course}
+          onSectionCreated={sectionCreated}
+        />
         <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
           <Button
             variant='contained'
@@ -306,7 +292,10 @@ designer,userd`
           <Button
             variant='outlined'
             aria-label='Back to Select Section'
-            onClick={() => setActiveStep(CSVWorkflowStep.Select)}
+            onClick={async () => {
+              setActiveStep(CSVWorkflowStep.Select)
+              await doGetSections()
+            }}
           >
             Back
           </Button>
@@ -440,7 +429,15 @@ designer,userd`
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-      <div>{getStepContent(activeStep)}</div>
+      <div className={classes.container}>
+        {getStepContent(activeStep)}
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading section data from Canvas</Grid>
+          </Grid>
+        </Backdrop>
+      </div>
     </div>
   )
 }

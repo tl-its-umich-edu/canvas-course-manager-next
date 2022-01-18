@@ -147,7 +147,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           variant='contained'
           color='primary'
           aria-label='Select section'
-          disabled={selectedSection === undefined}
+          disabled={selectedSection === undefined || props.isGetSectionsLoading}
           onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
         >
           Select
@@ -200,9 +200,10 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       'jdoe@example.edu,student,jane,doe'
     )
 
-    const handleBackClick = (): void => {
+    const handleBackClick = async (): Promise<void> => {
       handleResetUpload()
       setActiveStep(CSVWorkflowStep.Select)
+      await props.doGetSections()
     }
 
     const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {

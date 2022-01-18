@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Backdrop, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import * as api from '../api'
@@ -60,71 +60,57 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.Single)
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
   )
 
-  useEffect(() => {
-    if (sections === undefined && getSectionsError === undefined) {
-      void doGetSections()
-    }
-  }, [sections, getSectionsError])
-
   const getSectionsErrorAlert = (
     <ErrorAlert
-      messages={
-        [<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]
-      }
-      tryAgain={clearGetSectionsError}
+      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      tryAgain={doGetSections}
     />
   )
 
   const renderSelectInputMethod = (): JSX.Element => {
-    if (getSectionsError !== undefined) return getSectionsErrorAlert
-
     return (
-      <div className={classes.container}>
-        <MethodSelect<InputMethod>
-          label='Choose how you want to add users'
-          options={[
-            { key: InputMethod.Single, label: 'Add one user manually' },
-            { key: InputMethod.CSV, label: 'Add multiple users by uploading a CSV' }
-          ]}
-          typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
-          selectedMethod={inputMethod}
-          setMethod={setInputMethod}
-          disabled={isGetSectionsLoading}
-          onButtonClick={() => {
-            if (inputMethod === InputMethod.CSV) {
-              setActivePageState(PageState.AddCSVUsers)
-            } else {
-              setActivePageState(PageState.AddSingleUser)
-            }
-          }}
-        />
-        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading section data from Canvas
-            </Grid>
-          </Grid>
-        </Backdrop>
-      </div>
+      <MethodSelect<InputMethod>
+        label='Choose how you want to add users'
+        options={[
+          { key: InputMethod.Single, label: 'Add one user manually' },
+          { key: InputMethod.CSV, label: 'Add multiple users by uploading a CSV' }
+        ]}
+        typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
+        selectedMethod={inputMethod}
+        setMethod={setInputMethod}
+        disabled={isGetSectionsLoading}
+        onButtonClick={async () => {
+          if (inputMethod === InputMethod.CSV) {
+            setActivePageState(PageState.AddCSVUsers)
+          } else {
+            setActivePageState(PageState.AddSingleUser)
+          }
+          await doGetSections()
+        }}
+      />
     )
   }
 
   const resetFeature = (): void => {
-    setSections(undefined)
     setActivePageState(PageState.SelectInputMethod)
   }
 
   const renderActivePageState = (state: PageState): JSX.Element => {
+    if (getSectionsError !== undefined) return getSectionsErrorAlert
+
     const commonProps = {
-      sections: sections ?? [], rolesUserCanEnroll, featureTitle: props.title, resetFeature, settingsURL
+      sections: sections ?? [],
+      rolesUserCanEnroll,
+      featureTitle: props.title,
+      resetFeature,
+      settingsURL,
+      doGetSections,
+      isGetSectionsLoading
     }
 
     const onSectionCreated = (newSection: CanvasCourseSection): void => {
@@ -147,6 +133,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
             course={props.course}
             onSectionCreated={onSectionCreated}
             userCourseRoles={props.globals.course.roles}
+            doGetSections={doGetSections}
           />
         )
       default:
@@ -158,7 +145,15 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     <div className={classes.root} aria-live='polite'>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
-      {renderActivePageState(activePageState)}
+      <div className={classes.container}>
+        {renderActivePageState(activePageState)}
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading section data from Canvas</Grid>
+          </Grid>
+        </Backdrop>
+      </div>
     </div>
   )
 }

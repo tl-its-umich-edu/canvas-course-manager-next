@@ -32,6 +32,8 @@ export interface AddNonUMUsersLeafProps {
   featureTitle: string
   resetFeature: () => void
   settingsURL: string
+  doGetSections: () => Promise<void>
+  isGetSectionsLoading: boolean
 }
 
 interface FeatureUIGroup {

@@ -97,7 +97,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   ].filter(d => d.error !== undefined) as APIErrorWithContext[]
 
   const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
-  const isLoading = isSearchForUserLoading || isEnrollmentLoading
+  const isLoading = props.isGetSectionsLoading || isSearchForUserLoading || isEnrollmentLoading
 
   // Handlers
 
@@ -297,7 +297,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
               roles={props.rolesUserCanEnroll}
               selectedRole={role}
               onRoleChange={setRole}
-              disabled={isEnrollmentLoading}
+              disabled={isLoading}
             />
           </div>
           <Typography className={classes.spacing}>
