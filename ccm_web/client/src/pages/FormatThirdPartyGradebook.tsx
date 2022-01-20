@@ -85,7 +85,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [gradebookInvalidations, setGradebookInvalidations] = useState<GradebookInvalidation[] | undefined>(undefined)
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
   )
@@ -102,10 +102,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   useEffect(() => {
-    if (sections === undefined && getSectionsError === undefined) {
-      void doGetSections()
-    }
-  }, [sections, getSectionsError])
+    void doGetSections()
+  }, [])
 
   useEffect(() => {
     if (studentLoginIds !== undefined) {
@@ -113,9 +111,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     }
   }, [studentLoginIds])
 
-  const handleSelectClick = (): void => {
+  const handleSelectClick = async (): Promise<void> => {
     if (selectedSections !== undefined) {
-      void doGetStudents(selectedSections.map(s => s.id))
+      await doGetStudents(selectedSections.map(s => s.id))
     }
   }
 
@@ -157,7 +155,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   const handleResetSelect = (): void => {
     setSections(undefined)
-    clearGetSectionsError()
     setSelectedSections(undefined)
     setStudentLoginIds(undefined)
     clearGetStudentsError()
@@ -171,10 +168,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setGradebookInvalidations(undefined)
   }
 
-  const handleFullReset = (): void => {
+  const handleFullReset = async (): Promise<void> => {
     handleResetSelect()
     handleResetUpload()
     setActiveStep(CSVWorkflowStep.Select)
+    await doGetSections()
   }
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
@@ -220,7 +218,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               data from Canvas.
             </Typography>
           ]}
-          tryAgain={handleResetSelect}
+          tryAgain={async () => {
+            handleResetSelect()
+            await doGetSections()
+          }}
         />
       )
     }
@@ -340,7 +341,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             <Button
               variant='outlined'
               aria-label='Back to Select Section'
-              onClick={() => setActiveStep(CSVWorkflowStep.Select)}
+              onClick={async () => {
+                handleResetSelect()
+                setActiveStep(CSVWorkflowStep.Select)
+                await doGetSections()
+              }}
             >
               Back
             </Button>
