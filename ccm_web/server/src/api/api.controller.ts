@@ -7,6 +7,7 @@ import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
+import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
@@ -17,7 +18,6 @@ import { SessionGuard } from '../auth/session.guard'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections
 } from '../canvas/canvas.interfaces'
-import { InvalidTokenInterceptor } from '../canvas/invalid.token.interceptor'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 
