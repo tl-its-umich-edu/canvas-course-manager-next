@@ -202,6 +202,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
     const handleBackClick = async (): Promise<void> => {
       handleResetUpload()
+      setSelectedSection(undefined)
       setActiveStep(CSVWorkflowStep.Select)
       await props.doGetSections()
     }

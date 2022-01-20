@@ -97,6 +97,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   }
 
   const resetFeature = (): void => {
+    setSections(undefined)
     setActivePageState(PageState.SelectInputMethod)
   }
 
@@ -109,7 +110,10 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
       featureTitle: props.title,
       resetFeature,
       settingsURL,
-      doGetSections,
+      doGetSections: async () => {
+        setSections(undefined)
+        await doGetSections()
+      },
       isGetSectionsLoading
     }
 
@@ -133,7 +137,6 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
             course={props.course}
             onSectionCreated={onSectionCreated}
             userCourseRoles={props.globals.course.roles}
-            doGetSections={doGetSections}
           />
         )
       default:

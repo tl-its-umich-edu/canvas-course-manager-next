@@ -293,6 +293,7 @@ designer,userd`
             variant='outlined'
             aria-label='Back to Select Section'
             onClick={async () => {
+              handleSectionsReset()
               setActiveStep(CSVWorkflowStep.Select)
               await doGetSections()
             }}

@@ -116,12 +116,13 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     clearAddNewExternalEnrollmentError()
   }
 
-  const resetAll = (): void => {
+  const resetAll = async (): Promise<void> => {
     setEmail(undefined)
     setRole(undefined)
     setSelectedSection(undefined)
     resetNameEntryState()
     resetErrors()
+    await props.doGetSections()
   }
 
   const handleSearchClick = async (): Promise<void> => {
