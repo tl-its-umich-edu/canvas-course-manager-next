@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     textAlign: 'center'
   },
-  confirmContainer: {
+  container: {
     position: 'relative',
     zIndex: 0
   },
@@ -101,6 +101,13 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     setRowInvalidations(undefined)
   }
 
+  const getSectionsErrorAlert = (
+    <ErrorAlert
+      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      tryAgain={props.doGetSections}
+    />
+  )
+
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
@@ -122,6 +129,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderSelect = (): JSX.Element => {
+    if (props.getSectionsError !== undefined) return getSectionsErrorAlert
+
     const canCreate = isAuthorizedForRoles(props.userCourseRoles, createSectionRoles)
     const createProps: CreateSelectSectionWidgetCreateProps = canCreate
       ? { canCreate: true, course: props.course, onSectionCreated: props.onSectionCreated }
@@ -129,12 +138,20 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
     return (
       <>
-      <CreateSelectSectionWidget
-        sections={props.sections}
-        selectedSection={selectedSection}
-        setSelectedSection={setSelectedSection}
-        {...createProps}
-      />
+      <div className={classes.container}>
+        <CreateSelectSectionWidget
+          sections={props.sections}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          {...createProps}
+        />
+        <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading section data from Canvas</Grid>
+          </Grid>
+        </Backdrop>
+      </div>
       <Grid container className={classes.buttonGroup} justifyContent='space-between'>
         <Button
           variant='outlined'
@@ -272,7 +289,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
   const renderReview = (sectionId: number, enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
     return (
-      <div className={classes.confirmContainer}>
+      <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
@@ -297,12 +314,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddExternalEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading...
-            </Grid>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading...</Grid>
             <Grid item xs={12}>
               Please stay on the page. This may take up to a couple of minutes for larger files.
             </Grid>

@@ -85,7 +85,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [gradebookInvalidations, setGradebookInvalidations] = useState<GradebookInvalidation[] | undefined>(undefined)
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
   )
@@ -157,6 +157,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setSections(undefined)
     setSelectedSections(undefined)
     setStudentLoginIds(undefined)
+    clearGetSectionsError()
     clearGetStudentsError()
   }
 

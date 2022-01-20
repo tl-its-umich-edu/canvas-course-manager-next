@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Backdrop, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import { makeStyles, Typography } from '@material-ui/core'
 
 import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
@@ -60,16 +60,9 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.Single)
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
-  )
-
-  const getSectionsErrorAlert = (
-    <ErrorAlert
-      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
-      tryAgain={doGetSections}
-    />
   )
 
   const renderSelectInputMethod = (): JSX.Element => {
@@ -102,15 +95,15 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   }
 
   const renderActivePageState = (state: PageState): JSX.Element => {
-    if (getSectionsError !== undefined) return getSectionsErrorAlert
-
     const commonProps = {
       sections: sections ?? [],
       doGetSections: async () => {
+        clearGetSectionsError()
         setSections(undefined)
         await doGetSections()
       },
       isGetSectionsLoading,
+      getSectionsError,
       rolesUserCanEnroll,
       featureTitle: props.title,
       settingsURL,
@@ -148,15 +141,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     <div className={classes.root} aria-live='polite'>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
-      <div className={classes.container}>
-        {renderActivePageState(activePageState)}
-        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
+      <div>{renderActivePageState(activePageState)}</div>
     </div>
   )
 }

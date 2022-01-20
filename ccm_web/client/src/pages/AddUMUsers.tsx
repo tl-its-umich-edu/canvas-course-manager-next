@@ -103,7 +103,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setSections(sortSections(sections))
   }
 
-  const [doGetSections, isGetSectionsLoading, getSectionsError] = usePromise(
+  const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
       updateSections(injectCourseName(sections, props.course.name))
@@ -155,6 +155,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const handleSectionsReset = (): void => {
     setSections(undefined)
     setSelectedSection(undefined)
+    clearGetSectionsError()
   }
 
   const handleEnrollmentsReset = (): void => {
@@ -218,7 +219,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       return (
         <ErrorAlert
           messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
-          tryAgain={doGetSections}
+          tryAgain={async () => {
+            clearGetSectionsError()
+            await doGetSections()
+          }}
         />
       )
     } else {

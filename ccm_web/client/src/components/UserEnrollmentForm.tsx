@@ -91,6 +91,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   )
 
   const errorsWithContext = [
+    { error: props.getSectionsError, context: 'loading section data' },
     { error: searchForUserError, context: 'searching for the user' },
     { error: addEnrollmentError, context: 'enrolling the user in a section' },
     { error: addNewExternalEnrollmentError, context: 'adding the new external user' }
@@ -308,21 +309,29 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             showIncompleteAlerts && selectedSection === undefined &&
               <InlineErrorAlert>You must select one section from the list below.</InlineErrorAlert>
           }
-          <SectionSelectorWidget
-            height={300}
-            search={[]}
-            multiSelect={false}
-            sections={props.sections}
-            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-            selectionUpdated={(sections) => {
-              if (sections.length === 0) {
-                setSelectedSection(undefined)
-              } else {
-                setSelectedSection(sections[0])
-              }
-            }}
-            canUnmerge={false}
-          />
+          <div className={classes.container}>
+            <SectionSelectorWidget
+              height={300}
+              search={[]}
+              multiSelect={false}
+              sections={props.sections}
+              selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+              selectionUpdated={(sections) => {
+                if (sections.length === 0) {
+                  setSelectedSection(undefined)
+                } else {
+                  setSelectedSection(sections[0])
+                }
+              }}
+              canUnmerge={false}
+            />
+            <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+              <Grid container>
+                <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+                <Grid item xs={12}>Loading section data from Canvas</Grid>
+              </Grid>
+            </Backdrop>
+          </div>
           <Grid container className={classes.buttonGroup} justifyContent='space-between'>
             <Button
               variant='outlined'

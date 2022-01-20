@@ -30,6 +30,7 @@ export interface AddNonUMUsersLeafProps {
   sections: CanvasCourseSectionWithCourseName[]
   doGetSections: () => Promise<void>
   isGetSectionsLoading: boolean
+  getSectionsError: Error | undefined
   readonly rolesUserCanEnroll: ClientEnrollmentType[]
   featureTitle: string
   settingsURL: string
