@@ -28,12 +28,12 @@ export interface CCMComponentProps {
 
 export interface AddNonUMUsersLeafProps {
   sections: CanvasCourseSectionWithCourseName[]
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  featureTitle: string
-  resetFeature: () => void
-  settingsURL: string
   doGetSections: () => Promise<void>
   isGetSectionsLoading: boolean
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
+  featureTitle: string
+  settingsURL: string
+  resetFeature: () => void
 }
 
 interface FeatureUIGroup {
