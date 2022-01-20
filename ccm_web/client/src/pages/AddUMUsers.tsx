@@ -224,15 +224,23 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     } else {
       return (
         <>
-        <CreateSelectSectionWidget
-          sections={sections ?? []}
-          selectedSection={selectedSection}
-          setSelectedSection={setSelectedSection}
-          // Only admins have access to the Add UM Users feature, and they can create sections.
-          canCreate={true}
-          course={props.course}
-          onSectionCreated={sectionCreated}
-        />
+        <div className={classes.container}>
+          <CreateSelectSectionWidget
+            sections={sections ?? []}
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+            // Only admins have access to the Add UM Users feature, and they can create sections.
+            canCreate={true}
+            course={props.course}
+            onSectionCreated={sectionCreated}
+          />
+          <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+              <Grid item xs={12}>Loading section data from Canvas</Grid>
+            </Grid>
+          </Backdrop>
+        </div>
         <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
           <Button
             variant='contained'
@@ -429,16 +437,8 @@ designer,userd`
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <div className={classes.container}>
-        <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-        {getStepContent(activeStep)}
-        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
+      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
+      {getStepContent(activeStep)}
     </div>
   )
 }
