@@ -51,7 +51,7 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
         <TableBody>
           {tableRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
             return (
-              <TableRow hover role="checkbox" tabIndex={-1} key={row.rowNumber}>
+              <TableRow hover key={row.rowNumber}>
                 {columns.map((column) => {
                   const value = row[column.id]
                   return (
@@ -73,7 +73,6 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[rowsPerPage]}
-              colSpan={3}
               count={tableRows.length}
               rowsPerPage={rowsPerPage}
               page={page}

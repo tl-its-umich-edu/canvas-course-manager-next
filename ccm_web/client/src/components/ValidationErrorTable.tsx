@@ -89,7 +89,6 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[rowsPerPage]}
-                colSpan={3}
                 count={tableRows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}

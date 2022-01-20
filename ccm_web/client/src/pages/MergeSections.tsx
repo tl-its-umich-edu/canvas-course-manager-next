@@ -4,12 +4,12 @@ import { Button, Grid, LinearProgress, makeStyles, Typography } from '@material-
 
 import { useSnackbar } from 'notistack'
 
+import { adminRoles } from '../models/feature'
 import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import { CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { RoleEnum } from '../models/models'
 import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
 import CourseSectionList from '../components/CourseSectionList'
 import Help from '../components/Help'
@@ -126,8 +126,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     }
   }
 
-  const isSubAccountAdminOrAccountAdmin = (): boolean => {
-    return isAuthorizedForRoles([RoleEnum['Subaccount admin'], RoleEnum['Account Admin']], props.globals.course.roles, 'MergeSections')
+  const isAdmin = (): boolean => {
+    return isAuthorizedForRoles(adminRoles, props.globals.course.roles)
   }
 
   const stageSections = (): void => {
@@ -158,7 +158,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             ]
           }
         }}
-        search={ isSubAccountAdminOrAccountAdmin() ? [new CourseNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
+        search={ isAdmin() ? [new CourseNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
         multiSelect={true}
         showCourseName={true}
         sections={unstagedSections !== undefined ? unstagedSections : []}
@@ -186,7 +186,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           selectedSections={selectedStagedSections}
           selectionUpdated={setSelectedStagedSections}
           sectionsRemoved={handleUnmergedSections}
-          canUnmerge={isSubAccountAdminOrAccountAdmin()}
+          canUnmerge={isAdmin()}
           highlightUnlocked={true}
           ></SectionSelectorWidget>
       </div>
@@ -223,7 +223,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const getMergeSuccess = (): JSX.Element => {
-    return (<CourseSectionList canUnmerge={isSubAccountAdminOrAccountAdmin()} {...props}/>)
+    return (<CourseSectionList canUnmerge={isAdmin()} {...props}/>)
   }
 
   return (
