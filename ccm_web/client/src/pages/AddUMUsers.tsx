@@ -429,8 +429,8 @@ designer,userd`
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
-      <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div className={classes.container}>
+        <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
         {getStepContent(activeStep)}
         <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
           <Grid container>
