@@ -32,6 +32,7 @@ export class InvalidTokenInterceptor implements NestInterceptor {
             error: 'The tool does not have a Canvas token for you.'
           }))
         }
+
         // Other unauthorized cases related to JWT or sessions will be caught by guards.
         let existingTokenInvalid = false
         if (err instanceof HttpException) {
