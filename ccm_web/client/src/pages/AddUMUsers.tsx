@@ -438,7 +438,7 @@ designer,userd`
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-      {getStepContent(activeStep)}
+      <div>{getStepContent(activeStep)}</div>
     </div>
   )
 }
