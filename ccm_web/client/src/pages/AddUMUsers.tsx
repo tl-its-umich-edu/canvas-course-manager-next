@@ -220,7 +220,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         <ErrorAlert
           messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
           tryAgain={async () => {
-            clearGetSectionsError()
+            handleSectionsReset()
             await doGetSections()
           }}
         />

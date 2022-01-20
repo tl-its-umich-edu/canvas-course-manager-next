@@ -155,9 +155,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
 
   const handleResetSelect = (): void => {
     setSections(undefined)
+    clearGetSectionsError()
     setSelectedSections(undefined)
     setStudentLoginIds(undefined)
-    clearGetSectionsError()
     clearGetStudentsError()
   }
 
