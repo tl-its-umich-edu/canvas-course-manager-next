@@ -6,9 +6,9 @@ import {
 import { Observable } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 
-import { CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
-import { CanvasService } from './canvas.service'
-import { isAPIErrorData } from '../api/api.interfaces'
+import { isAPIErrorData } from './api.interfaces'
+import { CanvasTokenNotFoundError, InvalidTokenRefreshError } from '../canvas/canvas.errors'
+import { CanvasService } from '../canvas/canvas.service'
 import { RequestWithoutUserError } from '../user/user.errors'
 
 const INVALID_TOKEN_TEXT = 'invalid access token'
