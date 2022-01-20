@@ -106,15 +106,15 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
 
     const commonProps = {
       sections: sections ?? [],
-      rolesUserCanEnroll,
-      featureTitle: props.title,
-      resetFeature,
-      settingsURL,
       doGetSections: async () => {
         setSections(undefined)
         await doGetSections()
       },
-      isGetSectionsLoading
+      isGetSectionsLoading,
+      rolesUserCanEnroll,
+      featureTitle: props.title,
+      settingsURL,
+      resetFeature
     }
 
     const onSectionCreated = (newSection: CanvasCourseSection): void => {
