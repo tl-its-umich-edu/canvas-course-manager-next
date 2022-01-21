@@ -323,7 +323,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
     const isSelected = isSectionSelected(section.id)
     return (
-      <ListItemText primary={section.name} style={isSelected ? { color: '#3777c5' } : { }}
+      <ListItemText primary={section.name} style={isSelected ? { color: '#3777c5' } : {}}
         secondary={
           <React.Fragment>
             {
@@ -502,13 +502,15 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid item xs={12} className={classes.sectionSelectionContainer}>
         <List className={classes.listContainer} style={{ maxHeight: props.height }}>
           {internalSections.map((section) => {
+            const isSelected = isSectionSelected(section.id)
             return (
               <ListItem
                 divider
                 key={section.id}
                 button
                 disabled={section.locked}
-                selected={isSectionSelected(section.id)}
+                selected={isSelected}
+                aria-pressed={isSelected}
                 onClick={() => handleListItemClick(section.id)}
                 className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : ''}
               >
