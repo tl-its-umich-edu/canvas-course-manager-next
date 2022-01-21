@@ -249,10 +249,6 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionId[]): JSX.Element => {
-    if (addEnrollmentsError !== undefined) {
-      return <BulkApiErrorContent error={addEnrollmentsError} tryAgain={resetUpload} />
-    }
-
     const enrollmentData = enrollments.map(({ rowNumber, ...enrollmentData }) => enrollmentData)
     return (
       <div className={classes.container}>
@@ -275,12 +271,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading...
-            </Grid>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading...</Grid>
             <Grid item xs={12}>
               Please stay on the page. This may take up to a couple of minutes for larger files.
             </Grid>
@@ -316,6 +308,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         return renderUpload()
       case CSVWorkflowState.Review:
         if (validEnrollments === undefined) return <ErrorAlert />
+        if (addEnrollmentsError !== undefined) {
+          return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={resetUpload} />
+        }
         return renderReview(validEnrollments)
       case CSVWorkflowState.Confirmation:
         return renderConfirm()
