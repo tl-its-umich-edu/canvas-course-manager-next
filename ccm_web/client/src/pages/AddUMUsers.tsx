@@ -130,7 +130,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
-    const existingSections = sections !== undefined ? sections : []
+    const existingSections = sections ?? []
     updateSections(existingSections.concat(newSectionWithCourseName))
     setSelectedSection(newSectionWithCourseName)
   }
