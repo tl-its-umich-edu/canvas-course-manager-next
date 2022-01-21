@@ -14,7 +14,7 @@ interface MethodSelectProps<T extends string> {
   selectedMethod: T
   typeGuard: (v: string) => v is T
   setMethod: (method: T) => void
-  onButtonClick: () => void
+  onButtonClick: () => void | Promise<void>
   disabled: boolean | undefined
 }
 

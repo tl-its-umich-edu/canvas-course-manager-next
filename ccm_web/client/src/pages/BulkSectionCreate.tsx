@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Backdrop, Box, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
@@ -28,10 +28,7 @@ import { getRowNumber } from '../utils/fileUtils'
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left',
-    '& button': {
-      margin: 5
-    }
+    textAlign: 'left'
   },
   confirmContainer: {
     position: 'relative',
@@ -57,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
   table: {
     paddingLeft: 10,
     paddingRight: 10
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -368,7 +368,16 @@ Section 001`
         See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
       </span>
     )
-    return <SuccessCard {...{ message, nextAction }} />
+    return (
+      <>
+      <SuccessCard {...{ message, nextAction }} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const renderComponent = (): JSX.Element | undefined => {

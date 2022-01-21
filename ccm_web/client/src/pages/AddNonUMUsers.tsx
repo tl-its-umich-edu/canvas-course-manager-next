@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Backdrop, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import React, { useState } from 'react'
+import { makeStyles, Typography } from '@material-ui/core'
 
 import * as api from '../api'
 import ErrorAlert from '../components/ErrorAlert'
@@ -65,90 +65,70 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
   )
 
-  useEffect(() => {
-    if (sections === undefined && getSectionsError === undefined) {
-      void doGetSections()
-    }
-  }, [sections, getSectionsError])
-
-  const getSectionsErrorAlert = (
-    <ErrorAlert
-      messages={
-        [<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]
-      }
-      tryAgain={clearGetSectionsError}
-    />
-  )
-
   const renderSelectInputMethod = (): JSX.Element => {
-    if (getSectionsError !== undefined) return getSectionsErrorAlert
-
     return (
-      <div className={classes.container}>
-        <MethodSelect<InputMethod>
-          label='Choose how you want to add users'
-          options={[
-            { key: InputMethod.Single, label: 'Add one user manually' },
-            { key: InputMethod.CSV, label: 'Add multiple users by uploading a CSV' }
-          ]}
-          typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
-          selectedMethod={inputMethod}
-          setMethod={setInputMethod}
-          disabled={isGetSectionsLoading}
-          onButtonClick={() => {
-            if (inputMethod === InputMethod.CSV) {
-              setActivePageState(PageState.AddCSVUsers)
-            } else {
-              setActivePageState(PageState.AddSingleUser)
-            }
-          }}
-        />
-        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading section data from Canvas
-            </Grid>
-          </Grid>
-        </Backdrop>
-      </div>
+      <MethodSelect<InputMethod>
+        label='Choose how you want to add users'
+        options={[
+          { key: InputMethod.Single, label: 'Add one user manually' },
+          { key: InputMethod.CSV, label: 'Add multiple users by uploading a CSV' }
+        ]}
+        typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
+        selectedMethod={inputMethod}
+        setMethod={setInputMethod}
+        disabled={isGetSectionsLoading}
+        onButtonClick={async () => {
+          if (inputMethod === InputMethod.CSV) {
+            setActivePageState(PageState.AddCSVUsers)
+          } else {
+            setActivePageState(PageState.AddSingleUser)
+          }
+          await doGetSections()
+        }}
+      />
     )
   }
 
-  const resetFeature = (): void => setActivePageState(PageState.SelectInputMethod)
+  const resetFeature = (): void => {
+    setSections(undefined)
+    setActivePageState(PageState.SelectInputMethod)
+  }
 
   const renderActivePageState = (state: PageState): JSX.Element => {
+    const commonProps = {
+      sections: sections ?? [],
+      doGetSections: async () => {
+        clearGetSectionsError()
+        setSections(undefined)
+        await doGetSections()
+      },
+      isGetSectionsLoading,
+      getSectionsError,
+      rolesUserCanEnroll,
+      featureTitle: props.title,
+      settingsURL,
+      resetFeature
+    }
+
+    const onSectionCreated = (newSection: CanvasCourseSection): void => {
+      if (sections !== undefined) {
+        setSections(
+          sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
+        )
+      }
+    }
+
     switch (state) {
       case PageState.SelectInputMethod:
         return renderSelectInputMethod()
       case PageState.AddSingleUser:
-        return (
-          <UserEnrollmentForm
-            sections={sections ?? []}
-            rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={resetFeature}
-            settingsURL={settingsURL}
-          />
-        )
+        return <UserEnrollmentForm {...commonProps} />
       case PageState.AddCSVUsers:
         return (
           <MultipleUserEnrollmentWorkflow
+            {...commonProps}
             course={props.course}
-            sections={sections ?? []}
-            onSectionCreated={
-              (newSection) => {
-                if (sections !== undefined) {
-                  setSections(
-                    sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
-                  )
-                }
-              }
-            }
-            rolesUserCanEnroll={rolesUserCanEnroll}
-            resetFeature={resetFeature}
-            settingsURL={settingsURL}
+            onSectionCreated={onSectionCreated}
             userCourseRoles={props.globals.course.roles}
           />
         )
@@ -161,7 +141,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
     <div className={classes.root} aria-live='polite'>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
-      {renderActivePageState(activePageState)}
+      <div>{renderActivePageState(activePageState)}</div>
     </div>
   )
 }
