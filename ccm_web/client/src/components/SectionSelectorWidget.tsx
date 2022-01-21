@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 import {
-  Backdrop, Button, Checkbox, CircularProgress, FormControl, FormControlLabel,
-  FormGroup, Grid, GridSize, InputLabel, List, ListItem, ListItemText, makeStyles,
-  Menu, MenuItem, Select, TextField, Typography, useMediaQuery, useTheme
+  Backdrop, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid,
+  GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField,
+  Typography, useMediaQuery, useTheme
 } from '@material-ui/core'
 import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
@@ -397,7 +397,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     action: { xs: hasSort() ? 4 : 8, sm: hasSort() ? 6 : 12, md: 3 }
   }
 
-  const sortButton = (): JSX.Element => {
+  const sortButton = (): JSX.Element | undefined => {
     if (props.header?.sort !== undefined && props.header.sort?.sorters.length > 0) {
       return (
         <Grid item {...gridSpacing.sort}>
@@ -423,8 +423,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           </Menu>
         </Grid>
       )
-    } else {
-      return (<></>)
     }
   }
 
