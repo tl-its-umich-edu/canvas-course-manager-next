@@ -1,7 +1,7 @@
 import {
   Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
 } from '@material-ui/core'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { addSectionEnrollments, getCourseSections } from '../api'
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
@@ -115,10 +115,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
 
-  useEffect(() => {
-    void doGetSections()
-  }, [])
-
   const sectionCreated = (newSection: CanvasCourseSection): void => {
     const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
     const existingSections = sections ?? []
@@ -149,7 +145,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     clearGetSectionsError()
   }
 
-  const resetFeature = (): void => setPageState(PageState.SelectInputMethod)
+  const resetFeature = (): void => {
+    setSections(undefined)
+    setPageState(PageState.SelectInputMethod)
+  }
 
   const handleEnrollmentsReset = (): void => {
     clearAddEnrollmentsError()
@@ -209,6 +208,28 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   const getSelectInput = (): JSX.Element => {
+    return (
+      <MethodSelect<InputMethod>
+        label='Add U-M users through a CSV'
+        options={[
+          { key: InputMethod.CSVSingleSection, label: '1 section at a time' },
+          { key: InputMethod.CSVMultipleSections, label: 'Using multiple sections' }
+        ]}
+        typeGuard={(v): v is InputMethod => {
+          return v === InputMethod.CSVSingleSection || v === InputMethod.CSVMultipleSections
+        }}
+        selectedMethod={inputMethod}
+        setMethod={setInputMethod}
+        disabled={isGetSectionsLoading}
+        onButtonClick={async () => {
+          setPageState(PageState.CSVWorkflow)
+          await doGetSections()
+        }}
+      />
+    )
+  }
+
+  const getSelectContent = (): JSX.Element => {
     if (getSectionsError !== undefined) {
       return (
         <ErrorAlert
@@ -222,47 +243,24 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
 
     return (
+      <>
       <div className={classes.container}>
-        <MethodSelect<InputMethod>
-          label='Add U-M users through a CSV'
-          options={[
-            { key: InputMethod.CSVSingleSection, label: '1 section at a time' },
-            { key: InputMethod.CSVMultipleSections, label: 'Using multiple sections' }
-          ]}
-          typeGuard={(v): v is InputMethod => {
-            return v === InputMethod.CSVSingleSection || v === InputMethod.CSVMultipleSections
-          }}
-          selectedMethod={inputMethod}
-          setMethod={setInputMethod}
-          disabled={isGetSectionsLoading}
-          onButtonClick={() => setPageState(PageState.CSVWorkflow)}
+        <CreateSelectSectionWidget
+          sections={sections ?? []}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          // Only admins have access to the Add UM Users feature, and they can create sections.
+          canCreate={true}
+          course={props.course}
+          onSectionCreated={sectionCreated}
         />
         <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
           <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading sections
-            </Grid>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading section data from Canvas</Grid>
           </Grid>
         </Backdrop>
       </div>
-    )
-  }
-
-  const getSelectContent = (): JSX.Element => {
-    return (
-      <>
-      <CreateSelectSectionWidget
-        sections={sections ?? []}
-        selectedSection={selectedSection}
-        setSelectedSection={setSelectedSection}
-        // Only admins have access to the Add UM Users feature, and they can create sections.
-        canCreate={true}
-        course={props.course}
-        onSectionCreated={sectionCreated}
-      />
       <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
         <Button
           variant='contained'
@@ -345,12 +343,8 @@ designer,userd`
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading...
-            </Grid>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading...</Grid>
             <Grid item xs={12}>
               Please stay on the page. This may take up to a couple of minutes for larger files.
             </Grid>
@@ -456,7 +450,14 @@ designer,userd`
               : (
                   <MultipleSectionEnrollmentWorkflow
                     course={props.course}
-                    sections={sections}
+                    sections={sections ?? []}
+                    doGetSections={async () => {
+                      clearGetSectionsError()
+                      setSections(undefined)
+                      await doGetSections()
+                    }}
+                    isGetSectionsLoading={isGetSectionsLoading}
+                    getSectionsError={getSectionsError}
                     featureTitle={props.title}
                     settingsURL={settingsURL}
                     resetFeature={resetFeature}

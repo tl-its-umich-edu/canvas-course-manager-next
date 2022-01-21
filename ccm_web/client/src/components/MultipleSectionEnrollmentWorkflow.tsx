@@ -67,6 +67,9 @@ const useStyles = makeStyles((theme) => ({
 interface MultipleSectionEnrollmentWorkflowProps {
   course: CanvasCourseBase
   sections: CanvasCourseSectionWithCourseName[]
+  doGetSections: () => Promise<void>
+  isGetSectionsLoading: boolean
+  getSectionsError: Error | undefined
   settingsURL: string
   featureTitle: string
   resetFeature: () => void
@@ -84,7 +87,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
-  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError] = usePromise(
+  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (courseId: number, enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(courseId, enrollments.map(e => ({
         loginId: e.loginID, type: getCanvasRole(e.role), sectionId: e.sectionId
@@ -93,11 +96,20 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     () => setWorkflowState(CSVWorkflowState.Confirmation)
   )
 
-  const resetUpload = (): void => {
+  const getSectionsErrorAlert = (
+    <ErrorAlert
+      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      tryAgain={props.doGetSections}
+    />
+  )
+
+  const resetUpload = async (): Promise<void> => {
     setSchemaInvalidations(undefined)
     setRowInvalidations(undefined)
     setValidEnrollments(undefined)
+    clearAddEnrollmentsError()
     setWorkflowState(CSVWorkflowState.Upload)
+    await props.doGetSections()
   }
 
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
@@ -126,6 +138,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const renderUpload = (): JSX.Element => {
+    if (props.getSectionsError !== undefined) return getSectionsErrorAlert
+
     if (schemaInvalidations !== undefined) return renderSchemaInvalidations(schemaInvalidations)
     if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
@@ -228,7 +242,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             fileData={fileData}
           />
         </div>
-        <Grid container className={classes.spacing}>
+        <Grid container className={`${classes.spacing} ${classes.container}`}>
           <Grid item md={6} sm={9} xs={12}>
             <Link href={sectionDataToDownload} download='course_section_ids.csv'>
               Download a CSV with the Canvas Course Section IDs data
@@ -237,6 +251,12 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
               {sectionIdsTable}
             </Accordion>
           </Grid>
+          <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+              <Grid item xs={12}>Loading section data from Canvas</Grid>
+            </Grid>
+          </Backdrop>
         </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
