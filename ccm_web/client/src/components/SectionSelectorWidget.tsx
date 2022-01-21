@@ -11,7 +11,7 @@ import { useDebounce } from '@react-hook/debounce'
 
 import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
+import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../utils/SectionSearcher'
 
 const useStyles = makeStyles((theme) => ({
@@ -112,7 +112,7 @@ interface ISectionSelectorWidgetProps {
     sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string}>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
   }
   canUnmerge: boolean
-  sectionsRemoved?: (sections: SelectableCanvasCourseSection[]) => void
+  sectionsRemoved?: (sections: CanvasCourseSectionBase[]) => void
   highlightUnlocked?: boolean
 }
 
@@ -135,24 +135,14 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searcher, setSearcher] = useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
   const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
-  const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSectionWithCourseName[]>([])
-
-  // Simplify unmerging?
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async () => await unmergeSections(sectionsToUnmerge)
-  )
-
-  useEffect(() => {
-    if (sectionsToUnmerge.length > 0) {
-      const sectionIdsToUnmerge = sectionsToUnmerge.map(s2u => s2u.id)
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      doUnmerge().then(() => {
-        setInternalSections(internalSections.filter(section => !sectionIdsToUnmerge.includes(section.id)))
-        if (props.sectionsRemoved !== undefined) props.sectionsRemoved(sectionsToUnmerge)
-        setSectionsToUnmerge([])
-      })
+    async (sections: CanvasCourseSectionWithCourseName[]) => await unmergeSections(sections),
+    (unmergedSections: CanvasCourseSectionBase[]) => {
+      const unmergedSectionIds = unmergedSections.map(s => s.id)
+      setInternalSections(internalSections.filter(section => !unmergedSectionIds.includes(section.id)))
+      if (props.sectionsRemoved !== undefined) props.sectionsRemoved(unmergedSections)
     }
-  }, [sectionsToUnmerge])
+  )
 
   useEffect(() => {
     if (unmergeError !== undefined) {
@@ -308,15 +298,21 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
   }
 
-  const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: SelectableCanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {
-    e.stopPropagation()
-    setSectionsToUnmerge([section])
-    return undefined
-  }
-
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
-      return <Button color='primary' variant='contained' disabled={isUnmerging} onClick={(e) => unmergeSection(e, section)}>Unmerge</Button>
+      return (
+        <Button
+          color='primary'
+          variant='contained'
+          disabled={isUnmerging}
+          onClick={async (e) => {
+            e.stopPropagation()
+            await doUnmerge([section])
+          }}
+        >
+          Unmerge
+        </Button>
+      )
     }
   }
 
