@@ -46,7 +46,7 @@ export interface EnrollmentRecord extends CSVRecord {
 }
 
 export const isEnrollmentRecord = (record: CSVRecord): record is EnrollmentRecord => {
-  return REQUIRED_ENROLLMENT_HEADERS.every(h => record[h] === 'string')
+  return REQUIRED_ENROLLMENT_HEADERS.every(h => typeof record[h] === 'string')
 }
 
 export interface EnrollmentWithSectionIdRecord extends CSVRecord {
