@@ -91,7 +91,6 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   }
 
   const handleEnrollmentsReset = (): void => {
-    clearAddEnrollmentsError()
     setEnrollments(undefined)
     setFile(undefined)
     setSchemaInvalidations(undefined)
@@ -100,6 +99,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const handleUploadReset = (): void => {
     handleEnrollmentsReset()
+    clearAddEnrollmentsError()
     setActiveStep(CSVWorkflowStep.Upload)
   }
 
@@ -108,10 +108,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
       REQUIRED_ENROLLMENT_HEADERS, isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
     const validationResult = csvValidator.validate(headers, data)
-    if (!validationResult.valid) {
-      setSchemaInvalidations(validationResult.schemaInvalidations)
-      return setActiveStep(CSVWorkflowStep.Review)
-    }
+    if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
 
     const enrollmentRecords = validationResult.validData.map((r) => ({ role: r.ROLE, loginId: r.LOGIN_ID }))
 
@@ -122,10 +119,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     const loginIDsValidator = new LoginIDRowsValidator()
     errors.push(...loginIDsValidator.validate(enrollmentRecords.map(r => r.loginId)))
 
-    if (errors.length > 0) {
-      setRowErrors(errors)
-      return setActiveStep(CSVWorkflowStep.Review)
-    }
+    if (errors.length > 0) return setRowErrors(errors)
 
     const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
       rowNumber: getRowNumber(i),
@@ -133,7 +127,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
       role: r.role as ClientEnrollmentType
     }))
     setEnrollments(enrollments)
-    return setActiveStep(CSVWorkflowStep.Review)
+    setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleFile = (file: File): void => {
@@ -142,10 +136,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     parser.parseCSV(
       file,
       handleValidation,
-      (message) => {
-        setSchemaInvalidations([{ message, type: InvalidationType.Error }])
-        setActiveStep(CSVWorkflowStep.Review)
-      }
+      (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
     )
   }
 
@@ -195,7 +186,35 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     )
   }
 
+  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<ValidationErrorTable invalidations={errors} />}
+        title='Review your CSV file'
+        resetUpload={handleEnrollmentsReset}
+      />
+      </>
+    )
+  }
+
+  const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
+    const errors = invalidations.map(
+      (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
+    )
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <ErrorAlert messages={errors} tryAgain={handleEnrollmentsReset} />
+      </>
+    )
+  }
+
   const getUploadContent = (): JSX.Element => {
+    if (schemaInvalidations !== undefined) return renderSchemaInvalidations(schemaInvalidations)
+    if (rowErrors !== undefined) return renderRowValidationErrors(rowErrors)
+
     const fileData =
     `${REQUIRED_ENROLLMENT_HEADERS.join(',')}
     student,studenta
@@ -268,45 +287,6 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     )
   }
 
-  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
-    return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <RowLevelErrorsContent
-        table={<ValidationErrorTable invalidations={errors} />}
-        title='Review your CSV file'
-        resetUpload={handleUploadReset}
-      />
-      </>
-    )
-  }
-
-  const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
-    const errors = invalidations.map(
-      (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
-    )
-    return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <ErrorAlert messages={errors} tryAgain={handleUploadReset} />
-      </>
-    )
-  }
-
-  const getReviewContent = (): JSX.Element => {
-    if (rowErrors !== undefined) {
-      return renderRowValidationErrors(rowErrors)
-    } else if (schemaInvalidations !== undefined) {
-      return renderSchemaInvalidations(schemaInvalidations)
-    } else if (addEnrollmentsError !== undefined) {
-      return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
-    } else if (selectedSection !== undefined && enrollments !== undefined) {
-      return renderConfirm(selectedSection, enrollments)
-    } else {
-      return (<div>?</div>)
-    }
-  }
-
   const getSuccessContent = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
     const message = <Typography>New users have been added to the section!</Typography>
@@ -334,7 +314,13 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
       case CSVWorkflowStep.Upload:
         return getUploadContent()
       case CSVWorkflowStep.Review:
-        return getReviewContent()
+        if (addEnrollmentsError !== undefined) {
+          return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
+        }
+        if (selectedSection !== undefined && enrollments !== undefined) {
+          return renderConfirm(selectedSection, enrollments)
+        }
+        return <ErrorAlert />
       case CSVWorkflowStep.Confirmation:
         return getSuccessContent()
       default:
