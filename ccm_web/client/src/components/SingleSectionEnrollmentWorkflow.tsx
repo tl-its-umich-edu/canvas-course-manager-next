@@ -86,23 +86,6 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
 
-  const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
-    setEnrollments(enrollments)
-    setRowErrors(undefined)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
-  const handleParseFailure = (errors: RowValidationError[]): void => {
-    setEnrollments(undefined)
-    setRowErrors(errors)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
-  const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
-    setSchemaInvalidations(invalidations)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
   const handleSectionsReset = (): void => {
     setSelectedSection(undefined)
   }
@@ -120,15 +103,16 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     setActiveStep(CSVWorkflowStep.Upload)
   }
 
-  const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
-    console.log(data)
-    console.log(REQUIRED_ENROLLMENT_HEADERS)
+  const handleValidation = (headers: string[] | undefined, data: CSVRecord[]): void => {
     const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
       REQUIRED_ENROLLMENT_HEADERS, isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
     )
     const validationResult = csvValidator.validate(headers, data)
-    console.log(validationResult)
-    if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
+    if (!validationResult.valid) {
+      setSchemaInvalidations(validationResult.schemaInvalidations)
+      return setActiveStep(CSVWorkflowStep.Review)
+    }
+
     const enrollmentRecords = validationResult.validData.map((r) => ({ role: r.ROLE, loginId: r.LOGIN_ID }))
 
     const errors: EnrollmentInvalidation[] = []
@@ -138,16 +122,18 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     const loginIDsValidator = new LoginIDRowsValidator()
     errors.push(...loginIDsValidator.validate(enrollmentRecords.map(r => r.loginId)))
 
-    if (errors.length === 0) {
-      const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
-        rowNumber: getRowNumber(i),
-        loginId: r.loginId,
-        role: r.role as ClientEnrollmentType
-      }))
-      handleParseSuccess(enrollments)
-    } else {
-      handleParseFailure(errors)
+    if (errors.length > 0) {
+      setRowErrors(errors)
+      return setActiveStep(CSVWorkflowStep.Review)
     }
+
+    const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
+      rowNumber: getRowNumber(i),
+      loginId: r.loginId,
+      role: r.role as ClientEnrollmentType
+    }))
+    setEnrollments(enrollments)
+    return setActiveStep(CSVWorkflowStep.Review)
   }
 
   const handleFile = (file: File): void => {
@@ -155,8 +141,11 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     const parser = new FileParserWrapper()
     parser.parseCSV(
       file,
-      handleParseComplete,
-      (message) => handleSchemaInvalidations([{ message, type: InvalidationType.Error }])
+      handleValidation,
+      (message) => {
+        setSchemaInvalidations([{ message, type: InvalidationType.Error }])
+        setActiveStep(CSVWorkflowStep.Review)
+      }
     )
   }
 
@@ -206,14 +195,15 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     )
   }
 
-  const renderUploadHeader = (): JSX.Element => {
+  const getUploadContent = (): JSX.Element => {
     const fileData =
-  `${REQUIRED_ENROLLMENT_HEADERS.join(',')}
-  student,studenta
-  teacher,usera
-  ta,userb
-  observer,userc
-  designer,userd`
+    `${REQUIRED_ENROLLMENT_HEADERS.join(',')}
+    student,studenta
+    teacher,usera
+    ta,userb
+    observer,userc
+    designer,userd`
+
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
         <Typography>
@@ -223,18 +213,11 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
       fileData,
       fileName: 'bulk_um_enroll.csv'
     }
-    return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
-  }
 
-  const renderFileUpload = (): JSX.Element => {
-    return <FileUpload onUploadComplete={(file) => handleFile(file)} />
-  }
-
-  const getUploadContent = (): JSX.Element => {
     return (
       <div>
-        {renderUploadHeader()}
-        {renderFileUpload()}
+        <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
+        <FileUpload onUploadComplete={(file) => handleFile(file)} />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button
             variant='outlined'
