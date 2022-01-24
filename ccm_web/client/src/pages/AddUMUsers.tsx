@@ -1,72 +1,27 @@
-import {
-  Backdrop, Box, Button, CircularProgress, createStyles, Grid, Link, makeStyles, Typography
-} from '@material-ui/core'
+import { makeStyles, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
 
-import { addSectionEnrollments, getCourseSections } from '../api'
-import BulkApiErrorContent from '../components/BulkApiErrorContent'
-import ErrorAlert from '../components/ErrorAlert'
-import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
-import ConfirmDialog from '../components/ConfirmDialog'
-import CreateSelectSectionWidget from '../components/CreateSelectSectionWidget'
-import CSVFileName from '../components/CSVFileName'
-import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
-import FileUpload from '../components/FileUpload'
+import { getCourseSections } from '../api'
 import Help from '../components/Help'
 import MethodSelect from '../components/MethodSelect'
-import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
-import SuccessCard from '../components/SuccessCard'
-import ValidationErrorTable, { RowValidationError } from '../components/ValidationErrorTable'
-import WorkflowStepper from '../components/WorkflowStepper'
+import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow'
+import SingleSectionEnrollmentWorkflow from '../components/SingleSectionEnrollmentWorkflow'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole, injectCourseName,
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, injectCourseName,
   sortSections
 } from '../models/canvas'
-import {
-  EnrollmentRecord, isEnrollmentRecord, MAX_ENROLLMENT_MESSAGE, MAX_ENROLLMENT_RECORDS,
-  REQUIRED_ENROLLMENT_HEADERS, USER_ID_TEXT, USER_ROLE_TEXT
-} from '../models/enrollment'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { CSVWorkflowStep, InvalidationType } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { getRowNumber } from '../utils/fileUtils'
-import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow'
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      padding: 25,
-      textAlign: 'left'
-    },
-    spacing: {
-      marginBottom: theme.spacing(2)
-    },
-    buttonGroup: {
-      marginTop: theme.spacing(1)
-    },
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: '#fff',
-      position: 'absolute',
-      textAlign: 'center'
-    },
-    instructions: {
-      marginTop: theme.spacing(1),
-      marginBottom: theme.spacing(1)
-    },
-    container: {
-      position: 'relative',
-      zIndex: 0
-    },
-    table: {
-      paddingLeft: 10,
-      paddingRight: 10
-    }
-  })
-)
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: 25,
+    textAlign: 'left'
+  },
+  spacing: {
+    marginBottom: theme.spacing(2)
+  }
+}))
 
 enum PageState {
   SelectInputMethod,
@@ -87,14 +42,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.CSVSingleSection)
-  const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
 
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
-  const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
-  const [file, setFile] = useState<File|undefined>(undefined)
-  const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
-  const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
-  const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
     setSections(sortSections(sections))
@@ -107,104 +56,9 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
   )
 
-  const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]) => {
-      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
-      await addSectionEnrollments(section.id, apiEnrollments)
-    },
-    () => { setActiveStep(CSVWorkflowStep.Confirmation) }
-  )
-
-  const sectionCreated = (newSection: CanvasCourseSection): void => {
-    const newSectionWithCourseName = injectCourseName([newSection], props.course.name)[0]
-    const existingSections = sections ?? []
-    updateSections(existingSections.concat(newSectionWithCourseName))
-    setSelectedSection(newSectionWithCourseName)
-  }
-
-  const handleParseSuccess = (enrollments: IAddUMUserEnrollment[]): void => {
-    setEnrollments(enrollments)
-    setRowErrors(undefined)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
-  const handleParseFailure = (errors: RowValidationError[]): void => {
-    setEnrollments(undefined)
-    setRowErrors(errors)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
-  const handleSchemaInvalidations = (invalidations: SchemaInvalidation[]): void => {
-    setSchemaInvalidations(invalidations)
-    setActiveStep(CSVWorkflowStep.Review)
-  }
-
-  const handleSectionsReset = (): void => {
-    setSections(undefined)
-    setSelectedSection(undefined)
-    clearGetSectionsError()
-  }
-
   const resetFeature = (): void => {
     setSections(undefined)
     setPageState(PageState.SelectInputMethod)
-  }
-
-  const handleEnrollmentsReset = (): void => {
-    clearAddEnrollmentsError()
-    setEnrollments(undefined)
-    setFile(undefined)
-    setSchemaInvalidations(undefined)
-    setRowErrors(undefined)
-  }
-
-  const handleUploadReset = (): void => {
-    handleEnrollmentsReset()
-    setActiveStep(CSVWorkflowStep.Upload)
-  }
-
-  const handleFullReset = async (): Promise<void> => {
-    handleSectionsReset()
-    handleEnrollmentsReset()
-    setActiveStep(CSVWorkflowStep.Select)
-    await doGetSections()
-  }
-
-  const handleParseComplete = (headers: string[] | undefined, data: CSVRecord[]): void => {
-    const csvValidator = new CSVSchemaValidator<EnrollmentRecord>(
-      REQUIRED_ENROLLMENT_HEADERS, isEnrollmentRecord, MAX_ENROLLMENT_RECORDS
-    )
-    const validationResult = csvValidator.validate(headers, data)
-    if (!validationResult.valid) return handleSchemaInvalidations(validationResult.schemaInvalidations)
-    const enrollmentRecords = validationResult.validData.map((r) => ({ role: r.ROLE, loginId: r.LOGIN_ID }))
-
-    const errors: EnrollmentInvalidation[] = []
-    const rolesValidator = new RoleRowsValidator()
-    errors.push(...rolesValidator.validate(enrollmentRecords.map(r => r.role)))
-
-    const loginIDsValidator = new LoginIDRowsValidator()
-    errors.push(...loginIDsValidator.validate(enrollmentRecords.map(r => r.loginId)))
-
-    if (errors.length === 0) {
-      const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
-        rowNumber: getRowNumber(i),
-        loginId: r.loginId,
-        role: r.role as ClientEnrollmentType
-      }))
-      handleParseSuccess(enrollments)
-    } else {
-      handleParseFailure(errors)
-    }
-  }
-
-  const handleFile = (file: File): void => {
-    setFile(file)
-    const parser = new FileParserWrapper()
-    parser.parseCSV(
-      file,
-      handleParseComplete,
-      (message) => handleSchemaInvalidations([{ message, type: InvalidationType.Error }])
-    )
   }
 
   const getSelectInput = (): JSX.Element => {
@@ -229,206 +83,11 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     )
   }
 
-  const getSelectContent = (): JSX.Element => {
-    if (getSectionsError !== undefined) {
-      return (
-        <ErrorAlert
-          messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
-          tryAgain={async () => {
-            handleSectionsReset()
-            await doGetSections()
-          }}
-        />
+  const onSectionCreated = (newSection: CanvasCourseSection): void => {
+    if (sections !== undefined) {
+      setSections(
+        sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
       )
-    }
-
-    return (
-      <>
-      <div className={classes.container}>
-        <CreateSelectSectionWidget
-          sections={sections ?? []}
-          selectedSection={selectedSection}
-          setSelectedSection={setSelectedSection}
-          // Only admins have access to the Add UM Users feature, and they can create sections.
-          canCreate={true}
-          course={props.course}
-          onSectionCreated={sectionCreated}
-        />
-        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
-      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
-        <Button
-          variant='contained'
-          color='primary'
-          disabled={selectedSection === undefined}
-          onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-        >
-          Select
-        </Button>
-      </Grid>
-      </>
-    )
-  }
-
-  const renderUploadHeader = (): JSX.Element => {
-    const fileData =
-`${REQUIRED_ENROLLMENT_HEADERS.join(',')}
-student,studenta
-teacher,usera
-ta,userb
-observer,userc
-designer,userd`
-    const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
-      body: (
-        <Typography>
-          Your file should include a {USER_ID_TEXT} (uniqname) and a {USER_ROLE_TEXT} for each user. {MAX_ENROLLMENT_MESSAGE}
-        </Typography>
-      ),
-      fileData,
-      fileName: 'bulk_um_enroll.csv'
-    }
-    return <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
-  }
-
-  const renderFileUpload = (): JSX.Element => {
-    return <FileUpload onUploadComplete={(file) => handleFile(file)} />
-  }
-
-  const getUploadContent = (): JSX.Element => {
-    return (
-      <div>
-        {renderUploadHeader()}
-        {renderFileUpload()}
-        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-          <Button
-            variant='outlined'
-            aria-label='Back to Select Section'
-            onClick={async () => {
-              handleSectionsReset()
-              setActiveStep(CSVWorkflowStep.Select)
-              await doGetSections()
-            }}
-          >
-            Back
-          </Button>
-        </Grid>
-      </div>
-    )
-  }
-
-  const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
-    return (
-      <div className={classes.container}>
-        {file !== undefined && <CSVFileName file={file} />}
-        <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.table}>
-              <BulkEnrollUMUserConfirmationTable enrollments={enrollments} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
-              <ConfirmDialog
-                submit={async () => await doAddEnrollments(section, enrollments)}
-                cancel={handleUploadReset}
-                disabled={isAddEnrollmentsLoading}
-              />
-            </Grid>
-          </Box>
-        </Grid>
-        <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading...</Grid>
-            <Grid item xs={12}>
-              Please stay on the page. This may take up to a couple of minutes for larger files.
-            </Grid>
-          </Grid>
-        </Backdrop>
-      </div>
-    )
-  }
-
-  const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
-    return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <RowLevelErrorsContent
-        table={<ValidationErrorTable invalidations={errors} />}
-        title='Review your CSV file'
-        resetUpload={handleUploadReset}
-      />
-      </>
-    )
-  }
-
-  const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
-    const errors = invalidations.map(
-      (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
-    )
-    return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <ErrorAlert messages={errors} tryAgain={handleUploadReset} />
-      </>
-    )
-  }
-
-  const getReviewContent = (): JSX.Element => {
-    if (rowErrors !== undefined) {
-      return renderRowValidationErrors(rowErrors)
-    } else if (schemaInvalidations !== undefined) {
-      return renderSchemaInvalidations(schemaInvalidations)
-    } else if (addEnrollmentsError !== undefined) {
-      return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
-    } else if (selectedSection !== undefined && enrollments !== undefined) {
-      return renderConfirm(selectedSection, enrollments)
-    } else {
-      return (<div>?</div>)
-    }
-  }
-
-  const getSuccessContent = (): JSX.Element => {
-    const settingsLink = <Link href={settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>New users have been added to the section!</Typography>
-    const nextAction = (
-      <span>
-        See the users in the course&apos;s sections on the {settingsLink} for your course.
-      </span>
-    )
-    return (
-      <>
-      <SuccessCard {...{ message, nextAction }} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={handleFullReset}>
-          Start Again
-        </Button>
-      </Grid>
-      </>
-    )
-  }
-
-  const getShouldNotHappenContent = (): JSX.Element => {
-    return (<div>Unexpected step</div>)
-  }
-
-  const getStepContent = (step: CSVWorkflowStep): JSX.Element => {
-    switch (step) {
-      case CSVWorkflowStep.Select:
-        return getSelectContent()
-      case CSVWorkflowStep.Upload:
-        return getUploadContent()
-      case CSVWorkflowStep.Review:
-        return getReviewContent()
-      case CSVWorkflowStep.Confirmation:
-        return getSuccessContent()
-      default:
-        return getShouldNotHappenContent()
     }
   }
 
@@ -442,10 +101,21 @@ designer,userd`
             ? getSelectInput()
             : inputMethod === InputMethod.CSVSingleSection
               ? (
-                  <>
-                  <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
-                  {getStepContent(activeStep)}
-                  </>
+                <SingleSectionEnrollmentWorkflow
+                  course={props.course}
+                  onSectionCreated={onSectionCreated}
+                  sections={sections ?? []}
+                  doGetSections={async () => {
+                    clearGetSectionsError()
+                    setSections(undefined)
+                    await doGetSections()
+                  }}
+                  isGetSectionsLoading={isGetSectionsLoading}
+                  getSectionsError={getSectionsError}
+                  featureTitle={props.title}
+                  settingsURL={settingsURL}
+                  resetFeature={resetFeature}
+                />
                 )
               : (
                   <MultipleSectionEnrollmentWorkflow
