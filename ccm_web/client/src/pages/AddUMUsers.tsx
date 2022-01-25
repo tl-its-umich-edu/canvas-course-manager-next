@@ -8,8 +8,7 @@ import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnro
 import SingleSectionEnrollmentWorkflow from '../components/SingleSectionEnrollmentWorkflow'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseSection, CanvasCourseSectionWithCourseName, injectCourseName,
-  sortSections
+  CanvasCourseSection, CanvasCourseSectionWithCourseName, injectCourseName, sortSections
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
@@ -45,14 +44,10 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
 
-  const updateSections = (sections: CanvasCourseSectionWithCourseName[]): void => {
-    setSections(sortSections(sections))
-  }
-
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      updateSections(injectCourseName(sections, props.course.name))
+      setSections(sortSections(injectCourseName(sections, props.course.name)))
     }
   )
 
@@ -61,7 +56,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     setPageState(PageState.SelectInputMethod)
   }
 
-  const getSelectInput = (): JSX.Element => {
+  const renderSelectInputMethod = (): JSX.Element => {
     return (
       <MethodSelect<InputMethod>
         label='Add U-M users through a CSV'
@@ -98,7 +93,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
       <div>
         {
           pageState === PageState.SelectInputMethod
-            ? getSelectInput()
+            ? renderSelectInputMethod()
             : inputMethod === InputMethod.CSVSingleSection
               ? (
                 <SingleSectionEnrollmentWorkflow

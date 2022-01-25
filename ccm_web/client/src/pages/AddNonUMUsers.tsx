@@ -21,16 +21,6 @@ const useStyles = makeStyles((theme) => ({
   },
   spacing: {
     marginBottom: theme.spacing(2)
-  },
-  container: {
-    position: 'relative',
-    zIndex: 0
-  },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#FFF',
-    position: 'absolute',
-    textAlign: 'center'
   }
 }))
 
@@ -62,7 +52,9 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await api.getCourseSections(props.globals.course.id),
-    (sections: CanvasCourseSection[]) => setSections(injectCourseName(sections, props.course.name))
+    (sections: CanvasCourseSection[]) => {
+      setSections(sortSections(injectCourseName(sections, props.course.name)))
+    }
   )
 
   const renderSelectInputMethod = (): JSX.Element => {
