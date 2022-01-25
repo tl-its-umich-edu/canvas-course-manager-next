@@ -17,7 +17,7 @@ import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
-  getCanvasRole
+  getCanvasRole, injectCourseName
 } from '../models/canvas'
 import {
   EnrollmentRecord, isEnrollmentRecord, MAX_ENROLLMENT_MESSAGE, MAX_ENROLLMENT_RECORDS,
@@ -163,7 +163,10 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
           // Only admins have access to the Add UM Users feature, and they can create sections.
           canCreate={true}
           course={props.course}
-          onSectionCreated={props.onSectionCreated}
+          onSectionCreated={(s) => {
+            setSelectedSection(injectCourseName([s], props.course.name)[0])
+            props.onSectionCreated(s)
+          }}
         />
         <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
           <Grid container>

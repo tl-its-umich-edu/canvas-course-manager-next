@@ -14,7 +14,10 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
+  injectCourseName
+} from '../models/canvas'
 import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
@@ -132,8 +135,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     if (props.getSectionsError !== undefined) return getSectionsErrorAlert
 
     const canCreate = isAuthorizedForRoles(props.userCourseRoles, createSectionRoles)
+    const onSectionCreated = (section: CanvasCourseSection): void => {
+      setSelectedSection(injectCourseName([section], props.course.name)[0])
+      props.onSectionCreated(section)
+    }
     const createProps: CreateSelectSectionWidgetCreateProps = canCreate
-      ? { canCreate: true, course: props.course, onSectionCreated: props.onSectionCreated }
+      ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
     return (
