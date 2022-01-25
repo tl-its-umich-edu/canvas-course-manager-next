@@ -18,7 +18,7 @@ import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
   injectCourseName
 } from '../models/canvas'
-import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
+import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
@@ -81,7 +81,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validEnrollments, setValidEnrollments] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)
+  const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddNewExternalUserEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -256,7 +256,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
-      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
+      const externalEnrollments: RowNumberedAddNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
         rowNumber: getRowNumber(i),
         email: r[EMAIL_HEADER],
         role: r[ROLE_HEADER] as ClientEnrollmentType,
@@ -294,7 +294,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderReview = (sectionId: number, enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
+  const renderReview = (sectionId: number, enrollments: RowNumberedAddNewExternalUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}

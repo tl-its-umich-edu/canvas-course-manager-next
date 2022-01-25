@@ -6,15 +6,17 @@ interface RowNumberedData {
 }
 
 export interface AddEnrollment {
-  loginID: string
+  loginId: string
   role: ClientEnrollmentType
 }
+
+export interface RowNumberedAddEnrollment extends AddEnrollment, RowNumberedData {}
 
 export interface AddEnrollmentWithSectionId extends AddEnrollment {
   sectionId: number
 }
 
-export interface AddRowNumberedEnrollmentWithSectionId extends AddEnrollmentWithSectionId, RowNumberedData {}
+export interface RowNumberedAddEnrollmentWithSectionId extends AddEnrollmentWithSectionId, RowNumberedData {}
 
 export interface AddExternalUserEnrollment {
   email: string
@@ -26,7 +28,7 @@ export interface AddNewExternalUserEnrollment extends AddExternalUserEnrollment 
   lastName: string
 }
 
-export interface AddNumberedNewExternalUserEnrollment extends AddNewExternalUserEnrollment, RowNumberedData {}
+export interface RowNumberedAddNewExternalUserEnrollment extends AddNewExternalUserEnrollment, RowNumberedData {}
 
 // CSV-related constants, interfaces, and type guards
 

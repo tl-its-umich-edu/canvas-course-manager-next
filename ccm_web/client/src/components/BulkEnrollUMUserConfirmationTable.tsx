@@ -1,20 +1,14 @@
 import React, { useState } from 'react'
 
 import CustomTable from './CustomTable'
-import { ClientEnrollmentType } from '../models/canvas'
-
-interface IAddUMUserEnrollment {
-  rowNumber: number
-  loginId: string
-  role: ClientEnrollmentType
-}
+import { RowNumberedAddEnrollment } from '../models/enrollment'
 
 interface BulkEnrollUMUserConfirmationTableProps {
-  enrollments: IAddUMUserEnrollment[]
+  enrollments: RowNumberedAddEnrollment[]
 }
 
 interface TableHeaderColumnInfoShouldUseMatUIType {
-  id: keyof IAddUMUserEnrollment
+  id: keyof RowNumberedAddEnrollment
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
@@ -31,8 +25,7 @@ function BulkEnrollUMUserConfirmationTable (props: BulkEnrollUMUserConfirmationT
 
   const tableRows = props.enrollments
 
-  return <CustomTable<IAddUMUserEnrollment> {...{ tableRows, columns, page, setPage }} />
+  return <CustomTable<RowNumberedAddEnrollment> {...{ tableRows, columns, page, setPage }} />
 }
 
-export type { BulkEnrollUMUserConfirmationTableProps, IAddUMUserEnrollment }
 export default BulkEnrollUMUserConfirmationTable

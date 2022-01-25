@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
-import BulkEnrollUMUserConfirmationTable, { IAddUMUserEnrollment } from '../components/BulkEnrollUMUserConfirmationTable'
+import BulkEnrollUMUserConfirmationTable from '../components/BulkEnrollUMUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget from '../components/CreateSelectSectionWidget'
 import CSVFileName from '../components/CSVFileName'
@@ -21,7 +21,7 @@ import {
 } from '../models/canvas'
 import {
   EnrollmentRecord, isEnrollmentRecord, MAX_ENROLLMENT_MESSAGE, MAX_ENROLLMENT_RECORDS,
-  REQUIRED_ENROLLMENT_HEADERS, USER_ID_TEXT, USER_ROLE_TEXT
+  REQUIRED_ENROLLMENT_HEADERS, RowNumberedAddEnrollment, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment'
 import { CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
@@ -74,12 +74,12 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
   const [file, setFile] = useState<File|undefined>(undefined)
-  const [enrollments, setEnrollments] = useState<IAddUMUserEnrollment[]|undefined>(undefined)
+  const [enrollments, setEnrollments] = useState<RowNumberedAddEnrollment[]|undefined>(undefined)
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowErrors, setRowErrors] = useState<RowValidationError[] | undefined>(undefined)
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]) => {
+    async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
       await api.addSectionEnrollments(section.id, apiEnrollments)
     },
@@ -121,7 +121,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
     if (errors.length > 0) return setRowErrors(errors)
 
-    const enrollments: IAddUMUserEnrollment[] = enrollmentRecords.map((r, i) => ({
+    const enrollments: RowNumberedAddEnrollment[] = enrollmentRecords.map((r, i) => ({
       rowNumber: getRowNumber(i),
       loginId: r.loginId,
       role: r.role as ClientEnrollmentType
@@ -257,7 +257,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     )
   }
 
-  const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: IAddUMUserEnrollment[]): JSX.Element => {
+  const renderConfirm = (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]): JSX.Element => {
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}

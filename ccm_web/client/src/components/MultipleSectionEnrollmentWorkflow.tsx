@@ -19,8 +19,8 @@ import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import {
-  AddEnrollmentWithSectionId, AddRowNumberedEnrollmentWithSectionId, EnrollmentWithSectionIdRecord,
-  isEnrollmentWithSectionIdRecord, MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE,
+  AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
+  MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
   REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment'
 import { InvalidationType } from '../models/models'
@@ -82,7 +82,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const classes = useStyles()
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validEnrollments, setValidEnrollments] = useState<AddRowNumberedEnrollmentWithSectionId[] | undefined>(undefined)
+  const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -90,7 +90,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (courseId: number, enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(courseId, enrollments.map(e => ({
-        loginId: e.loginID, type: getCanvasRole(e.role), sectionId: e.sectionId
+        loginId: e.loginId, type: getCanvasRole(e.role), sectionId: e.sectionId
       })))
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
@@ -182,10 +182,10 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
-      const enrollmentsWithSectionIds: AddRowNumberedEnrollmentWithSectionId[] = enrollmentRecords.map((r, i) => {
+      const enrollmentsWithSectionIds: RowNumberedAddEnrollmentWithSectionId[] = enrollmentRecords.map((r, i) => {
         return {
           rowNumber: getRowNumber(i),
-          loginID: r.LOGIN_ID,
+          loginId: r.LOGIN_ID,
           role: r.ROLE as ClientEnrollmentType,
           sectionId: Number(r.SECTION_ID)
         }
@@ -268,7 +268,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     )
   }
 
-  const renderReview = (enrollments: AddRowNumberedEnrollmentWithSectionId[]): JSX.Element => {
+  const renderReview = (enrollments: RowNumberedAddEnrollmentWithSectionId[]): JSX.Element => {
     const enrollmentData = enrollments.map(({ rowNumber, ...enrollmentData }) => enrollmentData)
     return (
       <div className={classes.container}>
