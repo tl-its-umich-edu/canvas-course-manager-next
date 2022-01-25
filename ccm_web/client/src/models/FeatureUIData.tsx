@@ -26,15 +26,20 @@ export interface CCMComponentProps {
   helpURLEnding: string
 }
 
-export interface AddNonUMUsersLeafProps {
+interface EnrollmentFeatureLeafProps {
   sections: CanvasCourseSectionWithCourseName[]
   doGetSections: () => Promise<void>
   isGetSectionsLoading: boolean
   getSectionsError: Error | undefined
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
   featureTitle: string
   settingsURL: string
   resetFeature: () => void
+}
+
+export interface AddUMUsersLeafProps extends EnrollmentFeatureLeafProps {}
+
+export interface AddNonUMUsersLeafProps extends EnrollmentFeatureLeafProps {
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
 }
 
 interface FeatureUIGroup {

@@ -86,6 +86,21 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     }
   }
 
+  const commonProps = {
+    course: props.course,
+    sections: sections ?? [],
+    doGetSections: async () => {
+      clearGetSectionsError()
+      setSections(undefined)
+      await doGetSections()
+    },
+    isGetSectionsLoading,
+    getSectionsError,
+    featureTitle: props.title,
+    settingsURL,
+    resetFeature
+  }
+
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
@@ -95,39 +110,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
           pageState === PageState.SelectInputMethod
             ? renderSelectInputMethod()
             : inputMethod === InputMethod.CSVSingleSection
-              ? (
-                <SingleSectionEnrollmentWorkflow
-                  course={props.course}
-                  onSectionCreated={onSectionCreated}
-                  sections={sections ?? []}
-                  doGetSections={async () => {
-                    clearGetSectionsError()
-                    setSections(undefined)
-                    await doGetSections()
-                  }}
-                  isGetSectionsLoading={isGetSectionsLoading}
-                  getSectionsError={getSectionsError}
-                  featureTitle={props.title}
-                  settingsURL={settingsURL}
-                  resetFeature={resetFeature}
-                />
-                )
-              : (
-                  <MultipleSectionEnrollmentWorkflow
-                    course={props.course}
-                    sections={sections ?? []}
-                    doGetSections={async () => {
-                      clearGetSectionsError()
-                      setSections(undefined)
-                      await doGetSections()
-                    }}
-                    isGetSectionsLoading={isGetSectionsLoading}
-                    getSectionsError={getSectionsError}
-                    featureTitle={props.title}
-                    settingsURL={settingsURL}
-                    resetFeature={resetFeature}
-                  />
-                )
+              ? <SingleSectionEnrollmentWorkflow {...commonProps} onSectionCreated={onSectionCreated} />
+              : <MultipleSectionEnrollmentWorkflow {...commonProps} />
         }
       </div>
     </div>

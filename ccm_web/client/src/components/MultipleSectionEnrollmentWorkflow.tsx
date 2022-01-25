@@ -17,12 +17,13 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { CanvasCourseBase, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
   REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment'
+import { AddUMUsersLeafProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
@@ -64,15 +65,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MultipleSectionEnrollmentWorkflowProps {
+interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
   course: CanvasCourseBase
-  sections: CanvasCourseSectionWithCourseName[]
-  doGetSections: () => Promise<void>
-  isGetSectionsLoading: boolean
-  getSectionsError: Error | undefined
-  settingsURL: string
-  featureTitle: string
-  resetFeature: () => void
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {

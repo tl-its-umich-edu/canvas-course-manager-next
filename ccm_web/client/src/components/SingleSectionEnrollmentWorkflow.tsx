@@ -28,6 +28,7 @@ import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValida
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
+import { AddUMUsersLeafProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles(theme => ({
   spacing: {
@@ -56,16 +57,9 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-interface SingleSectionEnrollmentWorkflowProps {
-  sections: CanvasCourseSectionWithCourseName[]
+interface SingleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
   course: CanvasCourseBase
   onSectionCreated: (newSection: CanvasCourseSection) => void
-  doGetSections: () => Promise<void>
-  isGetSectionsLoading: boolean
-  getSectionsError: Error | undefined
-  featureTitle: string
-  settingsURL: string
-  resetFeature: () => void
 }
 
 export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnrollmentWorkflowProps): JSX.Element {
