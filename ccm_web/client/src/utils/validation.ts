@@ -1,4 +1,4 @@
-import { number, string, NumberSchema, StringSchema, ValidationError } from 'yup'
+import { number, NumberSchema, string, StringSchema, ValidationError } from 'yup'
 
 // Yup: https://github.com/jquense/yup
 
@@ -9,6 +9,7 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 }
 
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
+
 export const createInvalidIDMessage = (fieldName: string): string => {
   return `Value for the ${fieldName} must be a positive integer.`
 }
