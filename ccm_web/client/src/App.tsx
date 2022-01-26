@@ -52,7 +52,6 @@ function App (): JSX.Element {
   if (globals === undefined || !isAuthenticated) {
     return (
       <div className='App'>
-        {/* <p>You were not properly authenticated to the application.</p> */}
         <AccessDenied/>
       </div>
     )

@@ -77,7 +77,7 @@ export class LTIService implements BeforeApplicationShutdown {
           ([key, value]) => value === x)
       )
       if (ltiAllowedRoles.length === 0) {
-        return createLaunchErrorResponse(res, 'your role in this course does not allow access to this tool. If you feel this is in error, please contact 4help@umich.edu.')
+        return createLaunchErrorResponse(res, 'Access Denied. To use Canvas Course Manager you must have a course management role in this course. If you believe this message is in error, please contact https://its.umich.edu/help')
       }
 
       try {
