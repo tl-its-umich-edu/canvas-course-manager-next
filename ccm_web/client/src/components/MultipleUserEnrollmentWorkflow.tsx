@@ -251,8 +251,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const lastNameValidator = new LastNameRowsValidator()
       errors.push(...lastNameValidator.validate(externalRecords.map(r => r[LAST_NAME_HEADER])))
 
-      const rolesValidator = new RoleRowsValidator()
-      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER]), props.rolesUserCanEnroll))
+      const rolesValidator = new RoleRowsValidator(props.rolesUserCanEnroll)
+      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER])))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 

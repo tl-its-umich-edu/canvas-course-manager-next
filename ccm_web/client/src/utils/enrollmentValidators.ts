@@ -2,7 +2,9 @@ import { ClientEnrollmentType, isValidRole } from '../models/canvas'
 import { InvalidationType } from '../models/models'
 import { getRowNumber } from './fileUtils'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
-import { emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIdSchema } from '../utils/validation'
+import {
+  emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIdSchema, validateNumberString
+} from '../utils/validation'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 
@@ -39,7 +41,13 @@ export class FirstNameRowsValidator implements EnrollmentRowsValidator {
 }
 
 export class RoleRowsValidator implements EnrollmentRowsValidator {
-  validate (roles: string[], allowedRoles?: ClientEnrollmentType[]): EnrollmentInvalidation[] {
+  allowedRoles?: ClientEnrollmentType[]
+
+  constructor (allowedRoles?: ClientEnrollmentType[]) {
+    this.allowedRoles = allowedRoles
+  }
+
+  validate (roles: string[]): EnrollmentInvalidation[] {
     const invalidations: EnrollmentInvalidation[] = []
     roles.forEach((role, i) => {
       if (!isValidRole(role)) {
@@ -48,7 +56,7 @@ export class RoleRowsValidator implements EnrollmentRowsValidator {
           message: `Value for role is invalid: "${role}"`,
           type: InvalidationType.Error
         })
-      } else if (allowedRoles !== undefined && !allowedRoles.includes(role)) {
+      } else if (this.allowedRoles !== undefined && !this.allowedRoles.includes(role)) {
         invalidations.push({
           rowNumber: getRowNumber(i),
           message: `You are not allowed to enroll users with the provided role: "${role}"`,
@@ -67,29 +75,31 @@ export class LoginIDRowsValidator implements EnrollmentRowsValidator {
   }
 }
 
-export class NumericSectionIDRowsValidator implements EnrollmentRowsValidator {
-  validate (sectionIds: string[]): EnrollmentInvalidation[] {
-    const sectionIdValidator = new StringRowsSchemaValidator(sectionIdSchema, 'section ID')
-    return sectionIdValidator.validate(sectionIds)
-  }
-}
-
-export class ExistingSectionIdRowsValidator implements EnrollmentRowsValidator {
+export class SectionIdRowsValidator implements EnrollmentRowsValidator {
   existingSectionIDs: number[]
   constructor (existingSectionIDs: number[]) {
     this.existingSectionIDs = existingSectionIDs
   }
 
   validate (sectionIds: string[]): EnrollmentInvalidation[] {
-    const sectionIdNums = sectionIds.map(s => Number(s))
     const invalidations: EnrollmentInvalidation[] = []
-    sectionIdNums.forEach((sectionIdNum, i) => {
-      if (!this.existingSectionIDs.includes(sectionIdNum)) {
+    sectionIds.forEach((sectionId, i) => {
+      const result = validateNumberString(sectionId, sectionIdSchema)
+      if (result.transformedValue === undefined || !result.isValid) {
         invalidations.push({
           rowNumber: getRowNumber(i),
-          message: `This course does not have a section with ID "${sectionIdNum}".`,
+          message: result.messages.length > 0 ? result.messages[0] : 'Value for the section ID was invalid.',
           type: InvalidationType.Error
         })
+      } else {
+        const sectionIdNum = result.transformedValue
+        if (!this.existingSectionIDs.includes(sectionIdNum)) {
+          invalidations.push({
+            rowNumber: getRowNumber(i),
+            message: `This course does not have a section with ID "${sectionIdNum}".`,
+            type: InvalidationType.Error
+          })
+        }
       }
     })
     return invalidations

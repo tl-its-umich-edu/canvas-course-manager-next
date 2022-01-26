@@ -1,4 +1,4 @@
-import { string, StringSchema, ValidationError } from 'yup'
+import { number, string, NumberSchema, StringSchema, ValidationError } from 'yup'
 
 // Yup: https://github.com/jquense/yup
 
@@ -9,6 +9,9 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 }
 
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
+export const createInvalidIDMessage = (fieldName: string): string => {
+  return `Value for the ${fieldName} must be a positive integer.`
+}
 
 const canvasMaxNameLength = 255
 const createCanvasNameSchema = (fieldName: string): StringSchema => {
@@ -16,9 +19,15 @@ const createCanvasNameSchema = (fieldName: string): StringSchema => {
     .max(canvasMaxNameLength, ({ max }) => createExceededMessage(fieldName, max))
 }
 
+const createCanvasIdentifierSchema = (fieldName: string): NumberSchema => {
+  const message = createInvalidIDMessage(fieldName)
+  return number().typeError(`Value for the ${fieldName} must be a number (e.g., it cannot contain letters).`)
+    .required(createBlankMessage(fieldName)).truncate().positive(message).integer(message)
+}
+
 export const courseNameSchema = createCanvasNameSchema('course name')
 export const assignmentHeaderSchema = createCanvasNameSchema('assignment header')
-export const sectionIdSchema = string().matches(/^\d+$/, 'Value for the section ID must be an integer (i.e. contain only digits).')
+export const sectionIdSchema = createCanvasIdentifierSchema('section ID')
 export const sectionNameSchema = createCanvasNameSchema('section name')
 export const loginIDSchema = createCanvasNameSchema('login ID')
 export const emailSchema = createCanvasNameSchema('email address')
@@ -29,13 +38,13 @@ export const lastNameSchema = createCanvasNameSchema('last name')
 
 // Type validator(s)
 
-export interface ValidationResult {
-  transformedValue: string | undefined
+export interface ValidationResult<T = string> {
+  transformedValue: T | undefined
   isValid: boolean
   messages: readonly string[]
 }
 
-export function validateString (value: string | undefined, schema: StringSchema): ValidationResult {
+export function validateString (value: string | undefined, schema: StringSchema): ValidationResult<string> {
   let transformedValue: string | undefined
   let isValid = true
   let messages: string[] = []
@@ -51,4 +60,22 @@ export function validateString (value: string | undefined, schema: StringSchema)
     }
   }
   return { transformedValue, isValid, messages }
+}
+
+export function validateNumberString (value: string | undefined, schema: NumberSchema): ValidationResult<number> {
+  let isValid = true
+  let messages: string[] = []
+
+  const valueToTest = value === undefined ? value : value.trim() === '' ? NaN : Number(value)
+  try {
+    schema.validateSync(valueToTest, { strict: true })
+  } catch (error) {
+    if (!(error instanceof ValidationError)) {
+      throw new Error(String(error))
+    } else {
+      isValid = false
+      messages = error.errors
+    }
+  }
+  return { transformedValue: valueToTest, isValid, messages }
 }

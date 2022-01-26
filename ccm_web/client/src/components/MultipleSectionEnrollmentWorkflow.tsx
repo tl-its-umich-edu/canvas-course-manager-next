@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
-  Backdrop, Button, Box, CircularProgress, Grid, Link, makeStyles, TableHead, TableContainer, Table, TableBody,
-  TableCell, TableRow, Typography
+  Backdrop, Button, Box, CircularProgress, Grid, Link, makeStyles, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Typography
 } from '@material-ui/core'
 
 import Accordion from './Accordion'
@@ -27,8 +27,7 @@ import { AddUMUsersLeafProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
-  EnrollmentInvalidation, ExistingSectionIdRowsValidator, LoginIDRowsValidator, NumericSectionIDRowsValidator,
-  RoleRowsValidator
+  EnrollmentInvalidation, LoginIDRowsValidator, SectionIdRowsValidator, RoleRowsValidator
 } from '../utils/enrollmentValidators'
 import { CSV_LINK_DOWNLOAD_PREFIX, getRowNumber } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
@@ -171,8 +170,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       errors.push(...roleValidator.validate(enrollmentRecords.map(r => r.ROLE)))
 
       const specifiedSectionIDs = enrollmentRecords.map(r => r.SECTION_ID)
-      const sectionIdValidators = [new NumericSectionIDRowsValidator(), new ExistingSectionIdRowsValidator(sectionIds)]
-      sectionIdValidators.map(validator => errors.push(...validator.validate(specifiedSectionIDs)))
+      const sectionIdValidator = new SectionIdRowsValidator(sectionIds)
+      errors.push(...sectionIdValidator.validate(specifiedSectionIDs))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
