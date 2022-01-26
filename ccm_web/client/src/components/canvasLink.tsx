@@ -1,12 +1,12 @@
 import React from 'react'
 import { Link } from '@material-ui/core'
 
-interface CanvasLinkProps {
+interface CanvasSettingsLinkProps {
   url: string
   msg?: string
 }
 
-export default function CanvasLink (linkProps: CanvasLinkProps): JSX.Element {
+export default function CanvasSettingsLink (linkProps: CanvasSettingsLinkProps): JSX.Element {
   const url = linkProps.url
   const msg = linkProps.msg == null ? 'Canvas Settings page' : linkProps.msg
   return (

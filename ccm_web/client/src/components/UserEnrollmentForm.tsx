@@ -14,7 +14,7 @@ import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../mode
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
-import CanvasLink from './canvasLink'
+import CanvasSettingsLink from './canvasLink'
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -371,7 +371,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         : 'The new user was sent an email invitation to choose a login method, added to Canvas, and'
     ) + ' enrolled in the selected section!'
     const nextAction = (
-      <span>See the user in the course&apos;s sections on the {<CanvasLink url={props.settingsURL} />} for your course.</span>
+      <span>See the user in the course&apos;s sections on the {<CanvasSettingsLink url={props.settingsURL} />} for your course.</span>
     )
 
     return (

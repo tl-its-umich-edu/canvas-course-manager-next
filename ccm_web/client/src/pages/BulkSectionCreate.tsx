@@ -24,7 +24,7 @@ import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
-import CanvasLink from '../components/canvasLink'
+import CanvasSettingsLink from '../components/canvasLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -366,7 +366,7 @@ Section 001`
     const message = <Typography>New sections have been added!</Typography>
     const nextAction = (
       <span>
-        See your sections on the <CanvasLink url={settingsURL} /> for your course.
+        See your sections on the <CanvasSettingsLink url={settingsURL} /> for your course.
       </span>
     )
     return (

@@ -17,6 +17,7 @@ import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
+import CanvasSettingsLink from '../components/canvasLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -138,7 +139,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     const errorMessage = (
       <Typography key='0'>
         The Canvas gradebook export CSV you uploaded does not include letter grades. To add them,
-        ensure {<CanvasLink url={settingsURL} msg={settingMsg} />} for your course
+        ensure {<CanvasSettingsLink url={settingsURL} msg={settingMsg} />} for your course
         is checked, and then re-export the gradebook.
       </Typography>
     )

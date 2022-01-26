@@ -29,7 +29,7 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
-import CanvasLink from './canvasLink'
+import CanvasSettingsLink from './canvasLink'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -342,7 +342,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       </Typography>
     )
     const nextAction = (
-      <span>See the users in the course&apos;s sections on the <CanvasLink url={props.settingsURL} /> for your course.</span>
+      <span>See the users in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
     )
     return (
       <>
