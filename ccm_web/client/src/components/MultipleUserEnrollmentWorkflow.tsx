@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
@@ -29,6 +29,7 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
+import CanvasLink from './canvasLink'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -333,9 +334,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderSuccess = (): JSX.Element => {
-    const settingsLink = (
-      <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    )
     // Need to process actual result here somehow
     const message = (
       <Typography>
@@ -344,7 +342,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       </Typography>
     )
     const nextAction = (
-      <span>See the users in the course&apos;s sections on the {settingsLink} for your course.</span>
+      <span>See the users in the course&apos;s sections on the <CanvasLink url={props.settingsURL} /> for your course.</span>
     )
     return (
       <>
