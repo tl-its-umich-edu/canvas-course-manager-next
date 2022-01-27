@@ -105,6 +105,49 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     await props.doGetSections()
   }
 
+  const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
+    const schemaValidator = new CSVSchemaValidator<EnrollmentWithSectionIdRecord>(
+      REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, isEnrollmentWithSectionIdRecord, MAX_ENROLLMENT_RECORDS
+    )
+    const validationResult = schemaValidator.validate(headers, rowData)
+    if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
+
+    const enrollmentRecords = validationResult.validData
+    const errors: EnrollmentInvalidation[] = []
+
+    const loginIDValidator = new LoginIDRowsValidator()
+    errors.push(...loginIDValidator.validate(enrollmentRecords.map(r => r.LOGIN_ID)))
+
+    const roleValidator = new RoleRowsValidator()
+    errors.push(...roleValidator.validate(enrollmentRecords.map(r => r.ROLE)))
+
+    const specifiedSectionIDs = enrollmentRecords.map(r => r.SECTION_ID)
+    const sectionIdValidator = new SectionIdRowsValidator(sectionIds)
+    errors.push(...sectionIdValidator.validate(specifiedSectionIDs))
+
+    if (errors.length > 0) return setRowInvalidations(errors)
+
+    const enrollmentsWithSectionIds: RowNumberedAddEnrollmentWithSectionId[] = enrollmentRecords.map((r, i) => {
+      return {
+        rowNumber: getRowNumber(i),
+        loginId: r.LOGIN_ID,
+        role: r.ROLE as ClientEnrollmentType,
+        sectionId: Number(r.SECTION_ID)
+      }
+    })
+    setValidEnrollments(enrollmentsWithSectionIds)
+    setWorkflowState(CSVWorkflowState.Review)
+  }
+
+  const handleFile = (file: File): void => {
+    setFile(file)
+    parser.parseCSV(
+      file,
+      handleValidation,
+      (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
+    )
+  }
+
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
     return (
       <>
@@ -152,49 +195,6 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       'taone,ta,1001\n' +
       'tatwo,ta,1002\n'
     )
-
-    const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
-      const schemaValidator = new CSVSchemaValidator<EnrollmentWithSectionIdRecord>(
-        REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, isEnrollmentWithSectionIdRecord, MAX_ENROLLMENT_RECORDS
-      )
-      const validationResult = schemaValidator.validate(headers, rowData)
-      if (!validationResult.valid) return setSchemaInvalidations(validationResult.schemaInvalidations)
-
-      const enrollmentRecords = validationResult.validData
-      const errors: EnrollmentInvalidation[] = []
-
-      const loginIDValidator = new LoginIDRowsValidator()
-      errors.push(...loginIDValidator.validate(enrollmentRecords.map(r => r.LOGIN_ID)))
-
-      const roleValidator = new RoleRowsValidator()
-      errors.push(...roleValidator.validate(enrollmentRecords.map(r => r.ROLE)))
-
-      const specifiedSectionIDs = enrollmentRecords.map(r => r.SECTION_ID)
-      const sectionIdValidator = new SectionIdRowsValidator(sectionIds)
-      errors.push(...sectionIdValidator.validate(specifiedSectionIDs))
-
-      if (errors.length > 0) return setRowInvalidations(errors)
-
-      const enrollmentsWithSectionIds: RowNumberedAddEnrollmentWithSectionId[] = enrollmentRecords.map((r, i) => {
-        return {
-          rowNumber: getRowNumber(i),
-          loginId: r.LOGIN_ID,
-          role: r.ROLE as ClientEnrollmentType,
-          sectionId: Number(r.SECTION_ID)
-        }
-      })
-      setValidEnrollments(enrollmentsWithSectionIds)
-      setWorkflowState(CSVWorkflowState.Review)
-    }
-
-    const handleFile = (file: File): void => {
-      setFile(file)
-      parser.parseCSV(
-        file,
-        handleValidation,
-        (message) => setSchemaInvalidations([{ message, type: InvalidationType.Error }])
-      )
-    }
 
     const sectionDataToDownload = CSV_LINK_DOWNLOAD_PREFIX + encodeURIComponent(
       parser.createCSV<string[]>([
