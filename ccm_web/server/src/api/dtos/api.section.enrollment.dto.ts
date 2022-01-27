@@ -1,15 +1,9 @@
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
-  IsIn,
-  IsInt,
-  IsNotEmpty,
-  MaxLength,
-  ValidateNested
+  ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsNotEmpty, MaxLength, ValidateNested
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
+
 import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
 
 export class SectionEnrollmentDto {
