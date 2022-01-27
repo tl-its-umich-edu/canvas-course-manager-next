@@ -17,7 +17,7 @@ import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
-import CanvasSettingsLink from '../components/canvasLink'
+import CanvasSettingsLink from '../components/canvasSettingsLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {

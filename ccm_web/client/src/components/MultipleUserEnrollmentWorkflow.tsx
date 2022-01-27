@@ -29,7 +29,7 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
-import CanvasSettingsLink from './canvasLink'
+import CanvasSettingsLink from './canvasSettingsLink'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
