@@ -165,7 +165,10 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
           </Grid>
         </Backdrop>
       </div>
-      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+      <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+        <Button variant='outlined' aria-label='Back to select input method' onClick={props.resetFeature}>
+          Back
+        </Button>
         <Button
           variant='contained'
           color='primary'
