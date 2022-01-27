@@ -1,5 +1,5 @@
-import { makeStyles, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
+import { makeStyles, Typography } from '@material-ui/core'
 
 import { getCourseSections } from '../api'
 import Help from '../components/Help'
@@ -69,7 +69,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
         }}
         selectedMethod={inputMethod}
         setMethod={setInputMethod}
-        disabled={isGetSectionsLoading}
         onButtonClick={async () => {
           setPageState(PageState.CSVWorkflow)
           await doGetSections()

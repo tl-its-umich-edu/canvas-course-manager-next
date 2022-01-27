@@ -68,7 +68,6 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
         typeGuard={(v): v is InputMethod => v === InputMethod.CSV || v === InputMethod.Single}
         selectedMethod={inputMethod}
         setMethod={setInputMethod}
-        disabled={isGetSectionsLoading}
         onButtonClick={async () => {
           if (inputMethod === InputMethod.CSV) {
             setActivePageState(PageState.AddCSVUsers)
