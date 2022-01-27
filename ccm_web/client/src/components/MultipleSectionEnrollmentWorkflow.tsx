@@ -27,7 +27,7 @@ import { AddUMUsersLeafProps } from '../models/FeatureUIData'
 import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
-  EnrollmentInvalidation, LoginIDRowsValidator, SectionIdRowsValidator, RoleRowsValidator
+  EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator, SectionIdRowsValidator
 } from '../utils/enrollmentValidators'
 import { CSV_LINK_DOWNLOAD_PREFIX, getRowNumber } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
@@ -231,7 +231,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         <div className={classes.spacing}>
           <ExampleFileDownloadHeader
             body={requirements}
-            fileName='add_non_um_users_with_sections.csv'
+            fileName='add_um_users_with_sections.csv'
             fileData={fileData}
           />
         </div>
@@ -240,9 +240,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             <Link href={sectionDataToDownload} download='course_section_ids.csv'>
               Download a CSV with the Canvas Course Section IDs data
             </Link>
-            <Accordion title='Course Section Canvas IDs' id='section-ids'>
-              {sectionIdsTable}
-            </Accordion>
+            <Accordion title='Course Section Canvas IDs' id='section-ids'>{sectionIdsTable}</Accordion>
           </Grid>
           <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
             <Grid container>
@@ -262,7 +260,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const renderReview = (enrollments: RowNumberedAddEnrollmentWithSectionId[]): JSX.Element => {
-    const enrollmentData = enrollments.map(({ rowNumber, ...enrollmentData }) => enrollmentData)
+    const enrollmentData = enrollments.map(({ rowNumber, ...enrollment }) => enrollment)
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
@@ -320,11 +318,11 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       case CSVWorkflowState.Upload:
         return renderUpload()
       case CSVWorkflowState.Review:
-        if (validEnrollments === undefined) return <ErrorAlert />
         if (addEnrollmentsError !== undefined) {
           return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={resetUpload} />
         }
-        return renderReview(validEnrollments)
+        if (validEnrollments !== undefined) return renderReview(validEnrollments)
+        return <ErrorAlert />
       case CSVWorkflowState.Confirmation:
         return renderConfirm()
       default:
