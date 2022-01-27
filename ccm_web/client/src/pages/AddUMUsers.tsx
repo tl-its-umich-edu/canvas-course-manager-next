@@ -79,9 +79,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const onSectionCreated = (newSection: CanvasCourseSection): void => {
     if (sections !== undefined) {
-      setSections(
-        sortSections(sections.concat(injectCourseName([newSection], props.course.name)))
-      )
+      setSections(sortSections(sections.concat(injectCourseName([newSection], props.course.name))))
     }
   }
 
