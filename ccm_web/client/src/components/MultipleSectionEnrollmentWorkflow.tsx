@@ -29,7 +29,7 @@ import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValida
 import {
   EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator, SectionIdRowsValidator
 } from '../utils/enrollmentValidators'
-import { CSV_LINK_DOWNLOAD_PREFIX, getRowNumber } from '../utils/fileUtils'
+import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
 enum CSVWorkflowState {
@@ -196,7 +196,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       'tatwo,ta,1002\n'
     )
 
-    const sectionDataToDownload = CSV_LINK_DOWNLOAD_PREFIX + encodeURIComponent(
+    const sectionDataToDownload = prepDownloadDataString(
       parser.createCSV<string[]>([
         ['SECTION_NAME', 'SECTION_ID'],
         ...props.sections.map(s => [s.name, String(s.id)])

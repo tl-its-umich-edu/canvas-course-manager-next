@@ -1,7 +1,7 @@
 import React from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { Link, makeStyles, Typography } from '@material-ui/core'
 
-import StaticContentDownloadLink from './StaticContentDownloadLink'
+import { prepDownloadDataString } from '../utils/fileUtils'
 
 const useStyles = makeStyles(() => ({
   uploadHeader: {
@@ -28,7 +28,9 @@ function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.
       <br/>
       <Typography><strong>Requirement(s):</strong></Typography>
       {body}
-      <StaticContentDownloadLink data={fileData} fileName={fileName} linkText='Download an example' />
+      <Link href={prepDownloadDataString(fileData)} download={fileName}>
+        Download an example
+      </Link>
     </div>
   )
 }

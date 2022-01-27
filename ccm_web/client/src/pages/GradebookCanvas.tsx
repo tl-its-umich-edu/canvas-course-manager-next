@@ -16,7 +16,7 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { createOutputFileName } from '../utils/fileUtils'
+import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -123,7 +123,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
     const csvData = data.map(r => [r['SIS LOGIN ID'], getGradeForExport(r)])
-    const csvString = 'data:text/csv;charset=utf-8,' + encodeURIComponent(fileParser.createCSV<string[]>(csvData))
+    const csvString = prepDownloadDataString(fileParser.createCSV<string[]>(csvData))
     setDownloadData({ data: csvString, fileName: getOutputFilename(file) })
   }
 
