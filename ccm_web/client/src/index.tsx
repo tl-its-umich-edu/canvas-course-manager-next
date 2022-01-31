@@ -16,7 +16,7 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <Route exact={true} path='/access-denied'>
-            <AccessDenied forHelpLink='https://its.umich.edu/help' />
+            <AccessDenied email='4help@umich.edu' helpLink='https://its.umich.edu/help' />
           </Route>
           <Route><App /></Route>
         </Switch>

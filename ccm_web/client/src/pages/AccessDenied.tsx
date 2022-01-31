@@ -7,29 +7,36 @@ import { Link, makeStyles, Typography } from '@material-ui/core'
 const useStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(2)
+  },
+  link: {
+    textDecoration: 'underline'
   }
 }))
 
 interface AccessDeniedProps {
-  forHelpLink: string
+  email: string
+  helpLink: string
 }
 
 export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
   const classes = useStyles()
-  const emailLink = (
-    <Link style={{ textDecoration: 'underline' }} href={props.forHelpLink} target='_blank' rel='noopener'>
-      4help@umich.edu
+  const emailLink = <Link className={classes.link} href={`mailto:${props.email}`}>{props.email}</Link>
+  const forHelpLink = (
+    <Link className={classes.link} href={props.helpLink} target='_blank' rel='noopener'>
+      ITS Help Page
     </Link>
   )
+
   return (
     <div className={classes.container}>
       <InlineErrorAlert>
-      <Typography>
-        To use Canvas Course Manager you must have a course management role in this course.
-      </Typography>
-      <Typography>
-        If you believe this message is in error, please contact {emailLink}.
-      </Typography>
+        <Typography variant='subtitle1' component='h1'>Access Denied</Typography>
+        <Typography>
+          To use Canvas Course Manager, you must launch the tool from a Canvas course in which you have a course management role.
+        </Typography>
+        <Typography>
+          If you believe this message is in error, please contact {emailLink} or visit the {forHelpLink}.
+        </Typography>
       </InlineErrorAlert>
     </div>
   )
