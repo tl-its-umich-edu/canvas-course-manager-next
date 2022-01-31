@@ -88,7 +88,7 @@ export class SectionIdRowsValidator implements EnrollmentRowsValidator {
       if (result.transformedValue === undefined || !result.isValid) {
         invalidations.push({
           rowNumber: getRowNumber(i),
-          message: result.messages.length > 0 ? result.messages[0] : 'Value for the section ID was invalid.',
+          message: result.messages.length > 0 ? result.messages[0] : 'Value for section ID is invalid.',
           type: InvalidationType.Error
         })
       } else {
