@@ -28,7 +28,7 @@ export default function Accordion (props: AccordionProps): JSX.Element {
   const classes = useStyles()
   return (
     <div className={classes.container}>
-      <MUIAccordion defaultExpanded >
+      <MUIAccordion defaultExpanded>
         <MUIAccordionSummary
           className={classes.summary}
           expandIcon={<ExpandMoreIcon className={classes.icon} />}
