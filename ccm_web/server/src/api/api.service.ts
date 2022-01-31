@@ -30,7 +30,7 @@ export class APIService {
 
   getGlobals (user: User, sessionData: SessionData): Globals {
     return {
-      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+      environment: this.configService.get('server.isDev', { infer: true }) ? 'development' : 'production',
       canvasURL: this.configService.get('canvas.instanceURL', { infer: true }),
       user: {
         loginId: user.loginId,

@@ -1,7 +1,10 @@
+import path from 'path'
+
 import helmet from 'helmet'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
+import { ServeStaticModule } from '@nestjs/serve-static'
 
 import { APIModule } from './api/api.module'
 import { AuthModule } from './auth/auth.module'
@@ -23,6 +26,19 @@ const logger = baseLogger.child({ filePath: __filename })
       load: [validateConfig],
       ignoreEnvFile: true,
       isGlobal: true
+    }),
+    ServeStaticModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Config, true>) => ([{
+        rootPath: (
+          path.join(
+            path.join(__dirname, '..', '..'),
+            configService.get('server.isDev', { infer: true }) ? path.join('dist', 'client') : 'client'
+          )
+        ),
+        exclude: ['/api*', '/canvas*', '/lti*', '/auth*']
+      }])
     }),
     UserModule,
     LTIModule,
@@ -48,8 +64,25 @@ const logger = baseLogger.child({ filePath: __filename })
   providers: [UserService]
 })
 export class AppModule implements NestModule {
+  private readonly frameSrc: string
+
+  constructor (
+    private readonly configService: ConfigService<Config, true>
+  ) {
+    this.frameSrc = this.configService.get('server.frameSrc', { infer: true })
+  }
+
   configure (consumer: MiddlewareConsumer): void {
-    consumer.apply(helmet())
+    consumer.apply(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'default-src': ["'self'", this.frameSrc],
+          'style-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          'frame-src': [this.frameSrc],
+          'frame-ancestors': [this.frameSrc]
+        }
+      }
+    }))
     // Exclude ltijs routes, which are already protected by helmet
       .exclude(
         { path: '/lti', method: RequestMethod.POST },

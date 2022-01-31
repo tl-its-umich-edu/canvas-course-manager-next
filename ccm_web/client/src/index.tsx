@@ -1,11 +1,12 @@
 import { SnackbarProvider } from 'notistack'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { ThemeProvider } from '@material-ui/core'
 
 import ccmTheme from './theme'
 import App from './App'
+import AccessDenied from './pages/AccessDenied'
 import './index.css'
 
 ReactDOM.render(
@@ -13,7 +14,12 @@ ReactDOM.render(
    <ThemeProvider theme={ccmTheme}>
     <SnackbarProvider maxSnack={3}>
       <BrowserRouter>
-        <App />
+        <Switch>
+          <Route exact={true} path='/access-denied'>
+            <AccessDenied forHelpLink='https://its.umich.edu/help' />
+          </Route>
+          <Route><App /></Route>
+        </Switch>
       </BrowserRouter>
     </SnackbarProvider>
    </ThemeProvider>
