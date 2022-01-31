@@ -127,7 +127,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root} aria-live='polite'>
+    <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>{renderActivePageState(activePageState)}</div>
