@@ -82,6 +82,7 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
               }}
               onPageChange={handleChangePage}
               ActionsComponent={TablePaginationActions}
+              aria-live='polite'
             />
           </TableRow>
         </TableFooter>
