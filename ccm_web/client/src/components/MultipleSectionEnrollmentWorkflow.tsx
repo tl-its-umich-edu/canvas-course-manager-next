@@ -17,7 +17,7 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
@@ -64,9 +64,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
-  course: CanvasCourseBase
-}
+interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {}
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
@@ -81,10 +79,10 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
-    async (courseId: number, enrollments: AddEnrollmentWithSectionId[]) => {
-      await api.addEnrollmentsToSections(courseId, enrollments.map(e => ({
-        loginId: e.loginId, type: getCanvasRole(e.role), sectionId: e.sectionId
-      })))
+    async (enrollments: AddEnrollmentWithSectionId[]) => {
+      await api.addEnrollmentsToSections(
+        enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role), sectionId: e.sectionId }))
+      )
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
   )
@@ -273,7 +271,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <Box clone order={{ xs: 1, sm: 2 }}>
             <Grid item xs={12} sm={3}>
               <ConfirmDialog
-                submit={async () => await doAddEnrollments(props.course.id, enrollmentData)}
+                submit={async () => await doAddEnrollments(enrollmentData)}
                 cancel={resetUpload}
                 disabled={isAddEnrollmentsLoading}
               />

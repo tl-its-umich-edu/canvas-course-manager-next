@@ -107,12 +107,10 @@ export const addSectionEnrollments = async (
   return await resp.json()
 }
 
-export const addEnrollmentsToSections = async (
-  courseId: number, enrollments: AddEnrollmentWithSectionId[]
-): Promise<CanvasEnrollment[]> => {
+export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSectionId[]): Promise<CanvasEnrollment[]> => {
   const body = JSON.stringify({ enrollments })
   const request = getPost(body)
-  const resp = await fetch(`/api/course/${courseId}/sections/enroll`, request)
+  const resp = await fetch('/api/sections/enroll', request)
   await handleErrors(resp)
   return await resp.json()
 }

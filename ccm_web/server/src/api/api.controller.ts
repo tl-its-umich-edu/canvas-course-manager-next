@@ -93,25 +93,12 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
-  @Post('course/:id/sections/enroll')
+  @Post('/sections/enroll')
   async enrollUsersToSections (
-    @Param('id', ParseIntPipe) courseId: number, @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User
+    @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User
   ): Promise<CanvasEnrollment[]> {
     const enrollments = enrollmentsDto.enrollments
-    const getSectionsResult = await this.apiService.getCourseSections(user, courseId)
-    if (isAPIErrorData(getSectionsResult)) throw new HttpException(getSectionsResult, getSectionsResult.statusCode)
-    const validSectionIds = getSectionsResult.map(s => s.id)
-    const invalidSectionIds: number[] = []
-    enrollments.forEach(e => {
-      if (!validSectionIds.includes(e.sectionId) && !invalidSectionIds.includes(e.sectionId)) {
-        invalidSectionIds.push(e.sectionId)
-      }
-    })
-    if (invalidSectionIds.length > 0) {
-      const message = `Course with ID ${courseId} does not have sections with the following ID(s): ${invalidSectionIds.join(', ')}`
-      throw new BadRequestException(message)
-    }
-    const enrollmentsResult = await this.apiService.createSectionEnrollments(user, courseId, enrollments)
+    const enrollmentsResult = await this.apiService.createSectionEnrollments(user, enrollments)
     if (isAPIErrorData(enrollmentsResult)) throw new HttpException(enrollmentsResult, enrollmentsResult.statusCode)
     return enrollmentsResult
   }

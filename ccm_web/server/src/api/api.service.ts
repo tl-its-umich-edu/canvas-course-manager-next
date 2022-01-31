@@ -121,9 +121,7 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async createSectionEnrollments (
-    user: User, courseId: number, enrollments: SectionEnrollmentDto[]
-  ): Promise<CanvasEnrollment[] | APIErrorData> {
+  async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const apiPromises = enrollments.map(async (e) => {
       const { sectionId, ...sectionUser } = e
