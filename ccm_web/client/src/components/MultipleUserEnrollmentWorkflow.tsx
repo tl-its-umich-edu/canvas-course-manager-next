@@ -14,8 +14,11 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
-import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
+  injectCourseName
+} from '../models/canvas'
+import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
@@ -78,7 +81,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validEnrollments, setValidEnrollments] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)
+  const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddNewExternalUserEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -132,8 +135,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     if (props.getSectionsError !== undefined) return getSectionsErrorAlert
 
     const canCreate = isAuthorizedForRoles(props.userCourseRoles, createSectionRoles)
+    const onSectionCreated = (section: CanvasCourseSection): void => {
+      setSelectedSection(injectCourseName([section], props.course.name)[0])
+      props.onSectionCreated(section)
+    }
     const createProps: CreateSelectSectionWidgetCreateProps = canCreate
-      ? { canCreate: true, course: props.course, onSectionCreated: props.onSectionCreated }
+      ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
     return (
@@ -244,12 +251,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const lastNameValidator = new LastNameRowsValidator()
       errors.push(...lastNameValidator.validate(externalRecords.map(r => r[LAST_NAME_HEADER])))
 
-      const rolesValidator = new RoleRowsValidator()
-      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER]), props.rolesUserCanEnroll))
+      const rolesValidator = new RoleRowsValidator(props.rolesUserCanEnroll)
+      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER])))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
-      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
+      const externalEnrollments: RowNumberedAddNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
         rowNumber: getRowNumber(i),
         email: r[EMAIL_HEADER],
         role: r[ROLE_HEADER] as ClientEnrollmentType,
@@ -287,7 +294,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderReview = (sectionId: number, enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
+  const renderReview = (sectionId: number, enrollments: RowNumberedAddNewExternalUserEnrollment[]): JSX.Element => {
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}

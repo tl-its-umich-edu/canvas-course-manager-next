@@ -11,6 +11,7 @@ import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
+import { SectionEnrollmentsDto } from './dtos/api.section.enrollment.dto'
 import { SectionIdsDto } from './dtos/api.section.ids.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -88,6 +89,18 @@ export class APIController {
     const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
+  @Post('/sections/enroll')
+  async enrollUsersToSections (
+    @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User
+  ): Promise<CanvasEnrollment[]> {
+    const enrollments = enrollmentsDto.enrollments
+    const enrollmentsResult = await this.apiService.createSectionEnrollments(user, enrollments)
+    if (isAPIErrorData(enrollmentsResult)) throw new HttpException(enrollmentsResult, enrollmentsResult.statusCode)
+    return enrollmentsResult
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
