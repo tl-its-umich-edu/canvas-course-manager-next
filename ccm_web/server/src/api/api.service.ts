@@ -15,17 +15,22 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
+  CanvasRole,
   CanvasUser,
   CanvasUserLoginEmail,
   CourseWithSections,
-  ExternalEnrollment
+  ExternalEnrollment, getRolesUserCanEnroll,
+  isCanvasRole
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
-import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
+import {
+  CirrusInvitationService
+} from '../invitation/cirrus-invitation.service'
 import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
+import { globals } from 'eslint-config-standard-with-typescript'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -130,7 +135,36 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment> {
+  async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment> {
+    const stringRoles = session.data.course.roles
+    const userRoles: CanvasRole[] = []
+    for (const stringRole of stringRoles) {
+      if (!isCanvasRole(stringRole)) {
+        throw Error(`${stringRole} is not a valid Canvas role.`)
+      }
+      userRoles.push(stringRole)
+    }
+
+    const isRootAdmin: boolean = session.data['isRootAdmin']
+
+    const rolesUserCanEnroll = getRolesUserCanEnroll(userRoles)
+    logger.debug(`rolesUserCanEnroll: ${rolesUserCanEnroll}`)
+
+    const rolesStrings: string[] = rolesUserCanEnroll.map(r => String(r))
+    logger.debug(`rolesStrings: ${rolesStrings}`)
+    logger.debug(rolesStrings.includes('StudentEnrollment'))
+
+    const userAssignableRoles: string[] = getRolesUserCanEnroll(userRoles).map(r => String(r))
+    logger.debug(`userAssignableRoles: ${userAssignableRoles}`)
+    for (let sectionUser of sectionUsers) {
+      logger.debug(`${sectionUser.type} --> ${userAssignableRoles.includes(String(sectionUser.type))}`)
+    }
+
+    const success: boolean = sectionUsers.every(u =>
+      userAssignableRoles.includes(String(u.type))
+    )
+    logger.debug(`🦜🦜🦜🦜🦜🦜 success: ${success} 🦜🦜🦜🦜🦜🦜`)
+
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
