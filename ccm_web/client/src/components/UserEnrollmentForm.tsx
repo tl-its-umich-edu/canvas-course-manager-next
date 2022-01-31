@@ -14,7 +14,7 @@ import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../mode
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { CanvasError } from '../utils/handleErrors'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
-import CanvasSettingsLink from './canvasSettingsLink'
+import CanvasSettingsLink from './CanvasSettingsLink'
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
