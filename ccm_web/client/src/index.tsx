@@ -4,10 +4,10 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { ThemeProvider } from '@material-ui/core'
 
-import ccmTheme from './theme'
 import App from './App'
-import AccessDenied from './pages/AccessDenied'
 import './index.css'
+import ccmTheme from './theme'
+import AccessDenied from './pages/AccessDenied'
 
 ReactDOM.render(
   <React.StrictMode>
