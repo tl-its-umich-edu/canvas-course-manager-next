@@ -102,9 +102,9 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User): Promise<ExternalEnrollment> {
+  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData): Promise<ExternalEnrollment> {
     const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
-    const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, sectionUsers)
+    const result = await this.apiService.enrollSectionExternalUsers(user, session, sectionId, sectionUsers)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
