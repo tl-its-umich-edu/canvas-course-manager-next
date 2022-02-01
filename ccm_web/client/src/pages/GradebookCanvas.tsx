@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Box, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -134,10 +135,11 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const handleNoLetterGradesError = (): void => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings#course_grading_standard_enabled`
+    const settingsMsg = 'Grading Scheme in settings'
     const errorMessage = (
       <Typography key='0'>
         The Canvas gradebook export CSV you uploaded does not include letter grades. To add them,
-        ensure <Link href={settingsURL} target='_parent'>Grading Scheme in settings</Link> for your course
+        ensure {<CanvasSettingsLink url={settingsURL} msg={settingsMsg} />} for your course
         is checked, and then re-export the gradebook.
       </Typography>
     )

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
@@ -8,6 +8,7 @@ import {
   DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -365,7 +366,7 @@ Section 001`
     const message = <Typography>New sections have been added!</Typography>
     const nextAction = (
       <span>
-        See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
+        See your sections on the <CanvasSettingsLink url={settingsURL} /> for your course.
       </span>
     )
     return (

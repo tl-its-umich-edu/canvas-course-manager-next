@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 
+import CanvasSettingsLink from './CanvasSettingsLink'
 import ErrorAlert from './ErrorAlert'
 import InlineErrorAlert from './InlineErrorAlert'
 import RoleSelect from './RoleSelect'
@@ -364,16 +365,13 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const renderSuccess = (userExists: boolean): JSX.Element => {
-    const settingsLink = (
-      <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    )
     const messageText = (
       userExists
         ? 'The existing user was'
         : 'The new user was sent an email invitation to choose a login method, added to Canvas, and'
     ) + ' enrolled in the selected section!'
     const nextAction = (
-      <span>See the user in the course&apos;s sections on the {settingsLink} for your course.</span>
+      <span>See the user in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
     )
 
     return (
