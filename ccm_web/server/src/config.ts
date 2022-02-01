@@ -6,7 +6,7 @@ interface ServerConfig {
   isDev: boolean
   port: number
   domain: string
-  frameSrc: string
+  frameDomain: string
   logLevel: LogLevel
   cookieSecret: string
   tokenSecret: string
@@ -102,7 +102,7 @@ export function validateConfig (): Config {
       isDev: env.NODE_ENV !== 'production',
       port: validate<number>('PORT', prepNumber(env.PORT), isNumber, [isNotNan], 4000),
       domain: validate<string>('DOMAIN', env.DOMAIN, isString, [isNotEmpty]),
-      frameSrc: validate<string>('FRAME_SRC', env.FRAME_SRC, isString, [isNotEmpty]),
+      frameDomain: validate<string>('FRAME_DOMAIN', env.FRAME_DOMAIN, isString, [isNotEmpty]),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, [], 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, [isNotEmpty], 'TOKENSECRET'),
       cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'COOKIESECRET'),
