@@ -13,6 +13,7 @@ import RowLevelErrorsContent from './RowLevelErrorsContent'
 import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
+import CanvasSettingsLink from './CanvasSettingsLink'
 import usePromise from '../hooks/usePromise'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
@@ -29,7 +30,6 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
-import CanvasSettingsLink from './CanvasSettingsLink'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
