@@ -7,9 +7,6 @@ import { Link, makeStyles, Typography } from '@material-ui/core'
 const useStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(2)
-  },
-  link: {
-    textDecoration: 'underline'
   }
 }))
 
@@ -20,9 +17,9 @@ interface AccessDeniedProps {
 
 export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
   const classes = useStyles()
-  const emailLink = <Link className={classes.link} href={`mailto:${props.email}`}>{props.email}</Link>
+  const emailLink = <Link href={`mailto:${props.email}`}>{props.email}</Link>
   const forHelpLink = (
-    <Link className={classes.link} href={props.helpLink} target='_blank' rel='noopener'>
+    <Link href={props.helpLink} target='_blank' rel='noopener'>
       ITS Help Page
     </Link>
   )
