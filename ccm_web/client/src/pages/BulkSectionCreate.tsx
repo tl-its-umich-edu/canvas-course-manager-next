@@ -8,6 +8,7 @@ import {
   DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -24,7 +25,6 @@ import { InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
-import CanvasSettingsLink from '../components/CanvasSettingsLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {

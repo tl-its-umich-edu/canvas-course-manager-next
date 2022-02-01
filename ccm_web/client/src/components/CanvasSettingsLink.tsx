@@ -6,10 +6,8 @@ interface CanvasSettingsLinkProps {
   msg?: string
 }
 
-export default function CanvasSettingsLink (linkProps: CanvasSettingsLinkProps): JSX.Element {
-  const url = linkProps.url
-  const msg = linkProps.msg == null ? 'Canvas Settings page' : linkProps.msg
-  return (
-    <Link href={url} target='_parent'>{msg}</Link>
-  )
+export default function CanvasSettingsLink (props: CanvasSettingsLinkProps): JSX.Element {
+  const url = props.url
+  const msg = props.msg == null ? 'Canvas Settings page' : props.msg
+  return <Link href={url} target='_parent'>{msg}</Link>
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Box, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -17,7 +18,6 @@ import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
-import CanvasSettingsLink from '../components/CanvasSettingsLink'
 
 const useStyles = makeStyles((theme) => ({
   root: {
