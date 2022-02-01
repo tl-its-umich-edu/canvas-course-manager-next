@@ -137,6 +137,9 @@ export class APIService {
 
   async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment> {
     const stringRoles = session.data.course.roles
+
+    // Convert role strings to enum, detecting invalid ones.
+    // Could cause problems when new roles added to Canvas?
     const userRoles: CanvasRole[] = []
     for (const stringRole of stringRoles) {
       if (!isCanvasRole(stringRole)) {
