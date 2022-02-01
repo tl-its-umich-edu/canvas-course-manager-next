@@ -135,7 +135,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const handleNoLetterGradesError = (): void => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings#course_grading_standard_enabled`
-    const settingMsg = 'Grading Scheme in settings'
+    const settingsMsg = 'Grading Scheme in settings'
     const errorMessage = (
       <Typography key='0'>
         The Canvas gradebook export CSV you uploaded does not include letter grades. To add them,
