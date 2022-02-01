@@ -6,7 +6,7 @@ import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { handleAPIError, makeResponse } from './api.utils'
+import { handleAPIError, makeResponse, roleStringsToEnums } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
@@ -19,8 +19,8 @@ import {
   CanvasUser,
   CanvasUserLoginEmail,
   CourseWithSections,
-  ExternalEnrollment, getRolesUserCanEnroll,
-  isCanvasRole
+  ExternalEnrollment,
+  getRolesUserCanEnroll
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import {
@@ -30,7 +30,6 @@ import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
-import { globals } from 'eslint-config-standard-with-typescript'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -135,38 +134,36 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment> {
-    const stringRoles = session.data.course.roles
+  async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment|APIErrorData> {
+    let userRoles: CanvasRole[] = []
+    try {
+      userRoles = roleStringsToEnums(session.data.course.roles)
+    } catch (e) {
+      throw Error(`Role error for user "${user.loginId}": ${e.message}`)
+    }
 
-    // Convert role strings to enum, detecting invalid ones.
-    // Could cause problems when new roles added to Canvas?
-    const userRoles: CanvasRole[] = []
-    for (const stringRole of stringRoles) {
-      if (!isCanvasRole(stringRole)) {
-        throw Error(`${stringRole} is not a valid Canvas role.`)
+    // FIXME: after development complete, update the following two lines
+    // const isRootAdmin: boolean = session.data.isRootAdmin // TODO: uncomment
+    const isRootAdmin: boolean = false // TODO: remove
+
+    if (isRootAdmin) {
+      logger.debug(`User "${user.loginId}" is a root admin.  ` +
+        'Skipping input role checks.')
+    } else {
+      const userAssignableRoles: string[] =
+        getRolesUserCanEnroll(userRoles).map(r => String(r))
+      if (!sectionUsers.every(sectionUser =>
+        userAssignableRoles.includes(String(sectionUser.type)))) {
+        return {
+          statusCode: 403,
+          errors: [{
+            canvasStatusCode: NaN,
+            message: 'Disallowed role given. Allowed roles: ' +
+              JSON.stringify(userAssignableRoles)
+          }]
+        } as APIErrorData
       }
-      userRoles.push(stringRole)
     }
-
-    const isRootAdmin: boolean = session.data['isRootAdmin']
-
-    const rolesUserCanEnroll = getRolesUserCanEnroll(userRoles)
-    logger.debug(`rolesUserCanEnroll: ${rolesUserCanEnroll}`)
-
-    const rolesStrings: string[] = rolesUserCanEnroll.map(r => String(r))
-    logger.debug(`rolesStrings: ${rolesStrings}`)
-    logger.debug(rolesStrings.includes('StudentEnrollment'))
-
-    const userAssignableRoles: string[] = getRolesUserCanEnroll(userRoles).map(r => String(r))
-    logger.debug(`userAssignableRoles: ${userAssignableRoles}`)
-    for (let sectionUser of sectionUsers) {
-      logger.debug(`${sectionUser.type} --> ${userAssignableRoles.includes(String(sectionUser.type))}`)
-    }
-
-    const success: boolean = sectionUsers.every(u =>
-      userAssignableRoles.includes(String(u.type))
-    )
-    logger.debug(`🦜🦜🦜🦜🦜🦜 success: ${success} 🦜🦜🦜🦜🦜🦜`)
 
     // Create all requested users, noting failures
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
