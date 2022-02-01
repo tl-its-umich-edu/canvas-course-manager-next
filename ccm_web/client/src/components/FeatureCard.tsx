@@ -5,7 +5,7 @@ import { Card, CardActionArea, CardContent, Grid, makeStyles, Typography } from 
 import { FeatureUIProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  cardContent: {
     backgroundColor: '#FAFAFA',
     height: 200
   },
@@ -27,7 +27,7 @@ function FeatureCard (props: FeatureUIProps): JSX.Element {
     <RouterLink className={classes.cardLink} to={props.route} tabIndex={-1}>
       <Card variant='outlined'>
         <CardActionArea>
-          <CardContent className={`${classes.root}`}>
+          <CardContent className={`${classes.cardContent}`}>
             <Grid container>
               <Grid item xs={12}>
                 <div className={classes.centered}>
@@ -37,7 +37,7 @@ function FeatureCard (props: FeatureUIProps): JSX.Element {
                   <Typography className={classes.title} color='textPrimary' gutterBottom>
                     {props.data.title}
                   </Typography>
-                  <Typography variant='body2' component='p' color='textSecondary'>
+                  <Typography variant='body2' color='textSecondary'>
                     {props.data.description}
                   </Typography>
                 </div>
