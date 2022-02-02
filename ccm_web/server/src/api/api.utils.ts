@@ -68,7 +68,7 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
   }
 }
 
-export function roleStringsToEnums(roleStrings: string[]): CanvasRole[] {
+export function roleStringsToEnums (roleStrings: string[]): CanvasRole[] {
   // FIXME: Could cause problems when new roles added to Canvas?
   const roleEnums: CanvasRole[] = []
   for (const roleString of roleStrings) {

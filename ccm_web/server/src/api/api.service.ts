@@ -139,12 +139,12 @@ export class APIService {
     try {
       userRoles = roleStringsToEnums(session.data.course.roles)
     } catch (e) {
-      throw Error(`Role error for user "${user.loginId}": ${e.message}`)
+      throw Error(`Role error for user "${user.loginId}": ${String(e.message)}`)
     }
 
     // FIXME: after development complete, update the following two lines
     // const isRootAdmin: boolean = session.data.isRootAdmin // TODO: uncomment
-    const isRootAdmin: boolean = false // TODO: remove
+    const isRootAdmin = false // TODO: remove
 
     if (isRootAdmin) {
       logger.debug(`User "${user.loginId}" is a root admin.  ` +
@@ -154,7 +154,7 @@ export class APIService {
         getRolesUserCanEnroll(userRoles).map(r => String(r))
       if (!sectionUsers.every(sectionUser =>
         userAssignableRoles.includes(String(sectionUser.type)))) {
-        return {
+        const roleError: APIErrorData = {
           statusCode: 403,
           errors: [{
             canvasStatusCode: NaN,
@@ -162,6 +162,7 @@ export class APIService {
               JSON.stringify(userAssignableRoles)
           }]
         } as APIErrorData
+        return roleError
       }
     }
 
