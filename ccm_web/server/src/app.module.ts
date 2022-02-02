@@ -73,7 +73,6 @@ export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
     consumer.apply(helmet({
       contentSecurityPolicy: {
-        useDefaults: true,
         directives: { 'frame-ancestors': [this.frameDomain] }
       }
     }))
