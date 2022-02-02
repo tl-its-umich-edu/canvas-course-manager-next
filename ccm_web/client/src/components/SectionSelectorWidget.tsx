@@ -118,6 +118,7 @@ interface ISectionSelectorWidgetProps {
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
   const classes = useStyles()
+  const theme = useTheme()
   const { enqueueSnackbar } = useSnackbar()
 
   // The search text ultimately used when searching
@@ -319,7 +320,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
     const isSelected = isSectionSelected(section.id)
     return (
-      <ListItemText primary={section.name} style={isSelected ? { color: '#3777c5' } : {}}
+      <ListItemText
+        primary={section.name}
+        style={isSelected ? { color: theme.palette.info.main } : undefined}
         secondary={
           <React.Fragment>
             {
@@ -427,7 +430,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   }
 
   const checkboxStyle = (): Record<string, unknown> => {
-    const theme = useTheme()
     const xs = useMediaQuery(theme.breakpoints.up('xs'))
     return { float: xs ? 'left' : 'right' }
   }
