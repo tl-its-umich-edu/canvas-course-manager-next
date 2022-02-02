@@ -66,9 +66,7 @@ const logger = baseLogger.child({ filePath: __filename })
 export class AppModule implements NestModule {
   private readonly frameDomain: string
 
-  constructor (
-    private readonly configService: ConfigService<Config, true>
-  ) {
+  constructor (private readonly configService: ConfigService<Config, true>) {
     this.frameDomain = this.configService.get('server.frameDomain', { infer: true })
   }
 
