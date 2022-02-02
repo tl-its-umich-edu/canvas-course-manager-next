@@ -29,7 +29,7 @@ export default function InlineErrorAlert (props: InlineAlertProps): JSX.Element 
   const classes = useStyles()
   return (
     <Paper className={classes.alert} elevation={0} role='alert'>
-      <Grid container spacing={2} alignItems='center' direction='row'>
+      <Grid container spacing={2} alignItems='center' direction='row' wrap='nowrap'>
         <Grid item><ErrorIcon className={classes.icon} /></Grid>
         <Grid item>{props.children}</Grid>
       </Grid>
