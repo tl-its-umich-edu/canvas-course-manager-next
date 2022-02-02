@@ -14,6 +14,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 
+import { CacheControlToHeaderInterceptor } from './no.cache.interceptor'
 import { Config } from './config'
 import baseLogger from './logger'
 
@@ -68,6 +69,7 @@ async function bootstrap (): Promise<void> {
       }
     })
   )
+  app.useGlobalInterceptors(new CacheControlToHeaderInterceptor())
 
   app.useGlobalPipes(new ValidationPipe())
 
