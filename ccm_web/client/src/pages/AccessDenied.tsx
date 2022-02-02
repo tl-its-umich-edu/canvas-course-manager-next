@@ -1,8 +1,7 @@
 import React from 'react'
+import { Link, makeStyles, Typography } from '@material-ui/core'
 
 import InlineErrorAlert from '../components/InlineErrorAlert'
-
-import { Link, makeStyles, Typography } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   container: {
