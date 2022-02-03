@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
@@ -13,11 +13,15 @@ import RowLevelErrorsContent from './RowLevelErrorsContent'
 import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
+import CanvasSettingsLink from './CanvasSettingsLink'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
-import { AddNewExternalUserEnrollment, AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
+  injectCourseName
+} from '../models/canvas'
+import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
-import { isAuthorizedForRoles } from '../models/FeatureUIData'
+import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
@@ -52,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     textAlign: 'center'
   },
-  confirmContainer: {
+  container: {
     position: 'relative',
     zIndex: 0
   },
@@ -65,13 +69,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MultipleUserEnrollmentWorkflowProps {
+interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
-  sections: CanvasCourseSectionWithCourseName[]
   onSectionCreated: (newSection: CanvasCourseSection) => void
-  readonly rolesUserCanEnroll: ClientEnrollmentType[]
-  resetFeature: () => void
-  settingsURL: string
   userCourseRoles: RoleEnum[]
 }
 
@@ -82,7 +82,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [file, setFile] = useState<File | undefined>(undefined)
-  const [validEnrollments, setValidEnrollments] = useState<AddNumberedNewExternalUserEnrollment[] | undefined>(undefined)
+  const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddNewExternalUserEnrollment[] | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -105,6 +105,13 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     setRowInvalidations(undefined)
   }
 
+  const getSectionsErrorAlert = (
+    <ErrorAlert
+      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      tryAgain={props.doGetSections}
+    />
+  )
+
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
@@ -126,19 +133,33 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderSelect = (): JSX.Element => {
+    if (props.getSectionsError !== undefined) return getSectionsErrorAlert
+
     const canCreate = isAuthorizedForRoles(props.userCourseRoles, createSectionRoles)
+    const onSectionCreated = (section: CanvasCourseSection): void => {
+      setSelectedSection(injectCourseName([section], props.course.name)[0])
+      props.onSectionCreated(section)
+    }
     const createProps: CreateSelectSectionWidgetCreateProps = canCreate
-      ? { canCreate: true, course: props.course, onSectionCreated: props.onSectionCreated }
+      ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
     return (
       <>
-      <CreateSelectSectionWidget
-        sections={props.sections}
-        selectedSection={selectedSection}
-        setSelectedSection={setSelectedSection}
-        {...createProps}
-      />
+      <div className={classes.container}>
+        <CreateSelectSectionWidget
+          sections={props.sections}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          {...createProps}
+        />
+        <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading section data from Canvas</Grid>
+          </Grid>
+        </Backdrop>
+      </div>
       <Grid container className={classes.buttonGroup} justifyContent='space-between'>
         <Button
           variant='outlined'
@@ -151,7 +172,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           variant='contained'
           color='primary'
           aria-label='Select section'
-          disabled={selectedSection === undefined}
+          disabled={selectedSection === undefined || props.isGetSectionsLoading}
           onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
         >
           Select
@@ -204,9 +225,11 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       'jdoe@example.edu,student,jane,doe'
     )
 
-    const handleBackClick = (): void => {
+    const handleBackClick = async (): Promise<void> => {
       handleResetUpload()
+      setSelectedSection(undefined)
       setActiveStep(CSVWorkflowStep.Select)
+      await props.doGetSections()
     }
 
     const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
@@ -229,12 +252,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const lastNameValidator = new LastNameRowsValidator()
       errors.push(...lastNameValidator.validate(externalRecords.map(r => r[LAST_NAME_HEADER])))
 
-      const rolesValidator = new RoleRowsValidator()
-      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER]), props.rolesUserCanEnroll))
+      const rolesValidator = new RoleRowsValidator(props.rolesUserCanEnroll)
+      errors.push(...rolesValidator.validate(externalRecords.map(r => r[ROLE_HEADER])))
 
       if (errors.length > 0) return setRowInvalidations(errors)
 
-      const externalEnrollments: AddNumberedNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
+      const externalEnrollments: RowNumberedAddNewExternalUserEnrollment[] = externalRecords.map((r, i) => ({
         rowNumber: getRowNumber(i),
         email: r[EMAIL_HEADER],
         role: r[ROLE_HEADER] as ClientEnrollmentType,
@@ -272,9 +295,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderReview = (sectionId: number, enrollments: AddNumberedNewExternalUserEnrollment[]): JSX.Element => {
+  const renderReview = (sectionId: number, enrollments: RowNumberedAddNewExternalUserEnrollment[]): JSX.Element => {
     return (
-      <div className={classes.confirmContainer}>
+      <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
           <Box clone order={{ xs: 2, sm: 1 }}>
@@ -299,12 +322,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddExternalEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}>
-              <CircularProgress color='inherit' />
-            </Grid>
-            <Grid item xs={12}>
-              Loading...
-            </Grid>
+            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+            <Grid item xs={12}>Loading...</Grid>
             <Grid item xs={12}>
               Please stay on the page. This may take up to a couple of minutes for larger files.
             </Grid>
@@ -315,9 +334,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderSuccess = (): JSX.Element => {
-    const settingsLink = (
-      <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    )
     // Need to process actual result here somehow
     const message = (
       <Typography>
@@ -326,13 +342,15 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       </Typography>
     )
     const nextAction = (
-      <span>See the users in the course&apos;s sections on the {settingsLink} for your course.</span>
+      <span>See the users in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
     )
     return (
       <>
       <SuccessCard {...{ message, nextAction }} />
       <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' onClick={props.resetFeature}>Start Again</Button>
+        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+          Start Again
+        </Button>
       </Grid>
       </>
     )

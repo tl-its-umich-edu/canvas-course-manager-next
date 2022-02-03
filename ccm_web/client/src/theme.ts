@@ -17,6 +17,11 @@ const ccmTheme = createTheme({
     info: {
       main: '#3F648E'
     }
+  },
+  props: {
+    MuiLink: {
+      underline: 'always'
+    }
   }
 })
 

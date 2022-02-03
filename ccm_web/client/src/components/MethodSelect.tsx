@@ -14,8 +14,8 @@ interface MethodSelectProps<T extends string> {
   selectedMethod: T
   typeGuard: (v: string) => v is T
   setMethod: (method: T) => void
-  onButtonClick: () => void
-  disabled: boolean | undefined
+  onButtonClick: () => void | Promise<void>
+  disabled?: boolean
 }
 
 const useStyles = makeStyles((theme) => ({

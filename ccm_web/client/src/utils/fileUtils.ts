@@ -1,3 +1,9 @@
+const CSV_LINK_DOWNLOAD_PREFIX = 'data:text/csv;charset=utf-8,'
+
+const prepDownloadDataString = (data: string): string => {
+  return CSV_LINK_DOWNLOAD_PREFIX + encodeURIComponent(data)
+}
+
 /*
 Takes a file name and replaces the string segment without a period
 just before the file name extension with that segment plus a new provided ending.
@@ -18,4 +24,4 @@ function getRowNumber (index: number, numHeaderRows = 1): number {
   return index + 1 + numHeaderRows
 }
 
-export { createOutputFileName, getRowNumber }
+export { createOutputFileName, getRowNumber, prepDownloadDataString }

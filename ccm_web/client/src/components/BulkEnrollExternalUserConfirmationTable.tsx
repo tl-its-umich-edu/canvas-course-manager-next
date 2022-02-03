@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 
 import CustomTable from './CustomTable'
-import { AddNumberedNewExternalUserEnrollment } from '../models/enrollment'
+import { RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 
 interface BulkEnrollExternalConfirmationTableProps {
-  enrollments: AddNumberedNewExternalUserEnrollment[]
+  enrollments: RowNumberedAddNewExternalUserEnrollment[]
 }
 
 interface TableHeaderColumnInfoShouldUseMatUIType {
-  id: keyof AddNumberedNewExternalUserEnrollment
+  id: keyof RowNumberedAddNewExternalUserEnrollment
   label: string
   minWidth: number
   align?: 'left' | 'right' | undefined
@@ -27,8 +27,7 @@ function BulkEnrollUMUserConfirmationTable (props: BulkEnrollExternalConfirmatio
 
   const tableRows = props.enrollments
 
-  return <CustomTable<AddNumberedNewExternalUserEnrollment> {...{ tableRows, columns, page, setPage }} />
+  return <CustomTable<RowNumberedAddNewExternalUserEnrollment> {...{ tableRows, columns, page, setPage }} />
 }
 
-export type { AddNumberedNewExternalUserEnrollment }
 export default BulkEnrollUMUserConfirmationTable

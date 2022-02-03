@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Backdrop, Box, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
@@ -8,6 +8,7 @@ import {
   DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
 } from '../components/BulkSectionCreateValidators'
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -28,10 +29,7 @@ import { getRowNumber } from '../utils/fileUtils'
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left',
-    '& button': {
-      margin: 5
-    }
+    textAlign: 'left'
   },
   confirmContainer: {
     position: 'relative',
@@ -57,6 +55,9 @@ const useStyles = makeStyles((theme) => ({
   table: {
     paddingLeft: 10,
     paddingRight: 10
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -365,10 +366,19 @@ Section 001`
     const message = <Typography>New sections have been added!</Typography>
     const nextAction = (
       <span>
-        See your sections on the <Link href={settingsURL} target='_parent'>Canvas Settings page</Link> for your course.
+        See your sections on the <CanvasSettingsLink url={settingsURL} /> for your course.
       </span>
     )
-    return <SuccessCard {...{ message, nextAction }} />
+    return (
+      <>
+      <SuccessCard {...{ message, nextAction }} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const renderComponent = (): JSX.Element | undefined => {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { Box, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 import WarningIcon from '@material-ui/icons/Warning'
 
+import CanvasSettingsLink from '../components/CanvasSettingsLink'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -16,18 +17,18 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 import { DownloadData, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { createOutputFileName } from '../utils/fileUtils'
+import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left',
-    '& button': {
-      margin: 5
-    }
+    textAlign: 'left'
   },
   uploadHeader: {
     paddingTop: 15
+  },
+  buttonGroup: {
+    marginTop: theme.spacing(1)
   }
 }))
 
@@ -123,7 +124,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const setCSVtoDownload = (data: GradebookRecord[]): void => {
     const csvData = data.map(r => [r['SIS LOGIN ID'], getGradeForExport(r)])
-    const csvString = 'data:text/csv;charset=utf-8,' + encodeURIComponent(fileParser.createCSV<string[]>(csvData))
+    const csvString = prepDownloadDataString(fileParser.createCSV<string[]>(csvData))
     setDownloadData({ data: csvString, fileName: getOutputFilename(file) })
   }
 
@@ -134,10 +135,11 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   const handleNoLetterGradesError = (): void => {
     const { canvasURL, course } = props.globals
     const settingsURL = `${canvasURL}/courses/${course.id}/settings#course_grading_standard_enabled`
+    const settingsMsg = 'Grading Scheme in settings'
     const errorMessage = (
       <Typography key='0'>
         The Canvas gradebook export CSV you uploaded does not include letter grades. To add them,
-        ensure <Link href={settingsURL} target='_parent'>Grading Scheme in settings</Link> for your course
+        ensure {<CanvasSettingsLink url={settingsURL} msg={settingsMsg} />} for your course
         is checked, and then re-export the gradebook.
       </Typography>
     )
@@ -294,7 +296,16 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderSuccess = (): JSX.Element => {
     const message = <Typography>Your gradebook has been successfully converted and downloaded to your computer!</Typography>
-    return <SuccessCard message={message} />
+    return (
+      <>
+      <SuccessCard message={message} />
+      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
+          Start Again
+        </Button>
+      </Grid>
+      </>
+    )
   }
 
   const gradeBookRecordToStudentGrade = (grades: GradebookRecord[] | undefined): StudentGrade[] => {

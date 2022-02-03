@@ -25,7 +25,7 @@ import ThirdPartyGradebookProcessor, {
   GradebookInvalidation, GradebookUploadRecord, isGradebookUploadRecord, POINTS_POS_TEXT,
   REQUIRED_LOGIN_ID_HEADER, REQUIRED_ORDERED_HEADERS
 } from '../utils/ThirdPartyGradebookProcessor'
-import { createOutputFileName, getRowNumber } from '../utils/fileUtils'
+import { createOutputFileName, getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,9 +34,6 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonGroup: {
     marginTop: theme.spacing(1)
-  },
-  backButton: {
-    marginRight: theme.spacing(1)
   },
   stepper: {
     textAlign: 'center',
@@ -105,10 +102,8 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   useEffect(() => {
-    if (sections === undefined && getSectionsError === undefined) {
-      void doGetSections()
-    }
-  }, [sections, getSectionsError])
+    void doGetSections()
+  }, [])
 
   useEffect(() => {
     if (studentLoginIds !== undefined) {
@@ -116,9 +111,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     }
   }, [studentLoginIds])
 
-  const handleSelectClick = (): void => {
+  const handleSelectClick = async (): Promise<void> => {
     if (selectedSections !== undefined) {
-      void doGetStudents(selectedSections.map(s => s.id))
+      await doGetStudents(selectedSections.map(s => s.id))
     }
   }
 
@@ -174,18 +169,12 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     setGradebookInvalidations(undefined)
   }
 
-  const handleFullReset = (): void => {
+  const handleFullReset = async (): Promise<void> => {
     handleResetSelect()
     handleResetUpload()
     setActiveStep(CSVWorkflowStep.Select)
+    await doGetSections()
   }
-
-  const handleBack = (): void => setActiveStep((prevStep) => {
-    if (prevStep > CSVWorkflowStep.Select) return prevStep - 1
-    return prevStep
-  })
-
-  const backButton = <Button className={classes.backButton} onClick={handleBack}>Back</Button>
 
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const messages = invalidations.map(
@@ -230,7 +219,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               data from Canvas.
             </Typography>
           ]}
-          tryAgain={handleResetSelect}
+          tryAgain={async () => {
+            handleResetSelect()
+            await doGetSections()
+          }}
         />
       )
     }
@@ -347,7 +339,17 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             </Grid>
           </Grid>
           <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-            {backButton}
+            <Button
+              variant='outlined'
+              aria-label='Back to Select Section'
+              onClick={async () => {
+                handleResetSelect()
+                setActiveStep(CSVWorkflowStep.Select)
+                await doGetSections()
+              }}
+            >
+              Back
+            </Button>
           </Grid>
         </div>
       </div>
@@ -358,7 +360,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     processedRecords: GradebookUploadRecord[], assignmentHeader: string, file: File
   ): JSX.Element => {
     const recordsToReview = processedRecords.map((r, i) => ({ rowNumber: getRowNumber(i), ...r }))
-    const dataToDownload = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+    const dataToDownload = prepDownloadDataString(
       csvParser.createCSV<GradebookUploadRecord>({
         fields: [...REQUIRED_ORDERED_HEADERS, assignmentHeader],
         data: processedRecords
@@ -408,7 +410,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           message={<Typography>The formatted gradebook file has been downloaded to your computer!</Typography>}
         />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-          <Button variant='outlined' onClick={handleFullReset}>Start Again</Button>
+          <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={handleFullReset}>
+            Start Again
+          </Button>
         </Grid>
       </div>
     )

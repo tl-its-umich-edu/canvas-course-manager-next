@@ -86,6 +86,10 @@ export interface AddSectionEnrollment {
   type: string
 }
 
+interface AddEnrollmentWithSectionId extends AddSectionEnrollment {
+  sectionId: number
+}
+
 export const getStudentsEnrolledInSection = async (sectionId: number): Promise<string[]> => {
   const request = getGet()
   const resp = await fetch(`/api/sections/${sectionId}/students`, request)
@@ -95,10 +99,18 @@ export const getStudentsEnrolledInSection = async (sectionId: number): Promise<s
 
 export const addSectionEnrollments = async (
   sectionId: number, enrollments: AddSectionEnrollment[]
-): Promise<CanvasEnrollment> => {
+): Promise<CanvasEnrollment[]> => {
   const body = JSON.stringify({ users: enrollments })
   const request = getPost(body)
   const resp = await fetch(`/api/sections/${sectionId}/enroll`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSectionId[]): Promise<CanvasEnrollment[]> => {
+  const body = JSON.stringify({ enrollments })
+  const request = getPost(body)
+  const resp = await fetch('/api/sections/enroll', request)
   await handleErrors(resp)
   return await resp.json()
 }

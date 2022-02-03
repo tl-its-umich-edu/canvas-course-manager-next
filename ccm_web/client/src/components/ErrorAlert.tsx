@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 interface ErrorAlertProps {
   // Spacing works out best when you use Material UI Typography components or p tags.
   messages?: JSX.Element[]
-  tryAgain?: () => void
+  tryAgain?: () => void | Promise<void>
   title?: string
   icon?: JSX.Element
   embedded?: boolean

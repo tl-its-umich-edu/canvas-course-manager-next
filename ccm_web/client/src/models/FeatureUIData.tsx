@@ -17,13 +17,29 @@ import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas'
 import MergeSections from '../pages/MergeSections'
 import { Globals, RoleEnum } from './models'
-import { CanvasCourseBase } from './canvas'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas'
 
 export interface CCMComponentProps {
   globals: Globals
   course: CanvasCourseBase
   title: string
   helpURLEnding: string
+}
+
+interface EnrollmentFeatureLeafProps {
+  sections: CanvasCourseSectionWithCourseName[]
+  doGetSections: () => Promise<void>
+  isGetSectionsLoading: boolean
+  getSectionsError: Error | undefined
+  featureTitle: string
+  settingsURL: string
+  resetFeature: () => void
+}
+
+export interface AddUMUsersLeafProps extends EnrollmentFeatureLeafProps {}
+
+export interface AddNonUMUsersLeafProps extends EnrollmentFeatureLeafProps {
+  readonly rolesUserCanEnroll: ClientEnrollmentType[]
 }
 
 interface FeatureUIGroup {

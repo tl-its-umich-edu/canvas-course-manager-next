@@ -50,7 +50,8 @@ export class LTIService implements BeforeApplicationShutdown {
         keysetRoute: '/keys',
         // Set secure to true if the testing platform is in a different domain and https is being used
         // Set sameSite to 'None' if the testing platform is in a different domain and https is being used
-        cookies: { secure: true, sameSite: 'None' }
+        cookies: { secure: true, sameSite: 'None' },
+        cors: false
       }
     )
 
