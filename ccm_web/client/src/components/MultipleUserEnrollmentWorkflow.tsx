@@ -187,7 +187,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
     const description = (
-      'This tool will try to enroll non-UM users in the selected section. ' +
+      'This tool will enroll non-UM users in the selected section. ' +
       'If they do not have an account in Canvas, they will be sent an email ' +
       'invitation to choose a login method and added to Canvas before they are enrolled in the section.'
     )
@@ -209,12 +209,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </li>
         <li>
           <Typography>
-          &quot;{FIRST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s first name (between one and 255 characters in length);
+          &quot;{FIRST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s first name (between 1 and 255 characters in length);
           </Typography>
         </li>
         <li>
           <Typography>
-            and &quot;{LAST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s last name (between one and 255 characters in length).
+            &quot;{LAST_NAME_HEADER.toLowerCase()}&quot; with the user&apos;s last name (between 1 and 255 characters in length).
           </Typography>
         </li>
       </ul>
