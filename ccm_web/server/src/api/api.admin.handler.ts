@@ -2,7 +2,7 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError, limitPromises, makeResponse } from './api.utils'
+import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
 import { CanvasAccount, CanvasCourse, CourseWithSections, CourseWorkflowState } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -84,7 +84,7 @@ export class AdminApiHandler {
     }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
-    const coursesApiPromises = limitPromises<CanvasCourse[] | APIErrorData>(
+    const coursesApiPromises = createLimitedPromises<CanvasCourse[] | APIErrorData>(
       accountIds.map(a => async () => await this.getAccountCourses(a, queryParams))
     )
     const coursesResponses = await Promise.all(coursesApiPromises)
@@ -94,7 +94,7 @@ export class AdminApiHandler {
     result.map(cs => allCourses.push(...cs))
 
     // Get sections for those courses
-    const coursesWithSectionsApiPromises = limitPromises(
+    const coursesWithSectionsApiPromises = createLimitedPromises(
       allCourses.map(c => async () => {
         const courseHandler = new CourseApiHandler(this.requestor, c.id)
         return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))

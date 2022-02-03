@@ -1,7 +1,7 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData } from './api.interfaces'
-import { handleAPIError, limitPromises, HttpMethod, makeResponse } from './api.utils'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
@@ -104,7 +104,7 @@ export class SectionApiHandler {
   async enrollUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = limitPromises<CanvasEnrollment | APIErrorData>(
+    const apiPromises = createLimitedPromises<CanvasEnrollment | APIErrorData>(
       users.map(user => async () => await this.enrollUser(user))
     )
     const enrollmentResponses = await Promise.all(apiPromises)

@@ -68,10 +68,10 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
 /*
 Convenience wrapper for p-limit: see https://github.com/sindresorhus/p-limit
 */
-export function limitPromises<T extends unknown | APIErrorData> (
-  funcs: Array<() => Promise<T>>, maxConcurrentRequest = 5
+export function createLimitedPromises<T> (
+  funcs: Array<() => Promise<T>>, maxConcurrentPromises = 5
 ): Array<Promise<T>> {
-  const limit = pLimit(maxConcurrentRequest)
+  const limit = pLimit(maxConcurrentPromises)
   const limitedPromises = funcs.map(async (func) => {
     return await limit<[], T>(async () => {
       logger.debug(`Promises still in queue: ${limit.pendingCount}`)
