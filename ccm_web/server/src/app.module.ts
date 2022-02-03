@@ -2,6 +2,7 @@ import helmet from 'helmet'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
+import { APP_INTERCEPTOR } from '@nestjs/core'
 
 import { APIModule } from './api/api.module'
 import { AuthModule } from './auth/auth.module'
@@ -12,6 +13,7 @@ import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
 import { UserService } from './user/user.service'
 
+import { CacheControlToHeaderInterceptor } from './no.cache.interceptor'
 import { Config, validateConfig } from './config'
 import baseLogger from './logger'
 
@@ -45,7 +47,13 @@ const logger = baseLogger.child({ filePath: __filename })
     CanvasModule,
     APIModule
   ],
-  providers: [UserService]
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheControlToHeaderInterceptor
+    },
+    UserService
+  ]
 })
 export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
