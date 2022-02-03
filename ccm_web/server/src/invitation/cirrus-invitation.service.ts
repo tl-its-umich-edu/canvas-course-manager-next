@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { Config } from '../config'
+import axios from 'axios'
 import FormData from 'form-data'
 import { randomUUID } from 'crypto'
-import axios from 'axios'
-import { InvitationAPIError } from './invitation.errors'
-import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
-import { HttpMethod } from '../api/api.utils'
+import { ConfigService } from '@nestjs/config'
+import { Injectable } from '@nestjs/common'
 import baseLogger from '../logger'
+import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
+import { Config } from '../config'
+import { HttpMethod } from '../api/api.utils'
+import { InvitationAPIError } from './invitation.errors'
 
 const logger = baseLogger.child({ filePath: __filename })
 
