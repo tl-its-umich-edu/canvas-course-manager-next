@@ -1,4 +1,5 @@
 import { CanvasApiError } from '@kth/canvas-api'
+import pLimit from 'p-limit'
 
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
@@ -62,4 +63,20 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
       errors: failures
     }
   }
+}
+
+/*
+Convenience wrapper for p-limit: see https://github.com/sindresorhus/p-limit
+*/
+export function limitPromises<T extends unknown | APIErrorData> (
+  funcs: Array<() => Promise<T>>, maxConcurrentRequest = 5
+): Array<Promise<T>> {
+  const limit = pLimit(maxConcurrentRequest)
+  const limitedPromises = funcs.map(async (func) => {
+    return await limit<[], T>(async () => {
+      logger.debug(`Promises still in queue: ${limit.pendingCount}`)
+      return await func()
+    })
+  })
+  return limitedPromises
 }

@@ -2,7 +2,7 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError, makeResponse } from './api.utils'
+import { handleAPIError, limitPromises, makeResponse } from './api.utils'
 import { CanvasAccount, CanvasCourse, CourseWithSections, CourseWorkflowState } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -84,7 +84,9 @@ export class AdminApiHandler {
     }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
-    const coursesApiPromises = accountIds.map(async (a) => await this.getAccountCourses(a, queryParams))
+    const coursesApiPromises = limitPromises<CanvasCourse[] | APIErrorData>(
+      accountIds.map(a => async () => await this.getAccountCourses(a, queryParams))
+    )
     const coursesResponses = await Promise.all(coursesApiPromises)
     const result = makeResponse<CanvasCourse[]>(coursesResponses)
     if (isAPIErrorData(result)) return result
@@ -92,10 +94,12 @@ export class AdminApiHandler {
     result.map(cs => allCourses.push(...cs))
 
     // Get sections for those courses
-    const coursesWithSectionsApiPromises = allCourses.map(async c => {
-      const courseHandler = new CourseApiHandler(this.requestor, c.id)
-      return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
-    })
+    const coursesWithSectionsApiPromises = limitPromises(
+      allCourses.map(c => async () => {
+        const courseHandler = new CourseApiHandler(this.requestor, c.id)
+        return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
+      })
+    )
     const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
     const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
 
