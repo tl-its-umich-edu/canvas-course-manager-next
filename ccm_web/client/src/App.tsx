@@ -12,6 +12,7 @@ import usePromise from './hooks/usePromise'
 import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
+import NotFound from './pages/NotFound'
 import redirect from './utils/redirect'
 
 const useStyles = makeStyles((theme) => ({
@@ -95,7 +96,7 @@ function App (): JSX.Element {
             </Route>
           )
         })}
-        <Route><div><em>Under Construction</em></div></Route>
+        <Route><NotFound /></Route>
       </Switch>
       {
         globals?.environment === 'development' &&
