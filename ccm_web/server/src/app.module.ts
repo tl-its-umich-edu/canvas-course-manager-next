@@ -1,5 +1,7 @@
 import helmet from 'helmet'
+import { NoCacheInterceptor } from './no.cache.interceptor'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
+import { APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 
@@ -45,7 +47,13 @@ const logger = baseLogger.child({ filePath: __filename })
     CanvasModule,
     APIModule
   ],
-  providers: [UserService]
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: NoCacheInterceptor
+    },
+    UserService
+  ]
 })
 export class AppModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
