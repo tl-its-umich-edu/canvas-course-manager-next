@@ -8,8 +8,8 @@ import { Response as ExpressResponse } from 'express'
 @Injectable()
 export class CacheControlToHeaderInterceptor implements NestInterceptor {
   intercept (context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const ResponseObj: ExpressResponse = context.switchToHttp().getResponse()
-    ResponseObj.setHeader('Cache-Control', 'no-store')
+    const responseObj: ExpressResponse = context.switchToHttp().getResponse()
+    responseObj.setHeader('Cache-Control', 'no-store')
     return next.handle()
   }
 }
