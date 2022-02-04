@@ -152,7 +152,7 @@ export interface CanvasEnrollment {
 }
 
 export interface ExternalEnrollment {
-  usersCreated: (CanvasUserLoginEmail | APIErrorData)[]
+  usersCreated: Array<CanvasUserLoginEmail | APIErrorData>
   inviteResults: string | null
   userEnrollments: CanvasEnrollment[] | APIErrorData
 }
@@ -200,11 +200,15 @@ export interface CanvasErrorBody {
 }
 
 export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
-  if (!hasKeys(value, ['errors']) || !Array.isArray(value.errors)) {
+  if (!hasKeys(value, ['errors'])) {
     return false
-  } else {
+  }
+
+  if (Array.isArray(value.errors)) {
     const result = value.errors.map(e => isCanvasError(e)).every(e => e)
     return result
+  } else {
+    return true
   }
 }
 

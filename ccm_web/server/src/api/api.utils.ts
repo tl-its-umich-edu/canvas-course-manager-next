@@ -38,9 +38,19 @@ export function handleAPIError (error: unknown, input?: string): APIErrorPayload
 export function parseErrorBody (body: unknown): string {
   if (body === null || body === undefined || String(body).startsWith('<!DOCTYPE html>')) return 'No response body was found.'
   if (!isCanvasErrorBody(body)) {
+    logger.debug('Supposedly: Response body had unexpected shape')
+    logger.debug(JSON.stringify(body))
     return `Response body had unexpected shape: ${JSON.stringify(body)}`
   }
-  return body.errors.map(e => e.message).join(' ')
+  // FIXME: body.errors.map is not always an array
+  let errorMessage: string
+  try {
+    errorMessage = body.errors.map(e => e.message).join(' ')
+  } catch (e) {
+    errorMessage = JSON.stringify(body)
+    logger.debug(errorMessage)
+  }
+  return errorMessage
 }
 
 export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] | APIErrorData {
