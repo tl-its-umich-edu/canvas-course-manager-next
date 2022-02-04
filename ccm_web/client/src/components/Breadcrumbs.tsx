@@ -55,7 +55,9 @@ function Breadcrumbs (props: BreadcrumbsProps): JSX.Element {
             pathnames.map((value, index) => {
               const last = index === pathnames.length - 1
               const to = `/${pathnames.slice(0, index + 1).join('/')}`
-              const feature = features.filter(f => { return f.route.substring(1) === value })[0]
+              const matches = features.filter(f => f.route.substring(1) === value)
+              if (matches.length === 0) return undefined
+              const feature = matches[0]
               const titleTypographyProps: TitleTypographyProps = last ? { to: to } : {}
               return (
                 <Typography className={classes.breadcrumbs} color='textPrimary' key={to} {...titleTypographyProps}>

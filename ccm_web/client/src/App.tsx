@@ -3,15 +3,17 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 import { Link, makeStyles } from '@material-ui/core'
 
 import { getCourse, getCSRFToken } from './api'
+import './App.css'
 import AuthorizePrompt from './components/AuthorizePrompt'
 import Breadcrumbs from './components/Breadcrumbs'
+import ResponsiveHelper from './components/ResponsiveHelper'
 import useGlobals from './hooks/useGlobals'
 import usePromise from './hooks/usePromise'
 import { CanvasCourseBase } from './models/canvas'
 import allFeatures from './models/FeatureUIData'
 import Home from './pages/Home'
-import './App.css'
-import ResponsiveHelper from './components/ResponsiveHelper'
+import NotFound from './pages/NotFound'
+import redirect from './utils/redirect'
 
 const useStyles = makeStyles((theme) => ({
   swaggerLink: {
@@ -49,11 +51,8 @@ function App (): JSX.Element {
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
   if (globals === undefined || !isAuthenticated) {
-    return (
-      <div className='App'>
-        <p>You were not properly authenticated to the application.</p>
-      </div>
-    )
+    redirect('/access-denied')
+    return (loading)
   }
 
   if (!globals.user.hasCanvasToken) {
@@ -97,7 +96,7 @@ function App (): JSX.Element {
             </Route>
           )
         })}
-        <Route><div><em>Under Construction</em></div></Route>
+        <Route><NotFound /></Route>
       </Switch>
       {
         globals?.environment === 'development' &&

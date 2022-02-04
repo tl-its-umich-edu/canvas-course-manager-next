@@ -1,5 +1,3 @@
-import path from 'path'
-
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import { urlencoded, json } from 'express'
@@ -33,12 +31,6 @@ async function bootstrap (): Promise<void> {
 
   const stream = { write: (message: string) => { logger.info(message.trim()) } }
   app.use(morgan('combined', { stream: stream }))
-
-  const staticPath = path.join(
-    path.join(__dirname, '..', '..'),
-    isDev ? path.join('dist', 'client') : 'client'
-  )
-  app.useStaticAssets(staticPath, { prefix: '/' })
 
   app.set('trust proxy', 1)
 
