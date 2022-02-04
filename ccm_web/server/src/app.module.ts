@@ -37,7 +37,7 @@ const logger = baseLogger.child({ filePath: __filename })
             configService.get('server.isDev', { infer: true }) ? path.join('dist', 'client') : 'client'
           )
         ),
-        exclude: ['/api/*', '/canvas/*', '/lti/*', '/auth/*']
+        exclude: ['/api/*', '/auth/*', '/canvas/*', '/lti/*']
       }])
     }),
     UserModule,
