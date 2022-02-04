@@ -8,6 +8,7 @@ import App from './App'
 import './index.css'
 import ccmTheme from './theme'
 import AccessDenied from './pages/AccessDenied'
+import LaunchError from './pages/LaunchError'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,6 +18,9 @@ ReactDOM.render(
         <Switch>
           <Route exact={true} path='/access-denied'>
             <AccessDenied email='4help@umich.edu' helpLink='https://its.umich.edu/help' />
+          </Route>
+          <Route exact={true} path='/launch-error'>
+            <LaunchError />
           </Route>
           <Route><App /></Route>
         </Switch>
