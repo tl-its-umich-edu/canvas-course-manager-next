@@ -69,7 +69,7 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
 Convenience wrapper for p-limit: see https://github.com/sindresorhus/p-limit
 */
 export function createLimitedPromises<T> (
-  funcs: Array<() => Promise<T>>, maxConcurrentPromises = 5
+  funcs: Array<() => Promise<T>>, maxConcurrentPromises = 20
 ): Array<Promise<T>> {
   const limit = pLimit(maxConcurrentPromises)
   const limitedPromises = funcs.map(async (func) => {
