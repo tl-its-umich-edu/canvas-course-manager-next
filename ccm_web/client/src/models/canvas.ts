@@ -61,7 +61,9 @@ export enum CanvasEnrollmentType {
   Teacher = 'TeacherEnrollment',
   TA = 'TaEnrollment',
   Observer = 'ObserverEnrollment',
-  Designer = 'DesignerEnrollment'
+  Designer = 'DesignerEnrollment',
+  Librarian = 'Librarian',
+  Assistant = 'Assistant'
 }
 
 export enum ClientEnrollmentType {
@@ -69,7 +71,9 @@ export enum ClientEnrollmentType {
   Teacher = 'teacher',
   TA = 'ta',
   Observer = 'observer',
-  Designer = 'designer'
+  Designer = 'designer',
+  Assistant = 'assistant',
+  Librarian = 'librarian'
 }
 const clientStringValues = Object.values(ClientEnrollmentType).map(m => String(m))
 
@@ -86,7 +90,9 @@ const clientToCanvasRoleMap: Record<ClientEnrollmentType, CanvasEnrollmentType> 
   teacher: CanvasEnrollmentType.Teacher,
   ta: CanvasEnrollmentType.TA,
   observer: CanvasEnrollmentType.Observer,
-  designer: CanvasEnrollmentType.Designer
+  designer: CanvasEnrollmentType.Designer,
+  assistant: CanvasEnrollmentType.Assistant,
+  librarian: CanvasEnrollmentType.Librarian
 }
 
 const levelOneAddableRoles = [ClientEnrollmentType.Student]

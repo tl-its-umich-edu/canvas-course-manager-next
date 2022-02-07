@@ -26,6 +26,7 @@ interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
+  customRoles: string
 }
 
 export interface DatabaseConfig {
@@ -119,7 +120,8 @@ export function validateConfig (): Config {
     canvas = {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
-      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty])
+      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
+      customRoles: validate<string>('CANVAS_CUSTOM_ROLES', env.CANVAS_CUSTOM_ROLES, isString, [isNotEmpty])
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),

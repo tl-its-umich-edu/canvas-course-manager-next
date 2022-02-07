@@ -20,7 +20,9 @@ const canvasScopes = [
   'url:POST|/api/v1/sections/:section_id/enrollments',
   // Accounts
   'url:GET|/api/v1/accounts',
-  'url:GET|/api/v1/accounts/:account_id/courses'
+  'url:GET|/api/v1/accounts/:account_id/courses',
+
+  'url:GET|/api/v1/accounts/:account_id/roles'
 ]
 
 export default canvasScopes

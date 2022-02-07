@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData } from './api.interfaces'
@@ -7,6 +9,7 @@ import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType
 } from '../canvas/canvas.interfaces'
 
+import { Config } from '../config'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -14,7 +17,9 @@ const logger = baseLogger.child({ filePath: __filename })
 /*
 Handler class for Canvas API calls dealing with a specific section (i.e. those beginning with "/sections/:id")
 */
+@Injectable()
 export class SectionApiHandler {
+  // private readonly configService: ConfigService<Config, true>
   requestor: CanvasRequestor
   sectionId: number
 
@@ -55,16 +60,19 @@ export class SectionApiHandler {
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = HttpMethod.Post
-      const body = {
+      const enrollParams = {
         enrollment: {
-          // 'sis_login_id:' prefix per...
-          // https://canvas.instructure.com/doc/api/file.object_ids.html
+        // 'sis_login_id:' prefix per...
+        // https://canvas.instructure.com/doc/api/file.object_ids.html
           user_id: `sis_login_id:${enrollLoginId}`,
-          type: user.type,
           enrollment_state: 'active',
           notify: false
         }
       }
+      if (user.type === 'Assistant' || user.type === 'Librarian') {
+
+      }
+      const body = { enrollParams }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.request<CanvasEnrollment>(endpoint, method, body)
       logger.debug(`Received response with status code ${response.statusCode}`)
