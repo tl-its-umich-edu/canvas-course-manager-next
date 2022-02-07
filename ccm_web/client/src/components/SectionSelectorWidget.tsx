@@ -498,7 +498,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           </Grid>
         </Grid>
       <Grid item xs={12} className={classes.sectionSelectionContainer}>
-        <List className={classes.listContainer} style={{ maxHeight: props.height }}>
+        <List component='div' className={classes.listContainer} style={{ maxHeight: props.height }} >
           {internalSections.map((section) => {
             const isSelected = isSectionSelected(section.id)
             return (
@@ -506,6 +506,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 divider
                 key={section.id}
                 button
+                component='button'
                 disabled={section.locked}
                 selected={isSelected}
                 aria-pressed={isSelected}
