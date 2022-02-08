@@ -139,8 +139,8 @@ export class APIService {
     let userRoles: CanvasRole[] = []
     try {
       userRoles = roleStringsToEnums(session.data.course.roles)
-    } catch (e) {
-      throw Error(`Role error for user "${user.loginId}": ${String(e.message)}`)
+    } catch (e: any) {
+      throw Error(`Role error for user "${String(user.loginId)}": ${String(e.message)}`)
     }
 
     // FIXME: after development complete, update the following two lines
