@@ -1,7 +1,12 @@
+import path from 'path'
+
 import helmet from 'helmet'
+import { NoCacheInterceptor } from './no.cache.interceptor'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
+import { APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
+import { ServeStaticModule } from '@nestjs/serve-static'
 
 import { APIModule } from './api/api.module'
 import { AuthModule } from './auth/auth.module'
@@ -24,6 +29,19 @@ const logger = baseLogger.child({ filePath: __filename })
       ignoreEnvFile: true,
       isGlobal: true
     }),
+    ServeStaticModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Config, true>) => ([{
+        rootPath: (
+          path.join(
+            path.join(__dirname, '..', '..'),
+            configService.get('server.isDev', { infer: true }) ? path.join('dist', 'client') : 'client'
+          )
+        ),
+        exclude: ['/api/*', '/auth/*', '/canvas/*', '/lti/*']
+      }])
+    }),
     UserModule,
     LTIModule,
     AuthModule,
@@ -45,11 +63,27 @@ const logger = baseLogger.child({ filePath: __filename })
     CanvasModule,
     APIModule
   ],
-  providers: [UserService]
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: NoCacheInterceptor
+    },
+    UserService
+  ]
 })
 export class AppModule implements NestModule {
+  private readonly frameDomain: string
+
+  constructor (private readonly configService: ConfigService<Config, true>) {
+    this.frameDomain = this.configService.get('server.frameDomain', { infer: true })
+  }
+
   configure (consumer: MiddlewareConsumer): void {
-    consumer.apply(helmet())
+    consumer.apply(helmet({
+      contentSecurityPolicy: {
+        directives: { 'frame-ancestors': [this.frameDomain] }
+      }
+    }))
     // Exclude ltijs routes, which are already protected by helmet
       .exclude(
         { path: '/lti', method: RequestMethod.POST },

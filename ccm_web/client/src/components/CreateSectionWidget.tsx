@@ -53,6 +53,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
           .then(newSections => {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
+            enqueueSnackbar('Section was created!', { variant: 'success' })
           }).catch(() => {
             enqueueSnackbar('Error adding section', {
               variant: 'error'
