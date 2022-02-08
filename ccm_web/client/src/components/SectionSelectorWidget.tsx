@@ -333,7 +333,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               )
             }
             {unmergeButton(section)}
-            <span style={props.showCourseName === true ? { float: 'right' } : {}}>
+            <span style={props.showCourseName === true ? { float: 'right' } : undefined}>
               {`${section.total_students ?? '?'} students`}
             </span>
           </React.Fragment>
