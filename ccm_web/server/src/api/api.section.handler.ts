@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData } from './api.interfaces'
@@ -9,7 +8,6 @@ import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType
 } from '../canvas/canvas.interfaces'
 
-import { Config } from '../config'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -56,23 +54,56 @@ export class SectionApiHandler {
     const enrollLoginId = user.loginId
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
+    const enrollmentType = user.type
 
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = HttpMethod.Post
-      const enrollParams = {
-        enrollment: {
-        // 'sis_login_id:' prefix per...
-        // https://canvas.instructure.com/doc/api/file.object_ids.html
-          user_id: `sis_login_id:${enrollLoginId}`,
-          enrollment_state: 'active',
-          notify: false
+      let enrollParams = {
+        // enrollment: {
+        // // 'sis_login_id:' prefix per...
+        // // https://canvas.instructure.com/doc/api/file.object_ids.html
+        //   user_id: `sis_login_id:${enrollLoginId}`,
+        //   enrollment_state: 'active',
+        //   notify: false
+        // }
+      }
+
+      if (enrollmentType === UserEnrollmentType.Assistant) {
+        enrollParams = {
+          enrollment: {
+          // 'sis_login_id:' prefix per...
+          // https://canvas.instructure.com/doc/api/file.object_ids.html
+            user_id: `sis_login_id:${enrollLoginId}`,
+            role_id: '21',
+            enrollment_state: 'active',
+            notify: false
+          }
+        }
+      } else if (enrollmentType === UserEnrollmentType.Librarian) {
+        enrollParams = {
+          enrollment: {
+          // 'sis_login_id:' prefix per...
+          // https://canvas.instructure.com/doc/api/file.object_ids.html
+            user_id: `sis_login_id:${enrollLoginId}`,
+            role_id: '34',
+            enrollment_state: 'active',
+            notify: false
+          }
+        }
+      } else {
+        enrollParams = {
+          enrollment: {
+          // 'sis_login_id:' prefix per...
+          // https://canvas.instructure.com/doc/api/file.object_ids.html
+            user_id: `sis_login_id:${enrollLoginId}`,
+            type: enrollmentType,
+            enrollment_state: 'active',
+            notify: false
+          }
         }
       }
-      if (user.type === 'Assistant' || user.type === 'Librarian') {
-
-      }
-      const body = { enrollParams }
+      const body = enrollParams
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.request<CanvasEnrollment>(endpoint, method, body)
       logger.debug(`Received response with status code ${response.statusCode}`)
