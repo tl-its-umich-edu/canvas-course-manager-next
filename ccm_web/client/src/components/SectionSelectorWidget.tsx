@@ -35,12 +35,21 @@ const useStyles = makeStyles((theme) => ({
       }
     }
   },
+  listItemRoot: {
+    paddingTop: '0px',
+    paddingBottom: '0px'
+  },
   listButton: {
     width: '100%',
     height: '100%',
     textAlign: 'left',
     paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2)
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover
+    }
   },
   buttonFocusVisible: {
     backgroundColor: theme.palette.action.focus
@@ -513,9 +522,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             const isSelected = isSectionSelected(section.id)
             return (
               <ListItem
+                key={section.id}
                 divider
                 disableGutters
-                key={section.id}
+                classes={{ root: classes.listItemRoot }}
                 disabled={section.locked}
                 selected={isSelected}
                 className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : ''}
