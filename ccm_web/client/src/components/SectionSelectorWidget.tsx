@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 import {
-  Backdrop, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid,
+  Backdrop, Button, ButtonBase, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid,
   GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField,
   Typography, useMediaQuery, useTheme
 } from '@material-ui/core'
@@ -34,6 +34,16 @@ const useStyles = makeStyles((theme) => ({
         }
       }
     }
+  },
+  listButton: {
+    width: '100%',
+    height: '100%',
+    textAlign: 'left',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2)
+  },
+  buttonFocusVisible: {
+    backgroundColor: theme.palette.action.focus
   },
   searchContainer: {
     textAlign: 'left'
@@ -498,22 +508,27 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           </Grid>
         </Grid>
       <Grid item xs={12} className={classes.sectionSelectionContainer}>
-        <List component='div' className={classes.listContainer} style={{ maxHeight: props.height }} >
+        <List className={classes.listContainer} style={{ maxHeight: props.height }} >
           {internalSections.map((section) => {
             const isSelected = isSectionSelected(section.id)
             return (
               <ListItem
                 divider
+                disableGutters
                 key={section.id}
-                button
-                component='button'
                 disabled={section.locked}
                 selected={isSelected}
-                aria-pressed={isSelected}
-                onClick={() => handleListItemClick(section.id)}
                 className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : ''}
               >
-                {listItemText(section)}
+                <ButtonBase
+                  className={classes.listButton}
+                  onClick={() => handleListItemClick(section.id)}
+                  disabled={section.locked}
+                  aria-pressed={isSelected}
+                  focusVisibleClassName={classes.buttonFocusVisible}
+                >
+                  {listItemText(section)}
+                </ButtonBase>
               </ListItem>
             )
           })}
