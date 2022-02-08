@@ -121,6 +121,17 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
+  @Get('admin/user/:loginId')
+  async getUserInfoAsAdmin (
+    @Param('loginId') loginId: string,
+    @UserDec() user: User
+  ): Promise<CanvasUser> {
+    const result = await this.apiService.getUserInfoAsAdmin(user, loginId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
+  }
+
+  @UseInterceptors(InvalidTokenInterceptor)
   @Get('instructor/sections')
   async getCourseSectionsInTermAsInstructor (
     @UserDec() user: User, @Query('term_id', ParseIntPipe) termId: number

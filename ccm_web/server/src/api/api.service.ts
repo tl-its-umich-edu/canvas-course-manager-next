@@ -200,6 +200,12 @@ export class APIService {
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
+  async getUserInfoAsAdmin (user: User, loginId: string): Promise<CanvasUser | APIErrorData> {
+    const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
+    const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
+    return await adminHandler.getUserInfo(loginId)
+  }
+
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const courseHandler = new CourseApiHandler(requestor, targetCourseId)
