@@ -98,7 +98,8 @@ const clientToCanvasRoleMap: Record<ClientEnrollmentType, CanvasEnrollmentType> 
 const levelOneAddableRoles = [ClientEnrollmentType.Student]
 const levelTwoAddableRoles = [...levelOneAddableRoles, ClientEnrollmentType.Observer]
 const levelThreeAddableRoles = [
-  ...levelTwoAddableRoles, ClientEnrollmentType.TA, ClientEnrollmentType.Designer, ClientEnrollmentType.Teacher
+  ...levelTwoAddableRoles, ClientEnrollmentType.TA, ClientEnrollmentType.Designer, ClientEnrollmentType.Teacher,
+  ClientEnrollmentType.Assistant, ClientEnrollmentType.Librarian
 ]
 
 type RankedRoleData = Record<RoleEnum, number>
