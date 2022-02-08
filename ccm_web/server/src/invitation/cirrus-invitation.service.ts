@@ -1,4 +1,3 @@
-import axios from 'axios'
 import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 import { HttpService } from '@nestjs/axios'
@@ -7,7 +6,6 @@ import { Injectable } from '@nestjs/common'
 import baseLogger from '../logger'
 import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
 import { Config } from '../config'
-import { HttpMethod } from '../api/api.utils'
 import { InvitationAPIError } from './invitation.errors'
 import { lastValueFrom } from 'rxjs'
 
@@ -68,17 +66,15 @@ export class CirrusInvitationService {
        * FIXME: Specify a type with `post<T>`, but unsure what are the possible
        * formats of the Cirrus responses.
        */
-      const response = await this.httpService.post(this.url,
-        data, {
-          // auth: {
-          //   username: this.key,
-          //   password: this.secret
-          // },
-          headers: {
-            'Authorization': authEncoded,
-            ...data.getHeaders()}
+      const response = await lastValueFrom(this.httpService.post(this.url, data, {
+        // auth: {
+        //   username: this.key,
+        //   password: this.secret
+        // },
+        headers: {
+          'Authorization': authEncoded, ...data.getHeaders()
         }
-      )
+      }))
 
       logger.debug(`response (as JSON) - ${JSON.stringify(response)}`)
 
