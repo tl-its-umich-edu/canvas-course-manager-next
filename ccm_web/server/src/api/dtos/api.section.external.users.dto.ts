@@ -1,5 +1,11 @@
 import {
-  ArrayMaxSize, ArrayMinSize, IsArray, IsNotEmpty, MaxLength, ValidateNested
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsIn,
+  IsNotEmpty,
+  MaxLength,
+  ValidateNested
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
@@ -23,6 +29,7 @@ export class SectionExternalUserDto {
 
   @ApiProperty({ enum: UserEnrollmentType })
   @IsNotEmpty()
+  @IsIn(Object.values(UserEnrollmentType))
   type: UserEnrollmentType
 
   constructor (email: string, givenName: string, surname: string, type: UserEnrollmentType) {
