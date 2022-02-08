@@ -116,7 +116,7 @@ export class APIService {
   }
 
   async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
-    
+    const customRoles = JSON.parse(this.configService.get('canvas.customRoles', { infer: true }))
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
     return await sectionHandler.enrollUsers(sectionUsers)
