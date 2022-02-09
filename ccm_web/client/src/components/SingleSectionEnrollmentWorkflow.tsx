@@ -273,9 +273,9 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
             <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading...</Grid>
+            <Grid item xs={12}>Sending enrollment data...</Grid>
             <Grid item xs={12}>
-              Please stay on the page. This may take up to a couple of minutes for larger files.
+              Please stay on the page. This process may take several seconds for larger files.
             </Grid>
           </Grid>
         </Backdrop>
