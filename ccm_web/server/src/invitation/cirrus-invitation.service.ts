@@ -5,9 +5,11 @@ import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
 import baseLogger from '../logger'
 import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
-import { Config } from '../config'
+import { Config, InvitationConfig } from '../config'
 import { InvitationAPIError } from './invitation.errors'
 import { lastValueFrom } from 'rxjs'
+import { CirrusInvitationResponse } from './cirrus-invitation.interfaces'
+import axios from 'axios'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -23,7 +25,7 @@ export class CirrusInvitationService {
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
-    const invitationConfig = configService.get('invitation', { infer: true })
+    const invitationConfig = configService.get('invitation', { infer: true }) as InvitationConfig
     this.url = invitationConfig.apiURL
     this.entityID = invitationConfig.apiEntityID
     this.sponsorName = invitationConfig.apiSponsorName
@@ -31,15 +33,13 @@ export class CirrusInvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations (users: CanvasUserLoginEmail[]): Promise<string> {
+  async sendInvitations (users: CanvasUserLoginEmail[]): Promise<CirrusInvitationResponse> {
     if (users.length === 0) {
       throw new InvitationAPIError('Argument "users" array is empty.')
     }
 
     const userEmails: string[] = users.map(user => user.email)
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
-
-    logger.debug(`emailAddressCSV: ${emailAddressCSV}`)
 
     const data = new FormData()
     data.append('cfile', emailAddressCSV, 'fake_file_name.csv')
@@ -48,11 +48,7 @@ export class CirrusInvitationService {
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
     try {
-      /*
-       * FIXME: Specify a type with `post<T>`, but unsure what are the possible
-       * formats of the Cirrus responses.
-       */
-      const response = await lastValueFrom(this.httpService.post(this.url, data, {
+      const response = await lastValueFrom(this.httpService.post<CirrusInvitationResponse>(this.url, data, {
         auth: {
           username: this.key,
           password: this.secret
@@ -62,11 +58,13 @@ export class CirrusInvitationService {
         }
       }))
 
-      logger.debug(`response (as JSON) - ${JSON.stringify(response.data)}`)
       return response.data
-    } catch (error) {
-      logger.info(`Caught error while sending invitations: ${JSON.stringify(error)}`)
-      throw new InvitationAPIError(String(error))
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response !== undefined) {
+        return error.response.data
+      }
+
+      throw new InvitationAPIError(String(error.response.data))
     }
   }
 }

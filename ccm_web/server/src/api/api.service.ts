@@ -31,6 +31,10 @@ import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
+import { InvitationAPIError } from '../invitation/invitation.errors'
+import {
+  CirrusInvitationResponse
+} from '../invitation/cirrus-invitation.interfaces'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -175,7 +179,12 @@ export class APIService {
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUserLoginEmail[]
 
     // Results of inviting only new users
-    const inviteResults: string | null = await this.invitationService.sendInvitations(newUsers)
+    let inviteResults: string | CirrusInvitationResponse | null
+    try {
+      inviteResults = await this.invitationService.sendInvitations(newUsers)
+    } catch (e: any) {
+      inviteResults = String(e.message)
+    }
 
     // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
