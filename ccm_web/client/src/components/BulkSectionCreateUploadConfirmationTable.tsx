@@ -27,6 +27,7 @@ function BulkSectionCreateUploadConfirmationTable (props: BulkSectionCreateUploa
 
   const tableRows = props.sectionNames.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
   const caption = `Data was found for ${props.sectionNames.length} sections.`
+
   return <CustomTable<Section> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
