@@ -32,12 +32,12 @@ export class CirrusInvitationService {
   }
 
   async sendInvitations (users: CanvasUserLoginEmail[]): Promise<string> {
-    if (users.length == 0) {
+    if (users.length === 0) {
       throw new InvitationAPIError('Argument "users" array is empty.')
     }
 
     const userEmails: string[] = users.map(user => user.email)
-    const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}` // FIXME: remove random UUID after debugging
+    const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
     logger.debug(`emailAddressCSV: ${emailAddressCSV}`)
 
@@ -47,44 +47,26 @@ export class CirrusInvitationService {
     data.append('sponsorEppn', this.sponsorName)
     data.append('clientRequestID', 'ccm-' + randomUUID())
 
-    const authEncoded = Buffer.from(`${this.key}:${this.secret}`).toString('base64')
-
     try {
-      // Old axios technique…
-      // const response = await axios({
-      //   method: HttpMethod.Post,
-      //   url: this.url,
-      //   auth: {
-      //     username: this.key,
-      //     password: this.secret
-      //   },
-      //   headers: { ...data.getHeaders() },
-      //   data: data
-      // })
-
       /*
        * FIXME: Specify a type with `post<T>`, but unsure what are the possible
        * formats of the Cirrus responses.
        */
       const response = await lastValueFrom(this.httpService.post(this.url, data, {
-        // auth: {
-        //   username: this.key,
-        //   password: this.secret
-        // },
+        auth: {
+          username: this.key,
+          password: this.secret
+        },
         headers: {
-          'Authorization': authEncoded, ...data.getHeaders()
+          ...data.getHeaders()
         }
       }))
 
-      logger.debug(`response (as JSON) - ${JSON.stringify(response)}`)
-
-      // logger.debug(response.data)
-      // return response.data
-      logger.debug(String(response))
-      return String(response)
-    } catch (error: any) {
+      logger.debug(`response (as JSON) - ${JSON.stringify(response.data)}`)
+      return response.data
+    } catch (error) {
       logger.info(`Caught error while sending invitations: ${JSON.stringify(error)}`)
-      throw new InvitationAPIError(String(error.message))
+      throw new InvitationAPIError(String(error))
     }
   }
 }
