@@ -29,7 +29,7 @@ export default function RoleSelect (props: RoleSelectProps): JSX.Element {
     <>
     <Typography id='role-select-label' className={classes.spacing}>
       Select a Canvas role that the user will have in the section.
-      The available roles are determined by your own role(s) in the course.
+      The available roles are determined by your own role(s) in the course. (Required)
     </Typography>
     <Grid container>
       <Grid item xs={8} sm={6}>
