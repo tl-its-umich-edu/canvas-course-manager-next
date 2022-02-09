@@ -38,7 +38,7 @@ export default function UserInputMethodSelect<T extends string> (props: MethodSe
     <>
     <div className={classes.spacing}>
       <FormControl component='fieldset'>
-        <FormLabel required className={classes.spacing}>{props.label}</FormLabel>
+        <FormLabel className={classes.spacing}>{props.label} (Required)</FormLabel>
         <RadioGroup
           aria-label='Input method'
           value={props.selectedMethod}

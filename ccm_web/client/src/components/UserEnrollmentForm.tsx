@@ -167,7 +167,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const emailField = (
     <div className={`${classes.spacing} ${classes.container}`}>
       <Typography className={classes.spacing}>
-        Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas.
+        Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas. (Required)
       </Typography>
       {
         showIncompleteAlerts && userExists === undefined &&
@@ -218,7 +218,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
       Please provide a first and last name, and we will send them an email invitation
-      to set up a login method and add them to Canvas.
+      to set up a login method and add them to Canvas. (Required)
     </Typography>
     <Grid container spacing={2}>
       <Grid item md={6} xs={6}>
