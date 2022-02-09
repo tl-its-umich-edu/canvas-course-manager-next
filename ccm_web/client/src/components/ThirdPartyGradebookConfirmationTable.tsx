@@ -28,9 +28,9 @@ function ThirdPartyGradebookConfirmationTable (props: ThirdPartyGradebookConfirm
   ]
 
   const [page, setPage] = useState<number>(0)
-
   const tableRows = props.records.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-  return <CustomTable<NumberedSlimGradebookRecord> {...{ tableRows, columns, page, setPage }} />
+  const caption = `Data for a gradebook file upload, containing ${props.records.length - 1} grades, was generated.`
+  return <CustomTable<NumberedSlimGradebookRecord> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default ThirdPartyGradebookConfirmationTable

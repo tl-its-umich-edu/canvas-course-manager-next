@@ -50,7 +50,8 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
 
     return (
       <TableContainer component={Paper}>
-        <Table stickyHeader aria-label="custom pagination table">
+        <Table stickyHeader aria-label='custom pagination table'>
+          <caption>{props.invalidations.length} validation errors occurred.</caption>
           <TableHead>
               <TableRow>
                 {columns.map((column) => (

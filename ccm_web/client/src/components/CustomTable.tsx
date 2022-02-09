@@ -17,6 +17,7 @@ interface TableColumn<T> {
 interface TableProps<T> {
   tableRows: T[]
   columns: Array<TableColumn<T>>
+  caption: string
   page: number
   setPage: (page: number) => void
 }
@@ -35,6 +36,7 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
   return (
     <TableContainer component={Paper}>
       <Table stickyHeader aria-label="custom pagination table">
+        {props.caption !== undefined && <caption>{props.caption}</caption>}
         <TableHead>
             <TableRow>
               {columns.map((column) => (

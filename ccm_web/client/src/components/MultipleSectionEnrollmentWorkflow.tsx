@@ -204,6 +204,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     const sectionIdsTable = (
       <TableContainer className={classes.sectionIdTable}>
         <Table stickyHeader>
+          <caption>Names and Canvas IDs for the course&#39;s {props.sections.length} sections</caption>
           <TableHead>
             <TableRow>
               <TableCell>Section Name</TableCell>

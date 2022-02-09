@@ -24,7 +24,8 @@ const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
 function BulkEnrollUMUserSectionsConfirmationTable (props: BulkEnrollUMUserSectionsConfirmationTableProps): JSX.Element {
   const [page, setPage] = useState<number>(0)
   const tableRows = props.enrollments
-  return <CustomTable<RowNumberedAddEnrollmentWithSectionId> {...{ tableRows, columns, page, setPage }} />
+  const caption = `Data was found for ${props.enrollments.length} enrollments.`
+  return <CustomTable<RowNumberedAddEnrollmentWithSectionId> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default BulkEnrollUMUserSectionsConfirmationTable

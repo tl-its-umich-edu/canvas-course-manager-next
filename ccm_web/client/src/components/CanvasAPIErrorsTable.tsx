@@ -23,8 +23,9 @@ function CanvasAPIErrorsTable (props: CanvasAPIErrorsTableProps): JSX.Element {
   const [page, setPage] = useState<number>(0)
 
   const tableRows = props.errors.map((e, i) => ({ ...e, rowNumber: i + 1 }))
+  const caption = `${props.errors.length} Canvas errors occurred.`
 
-  return <CustomTable<NumberedAPIErrorPayload> {...{ tableRows, columns, page, setPage }} />
+  return <CustomTable<NumberedAPIErrorPayload> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default CanvasAPIErrorsTable
