@@ -11,7 +11,10 @@ const useStyles = makeStyles((theme) => ({
   },
   summary: {
     backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText
+    color: theme.palette.primary.contrastText,
+    '&:focus': {
+      color: theme.palette.primary.main
+    }
   },
   icon: {
     color: theme.palette.primary.contrastText
