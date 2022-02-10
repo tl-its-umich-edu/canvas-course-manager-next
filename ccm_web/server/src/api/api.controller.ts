@@ -1,11 +1,23 @@
 import { SessionData } from 'express-session'
 import {
-  BadRequestException, Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe,
-  Post, Put, Query, Session, UseGuards, UseInterceptors
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException, HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  Session,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData } from './api.interfaces'
+import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
@@ -23,13 +35,19 @@ import {
   CanvasEnrollment,
   CourseWithSections,
   CanvasUser,
-  ExternalEnrollment
+  ExternalEnrollment,
+  getRolesUserCanEnroll,
+  CanvasRole
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 import {
   SectionExternalUserDto, SectionExternalUsersDto
 } from './dtos/api.section.external.users.dto'
+import baseLogger from '../logger'
+import { roleStringsToEnums } from './api.utils'
+
+const logger = baseLogger.child({ filePath: __filename })
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')
@@ -105,6 +123,34 @@ export class APIController {
   @Post('sections/:id/enrollExternal')
   async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData): Promise<ExternalEnrollment> {
     const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
+
+    let userRoles: CanvasRole[] = []
+    try {
+      userRoles = roleStringsToEnums(session.data.course.roles)
+    } catch (e: any) {
+      throw new HttpException(`Role error for user "${String(user.loginId)}": ${String(e.message)}`,
+        HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    // FIXME: after development complete, update the following two lines
+    // const isRootAdmin: boolean = session.data.isRootAdmin // TODO: uncomment
+    const isRootAdmin = false // TODO: remove
+
+    if (isRootAdmin) {
+      logger.info(`User "${user.loginId}" is a root admin.  ` +
+        'Skipping input role checks.')
+    } else {
+      const userAssignableRoles: string[] =
+        getRolesUserCanEnroll(userRoles).map(r => String(r))
+      if (!sectionUsers.every(sectionUser =>
+        userAssignableRoles.includes(String(sectionUser.type)))) {
+        throw new HttpException('Disallowed role given. Allowed roles: ' +
+          JSON.stringify(userAssignableRoles), HttpStatus.FORBIDDEN)
+      }
+    }
+
+
+
     const result = await this.apiService.enrollSectionExternalUsers(user, session, sectionId, sectionUsers)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
