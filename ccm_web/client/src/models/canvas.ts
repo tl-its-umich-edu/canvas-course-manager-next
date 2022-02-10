@@ -114,7 +114,7 @@ export const rankedRoleData: RankedRoleData = {
   'Sub-Account Admin': 3,
   'Account Admin': 3,
   'Tool Installer (by ITS Approval only)': 0,
-  'Support Consultant': 0,
+  'Support Consultant': 3,
   Librarian: 0,
   Grader: 0
 } as const

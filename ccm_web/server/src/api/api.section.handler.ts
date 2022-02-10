@@ -4,10 +4,11 @@ import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, EnrollmentParams
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, EnrollmentParams, CustomCanvasRoleType
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
+import { CustomCanvasRoles } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -17,10 +18,12 @@ Handler class for Canvas API calls dealing with a specific section (i.e. those b
 export class SectionApiHandler {
   requestor: CanvasRequestor
   sectionId: number
+  customCanvasRoles?: CustomCanvasRoles
 
-  constructor (requestor: CanvasRequestor, sectionId: number) {
+  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoles) {
     this.requestor = requestor
     this.sectionId = sectionId
+    this.customCanvasRoles = customCanvasRoles
   }
 
   static slimSection (section: CanvasCourseSection): CanvasCourseSectionBase {
@@ -64,13 +67,17 @@ export class SectionApiHandler {
         notify: false
       }
 
-      if (enrollmentType === UserEnrollmentType.Assistant) {
-        enrollment = { ...enrollment, role_id: 21 }
-      } else if (enrollmentType === UserEnrollmentType.Librarian) {
-        enrollment = { ...enrollment, role_id: 34 }
+      if (Object.values(CustomCanvasRoleType).some(v => String(v) === String(enrollmentType))) {
+        for (const role in this.customCanvasRoles) {
+          if (String(role) === String(enrollmentType)) {
+            enrollment = { ...enrollment, role_id: this.customCanvasRoles[role] }
+            break
+          }
+        }
       } else {
         enrollment = { ...enrollment, type: user.type }
       }
+
       const body = { enrollment }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.request<CanvasEnrollment>(endpoint, method, body)

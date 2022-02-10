@@ -79,6 +79,10 @@ export enum CanvasRole {
   Librarian = 'Librarian',
 }
 
+export enum CustomCanvasRoleType {
+  Librarian = CanvasRole.Librarian,
+  Assistant = CanvasRole.Assistant
+}
 export enum UserEnrollmentType {
   DesignerEnrollment = CanvasRole.DesignerEnrollment,
   ObserverEnrollment = CanvasRole.ObserverEnrollment,

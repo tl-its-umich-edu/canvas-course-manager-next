@@ -22,11 +22,15 @@ interface LTIConfig {
   keysetEnding: string
 }
 
+export interface CustomCanvasRoles {
+  [role: string]: number
+}
+
 interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
-  customRoles: string
+  customCanvasRole?: CustomCanvasRoles
 }
 
 export interface DatabaseConfig {
@@ -61,6 +65,26 @@ const isLogLevel = (v: unknown): v is LogLevel => {
 // Handles some edge cases and casts all other values using Number
 const prepNumber = (value: string | undefined): string | number | undefined => {
   return (value === undefined) ? undefined : value.trim() === '' ? value : Number(value)
+}
+
+const prepObjectFromJSON = (value: string | undefined): Record<string, unknown > | undefined => {
+  if (value === undefined) {
+    return undefined
+  } else {
+    return JSON.parse(value)
+  }
+}
+
+const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoles => {
+  if (typeof v === 'object' && v !== null) {
+    for (const [key, value] of Object.entries(v)) {
+      if (typeof value !== 'number') return false
+      if (typeof key !== 'string') return false
+    }
+    return true
+  } else {
+    return false // undefined or not an object
+  }
 }
 
 function validate<T> (
@@ -121,7 +145,7 @@ export function validateConfig (): Config {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
-      customRoles: validate<string>('CANVAS_CUSTOM_ROLES', env.CANVAS_CUSTOM_ROLES, isString, [isNotEmpty])
+      customCanvasRole: validate<CustomCanvasRoles>('CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 })
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
