@@ -156,7 +156,7 @@ export interface CanvasEnrollment {
 
 export interface ExternalEnrollment {
   usersCreated: Array<CanvasUserLoginEmail | APIErrorData>
-  inviteResults: string | CirrusInvitationResponse | null
+  inviteResults: CirrusInvitationResponse
   userEnrollments: CanvasEnrollment[] | APIErrorData
 }
 
