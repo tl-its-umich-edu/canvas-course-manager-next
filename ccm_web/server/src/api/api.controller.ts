@@ -120,7 +120,7 @@ export class APIController {
     return enrollmentsResult
   }
 
-  @UseInterceptors(InvalidTokenInterceptor)
+  // Do NOT use `InvalidTokenInterceptor` here!
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string,
