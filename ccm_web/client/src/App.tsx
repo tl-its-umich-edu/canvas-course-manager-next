@@ -79,6 +79,19 @@ function App (): JSX.Element {
 
   return (
     <div className='App'>
+      {
+        globals?.environment === 'development' &&
+        (
+          <div>
+            <div className={classes.swaggerLink}>
+              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`} target={'_blank'}>Swagger UI</Link>
+            </div>
+            <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
+              <ResponsiveHelper/>
+            </div>
+          </div>
+        )
+      }
       <Breadcrumbs {...{ features, pathnames }} />
       <Switch>
         <Route exact={true} path='/'>
@@ -98,19 +111,6 @@ function App (): JSX.Element {
         })}
         <Route><NotFound /></Route>
       </Switch>
-      {
-        globals?.environment === 'development' &&
-        (
-          <div>
-            <div className={classes.swaggerLink}>
-              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
-            </div>
-            <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-              <ResponsiveHelper/>
-            </div>
-          </div>
-        )
-      }
     </div>
   )
 }
