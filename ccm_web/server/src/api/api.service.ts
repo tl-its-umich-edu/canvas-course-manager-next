@@ -140,50 +140,21 @@ export class APIService {
   }
 
   async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment|APIErrorData> {
-    let userRoles: CanvasRole[] = []
-    try {
-      userRoles = roleStringsToEnums(session.data.course.roles)
-    } catch (e: any) {
-      throw Error(`Role error for user "${String(user.loginId)}": ${String(e.message)}`)
-    }
-
-    // FIXME: after development complete, update the following two lines
-    // const isRootAdmin: boolean = session.data.isRootAdmin // TODO: uncomment
-    const isRootAdmin = false // TODO: remove
-
-    if (isRootAdmin) {
-      logger.debug(`User "${user.loginId}" is a root admin.  ` +
-        'Skipping input role checks.')
-    } else {
-      const userAssignableRoles: string[] =
-        getRolesUserCanEnroll(userRoles).map(r => String(r))
-      if (!sectionUsers.every(sectionUser =>
-        userAssignableRoles.includes(String(sectionUser.type)))) {
-        const roleError: APIErrorData = {
-          statusCode: 403,
-          errors: [{
-            canvasStatusCode: NaN,
-            message: 'Disallowed role given. Allowed roles: ' +
-              JSON.stringify(userAssignableRoles)
-          }]
-        } as APIErrorData
-        return roleError
-      }
-    }
-
-    // Create all requested users, noting failures
+    // Get requestor/handler and account ID for admin operations
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
-    const canvasConfig = this.configService.get('canvas', { infer: true })
-    const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, canvasConfig.newUserAccountID)
+    const newUserAccountID =  this.configService.get('canvas.newUserAccountID', { infer: true }) as number
+
+    // Create all requested users, noting failures
+    const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, newUserAccountID)
     const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUserLoginEmail[]
 
     // Results of inviting only new users
-    let inviteResults: string | CirrusInvitationResponse | null
+    let inviteResults: CirrusInvitationResponse
     try {
       inviteResults = await this.invitationService.sendInvitations(newUsers)
     } catch (e: any) {
-      inviteResults = String(e.message)
+      inviteResults = { errors: [String(e.message)] }
     }
 
     // Enroll all users
