@@ -30,7 +30,7 @@ interface CanvasConfig {
   newUserAccountID: number
 }
 
-interface InvitationConfig {
+export interface InvitationConfig {
   apiURL: string
   apiKey: string
   apiSecret: string
