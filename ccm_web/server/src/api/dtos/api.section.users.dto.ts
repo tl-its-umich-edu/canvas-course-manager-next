@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsNotEmpty,
   ValidateNested
 } from 'class-validator'
@@ -16,6 +17,7 @@ export class SectionUserDto {
 
   @ApiProperty({ enum: UserEnrollmentType })
   @IsNotEmpty()
+  @IsIn(Object.values(UserEnrollmentType))
   type: UserEnrollmentType
 
   constructor (loginId: string, type: UserEnrollmentType) {

@@ -22,10 +22,15 @@ interface LTIConfig {
   keysetEnding: string
 }
 
+export interface CustomCanvasRoleData {
+  [role: string]: number
+}
+
 interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
+  customCanvasRoleData: CustomCanvasRoleData
 }
 
 export interface DatabaseConfig {
@@ -56,10 +61,31 @@ const isNotNan = (v: number): boolean => !isNaN(v)
 const isLogLevel = (v: unknown): v is LogLevel => {
   return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
 }
+const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoleData => {
+  if (typeof v === 'object' && v !== null) {
+    for (const [key, value] of Object.entries(v)) {
+      if (typeof value !== 'number') return false
+      if (typeof key !== 'string') return false
+    }
+    return true
+  } else {
+    return false // undefined or not an object
+  }
+}
+const errorBase = 'Exception while loading configuration: '
 
 // Handles some edge cases and casts all other values using Number
 const prepNumber = (value: string | undefined): string | number | undefined => {
   return (value === undefined) ? undefined : value.trim() === '' ? value : Number(value)
+}
+
+const prepObjectFromJSON = (value: string | undefined): Record<string, unknown> | undefined => {
+  if (value === undefined) return undefined
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    throw new Error(errorBase + 'a provided JSON value was found to be invalid.')
+  }
 }
 
 function validate<T> (
@@ -69,7 +95,6 @@ function validate<T> (
   extraChecks: Array<(v: T) => boolean>,
   fallback?: T
 ): T {
-  const errorBase = 'Exception while loading configuration: '
   const runExtraChecks = (v: T): boolean => extraChecks.map(c => c(v)).every(r => r)
   if (value === undefined && fallback !== undefined) {
     const fallbackBase = `Value for ${key} was undefined; `
@@ -119,7 +144,10 @@ export function validateConfig (): Config {
     canvas = {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
-      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty])
+      apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
+      customCanvasRoleData: validate<CustomCanvasRoleData>(
+        'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
+      )
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
