@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.action.hover
     }
   },
-  buttonFocusVisible: {
+  listButtonFocusVisible: {
     backgroundColor: theme.palette.action.focus
   },
   searchContainer: {
@@ -110,6 +110,9 @@ const useStyles = makeStyles((theme) => ({
     borderLeftStyle: 'solid',
     borderLeftColor: '#3777c5',
     borderLeftWidth: '1px'
+  },
+  button: {
+    margin: theme.spacing(1)
   }
 }))
 
@@ -322,6 +325,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
         <Button
+          className={classes.button}
           color='primary'
           variant='contained'
           disabled={isUnmerging}
@@ -366,6 +370,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (
       <Grid item {...gridSpacing.action}>
         <Button
+          className={classes.button}
           style={{ float: 'right' }}
           variant='contained'
           color='primary'
@@ -424,6 +429,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       return (
         <Grid item {...gridSpacing.sort}>
           <Button
+            className={classes.button}
             style={{ float: 'left' }}
             aria-controls='simple-menu'
             aria-haspopup='true'
@@ -532,7 +538,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                   onClick={() => handleListItemClick(section.id)}
                   disabled={section.locked}
                   aria-pressed={isSelected}
-                  focusVisibleClassName={classes.buttonFocusVisible}
+                  focusVisibleClassName={classes.listButtonFocusVisible}
                 >
                   {listItemText(section)}
                 </ButtonBase>
