@@ -124,14 +124,6 @@ export interface CanvasAccount {
   parent_account_id: number | null
 }
 
-export interface EnrollmentParams {
-  user_id: string
-  enrollment_state: string
-  notify: boolean
-  role_id?: number
-  type?: UserEnrollmentType
-}
-
 // Composites
 
 export interface CourseWithSections extends CanvasCourseBase {

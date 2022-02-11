@@ -4,7 +4,7 @@ import { APIErrorData } from './api.interfaces'
 import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, EnrollmentParams, CustomCanvasRoleType
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -55,27 +55,23 @@ export class SectionApiHandler {
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
     const enrollmentType = user.type
+    const roleParams = (
+      this.customCanvasRoles !== undefined &&
+      Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
+      Object.keys(this.customCanvasRoles).includes(String(enrollmentType))
+    )
+      ? { role_id: this.customCanvasRoles[enrollmentType] }
+      : { type: enrollmentType }
 
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = HttpMethod.Post
-      let enrollment: EnrollmentParams = {
+      const enrollment = {
         // 'sis_login_id:' prefix per...
         // https://canvas.instructure.com/doc/api/file.object_ids.html
         user_id: `sis_login_id:${enrollLoginId}`,
         enrollment_state: 'active',
-        notify: false
-      }
-
-      if (Object.values(CustomCanvasRoleType).some(v => String(v) === String(enrollmentType))) {
-        for (const role in this.customCanvasRoles) {
-          if (String(role) === String(enrollmentType)) {
-            enrollment = { ...enrollment, role_id: this.customCanvasRoles[role] }
-            break
-          }
-        }
-      } else {
-        enrollment = { ...enrollment, type: user.type }
+        ...roleParams
       }
 
       const body = { enrollment }
