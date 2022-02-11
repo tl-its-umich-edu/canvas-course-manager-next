@@ -30,7 +30,7 @@ interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
-  customCanvasRoleData?: CustomCanvasRoleData
+  customCanvasRoleData: CustomCanvasRoleData
 }
 
 export interface DatabaseConfig {
