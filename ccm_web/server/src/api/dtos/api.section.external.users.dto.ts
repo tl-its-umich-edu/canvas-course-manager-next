@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsEmail,
   IsIn,
   IsNotEmpty,
   MaxLength,
@@ -15,6 +16,7 @@ export class SectionExternalUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @MaxLength(255)
+  @IsEmail()
   email: string
 
   @ApiProperty()
