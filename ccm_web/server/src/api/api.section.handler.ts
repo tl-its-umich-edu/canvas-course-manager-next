@@ -8,7 +8,7 @@ import {
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
-import { CustomCanvasRoles } from '../config'
+import { CustomCanvasRoleData } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -18,9 +18,9 @@ Handler class for Canvas API calls dealing with a specific section (i.e. those b
 export class SectionApiHandler {
   requestor: CanvasRequestor
   sectionId: number
-  customCanvasRoles?: CustomCanvasRoles
+  customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoles) {
+  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
     this.customCanvasRoles = customCanvasRoles
