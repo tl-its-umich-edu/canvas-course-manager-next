@@ -14,6 +14,7 @@ import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
 import SuccessCard from './SuccessCard'
+import TableCaption from './TableCaption'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
@@ -201,9 +202,11 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       ])
     )
 
+    const tableCaption = `Names and Canvas IDs for the course's ${props.sections.length} sections`
     const sectionIdsTable = (
       <TableContainer className={classes.sectionIdTable}>
         <Table stickyHeader>
+          <TableCaption text={tableCaption} />
           <TableHead>
             <TableRow>
               <TableCell>Section Name</TableCell>

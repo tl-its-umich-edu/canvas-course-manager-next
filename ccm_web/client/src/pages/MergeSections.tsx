@@ -7,7 +7,10 @@ import { useSnackbar } from 'notistack'
 import { adminRoles } from '../models/feature'
 import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
-import { CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
+import {
+  CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount,
+  CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort
+} from '../models/canvas'
 import { mergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
@@ -17,10 +20,7 @@ import Help from '../components/Help'
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: 25,
-    textAlign: 'left',
-    '& button': {
-      margin: 5
-    }
+    textAlign: 'left'
   },
   sectionSelectionContainer: {
     position: 'relative',
@@ -171,8 +171,9 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
     )
   }
 
-  const handleUnmergedSections = (unmergedSections: SelectableCanvasCourseSection[]): void => {
-    setStagedSections(stagedSections.filter(section => { return !unmergedSections.map(us => { return us.id }).includes(section.id) }))
+  const handleUnmergedSections = (unmergedSections: CanvasCourseSectionBase[]): void => {
+    const unmergedSectionIds = unmergedSections.map(us => us.id)
+    setStagedSections(stagedSections.filter(section => !unmergedSectionIds.includes(section.id)))
   }
 
   const getSelectSectionsStaged = (): JSX.Element => {

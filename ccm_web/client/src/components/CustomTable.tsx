@@ -1,6 +1,7 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@material-ui/core'
 import React from 'react'
 import StyledTableCell from './StyledTableCell'
+import TableCaption from './TableCaption'
 import { TablePaginationActions } from './TablePagination'
 
 interface TableEntity {
@@ -17,6 +18,7 @@ interface TableColumn<T> {
 interface TableProps<T> {
   tableRows: T[]
   columns: Array<TableColumn<T>>
+  caption: string
   page: number
   setPage: (page: number) => void
 }
@@ -35,6 +37,7 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
   return (
     <TableContainer component={Paper}>
       <Table stickyHeader aria-label="custom pagination table">
+        <TableCaption text={props.caption} />
         <TableHead>
             <TableRow>
               {columns.map((column) => (

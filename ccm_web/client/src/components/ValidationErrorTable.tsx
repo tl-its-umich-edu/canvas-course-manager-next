@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@material-ui/core'
-import { TablePaginationActions } from './TablePagination'
+
+import {
+  Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow
+} from '@material-ui/core'
 import StyledTableCell from './StyledTableCell'
+import TableCaption from './TableCaption'
+import { TablePaginationActions } from './TablePagination'
 
 interface RowValidationError {
   rowNumber: number
@@ -50,7 +54,8 @@ function ErrorTable (props: ErrorTableProps): JSX.Element {
 
     return (
       <TableContainer component={Paper}>
-        <Table stickyHeader aria-label="custom pagination table">
+        <Table stickyHeader aria-label='custom pagination table'>
+          <TableCaption text={`${props.invalidations.length} validation errors occurred.`} />
           <TableHead>
               <TableRow>
                 {columns.map((column) => (

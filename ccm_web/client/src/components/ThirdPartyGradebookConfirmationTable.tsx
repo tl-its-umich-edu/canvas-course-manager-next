@@ -21,16 +21,17 @@ interface TableHeaderColumnInfoShouldUseMatUIType {
 }
 
 function ThirdPartyGradebookConfirmationTable (props: ThirdPartyGradebookConfirmationTableProps): JSX.Element {
+  const [page, setPage] = useState<number>(0)
+
   const columns: TableHeaderColumnInfoShouldUseMatUIType[] = [
     { id: 'rowNumber', label: 'Row Number', minWidth: 25 },
     { id: REQUIRED_LOGIN_ID_HEADER, label: REQUIRED_LOGIN_ID_HEADER, minWidth: 100 },
     { id: props.assignmentHeader, label: props.assignmentHeader, minWidth: 100 }
   ]
-
-  const [page, setPage] = useState<number>(0)
-
   const tableRows = props.records.sort((a, b) => (a.rowNumber < b.rowNumber ? -1 : 1))
-  return <CustomTable<NumberedSlimGradebookRecord> {...{ tableRows, columns, page, setPage }} />
+  const caption = `Data for a gradebook file upload, containing ${props.records.length - 1} grades, was generated.`
+
+  return <CustomTable<NumberedSlimGradebookRecord> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default ThirdPartyGradebookConfirmationTable

@@ -26,8 +26,9 @@ function BulkEnrollUMUserConfirmationTable (props: BulkEnrollExternalConfirmatio
   const [page, setPage] = useState<number>(0)
 
   const tableRows = props.enrollments
+  const caption = `Data was found for ${props.enrollments.length} enrollments.`
 
-  return <CustomTable<RowNumberedAddNewExternalUserEnrollment> {...{ tableRows, columns, page, setPage }} />
+  return <CustomTable<RowNumberedAddNewExternalUserEnrollment> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default BulkEnrollUMUserConfirmationTable

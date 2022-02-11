@@ -33,8 +33,9 @@ function GradebookUploadConfirmationTable (props: GradebookUploadConfirmationTab
   const confirmationTableColumns = (tableRows.filter(grade => { return grade.overrideGrade !== undefined }).length > 0)
     ? columns
     : columns.filter(column => { return column.id !== 'overrideGrade' })
+  const caption = `Trimmed gradebook data, containing ${props.grades.length} records, was generated.`
 
-  return <CustomTable<StudentGrade> {...{ tableRows, columns: confirmationTableColumns, page, setPage }} />
+  return <CustomTable<StudentGrade> {...{ tableRows, columns: confirmationTableColumns, page, setPage, caption }} />
 }
 
 export type { GradebookUploadConfirmationTableProps, StudentGrade }
