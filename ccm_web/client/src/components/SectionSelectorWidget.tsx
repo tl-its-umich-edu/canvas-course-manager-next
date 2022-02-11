@@ -412,7 +412,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     return props.header?.sort !== undefined
   }
 
-  const gridSpacing: Record<string, Record<'sm' | 'xs' | 'md', GridSize>> = {
+  const gridSpacing: Record<'title' | 'select all' | 'sort' | 'action', Record<'sm' | 'xs' | 'md', GridSize>> = {
     title: { xs: 12, sm: 8, md: hasSort() ? 4 : 6 },
     'select all': { xs: 4, sm: 4, md: 3 },
     sort: { xs: 4, sm: 6, md: 2 },
@@ -462,7 +462,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
       <Grid container>
         <Grid className={classes.header} container item xs={12}>
           {
-            (props.search.length > 0 && searcher?.isInteractive) && (
+            searcher?.isInteractive === true && (
               <Grid item container className={classes.searchContainer} xs={12}>
                 <TextField
                   className={classes.searchTextField}
@@ -483,11 +483,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             {
               props.header?.title !== undefined && (
                 <Grid item {...gridSpacing.title} className={classes.title}>
-                  <Typography variant='h6'>
+                  <Typography variant='h6' component='h2'>
                     {props.header.title}
-                    {props.selectedSections.length > 0 && (
-                      <span> ({props.selectedSections.length})</span>
-                    )}
+                    {props.selectedSections.length > 0 && <span> ({props.selectedSections.length})</span>}
                   </Typography>
                 </Grid>
               )
@@ -526,9 +524,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 divider
                 disableGutters
                 classes={{ root: classes.listItemRoot }}
-                disabled={section.locked}
                 selected={isSelected}
-                className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : ''}
+                className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}
               >
                 <ButtonBase
                   className={classes.listButton}
