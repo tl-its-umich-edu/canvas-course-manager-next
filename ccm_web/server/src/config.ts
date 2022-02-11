@@ -61,6 +61,17 @@ const isNotNan = (v: number): boolean => !isNaN(v)
 const isLogLevel = (v: unknown): v is LogLevel => {
   return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
 }
+const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoleData => {
+  if (typeof v === 'object' && v !== null) {
+    for (const [key, value] of Object.entries(v)) {
+      if (typeof value !== 'number') return false
+      if (typeof key !== 'string') return false
+    }
+    return true
+  } else {
+    return false // undefined or not an object
+  }
+}
 const errorBase = 'Exception while loading configuration: '
 
 // Handles some edge cases and casts all other values using Number
@@ -74,18 +85,6 @@ const prepObjectFromJSON = (value: string | undefined): Record<string, unknown> 
     return JSON.parse(value)
   } catch (error) {
     throw new Error(errorBase + 'a provided JSON value was found to be invalid.')
-  }
-}
-
-const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoleData => {
-  if (typeof v === 'object' && v !== null) {
-    for (const [key, value] of Object.entries(v)) {
-      if (typeof value !== 'number') return false
-      if (typeof key !== 'string') return false
-    }
-    return true
-  } else {
-    return false // undefined or not an object
   }
 }
 
