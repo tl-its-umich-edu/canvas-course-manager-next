@@ -76,7 +76,7 @@ export enum CanvasRole {
   StudentEnrollment = 'StudentEnrollment',
   TaEnrollment = 'TaEnrollment',
   TeacherEnrollment = 'TeacherEnrollment',
-  Librarian = 'Librarian',
+  Librarian = 'Librarian'
 }
 
 export enum CustomCanvasRoleType {
