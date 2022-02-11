@@ -462,64 +462,64 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <>
-      <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
-        {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
-      </span>
-      <Grid container>
-        <Grid className={classes.header} container item xs={12}>
+    <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
+      {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
+    </span>
+    <Grid container>
+      <Grid className={classes.header} container item xs={12}>
+        {
+          searcher?.isInteractive === true && (
+            <Grid item container className={classes.searchContainer} xs={12}>
+              <TextField
+                className={classes.searchTextField}
+                disabled={isSearching || isIniting}
+                onChange={searchChange}
+                value={searchFieldText}
+                id='textField_Search'
+                size='small'
+                label={searchFieldLabel}
+                variant='outlined'
+                inputProps={{ maxLength: 256 }}
+                InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}
+              />
+            </Grid>
+          )
+        }
+        <Grid item container style={{ paddingLeft: '16px' }}>
           {
-            searcher?.isInteractive === true && (
-              <Grid item container className={classes.searchContainer} xs={12}>
-                <TextField
-                  className={classes.searchTextField}
-                  disabled={isSearching || isIniting}
-                  onChange={searchChange}
-                  value={searchFieldText}
-                  id='textField_Search'
-                  size='small'
-                  label={searchFieldLabel}
-                  variant='outlined'
-                  inputProps={{ maxLength: 256 }}
-                  InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}
-                />
+            props.header?.title !== undefined && (
+              <Grid item {...gridSpacing.title} className={classes.title}>
+                <Typography variant='h6' component='h2'>
+                  {props.header.title}
+                  {props.selectedSections.length > 0 && <span> ({props.selectedSections.length})</span>}
+                </Typography>
               </Grid>
             )
           }
-          <Grid item container style={{ paddingLeft: '16px' }}>
-            {
-              props.header?.title !== undefined && (
-                <Grid item {...gridSpacing.title} className={classes.title}>
-                  <Typography variant='h6' component='h2'>
-                    {props.header.title}
-                    {props.selectedSections.length > 0 && <span> ({props.selectedSections.length})</span>}
-                  </Typography>
-                </Grid>
-              )
-            }
-            {
-              props.multiSelect && (
-                <Grid item {...gridSpacing['select all']}>
-                  <FormGroup row style={checkboxStyle()}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={isSelectAllChecked}
-                          onChange={handleSelectAllClicked}
-                          name='selectAllUnstagedCB'
-                          color='primary'
-                        />
-                      }
-                      disabled={selectableSections().length === 0}
-                      label='Select All'
-                    />
-                  </FormGroup>
-                </Grid>
-              )
-            }
-            {sortButton()}
-            {actionButton()}
-          </Grid>
+          {
+            props.multiSelect && (
+              <Grid item {...gridSpacing['select all']}>
+                <FormGroup row style={checkboxStyle()}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isSelectAllChecked}
+                        onChange={handleSelectAllClicked}
+                        name='selectAllUnstagedCB'
+                        color='primary'
+                      />
+                    }
+                    disabled={selectableSections().length === 0}
+                    label='Select All'
+                  />
+                </FormGroup>
+              </Grid>
+            )
+          }
+          {sortButton()}
+          {actionButton()}
         </Grid>
+      </Grid>
       <Grid item xs={12} className={classes.sectionSelectionContainer}>
         <List className={classes.listContainer} style={{ maxHeight: props.height }} >
           {internalSections.map((section) => {
