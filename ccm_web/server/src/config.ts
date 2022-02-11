@@ -68,7 +68,7 @@ const prepNumber = (value: string | undefined): string | number | undefined => {
   return (value === undefined) ? undefined : value.trim() === '' ? value : Number(value)
 }
 
-const prepObjectFromJSON = (value: string | undefined): Record<string, unknown > | undefined => {
+const prepObjectFromJSON = (value: string | undefined): Record<string, unknown> | undefined => {
   if (value === undefined) return undefined
   try {
     return JSON.parse(value)
