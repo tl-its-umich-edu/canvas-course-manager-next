@@ -145,7 +145,9 @@ export function validateConfig (): Config {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
-      customCanvasRole: validate<CustomCanvasRoles>('CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 })
+      customCanvasRole: validate<CustomCanvasRoles>(
+        'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
+      )
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
