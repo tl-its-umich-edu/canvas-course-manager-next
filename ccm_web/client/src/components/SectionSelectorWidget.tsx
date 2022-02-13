@@ -12,12 +12,15 @@ import { useDebounce } from '@react-hook/debounce'
 import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
+import { extractErrorText } from '../utils/handleErrors'
 import { ISectionSearcher } from '../utils/SectionSearcher'
 
 const useStyles = makeStyles((theme) => ({
   listContainer: {
     overflow: 'auto',
     marginBottom: '5px',
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
     '&& .Mui-disabled': {
       opacity: 1,
       '& > .MuiListItemAvatar-root': {
@@ -169,9 +172,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar('Error unmerging', {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        'Error occurred while unmerging: ' + extractErrorText(unmergeError).join('; '),
+        { variant: 'error' }
+      )
     }
   }, [unmergeError])
 
@@ -281,10 +285,12 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   })
 
   useEffect(() => {
-    if (searchError !== undefined || initError !== undefined) {
-      enqueueSnackbar('Error searching sections', {
-        variant: 'error'
-      })
+    const searchErrors = [searchError, initError].filter(e => e !== undefined) as Error[]
+    if (searchErrors.length > 0) {
+      enqueueSnackbar(
+        'Error occurred while searching for sections: ' + extractErrorText(searchErrors[0]).join('; '),
+        { variant: 'error' }
+      )
     }
   }, [searchError, initError])
 

@@ -13,6 +13,7 @@ import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
 import { courseNameSchema, validateString } from '../utils/validation'
+import { extractErrorText } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -56,7 +57,10 @@ function Home (props: HomeProps): JSX.Element {
 
   useEffect(() => {
     if (setCourseNameError !== undefined) {
-      enqueueSnackbar('Error saving course name', { variant: 'error' })
+      enqueueSnackbar(
+        'Error saving course name: ' + extractErrorText(setCourseNameError).join('; '),
+        { variant: 'error' }
+      )
     }
   }, [setCourseNameError])
 

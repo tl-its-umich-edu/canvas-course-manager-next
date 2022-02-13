@@ -52,7 +52,12 @@ const handleErrors = async (resp: Response): Promise<void> => {
   if (resp.ok) return
   const text = await resp.text()
   console.error(text)
-  const errorBody: APIErrorData = JSON.parse(text)
+  let errorBody: APIErrorData
+  try {
+    errorBody = JSON.parse(text)
+  } catch (error) {
+    throw new Error(`Non-JSON error encountered with status code ${resp.status}.`)
+  }
 
   switch (resp.status) {
     case 401:
@@ -77,6 +82,14 @@ const handleErrors = async (resp: Response): Promise<void> => {
           : errorBody.message
         throw new Error(message)
       }
+  }
+}
+
+export const extractErrorText = (error: Error): string[] => {
+  if (error instanceof CanvasError) {
+    return error.errors.map(e => e.message)
+  } else {
+    return [error.message]
   }
 }
 

@@ -1,10 +1,11 @@
-import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
-import React, { ChangeEvent, useState } from 'react'
+import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
 import { useSnackbar } from 'notistack'
+import React, { ChangeEvent, useState } from 'react'
+import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
+
 import { addCourseSections } from '../api'
 import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
-import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,18 +55,22 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
             enqueueSnackbar('Section was created!', { variant: 'success' })
-          }).catch(() => {
-            enqueueSnackbar('Error adding section', {
-              variant: 'error'
-            })
+          }).catch((reason) => {
+            enqueueSnackbar(
+              'Error occured while creating the section: ' + String(reason),
+              { variant: 'error' }
+            )
           })
       } else {
         errorAlert(errors)
       }
-    }).catch(() => {
-      enqueueSnackbar('Error validating section name', {
-        variant: 'error'
-      })
+    }).catch((reason) => {
+      console.log(reason)
+      console.log(typeof reason)
+      enqueueSnackbar(
+        'Error validating section name: ' + String(reason),
+        { variant: 'error' }
+      )
     }).finally(() => {
       setIsCreating(false)
     })

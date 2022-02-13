@@ -5,6 +5,7 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
 import { useSnackbar } from 'notistack'
 import { CCMComponentProps } from '../models/FeatureUIData'
+import { extractErrorText } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   secondaryTypography: {
@@ -66,11 +67,13 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
       void doUnmerge()
     }
   }, [sectionsToUnmerge])
+
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar('Error unmerging', {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        'Error occured while unmerging: ' + extractErrorText(unmergeError).join('; '),
+        { variant: 'error' }
+      )
     }
   }, [unmergeError])
 
@@ -80,9 +83,10 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (error !== undefined) {
-      enqueueSnackbar('Error loading sections', {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        'Error occurred while loading sections: ' + extractErrorText(error).join('; '),
+        { variant: 'error' }
+      )
     }
   }, [error])
 
