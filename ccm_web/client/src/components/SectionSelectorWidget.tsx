@@ -9,10 +9,10 @@ import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import { useDebounce } from '@react-hook/debounce'
 
+import ApiErrorMessage from './ApiErrorMessage'
 import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
-import { extractErrorText } from '../utils/handleErrors'
 import { ISectionSearcher } from '../utils/SectionSearcher'
 
 const useStyles = makeStyles((theme) => ({
@@ -173,7 +173,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   useEffect(() => {
     if (unmergeError !== undefined) {
       enqueueSnackbar(
-        'Error occurred while unmerging: ' + extractErrorText(unmergeError).join('; '),
+        <ApiErrorMessage context='unmerging' error={unmergeError} />,
         { variant: 'error' }
       )
     }
@@ -288,7 +288,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     const searchErrors = [searchError, initError].filter(e => e !== undefined) as Error[]
     if (searchErrors.length > 0) {
       enqueueSnackbar(
-        'Error occurred while searching for sections: ' + extractErrorText(searchErrors[0]).join('; '),
+        <ApiErrorMessage context='searching for sections' error={searchErrors[0]} />,
         { variant: 'error' }
       )
     }

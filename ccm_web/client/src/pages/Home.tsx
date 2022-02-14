@@ -4,6 +4,7 @@ import { Grid, Typography } from '@material-ui/core'
 import { useSnackbar } from 'notistack'
 
 import InlineTextEdit from '../components/InlineTextEdit'
+import ApiErrorMessage from '../components/ApiErrorMessage'
 import FeatureCard from '../components/FeatureCard'
 import Help from '../components/Help'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
@@ -13,7 +14,6 @@ import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import usePromise from '../hooks/usePromise'
 import { courseNameSchema, validateString } from '../utils/validation'
-import { extractErrorText } from '../utils/handleErrors'
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -58,7 +58,7 @@ function Home (props: HomeProps): JSX.Element {
   useEffect(() => {
     if (setCourseNameError !== undefined) {
       enqueueSnackbar(
-        'Error saving course name: ' + extractErrorText(setCourseNameError).join('; '),
+        <ApiErrorMessage context='saving course name' error={setCourseNameError} />,
         { variant: 'error' }
       )
     }

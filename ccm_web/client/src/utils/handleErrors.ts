@@ -85,12 +85,4 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 }
 
-export const extractErrorText = (error: Error): string[] => {
-  if (error instanceof CanvasError) {
-    return error.errors.map(e => e.message)
-  } else {
-    return [error.message]
-  }
-}
-
 export { handleErrors as default, CanvasError }

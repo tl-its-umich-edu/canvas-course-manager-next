@@ -4,6 +4,7 @@ import {
 } from '@material-ui/core'
 
 import * as api from '../api'
+import ApiErrorMessage from '../components/ApiErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -18,7 +19,7 @@ import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { CSVWorkflowStep, InvalidationType } from '../models/models'
+import { CSVWorkflowStep, InvalidationType, APIErrorWithContext } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import ThirdPartyGradebookProcessor, {
@@ -132,12 +133,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   useEffect(() => {
-    if (file !== undefined) {
-      parseFile(file)
-    }
-  }, [file])
-
-  useEffect(() => {
     if (studentLoginIds !== undefined && records !== undefined) {
       const processor = new ThirdPartyGradebookProcessor(studentLoginIds)
       const result = processor.process(records)
@@ -175,6 +170,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     await doGetSections()
   }
 
+  const errorsWithContext = [
+    { error: getSectionsError, context: 'loading section data' },
+    { error: getStudentsError, context: 'loading student data' }
+  ].filter(d => d.error !== undefined) as APIErrorWithContext[]
+
   const renderSchemaInvalidations = (invalidations: SchemaInvalidation[]): JSX.Element => {
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
@@ -207,17 +207,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   const renderSelect = (): JSX.Element => {
-    if (getSectionsError !== undefined || getStudentsError !== undefined) {
+    if (errorsWithContext.length > 0) {
       return (
         <ErrorAlert
-          messages={[
-            <Typography key={0}>
-              An error occurred while loading
-              {getSectionsError !== undefined && ' section '}
-              {getStudentsError !== undefined && ' student '}
-              data from Canvas.
-            </Typography>
-          ]}
+          messages={[<ApiErrorMessage key={0} {...errorsWithContext[0]} />]}
           tryAgain={async () => {
             handleResetSelect()
             await doGetSections()
@@ -334,7 +327,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <div className={classes.uploadContainer}>
           <Grid container>
             <Grid item xs={12}>
-              <FileUpload onUploadComplete={(file) => setFile(file)} />
+              <FileUpload onUploadComplete={(file) => parseFile(file)} />
             </Grid>
           </Grid>
           <Grid container className={classes.buttonGroup} justifyContent='flex-start'>

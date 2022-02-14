@@ -3,6 +3,7 @@ import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography
 
 import CanvasSettingsLink from './CanvasSettingsLink'
 import ErrorAlert from './ErrorAlert'
+import ApiErrorMessage from './ApiErrorMessage'
 import InlineErrorAlert from './InlineErrorAlert'
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget from './SectionSelectorWidget'
@@ -13,7 +14,7 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
-import { CanvasError } from '../utils/handleErrors'
+import { APIErrorWithContext } from '../models/models'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
@@ -37,11 +38,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center'
   }
 }))
-
-interface APIErrorWithContext {
-  error: Error
-  context: string
-}
 
 interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
 
@@ -261,19 +257,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const renderForm = (): JSX.Element => {
     if (errorsWithContext.length > 0) {
-      const { error, context } = errorsWithContext[0]
-      const prefix = `An error occurred while ${context}`
-      let message
-      if (error instanceof CanvasError) {
-        message = (
-          <Typography>
-            {prefix}: {error.errors.length > 0 ? error.errors[0].message : 'unknown API error from Canvas.'}
-          </Typography>
-        )
-      } else {
-        message = <Typography key={0}>{prefix}: {error.message}.</Typography>
-      }
-      return <ErrorAlert messages={[message]} tryAgain={resetAll} />
+      return <ErrorAlert messages={[<ApiErrorMessage key={0} {...errorsWithContext[0]} />]} tryAgain={resetAll} />
     }
 
     return (

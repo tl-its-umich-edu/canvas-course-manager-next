@@ -76,6 +76,12 @@ export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is Canv
   )
 }
 
+export interface APIErrorWithContext {
+  error: Error
+  context: string
+}
+
+
 // Validation
 
 export enum InvalidationType {

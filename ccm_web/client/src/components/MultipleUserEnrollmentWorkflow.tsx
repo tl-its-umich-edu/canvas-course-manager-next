@@ -7,6 +7,7 @@ import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
+import ApiErrorMessage from './ApiErrorMessage'
 import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
@@ -107,7 +108,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
   const getSectionsErrorAlert = (
     <ErrorAlert
-      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      messages={[<ApiErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
       tryAgain={props.doGetSections}
     />
   )

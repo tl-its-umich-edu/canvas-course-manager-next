@@ -7,6 +7,7 @@ import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget from './CreateSelectSectionWidget'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
+import ApiErrorMessage from './ApiErrorMessage'
 import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from './ExampleFileDownloadHeader'
 import FileUpload from './FileUpload'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
@@ -134,7 +135,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     if (props.getSectionsError !== undefined) {
       return (
         <ErrorAlert
-          messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+          messages={[<ApiErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
           tryAgain={async () => {
             setSelectedSection(undefined)
             await props.doGetSections()
