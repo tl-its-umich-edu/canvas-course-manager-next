@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 
+import ApiErrorMessage from './ApiErrorMessage'
 import CanvasSettingsLink from './CanvasSettingsLink'
 import ErrorAlert from './ErrorAlert'
-import ApiErrorMessage from './ApiErrorMessage'
 import InlineErrorAlert from './InlineErrorAlert'
 import RoleSelect from './RoleSelect'
 import SectionSelectorWidget from './SectionSelectorWidget'
