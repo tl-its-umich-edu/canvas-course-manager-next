@@ -22,6 +22,5 @@ export default function ApiErrorMessage (props: ApiErrorMessageProps): JSX.Eleme
     `Error${errorMessages.length > 1 ? 's' : ''} occurred ` +
     `while ${props.context}${props.error !== undefined ? ':' : '.'}`
   )
-
   return <Typography>{preface}&nbsp;{errorMessages.join('; ')}</Typography>
 }
