@@ -75,10 +75,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar(
-        <ApiErrorMessage context='unmerging' error={unmergeError} />,
-        { variant: 'error' }
-      )
+      enqueueSnackbar(<ApiErrorMessage context='unmerging sections' error={unmergeError} />, { variant: 'error' })
     }
   }, [unmergeError])
 
@@ -88,10 +85,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (error !== undefined) {
-      enqueueSnackbar(
-        <ApiErrorMessage context='loading sections' error={error} />,
-        { variant: 'error' }
-      )
+      enqueueSnackbar(<ApiErrorMessage context='loading section data' error={error} />, { variant: 'error' })
     }
   }, [error])
 
