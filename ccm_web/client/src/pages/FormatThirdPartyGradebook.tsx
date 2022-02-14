@@ -4,7 +4,7 @@ import {
 } from '@material-ui/core'
 
 import * as api from '../api'
-import ApiErrorMessage from '../components/ApiErrorMessage'
+import APIErrorMessage from '../components/APIErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
 import CSVFileName from '../components/CSVFileName'
 import ErrorAlert from '../components/ErrorAlert'
@@ -210,7 +210,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     if (errorsWithContext.length > 0) {
       return (
         <ErrorAlert
-          messages={[<ApiErrorMessage key={0} {...errorsWithContext[0]} />]}
+          messages={[<APIErrorMessage key={0} {...errorsWithContext[0]} />]}
           tryAgain={async () => {
             handleResetSelect()
             await doGetSections()

@@ -4,7 +4,7 @@ import { Grid, Typography } from '@material-ui/core'
 import { useSnackbar } from 'notistack'
 
 import InlineTextEdit from '../components/InlineTextEdit'
-import ApiErrorMessage from '../components/ApiErrorMessage'
+import APIErrorMessage from '../components/APIErrorMessage'
 import FeatureCard from '../components/FeatureCard'
 import Help from '../components/Help'
 import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
@@ -58,7 +58,7 @@ function Home (props: HomeProps): JSX.Element {
   useEffect(() => {
     if (setCourseNameError !== undefined) {
       enqueueSnackbar(
-        <ApiErrorMessage context='saving course name' error={setCourseNameError} />,
+        <APIErrorMessage context='saving course name' error={setCourseNameError} />,
         { variant: 'error' }
       )
     }

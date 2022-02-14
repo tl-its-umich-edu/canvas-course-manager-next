@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 
-import ApiErrorMessage from './ApiErrorMessage'
+import APIErrorMessage from './APIErrorMessage'
 import CanvasSettingsLink from './CanvasSettingsLink'
 import ErrorAlert from './ErrorAlert'
 import InlineErrorAlert from './InlineErrorAlert'
@@ -257,7 +257,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const renderForm = (): JSX.Element => {
     if (errorsWithContext.length > 0) {
-      return <ErrorAlert messages={[<ApiErrorMessage key={0} {...errorsWithContext[0]} />]} tryAgain={resetAll} />
+      return <ErrorAlert messages={[<APIErrorMessage key={0} {...errorsWithContext[0]} />]} tryAgain={resetAll} />
     }
 
     return (

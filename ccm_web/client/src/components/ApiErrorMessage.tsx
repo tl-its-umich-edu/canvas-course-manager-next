@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core'
 
 import { CanvasError } from '../utils/handleErrors'
 
-interface ApiErrorMessageProps {
+interface APIErrorMessageProps {
   context: string
   error: Error | undefined
 }
@@ -16,7 +16,7 @@ const extractErrorText = (error: Error): string[] => {
   }
 }
 
-export default function ApiErrorMessage (props: ApiErrorMessageProps): JSX.Element {
+export default function APIErrorMessage (props: APIErrorMessageProps): JSX.Element {
   const errorMessages = props.error !== undefined ? extractErrorText(props.error) : []
   const preface = (
     `Error${errorMessages.length > 1 ? 's' : ''} occurred ` +

@@ -3,7 +3,7 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { getCourse } from './api'
 import './App.css'
-import ApiErrorMessage from './components/ApiErrorMessage'
+import APIErrorMessage from './components/APIErrorMessage'
 import AuthorizePrompt from './components/AuthorizePrompt'
 import ErrorAlert from './components/ErrorAlert'
 import Layout from './components/Layout'
@@ -60,7 +60,7 @@ function App (): JSX.Element {
     return (
       <Layout>
         <ErrorAlert
-          messages={[<ApiErrorMessage key={0} context='loading course data' error={getCourseError} />]}
+          messages={[<APIErrorMessage key={0} context='loading course data' error={getCourseError} />]}
         />
       </Layout>
     )

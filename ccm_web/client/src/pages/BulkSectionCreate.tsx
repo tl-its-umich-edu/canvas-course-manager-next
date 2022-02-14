@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
 import { addCourseSections, getCourseSections } from '../api'
-import ApiErrorMessage from '../components/ApiErrorMessage'
+import APIErrorMessage from '../components/APIErrorMessage'
 import BulkApiErrorContent from '../components/BulkApiErrorContent'
 import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
 import {
@@ -388,7 +388,7 @@ Section 001`
       case BulkSectionCreatePageState.LoadingExistingSectionNamesFailed:
         return (
           <ErrorAlert
-            messages={[<ApiErrorMessage key={0} context='loading section data' error={getSectionsError} />]}
+            messages={[<APIErrorMessage key={0} context='loading section data' error={getSectionsError} />]}
             tryAgain={resetPageState}
           />
         )

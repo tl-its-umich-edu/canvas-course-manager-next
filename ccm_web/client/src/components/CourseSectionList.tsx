@@ -4,7 +4,7 @@ import {
   Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography
 } from '@material-ui/core'
 
-import ApiErrorMessage from './ApiErrorMessage'
+import APIErrorMessage from './APIErrorMessage'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import {
@@ -75,7 +75,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar(<ApiErrorMessage context='unmerging sections' error={unmergeError} />, { variant: 'error' })
+      enqueueSnackbar(<APIErrorMessage context='unmerging sections' error={unmergeError} />, { variant: 'error' })
     }
   }, [unmergeError])
 
@@ -85,7 +85,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (error !== undefined) {
-      enqueueSnackbar(<ApiErrorMessage context='loading section data' error={error} />, { variant: 'error' })
+      enqueueSnackbar(<APIErrorMessage context='loading section data' error={error} />, { variant: 'error' })
     }
   }, [error])
 

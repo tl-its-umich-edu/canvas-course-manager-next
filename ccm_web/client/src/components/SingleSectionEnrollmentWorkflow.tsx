@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
 
-import ApiErrorMessage from './ApiErrorMessage'
+import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollUMUserConfirmationTable from './BulkEnrollUMUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
@@ -135,7 +135,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     if (props.getSectionsError !== undefined) {
       return (
         <ErrorAlert
-          messages={[<ApiErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
+          messages={[<APIErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
           tryAgain={async () => {
             setSelectedSection(undefined)
             await props.doGetSections()
