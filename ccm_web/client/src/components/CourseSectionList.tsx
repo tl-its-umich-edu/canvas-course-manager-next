@@ -1,11 +1,16 @@
-import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography } from '@material-ui/core'
+import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
+import {
+  Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography
+} from '@material-ui/core'
+
+import ApiErrorMessage from './ApiErrorMessage'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
-import { useSnackbar } from 'notistack'
+import {
+  CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName
+} from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import ApiErrorMessage from './ApiErrorMessage'
 
 const useStyles = makeStyles((theme) => ({
   secondaryTypography: {
