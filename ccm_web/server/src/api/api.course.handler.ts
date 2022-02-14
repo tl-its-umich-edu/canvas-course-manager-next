@@ -2,7 +2,7 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseInput, CanvasCourseSection, CanvasCourseSectionBase,
   CourseWithSections
@@ -107,7 +107,9 @@ export class CourseApiHandler {
 
   async createSections (sections: string[]): Promise<CanvasCourseSection[] | APIErrorData> {
     const start = process.hrtime()
-    const apiPromises = sections.map(async (section) => await this.createSection(section))
+    const apiPromises = createLimitedPromises<CanvasCourseSection | APIErrorData>(
+      sections.map(section => async () => await this.createSection(section))
+    )
     const sectionsOrErrorDataObjs = await Promise.all(apiPromises)
     // https://codezup.com/measure-execution-time-javascript-node-js/
     const stop = process.hrtime(start)
@@ -118,10 +120,12 @@ export class CourseApiHandler {
   async mergeSections (sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData > {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = sectionIds.map(async (si) => {
-      const sectionHandler = new SectionApiHandler(this.requestor, si)
-      return await sectionHandler.mergeSection(this.courseId)
-    })
+    const apiPromises = createLimitedPromises<CanvasCourseSectionBase | APIErrorData>(
+      sectionIds.map(si => async () => {
+        const sectionHandler = new SectionApiHandler(this.requestor, si)
+        return await sectionHandler.mergeSection(this.courseId)
+      })
+    )
     const mergeSectionResults = await Promise.all(apiPromises)
     const bulkResult = makeResponse<CanvasCourseSectionBase>(mergeSectionResults)
     const end = process.hrtime.bigint()
