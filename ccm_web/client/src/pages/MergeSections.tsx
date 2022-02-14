@@ -95,8 +95,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   useEffect(() => {
     if (mergeError !== undefined) {
       enqueueSnackbar(
-        <ApiErrorMessage context={'merging section(s)'} error={mergeError}/>,
-        { variant: 'error'}
+        <ApiErrorMessage context={'merging section(s)'} error={mergeError} />,
+        { variant: 'error' }
       )
     }
   }, [mergeError])

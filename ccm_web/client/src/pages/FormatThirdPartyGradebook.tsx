@@ -19,7 +19,7 @@ import WorkflowStepper from '../components/WorkflowStepper'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
-import { CSVWorkflowStep, InvalidationType, APIErrorWithContext } from '../models/models'
+import { APIErrorWithContext, CSVWorkflowStep, InvalidationType } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import ThirdPartyGradebookProcessor, {

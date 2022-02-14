@@ -81,7 +81,6 @@ export interface APIErrorWithContext {
   context: string
 }
 
-
 // Validation
 
 export enum InvalidationType {
