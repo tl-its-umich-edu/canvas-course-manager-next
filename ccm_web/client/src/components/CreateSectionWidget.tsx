@@ -3,6 +3,7 @@ import { useSnackbar } from 'notistack'
 import React, { ChangeEvent, useState } from 'react'
 import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
 
+import ApiErrorMessage from './ApiErrorMessage'
 import { addCourseSections } from '../api'
 import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
@@ -55,20 +56,24 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
             enqueueSnackbar('Section was created!', { variant: 'success' })
-          }).catch((reason) => {
+          }).catch((error: unknown) => {
             enqueueSnackbar(
-              'Error occured while creating the section: ' + String(reason),
+              <ApiErrorMessage
+                context='creating the section'
+                error={error instanceof Error ? error : undefined}
+              />,
               { variant: 'error' }
             )
           })
       } else {
         errorAlert(errors)
       }
-    }).catch((reason) => {
-      console.log(reason)
-      console.log(typeof reason)
+    }).catch((error: unknown) => {
       enqueueSnackbar(
-        'Error validating section name: ' + String(reason),
+        <ApiErrorMessage
+          context='validating section name'
+          error={error instanceof Error ? error : undefined}
+        />,
         { variant: 'error' }
       )
     }).finally(() => {
