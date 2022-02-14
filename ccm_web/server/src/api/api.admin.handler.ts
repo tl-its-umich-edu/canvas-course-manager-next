@@ -84,9 +84,7 @@ export class AdminApiHandler {
     }
     if (instructor !== undefined) queryParams.by_teachers = ['sis_login_id:' + instructor]
     if (courseName !== undefined) queryParams.search_term = courseName
-    const coursesApiPromises = createLimitedPromises<CanvasCourse[] | APIErrorData>(
-      accountIds.map(a => async () => await this.getAccountCourses(a, queryParams))
-    )
+    const coursesApiPromises = accountIds.map(async (a) => await this.getAccountCourses(a, queryParams))
     const coursesResponses = await Promise.all(coursesApiPromises)
     const result = makeResponse<CanvasCourse[]>(coursesResponses)
     if (isAPIErrorData(result)) return result
