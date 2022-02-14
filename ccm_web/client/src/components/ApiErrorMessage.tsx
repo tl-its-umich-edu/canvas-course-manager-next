@@ -20,13 +20,8 @@ export default function ApiErrorMessage (props: ApiErrorMessageProps): JSX.Eleme
   const errorMessages = props.error !== undefined ? extractErrorText(props.error) : []
   const preface = (
     `Error${errorMessages.length > 1 ? 's' : ''} occurred ` +
-    `while ${props.context}${props.error !== undefined ? ': ' : '.'}`
+    `while ${props.context}${props.error !== undefined ? ':' : '.'}`
   )
 
-  return (
-    <>
-    <Typography>{preface}</Typography>
-    {errorMessages.map((m, i) => <Typography key={i}>{m}</Typography>)}
-    </>
-  )
+  return <Typography>{preface}&nbsp;{errorMessages.join('; ')}</Typography>
 }
