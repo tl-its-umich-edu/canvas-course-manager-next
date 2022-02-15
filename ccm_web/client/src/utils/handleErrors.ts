@@ -10,6 +10,13 @@ import { APIErrorData, APIErrorPayload, isCanvasAPIErrorData } from '../models/m
 Custom Error types
 */
 
+class BadRequestError extends Error {
+  public name = 'BadRequestError'
+  constructor (message: string | undefined) {
+    super('Your request was not valid' + (message !== undefined ? `: ${message}` : '.'))
+  }
+}
+
 class UnauthorizedError extends Error {
   public name = 'UnauthorizedError'
   constructor () {
@@ -56,32 +63,27 @@ const handleErrors = async (resp: Response): Promise<void> => {
   try {
     errorBody = JSON.parse(text)
   } catch (error) {
-    throw new Error(`Non-JSON error encountered with status code ${resp.status}.`)
+    throw new Error(`Non-JSON error encountered with status code ${resp.status}`)
   }
 
+  if (resp.status === 401 && errorBody.redirect === true) {
+    redirect('/')
+    throw new UnauthorizedError()
+  }
+  if (isCanvasAPIErrorData(errorBody)) throw new CanvasError(errorBody.errors)
+
+  const apiErrorMessage = Array.isArray(errorBody.message) ? errorBody.message.join(' ') : errorBody.message
   switch (resp.status) {
+    case 400:
+      throw new BadRequestError(apiErrorMessage)
     case 401:
-      if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
-      if (isCanvasAPIErrorData(errorBody)) {
-        throw new CanvasError(errorBody.errors)
-      }
       throw new ForbiddenError()
     case 404:
-      if (isCanvasAPIErrorData(errorBody)) {
-        throw new CanvasError(errorBody.errors)
-      }
       throw new NotFoundError()
     default:
-      if (isCanvasAPIErrorData(errorBody)) {
-        throw new CanvasError(errorBody.errors)
-      } else {
-        const message = Array.isArray(errorBody.message)
-          ? errorBody.message.join(' ')
-          : errorBody.message
-        throw new Error(message)
-      }
+      throw new Error(apiErrorMessage)
   }
 }
 
