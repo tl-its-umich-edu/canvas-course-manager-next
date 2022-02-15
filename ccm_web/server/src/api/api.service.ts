@@ -150,11 +150,6 @@ export class APIService {
     console.log('createUserResponses…')
     console.log(JSON.stringify(createUserResponses))
 
-    // Create a new map of user email to CanvasUserLoginEmail objects
-    let newResults = new Map(createUserResponses.map(x => [x.email, x]))
-    console.log('newResults…')
-    console.log(newResults) // do not use JSON.stringify() here
-
     // Results of inviting only new users
     let inviteResults: CirrusInvitationResponse
     try {
@@ -162,6 +157,13 @@ export class APIService {
     } catch (e: any) {
       inviteResults = { errors: [String(e.message)] }
     }
+
+    let newResults = Object.fromEntries(createUserResponses.map(x => [x.email, {
+      userCreation: x,
+      invitation: inviteResults
+    }]))
+    console.log('newResults…')
+    console.log(JSON.stringify(newResults))
 
     // Enroll all users
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
