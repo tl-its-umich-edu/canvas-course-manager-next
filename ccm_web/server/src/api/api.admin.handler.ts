@@ -2,7 +2,12 @@ import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import {
+  handleAPIError,
+  HttpMethod,
+  makeResponse,
+  NS_PER_SEC
+} from './api.utils'
 import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasAccount,
@@ -81,7 +86,6 @@ export class AdminApiHandler {
   async getCourseSectionsInTerm (
     accountIds: number[], termId: number, instructor: string | undefined, courseName: string | undefined
   ): Promise<CourseWithSections[] | APIErrorData> {
-    const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
     // Get courses in accounts they are an admin for -- filtering by course state, term, instructor, and search term
@@ -165,7 +169,6 @@ export class AdminApiHandler {
   }
 
   async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUserLoginEmail | APIErrorData>> {
-    const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
 
     // Try creating all Canvas users; failure means user already exists

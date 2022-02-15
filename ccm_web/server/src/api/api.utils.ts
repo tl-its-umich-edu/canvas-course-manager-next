@@ -13,6 +13,8 @@ import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
+export const NS_PER_SEC = BigInt(1e9)
+
 export enum HttpMethod {
   Get = 'GET',
   Post = 'POST',
