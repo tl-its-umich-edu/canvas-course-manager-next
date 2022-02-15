@@ -19,8 +19,6 @@ const useStyles = makeStyles((theme) => ({
   listContainer: {
     overflow: 'auto',
     marginBottom: '5px',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
     '&& .Mui-disabled': {
       opacity: 1,
       '& > .MuiListItemAvatar-root': {
