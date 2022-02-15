@@ -35,7 +35,7 @@ import {
   CanvasEnrollment,
   CourseWithSections,
   CanvasUser,
-  ExternalEnrollment,
+  ExternalEnrollments,
   getRolesUserCanEnroll,
   CanvasRole
 } from '../canvas/canvas.interfaces'
@@ -121,7 +121,7 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData): Promise<ExternalEnrollment> {
+  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData): Promise<ExternalEnrollments> {
     const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
 
     let userRoles: CanvasRole[] = []
@@ -148,8 +148,6 @@ export class APIController {
           JSON.stringify(userAssignableRoles), HttpStatus.FORBIDDEN)
       }
     }
-
-
 
     const result = await this.apiService.enrollSectionExternalUsers(user, session, sectionId, sectionUsers)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)

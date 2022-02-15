@@ -6,7 +6,7 @@ import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { handleAPIError, makeResponse, roleStringsToEnums } from './api.utils'
+import { handleAPIError, makeResponse,  } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
@@ -16,12 +16,10 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
-  CanvasRole,
   CanvasUser,
   CanvasUserLoginEmail,
   CourseWithSections,
-  ExternalEnrollment,
-  getRolesUserCanEnroll
+  ExternalEnrollments
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
 import {
@@ -31,10 +29,10 @@ import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
-import { InvitationAPIError } from '../invitation/invitation.errors'
 import {
   CirrusInvitationResponse
 } from '../invitation/cirrus-invitation.interfaces'
+import { hasKeys } from '../typeUtils'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -139,7 +137,7 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollment|APIErrorData> {
+  async enrollSectionExternalUsers (user: User, session: SessionData, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollments|APIErrorData> {
     // Get requestor/handler and account ID for admin operations
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)

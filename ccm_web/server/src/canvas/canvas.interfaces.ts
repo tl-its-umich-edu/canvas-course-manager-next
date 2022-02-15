@@ -154,22 +154,29 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
-export interface ExternalEnrollment {
+export interface ExternalEnrollments {
   usersCreated: Array<CanvasUserLoginEmail | APIErrorData>
   inviteResults: CirrusInvitationResponse
   userEnrollments: CanvasEnrollment[] | APIErrorData
 }
 
+export interface ExternalEnrollment {
+  accountCreation: CanvasUserLoginEmail | APIErrorData
+  invitation: CirrusInvitationResponse
+  enrollment: CanvasEnrollment | APIErrorData
+}
+
 export interface CanvasUser {
-  id: number
+  id?: number
   name: string
   sortable_name: string
-  short_name: string
+  short_name?: string
 }
 
 export interface CanvasUserLoginEmail extends CanvasUser {
   login_id: string
   email: string
+  error?: any
 }
 
 export interface CanvasEnrollmentWithUser extends CanvasEnrollment {
