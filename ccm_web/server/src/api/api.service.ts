@@ -145,7 +145,15 @@ export class APIService {
 
     // Create all requested users, noting failures
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, newUserAccountID)
-    const newUsers = createUserResponses.filter(response => !isAPIErrorData(response)) as CanvasUserLoginEmail[]
+    const newUsers = createUserResponses.filter(response => !hasKeys(response, ['error'])) as CanvasUserLoginEmail[]
+
+    console.log('createUserResponses…')
+    console.log(JSON.stringify(createUserResponses))
+
+    // Create a new map of user email to CanvasUserLoginEmail objects
+    let newResults = new Map(createUserResponses.map(x => [x.email, x]))
+    console.log('newResults…')
+    console.log(newResults) // do not use JSON.stringify() here
 
     // Results of inviting only new users
     let inviteResults: CirrusInvitationResponse
