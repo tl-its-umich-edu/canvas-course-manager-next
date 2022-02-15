@@ -327,8 +327,13 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <div className={classes.uploadContainer}>
           <Grid container>
             <Grid item xs={12}>
-              <FileUpload onUploadComplete={(file) => parseFile(file)} />
-            </Grid>
+              <FileUpload
+                onUploadComplete={(file) => {
+                  setFile(file)
+                  parseFile(file)
+                }}
+              />
+          </Grid>
           </Grid>
           <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
             <Button
