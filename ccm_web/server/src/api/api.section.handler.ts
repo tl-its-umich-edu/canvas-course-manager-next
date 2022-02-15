@@ -53,16 +53,16 @@ export class SectionApiHandler {
   }
 
   async enrollUser (user: SectionUserDto | SectionExternalUserDto): Promise<CanvasEnrollment | APIErrorData> {
-    let userId: string
+    let loginId: string
     let enrollId: string
     if (user instanceof SectionUserDto) {
-      userId = user.loginId
-      enrollId = userId
+      loginId = user.loginId
+      enrollId = loginId
         .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
         .replace('@', '+')
     } else {
-      userId = user.email
-      enrollId = userId
+      loginId = user.email // external users may not have loginId
+      enrollId = loginId
         .replace('@', '+')
     }
 
@@ -94,10 +94,11 @@ export class SectionApiHandler {
         course_id,
         course_section_id,
         user_id,
+        login_id: loginId,
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${userId}; Role: ${user.type}`)
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
