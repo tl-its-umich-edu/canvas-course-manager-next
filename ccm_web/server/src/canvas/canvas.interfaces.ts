@@ -161,7 +161,7 @@ export interface ExternalEnrollments {
 }
 
 export interface ExternalEnrollment {
-  accountCreation: CanvasUserLoginEmail | APIErrorData
+  userCreation: CanvasUserLoginEmail | APIErrorData
   invitation: CirrusInvitationResponse
   enrollment: CanvasEnrollment | APIErrorData
 }
