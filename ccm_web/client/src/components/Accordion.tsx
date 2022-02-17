@@ -8,8 +8,11 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(1),
-    '&& .MuiAccordionSummary-root.Mui-focused': {
-      color: theme.palette.primary.main
+    '& .MuiAccordionSummary-root': {
+      '&.Mui-focused, &.Mui-focusVisible': {
+        color: theme.palette.primary.main
+
+      }
     }
   },
   summary: {
