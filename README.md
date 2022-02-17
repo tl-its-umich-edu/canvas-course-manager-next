@@ -127,20 +127,20 @@ Explicit steps for setting up CCM in a development environment.
 
 ##### Configure Canvas API admin token
 
-19. Refer to [API Token Generation for Applications (Service Account)](
+20. Refer to [API Token Generation for Applications (Service Account)](
     https://umich.instructure.com/courses/66037/pages/api-token-generation-for-applications-service-account)  
     to create a Canvas user with an account role that includes the   
     "Users - manage login details" permission.  That is the only permission  
     needed, so for the best security, create a role for only that one.  
-20. Copy the static API key created in Canvas. The ID is the long number shown
+21. Copy the static API key created in Canvas. The ID is the long number shown
     in the "Details" column of the "Developer Keys" page. It usually begins
     with "1770~…".
 
 ##### Configure local environment
 
-21. Make a `.env` file for the project, based on the sample provided.
+22. Make a `.env` file for the project, based on the sample provided.
      `cp config/.env.sample .env`
-22. Edit the `.env` file.  The keys in the following list must/should be updated.
+23. Edit the `.env` file.  The keys in the following list must/should be updated.
 
      1. `DOMAIN` – Hostname of the server hosting the CCM application.
         For local development purposes with ngrok, use the hostname
@@ -154,7 +154,7 @@ Explicit steps for setting up CCM in a development environment.
      5. Add to the `CANVAS_API_CLIENT_ID` variable value the API key copied earlier (in step 17).
      6. Add to the `CANVAS_API_SECRET` variable value the secret copied earlier (in step 18).
      7. Add to the `CANVAS_ADMIN_API_TOKEN` key the API token copied earlier  
-        (in step 20).
+        (in step 21).
      8. Configure invitation API settings.  The invitation API used by CCM is
         currently based on Cirrus Identity services.  Provide values for each
         of the following keys:
