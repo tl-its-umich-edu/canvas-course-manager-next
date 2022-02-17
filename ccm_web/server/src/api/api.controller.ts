@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
+import { Globals, isAPIErrorData, ExternalEnrollmentResult, ExternalEnrollmentUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
@@ -35,7 +35,6 @@ import {
   CanvasEnrollment,
   CourseWithSections,
   CanvasUser,
-  ExternalEnrollments,
   getRolesUserCanEnroll,
   CanvasRole
 } from '../canvas/canvas.interfaces'
@@ -121,7 +120,9 @@ export class APIController {
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData): Promise<ExternalEnrollments> {
+  async enrollSectionExternalUsers (
+    @Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData
+  ): Promise<ExternalEnrollmentUserData> {
     const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
 
     let userRoles: CanvasRole[] = []
@@ -149,11 +150,12 @@ export class APIController {
       }
     }
 
-    const result = await this.apiService.enrollSectionExternalUsers(user, session, sectionId, sectionUsers)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
+    const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, sectionUsers)
+    if (!result.success) throw new HttpException(result.data, HttpStatus.BAD_GATEWAY)
+    return result.data
   }
 
+  @UseInterceptors(InvalidTokenInterceptor)
   @Post('/sections/enroll')
   async enrollUsersToSections (
     @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User

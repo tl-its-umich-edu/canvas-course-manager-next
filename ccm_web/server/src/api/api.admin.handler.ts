@@ -116,8 +116,7 @@ export class AdminApiHandler {
     return finalResult
   }
 
-  // async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
-  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail> {
+  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
     const fullName = `${user.givenName} ${user.surname}`
@@ -126,7 +125,7 @@ export class AdminApiHandler {
     try {
       const endpoint = `accounts/${accountID}/users`
       const method = HttpMethod.Post
-      const body: any = {
+      const body = {
         user: {
           // API doesn't provide separate given- and surname fields
           name: fullName,
@@ -154,39 +153,26 @@ export class AdminApiHandler {
         short_name, // eslint-disable-line
         login_id // eslint-disable-line
       } = response.body
+      return { id, name, sortable_name, short_name, login_id, email }
+    } catch (error: unknown) {
+      const errorResponse = handleAPIError(error, loginId)
       return {
-        id,
-        name,
-        sortable_name,
-        short_name,
-        login_id,
-        email
-      }
-    } catch (error: any) {
-      // const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
-      // return {
-      //   statusCode: errorResponse.canvasStatusCode,
-      //   errors: [errorResponse]
-      // }
-      return {
-        name: fullName,
-        sortable_name: sortableName,
-        login_id: loginId,
-        email: email,
-        error: {
-          statusCode: error.response.statusCode,
-          body: error.response.body
-        }
+        statusCode: errorResponse.canvasStatusCode,
+        errors: [errorResponse]
       }
     }
   }
 
-  // async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUserLoginEmail | APIErrorData>> {
-  async createExternalUsers (users: SectionExternalUserDto[], accountID: number): Promise<Array<CanvasUserLoginEmail>> {
+  async createExternalUsers (
+    users: SectionExternalUserDto[], accountID: number
+  ): Promise<Array<{ result: CanvasUserLoginEmail | APIErrorData, email: string }>> {
     const start = process.hrtime.bigint()
 
     // Try creating all Canvas users; failure often means user already exists
-    const createUserPromises = users.map(async (user) => await this.createExternalUser(user, accountID))
+    const createUserPromises = users.map(async (user) => {
+      const result = await this.createExternalUser(user, accountID)
+      return { result, email: user.email }
+    })
     const createUserResponses = await Promise.all(createUserPromises)
 
     const end = process.hrtime.bigint()
