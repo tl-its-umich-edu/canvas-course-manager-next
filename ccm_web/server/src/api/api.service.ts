@@ -6,7 +6,7 @@ import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData, ExternalEnrollmentUserData, ExternalEnrollmentResult } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { handleAPIError, makeResponse } from './api.utils'
+import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
@@ -78,10 +78,12 @@ export class APIService {
     }
 
     const coursesInTerm = courses.filter(c => c.enrollment_term_id === termId)
-    const apiPromises = coursesInTerm.map(async c => {
-      const courseHandler = new CourseApiHandler(requestor, c.id)
-      return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
-    })
+    const apiPromises = createLimitedPromises<CourseWithSections | APIErrorData>(
+      coursesInTerm.map(c => async () => {
+        const courseHandler = new CourseApiHandler(requestor, c.id)
+        return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
+      })
+    )
     const coursesWithSectionsResult = await Promise.all(apiPromises)
     return makeResponse<CourseWithSections>(coursesWithSectionsResult)
   }
@@ -126,8 +128,9 @@ export class APIService {
   }
 
   async enrollSectionUsers (user: User, sectionId: number, sectionUsers: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+    const customCanvasRoles = this.configService.get('canvas.customCanvasRoleData', { infer: true })
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    const sectionHandler = new SectionApiHandler(requestor, sectionId, customCanvasRoles)
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
@@ -192,12 +195,15 @@ export class APIService {
   }
 
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+    const customCanvasRoles = this.configService.get('canvas.customCanvasRoleData', { infer: true })
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const apiPromises = enrollments.map(async (e) => {
-      const { sectionId, ...sectionUser } = e
-      const sectionHandler = new SectionApiHandler(requestor, e.sectionId)
-      return await sectionHandler.enrollUser(sectionUser)
-    })
+    const apiPromises = createLimitedPromises<CanvasEnrollment | APIErrorData>(
+      enrollments.map(e => async () => {
+        const { sectionId, ...sectionUser } = e
+        const sectionHandler = new SectionApiHandler(requestor, sectionId, customCanvasRoles)
+        return await sectionHandler.enrollUser(sectionUser)
+      })
+    )
     const enrollmentResults = await Promise.all(apiPromises)
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
@@ -218,10 +224,12 @@ export class APIService {
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = sectionIds.map(async (si) => {
-      const sectionHandler = new SectionApiHandler(requestor, si)
-      return await sectionHandler.unmergeSection()
-    })
+    const apiPromises = createLimitedPromises<CanvasCourseSectionBase | APIErrorData>(
+      sectionIds.map(si => async () => {
+        const sectionHandler = new SectionApiHandler(requestor, si)
+        return await sectionHandler.unmergeSection()
+      })
+    )
     const unmergeSectionResults = await Promise.all(apiPromises)
     const bulkResult = makeResponse<CanvasCourseSectionBase>(unmergeSectionResults)
     const end = process.hrtime.bigint()

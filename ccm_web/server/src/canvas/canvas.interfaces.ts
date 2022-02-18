@@ -75,7 +75,13 @@ export enum CanvasRole {
   ObserverEnrollment = 'ObserverEnrollment',
   StudentEnrollment = 'StudentEnrollment',
   TaEnrollment = 'TaEnrollment',
-  TeacherEnrollment = 'TeacherEnrollment'
+  TeacherEnrollment = 'TeacherEnrollment',
+  Librarian = 'Librarian'
+}
+
+export enum CustomCanvasRoleType {
+  Librarian = CanvasRole.Librarian,
+  Assistant = CanvasRole.Assistant
 }
 
 export const isCanvasRole = (value: string): value is CanvasRole => {
@@ -87,7 +93,9 @@ export enum UserEnrollmentType {
   ObserverEnrollment = CanvasRole.ObserverEnrollment,
   StudentEnrollment = CanvasRole.StudentEnrollment,
   TaEnrollment = CanvasRole.TaEnrollment,
-  TeacherEnrollment = CanvasRole.TeacherEnrollment
+  TeacherEnrollment = CanvasRole.TeacherEnrollment,
+  Librarian = CanvasRole.Librarian,
+  Assistant = CanvasRole.Assistant
 }
 
 // valid role types for LTI launch
@@ -114,6 +122,7 @@ export const rankedRoleData: RankedRoleData = {
   StudentEnrollment: 0,
   ObserverEnrollment: 0,
   Assistant: 1,
+  Librarian: 1,
   TaEnrollment: 2,
   TeacherEnrollment: 3,
   DesignerEnrollment: 3,

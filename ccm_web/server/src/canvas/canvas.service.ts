@@ -23,11 +23,11 @@ type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
 const requestorOptions: GotOptions = {
   retry: {
-    limit: 4,
+    limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
     statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
-      const delay = computedValue === 0 ? 0 : 5000
+      const delay = computedValue === 0 ? 0 : 2000
 
       let logMessage =
         `calculateDelay [${String(attemptCount)}] — ` +

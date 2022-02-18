@@ -1,5 +1,6 @@
 import { CanvasApiError } from '@kth/canvas-api'
 import { HttpStatus } from '@nestjs/common'
+import pLimit from 'p-limit'
 
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
@@ -93,4 +94,20 @@ export function roleStringsToEnums (roleStrings: string[]): CanvasRole[] {
     roleEnums.push(roleString)
   }
   return roleEnums
+}
+
+/*
+Convenience wrapper for p-limit: see https://github.com/sindresorhus/p-limit
+*/
+export function createLimitedPromises<T> (
+  funcs: Array<() => Promise<T>>, maxConcurrentPromises = 20
+): Array<Promise<T>> {
+  const limit = pLimit(maxConcurrentPromises)
+  const limitedPromises = funcs.map(async (func) => {
+    return await limit<[], T>(async () => {
+      logger.debug(`Promises still in queue: ${limit.pendingCount}`)
+      return await func()
+    })
+  })
+  return limitedPromises
 }

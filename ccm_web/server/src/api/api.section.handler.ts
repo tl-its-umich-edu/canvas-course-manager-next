@@ -1,18 +1,15 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { APIErrorData } from './api.interfaces'
-import { handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
-  CanvasCourseSection,
-  CanvasCourseSectionBase,
-  CanvasEnrollment,
-  CanvasEnrollmentWithUser,
-  UserEnrollmentType
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
+import { CustomCanvasRoleData } from '../config'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -22,10 +19,12 @@ Handler class for Canvas API calls dealing with a specific section (i.e. those b
 export class SectionApiHandler {
   requestor: CanvasRequestor
   sectionId: number
+  customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number) {
+  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
+    this.customCanvasRoles = customCanvasRoles
   }
 
   static slimSection (section: CanvasCourseSection): CanvasCourseSectionBase {
@@ -61,24 +60,32 @@ export class SectionApiHandler {
         .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
         .replace('@', '+')
     } else {
-      loginId = user.email // external users may not have loginId
+      loginId = user.email // external user's modified email is used as loginId
       enrollId = loginId
         .replace('@', '+')
     }
+    const enrollmentType = user.type
+    const roleParams = (
+      this.customCanvasRoles !== undefined &&
+      Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
+      Object.keys(this.customCanvasRoles).includes(String(enrollmentType))
+    )
+      ? { role_id: this.customCanvasRoles[enrollmentType] }
+      : { type: enrollmentType }
 
     try {
       const endpoint = `sections/${this.sectionId}/enrollments`
       const method = HttpMethod.Post
-      const body = {
-        enrollment: {
-          // 'sis_login_id:' prefix per...
-          // https://canvas.instructure.com/doc/api/file.object_ids.html
-          user_id: `sis_login_id:${enrollId}`,
-          type: user.type,
-          enrollment_state: 'active',
-          notify: false
-        }
+      const enrollment = {
+        // 'sis_login_id:' prefix per...
+        // https://canvas.instructure.com/doc/api/file.object_ids.html
+        user_id: `sis_login_id:${enrollId}`,
+        enrollment_state: 'active',
+        notify: false,
+        ...roleParams
       }
+
+      const body = { enrollment }
       logger.debug(`Sending request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
       const response = await this.requestor.request<CanvasEnrollment>(endpoint, method, body)
       logger.debug(`Received response with status code ${response.statusCode}`)
@@ -109,7 +116,9 @@ export class SectionApiHandler {
   async enrollUsers (users: SectionUserDto[] | SectionExternalUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
-    const apiPromises = users.map(async (user) => await this.enrollUser(user))
+    const apiPromises = createLimitedPromises<CanvasEnrollment | APIErrorData>(
+      users.map(user => async () => await this.enrollUser(user))
+    )
     const enrollmentResponses = await Promise.all(apiPromises)
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed to enroll (${users.length}) users: (${(end - start) / NS_PER_SEC}) seconds`)

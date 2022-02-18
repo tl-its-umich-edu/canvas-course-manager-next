@@ -3,6 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import {
+  createLimitedPromises,
   handleAPIError,
   HttpMethod,
   makeResponse,
@@ -104,10 +105,12 @@ export class AdminApiHandler {
     result.map(cs => allCourses.push(...cs))
 
     // Get sections for those courses
-    const coursesWithSectionsApiPromises = allCourses.map(async c => {
-      const courseHandler = new CourseApiHandler(this.requestor, c.id)
-      return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
-    })
+    const coursesWithSectionsApiPromises = createLimitedPromises(
+      allCourses.map(c => async () => {
+        const courseHandler = new CourseApiHandler(this.requestor, c.id)
+        return await courseHandler.getSectionsWithCourse(CourseApiHandler.slimCourse(c))
+      })
+    )
     const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
     const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
 
