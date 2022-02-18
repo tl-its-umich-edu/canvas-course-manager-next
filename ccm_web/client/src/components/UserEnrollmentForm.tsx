@@ -216,8 +216,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const nameInput = (
     <>
     {
-        showIncompleteAlerts && (firstName === undefined || lastName === undefined) &&
-          <InlineErrorAlert>You must fill in firstname or lastName.</InlineErrorAlert>
+      showIncompleteAlerts && (firstName === undefined || lastName === undefined) &&
+        <InlineErrorAlert>You must enter a first name and last name.</InlineErrorAlert>
     }
     <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
