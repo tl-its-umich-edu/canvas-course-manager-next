@@ -137,6 +137,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const handleSubmitClick = async (): Promise<void> => {
     if (
       userExists === undefined ||
+      (!userExists && firstName === undefined && lastName === undefined) ||
       role === undefined ||
       selectedSection === undefined
     ) {
@@ -215,6 +216,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const nameInput = (
     <>
+    {
+      showIncompleteAlerts && (firstName === undefined || lastName === undefined) &&
+        <InlineErrorAlert>You must enter a first name and last name.</InlineErrorAlert>
+    }
     <Typography className={classes.spacing} gutterBottom>
       The email you entered is not associated with an account in Canvas.
       Please provide a first and last name, and we will send them an email invitation
