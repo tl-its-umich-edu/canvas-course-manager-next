@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common'
 import { CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
 import { InvitationAPIError } from './invitation.errors'
 
-import { Config } from '../config'
+import { Config, InvitationConfig } from '../config'
 import baseLogger from '../logger'
 
 const logger = baseLogger.child({ filePath: __filename })
@@ -26,7 +26,7 @@ export class CirrusInvitationService {
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
-    const invitationConfig = configService.get('invitation', { infer: true })
+    const invitationConfig = configService.get('invitation', { infer: true }) as InvitationConfig
     this.url = invitationConfig.apiURL
     this.entityID = invitationConfig.apiEntityID
     this.sponsorName = invitationConfig.apiSponsorName
