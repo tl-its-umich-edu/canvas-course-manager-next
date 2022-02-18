@@ -29,7 +29,7 @@ interface AccordionProps {
 export default function Accordion (props: AccordionProps): JSX.Element {
   const classes = useStyles()
   const [isSummaryFocusVisible, setIsSummaryFocusVisible] = useState(false)
-  const summaryTextClass = isSummaryFocusVisible ? classes.summaryFocusVisible : classes.summaryNotFocusVisible
+  const summaryTextClass = isSummaryFocusVisible ? classes.summaryFocusVisible : classes.summaryFocusNotVisible
 
   return (
     <div className={classes.container}>
