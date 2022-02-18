@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Accordion as MUIAccordion, AccordionDetails as MUIAccordionDetails, AccordionSummary as MUIAccordionSummary,
   makeStyles
@@ -7,19 +7,15 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    paddingTop: theme.spacing(1),
-    '& .MuiAccordionSummary-root': {
-      '&.Mui-focused, &.Mui-focusVisible': {
-        color: theme.palette.primary.main
-
-      }
-    }
+    paddingTop: theme.spacing(1)
   },
   summary: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText
+    backgroundColor: theme.palette.primary.main
   },
-  icon: {
+  summaryFocusedVisible: {
+    color: theme.palette.primary.main
+  },
+  summaryUnfocusedVisible: {
     color: theme.palette.primary.contrastText
   }
 }))
@@ -32,14 +28,20 @@ interface AccordionProps {
 
 export default function Accordion (props: AccordionProps): JSX.Element {
   const classes = useStyles()
+  const [isSummaryFocusedVisible, setIsSummaryFocusedVisible] = useState(false)
+  const summaryTextClass = isSummaryFocusedVisible ? classes.summaryFocusedVisible : classes.summaryUnfocusedVisible
+
   return (
     <div className={classes.container}>
       <MUIAccordion defaultExpanded>
         <MUIAccordionSummary
           className={classes.summary}
-          expandIcon={<ExpandMoreIcon className={classes.icon} />}
+          classes={{ root: summaryTextClass, expandIcon: summaryTextClass }}
+          expandIcon={<ExpandMoreIcon />}
           id={`${props.id}-header`}
           aria-controls={`${props.id}-content`}
+          onFocusVisible={() => setIsSummaryFocusedVisible(true)}
+          onBlur={() => setIsSummaryFocusedVisible(false)}
         >
           {props.title}
         </MUIAccordionSummary>
