@@ -12,10 +12,10 @@ const useStyles = makeStyles((theme) => ({
   summary: {
     backgroundColor: theme.palette.primary.main
   },
-  summaryFocusedVisible: {
+  summaryFocusVisible: {
     color: theme.palette.primary.main
   },
-  summaryUnfocusedVisible: {
+  summaryFocusNotVisible: {
     color: theme.palette.primary.contrastText
   }
 }))
@@ -28,8 +28,8 @@ interface AccordionProps {
 
 export default function Accordion (props: AccordionProps): JSX.Element {
   const classes = useStyles()
-  const [isSummaryFocusedVisible, setIsSummaryFocusedVisible] = useState(false)
-  const summaryTextClass = isSummaryFocusedVisible ? classes.summaryFocusedVisible : classes.summaryUnfocusedVisible
+  const [isSummaryFocusVisible, setIsSummaryFocusVisible] = useState(false)
+  const summaryTextClass = isSummaryFocusVisible ? classes.summaryFocusVisible : classes.summaryNotFocusVisible
 
   return (
     <div className={classes.container}>
@@ -40,8 +40,8 @@ export default function Accordion (props: AccordionProps): JSX.Element {
           expandIcon={<ExpandMoreIcon />}
           id={`${props.id}-header`}
           aria-controls={`${props.id}-content`}
-          onFocusVisible={() => setIsSummaryFocusedVisible(true)}
-          onBlur={() => setIsSummaryFocusedVisible(false)}
+          onFocusVisible={() => setIsSummaryFocusVisible(true)}
+          onBlur={() => setIsSummaryFocusVisible(false)}
         >
           {props.title}
         </MUIAccordionSummary>
