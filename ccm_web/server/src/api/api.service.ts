@@ -160,10 +160,11 @@ export class APIService {
     })
     if (createErrors.length === sectionUsers.length) return { success: false, data: resultData }
 
-    // Results of inviting only new users
+    // Invite only new users
     if (newUsers.length > 0) {
-      const inviteResult = await this.invitationService.sendInvitations(newUsers.map(u => u.email))
-      Object.keys(resultData).forEach(email => {
+      const newUsersEmails = newUsers.map(u => u.email)
+      const inviteResult = await this.invitationService.sendInvitations(newUsersEmails)
+      newUsersEmails.forEach(email => {
         resultData[email].inviteResult = inviteResult
       })
       // Bail if it failed
