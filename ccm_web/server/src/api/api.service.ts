@@ -139,10 +139,11 @@ export class APIService {
 
     const resultData: ExternalEnrollmentUserData = {}
 
-    // Create all requested users, noting failures
     const createErrors: APIErrorData[] = []
     const newUsers: CanvasUserLoginEmail[] = []
     const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, newUserAccountID)
+
+    // Handle create user responses: successes, failures, and already exists
     createUserResponses.forEach(({ email, result }) => {
       let userCreated: false | APIErrorData | CanvasUserLoginEmail
       if (isAPIErrorData(result)) {
@@ -171,12 +172,13 @@ export class APIService {
       if (isCirrusErrorData(inviteResult)) return { success: false, data: resultData }
     }
 
-    // Enroll all users
     const enrollErrors: APIErrorData[] = []
     const enrollableSectionUsers = sectionUsers.filter(su => !isAPIErrorData(resultData[su.email].userCreated))
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
 
+    // Enroll all users who didn't have Canvas API errors
     const sectionHandler = new SectionApiHandler(requestor, sectionId)
+    // Enrolling one at a time, not all together
     const enrollmentPromises = enrollableSectionUsers.map(async (su) => {
       const result = await sectionHandler.enrollUser(su)
       return { result, email: su.email }
