@@ -137,8 +137,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const handleSubmitClick = async (): Promise<void> => {
     if (
       userExists === undefined ||
+      (!userExists && firstName === undefined && lastName === undefined) ||
       role === undefined ||
-      selectedSection === undefined || firstName === undefined || lastName === undefined
+      selectedSection === undefined
     ) {
       return setShowIncompleteAlerts(true)
     }
