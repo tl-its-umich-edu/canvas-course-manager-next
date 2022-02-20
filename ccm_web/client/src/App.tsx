@@ -5,7 +5,7 @@ import { Link, makeStyles } from '@material-ui/core'
 import { getCourse, getCSRFToken } from './api'
 import './App.css'
 import AuthorizePrompt from './components/AuthorizePrompt'
-import Breadcrumbs from './components/Breadcrumbs'
+import Layout from './components/Layout'
 import ResponsiveHelper from './components/ResponsiveHelper'
 import useGlobals from './hooks/useGlobals'
 import usePromise from './hooks/usePromise'
@@ -57,19 +57,18 @@ function App (): JSX.Element {
 
   if (!globals.user.hasCanvasToken) {
     return (
-      <div className='App'>
-        <Breadcrumbs />
+      <Layout>
         <AuthorizePrompt helpURL={globals.baseHelpURL} />
-      </div>
+      </Layout>
     )
   }
 
   if (isCourseLoading) return loading
   if (getCourseError !== undefined || course === undefined) {
     return (
-      <div className='App'>
+      <Layout>
         <p>Course info failed to load.</p>
-      </div>
+      </Layout>
     )
   }
 
@@ -78,8 +77,7 @@ function App (): JSX.Element {
     : undefined
 
   return (
-    <div className='App'>
-      <Breadcrumbs {...{ features, pathnames }} />
+    <Layout {...{ features, pathnames }}>
       <Switch>
         <Route exact={true} path='/'>
           <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
@@ -111,7 +109,7 @@ function App (): JSX.Element {
           </div>
         )
       }
-    </div>
+    </Layout>
   )
 }
 

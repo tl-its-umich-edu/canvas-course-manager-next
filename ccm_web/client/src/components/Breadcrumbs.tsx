@@ -8,10 +8,6 @@ import { FeatureUIProps } from '../models/FeatureUIData'
 const useStyles = makeStyles(() => ({
   breadcrumbs: {
     fontSize: '1.125rem'
-  },
-  breadcrumbContainer: {
-    paddingLeft: 25,
-    paddingTop: 25
   }
 }))
 
@@ -35,7 +31,7 @@ const HomeBreadcrumb = (props: HomeBreadcrumbProps): JSX.Element => {
     : (typography)
 }
 
-interface BreadcrumbsProps {
+export interface BreadcrumbsProps {
   pathnames?: string[]
   features?: FeatureUIProps[]
 }
@@ -45,7 +41,6 @@ function Breadcrumbs (props: BreadcrumbsProps): JSX.Element {
   const { features, pathnames } = props
   return (
     <MuiBreadcrumbs
-      className={classes.breadcrumbContainer}
       aria-label='breadcrumb'
       separator={<NavigateNextIcon fontSize='small' />}
     >

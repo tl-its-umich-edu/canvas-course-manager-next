@@ -19,7 +19,6 @@ import Help from '../components/Help'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   sectionSelectionContainer: {

@@ -15,25 +15,17 @@ import usePromise from '../hooks/usePromise'
 import { courseNameSchema, validateString } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: 25,
-    paddingTop: 5
-  },
   title: {
     textAlign: 'left',
-    paddingLeft: 5
-  },
-  featureCardContainer: {
-    padding: 5
+    marginBottom: theme.spacing(1)
   },
   courseNameContainer: {
-    marginBottom: 15
+    marginBottom: theme.spacing(2)
   },
   courseName: {
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
-    textAlign: 'left',
-    padding: 5
+    textAlign: 'left'
   }
 }))
 
@@ -70,7 +62,7 @@ function Home (props: HomeProps): JSX.Element {
 
   const renderFeature = (feature: FeatureUIProps): JSX.Element => {
     return (
-      <Grid key={feature.data.id} item className={classes.featureCardContainer} xs={12} sm={4}>
+      <Grid key={feature.data.id} item xs={12} sm={6}>
         <FeatureCard {...feature} />
       </Grid>
     )
@@ -79,8 +71,10 @@ function Home (props: HomeProps): JSX.Element {
   const renderFeatureGroup = (featureGroup: FeatureUIGroup): JSX.Element => {
     return (
       <Grid key={featureGroup.id} container item xs={12} spacing={0}>
-        <Grid item xs={12}><Typography variant='h6' component='h2' className={classes.title} >{featureGroup.title}</Typography></Grid>
-        <Grid container item xs={12}>
+        <Grid item xs={12}>
+          <Typography variant='h6' component='h2' className={classes.title}>{featureGroup.title}</Typography>
+        </Grid>
+        <Grid container item xs={12} spacing={2}>
           {featureGroup.features.sort((a, b) => (a.data.ordinality < b.data.ordinality) ? -1 : 1)
             .filter(feature => {
               return isAuthorizedForFeature(props.globals.course.roles, feature)
@@ -125,29 +119,20 @@ function Home (props: HomeProps): JSX.Element {
     )
   }
 
-  const renderFeatures = (): JSX.Element => {
-    const features = allFeatures
-    return (
-      <>
-        <Help baseHelpURL={props.globals.baseHelpURL} />
-        <div className={classes.courseNameContainer}>
-          {renderCourseRename()}
-        </div>
-        <Grid container spacing={3}>
-          {features.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
-            return isAuthorizedForAnyFeature(props.globals.course.roles, featureGroup.features)
-          }).map(featureGroup => {
-            return (renderFeatureGroup(featureGroup))
-          })}
-        </Grid>
-      </>
-    )
-  }
-
   return (
-    <div className={classes.root}>
-      {renderFeatures()}
+    <>
+    <Help baseHelpURL={props.globals.baseHelpURL} />
+    <div className={classes.courseNameContainer}>
+      {renderCourseRename()}
     </div>
+    <Grid container spacing={3}>
+      {allFeatures.sort((a, b) => (a.ordinality < b.ordinality) ? -1 : 1).filter(featureGroup => {
+        return isAuthorizedForAnyFeature(props.globals.course.roles, featureGroup.features)
+      }).map(featureGroup => {
+        return (renderFeatureGroup(featureGroup))
+      })}
+    </Grid>
+    </>
   )
 }
 
