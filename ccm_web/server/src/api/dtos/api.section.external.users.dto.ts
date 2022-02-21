@@ -3,14 +3,12 @@ import {
   ArrayMinSize,
   IsArray,
   IsEmail,
-  IsIn,
   IsNotEmpty,
   MaxLength,
   ValidateNested
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
 
 export class ExternalUserDto {
   @ApiProperty()

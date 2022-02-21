@@ -161,7 +161,7 @@ export function validateConfig (): Config {
       newUserAccountID: validate<number>('CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1),
       customCanvasRoleData: validate<CustomCanvasRoleData>(
         'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
-        )
+      )
     }
     invitation = {
       apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
