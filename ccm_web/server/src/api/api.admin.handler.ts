@@ -9,7 +9,7 @@ import {
   makeResponse,
   NS_PER_SEC
 } from './api.utils'
-import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
+import { ExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasAccount,
   CanvasCourse,
@@ -119,7 +119,7 @@ export class AdminApiHandler {
     return finalResult
   }
 
-  async createExternalUser (user: SectionExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
+  async createExternalUser (user: ExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
     const email = user.email
     const loginId = email.replace('@', '+')
     const fullName = `${user.givenName} ${user.surname}`
@@ -167,7 +167,7 @@ export class AdminApiHandler {
   }
 
   async createExternalUsers (
-    users: SectionExternalUserDto[], accountID: number
+    users: ExternalUserDto[], accountID: number
   ): Promise<Array<{ result: CanvasUserLoginEmail | APIErrorData, email: string }>> {
     const start = process.hrtime.bigint()
 

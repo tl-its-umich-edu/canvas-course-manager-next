@@ -156,7 +156,6 @@ export interface CanvasEnrollment {
   course_id: number
   course_section_id: number
   user_id: number
-  login_id: string
   type: UserEnrollmentType
 }
 

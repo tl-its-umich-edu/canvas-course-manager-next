@@ -33,15 +33,14 @@ export function isAPIErrorData (value: unknown): value is APIErrorData {
   return hasKeys(value, ['statusCode', 'errors'])
 }
 
-export interface ExternalEnrollmentUserData {
+export interface ExternalUserData {
   [email: string]: {
     userCreated: CanvasUserLoginEmail | APIErrorData | false
-    inviteResult?: CirrusInvitationResponse | CirrusErrorData
-    enrollment?: CanvasEnrollment | APIErrorData
+    invited?: CirrusInvitationResponse | CirrusErrorData
   }
 }
 
-export interface ExternalEnrollmentResult {
+export interface ExternalUserCreationResult {
   success: boolean
-  data: ExternalEnrollmentUserData
+  data: ExternalUserData
 }

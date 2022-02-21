@@ -3,7 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
-import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
+import { ExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
 } from '../canvas/canvas.interfaces'
@@ -51,19 +51,12 @@ export class SectionApiHandler {
     return enrollmentsResult.map(e => e.user.login_id)
   }
 
-  async enrollUser (user: SectionUserDto | SectionExternalUserDto): Promise<CanvasEnrollment | APIErrorData> {
-    let loginId: string
-    let enrollId: string
-    if (user instanceof SectionUserDto) {
-      loginId = user.loginId
-      enrollId = loginId
-        .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
-        .replace('@', '+')
-    } else {
-      loginId = user.email // external user's modified email is used as loginId
-      enrollId = loginId
-        .replace('@', '+')
-    }
+  async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
+    const loginId: string = user.loginId
+    const enrollId: string = loginId
+      .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
+      .replace('@', '+')
+
     const enrollmentType = user.type
     const roleParams = (
       this.customCanvasRoles !== undefined &&
@@ -101,7 +94,6 @@ export class SectionApiHandler {
         course_id,
         course_section_id,
         user_id,
-        login_id: loginId,
         type
       }
     } catch (error) {
@@ -113,7 +105,7 @@ export class SectionApiHandler {
     }
   }
 
-  async enrollUsers (users: SectionUserDto[] | SectionExternalUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
+  async enrollUsers (users: SectionUserDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const NS_PER_SEC = BigInt(1e9)
     const start = process.hrtime.bigint()
     const apiPromises = createLimitedPromises<CanvasEnrollment | APIErrorData>(

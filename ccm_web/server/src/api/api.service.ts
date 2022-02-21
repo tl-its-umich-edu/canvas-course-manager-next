@@ -4,12 +4,12 @@ import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
-import { APIErrorData, Globals, isAPIErrorData, ExternalEnrollmentUserData, ExternalEnrollmentResult } from './api.interfaces'
+import { APIErrorData, Globals, isAPIErrorData, ExternalUserData, ExternalUserCreationResult } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
 import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
-import { SectionExternalUserDto } from './dtos/api.section.external.users.dto'
+import { ExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasCourse,
   CanvasCourseBase,
@@ -134,19 +134,17 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async enrollSectionExternalUsers (user: User, sectionId: number, sectionUsers: SectionExternalUserDto[]): Promise<ExternalEnrollmentResult> {
-    // Get requestor/handler and account ID for admin operations
+  async createExternalUsers (user: User, externalUsers: ExternalUserDto[]): Promise<ExternalUserCreationResult> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
     const newUserAccountID = this.configService.get('canvas.newUserAccountID', { infer: true })
 
-    const resultData: ExternalEnrollmentUserData = {}
-
+    const resultData: ExternalUserData = {}
     const createErrors: APIErrorData[] = []
     const newUsers: CanvasUserLoginEmail[] = []
-    const createUserResponses = await adminHandler.createExternalUsers(sectionUsers, newUserAccountID)
+    const createUserResponses = await adminHandler.createExternalUsers(externalUsers, newUserAccountID)
 
-    // Handle create user responses: successes, failures, and already exists
+    // Handle create user responses: success, failure, and already exists
     createUserResponses.forEach(({ email, result }) => {
       let userCreated: false | APIErrorData | CanvasUserLoginEmail
       if (isAPIErrorData(result)) {
@@ -162,36 +160,20 @@ export class APIService {
       }
       resultData[email] = { userCreated }
     })
-    if (createErrors.length === sectionUsers.length) return { success: false, data: resultData }
+    if (createErrors.length === externalUsers.length) return { success: false, data: resultData }
 
     // Invite only new users
     if (newUsers.length > 0) {
       const newUsersEmails = newUsers.map(u => u.email)
       const inviteResult = await this.invitationService.sendInvitations(newUsersEmails)
       newUsersEmails.forEach(email => {
-        resultData[email].inviteResult = inviteResult
+        resultData[email].invited = inviteResult
       })
       // Bail if it failed
       if (isCirrusErrorData(inviteResult)) return { success: false, data: resultData }
     }
 
-    const enrollErrors: APIErrorData[] = []
-    const enrollableSectionUsers = sectionUsers.filter(su => !isAPIErrorData(resultData[su.email].userCreated))
-    const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-
-    // Enroll all users who didn't have Canvas API errors
-    const sectionHandler = new SectionApiHandler(requestor, sectionId)
-    // Enrolling one at a time, not all together
-    const enrollmentPromises = enrollableSectionUsers.map(async (su) => {
-      const result = await sectionHandler.enrollUser(su)
-      return { result, email: su.email }
-    })
-    const enrollmentResponses = await Promise.all(enrollmentPromises)
-    enrollmentResponses.forEach(({ email, result }) => {
-      if (isAPIErrorData(result)) enrollErrors.push(result)
-      resultData[email].enrollment = result
-    })
-    return { success: !(createErrors.length > 0 || enrollErrors.length > 0), data: resultData }
+    return { success: (createErrors.length == 0), data: resultData }
   }
 
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {

@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData, ExternalEnrollmentResult, ExternalEnrollmentUserData } from './api.interfaces'
+import { Globals, isAPIErrorData, ExternalUserCreationResult, ExternalUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
@@ -41,7 +41,7 @@ import {
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 import {
-  SectionExternalUserDto, SectionExternalUsersDto
+  ExternalUserDto, ExternalUsersDto
 } from './dtos/api.section.external.users.dto'
 import baseLogger from '../logger'
 import { roleStringsToEnums } from './api.utils'
@@ -119,38 +119,13 @@ export class APIController {
 
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
-  @Post('sections/:id/enrollExternal')
-  async enrollSectionExternalUsers (
-    @Param('id', ParseIntPipe) sectionId: number, @Body() sectionExternalUsersData: SectionExternalUsersDto, @UserDec() user: User, @Session() session: SessionData
-  ): Promise<ExternalEnrollmentUserData> {
-    const sectionUsers: SectionExternalUserDto[] = sectionExternalUsersData.users
+  @Post('admin/createExternalUsers')
+  async createExternalUsers (
+    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User, @Session() session: SessionData
+  ): Promise<ExternalUserData> {
+    const externalUsers: ExternalUserDto[] = externalUsersData.users
 
-    let userRoles: CanvasRole[] = []
-    try {
-      userRoles = roleStringsToEnums(session.data.course.roles)
-    } catch (e: any) {
-      throw new HttpException(`Role error for user "${String(user.loginId)}": ${String(e.message)}`,
-        HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-
-    // FIXME: after development complete, update the following two lines
-    // const isRootAdmin: boolean = session.data.isRootAdmin // TODO: uncomment
-    const isRootAdmin = false // TODO: remove
-
-    if (isRootAdmin) {
-      logger.info(`User "${user.loginId}" is a root admin.  ` +
-        'Skipping input role checks.')
-    } else {
-      const userAssignableRoles: string[] =
-        getRolesUserCanEnroll(userRoles).map(r => String(r))
-      if (!sectionUsers.every(sectionUser =>
-        userAssignableRoles.includes(String(sectionUser.type)))) {
-        throw new HttpException('Disallowed role given. Allowed roles: ' +
-          JSON.stringify(userAssignableRoles), HttpStatus.FORBIDDEN)
-      }
-    }
-
-    const result = await this.apiService.enrollSectionExternalUsers(user, sectionId, sectionUsers)
+    const result = await this.apiService.createExternalUsers(user, externalUsers)
     if (!result.success) throw new HttpException(result.data, HttpStatus.BAD_GATEWAY)
     return result.data
   }
