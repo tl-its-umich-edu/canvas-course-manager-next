@@ -110,7 +110,7 @@ function Home (props: HomeProps): JSX.Element {
 
     return (
       <Grid className={classes.courseNameContainer} container alignItems='center'>
-        <Grid item md={8} sm={8} xs={12}>
+        <Grid item md={10} sm={10} xs={12}>
           <Typography className={classes.courseName} variant='h5' component='h1'>
             {nameBlock}
           </Typography>
