@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
-import { Link, makeStyles } from '@material-ui/core'
 
-import { getCourse, getCSRFToken } from './api'
+import { getCourse } from './api'
 import './App.css'
 import AuthorizePrompt from './components/AuthorizePrompt'
 import Layout from './components/Layout'
-import ResponsiveHelper from './components/ResponsiveHelper'
 import useGlobals from './hooks/useGlobals'
 import usePromise from './hooks/usePromise'
 import { CanvasCourseBase } from './models/canvas'
@@ -15,15 +13,7 @@ import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import redirect from './utils/redirect'
 
-const useStyles = makeStyles((theme) => ({
-  swaggerLink: {
-    display: 'block',
-    clear: 'both'
-  }
-}))
-
 function App (): JSX.Element {
-  const classes = useStyles()
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
@@ -77,7 +67,7 @@ function App (): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }}>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'}>
       <Switch>
         <Route exact={true} path='/'>
           <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
@@ -96,19 +86,6 @@ function App (): JSX.Element {
         })}
         <Route><NotFound /></Route>
       </Switch>
-      {
-        globals?.environment === 'development' &&
-        (
-          <div>
-            <div className={classes.swaggerLink}>
-              <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`}>Swagger UI</Link>
-            </div>
-            <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-              <ResponsiveHelper/>
-            </div>
-          </div>
-        )
-      }
     </Layout>
   )
 }
