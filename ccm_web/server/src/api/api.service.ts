@@ -173,7 +173,7 @@ export class APIService {
       if (isCirrusErrorData(inviteResult)) return { success: false, data: resultData }
     }
 
-    return { success: (createErrors.length == 0), data: resultData }
+    return { success: (createErrors.length === 0), data: resultData }
   }
 
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {

@@ -3,7 +3,6 @@ import CanvasRequestor from '@kth/canvas-api'
 import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
-import { ExternalUserDto } from './dtos/api.section.external.users.dto'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
 } from '../canvas/canvas.interfaces'

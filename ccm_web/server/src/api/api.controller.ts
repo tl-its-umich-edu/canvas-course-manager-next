@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData, ExternalUserCreationResult, ExternalUserData } from './api.interfaces'
+import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
@@ -34,24 +34,18 @@ import {
   CanvasCourseSectionBase,
   CanvasEnrollment,
   CourseWithSections,
-  CanvasUser,
-  getRolesUserCanEnroll,
-  CanvasRole
+  CanvasUser
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 import {
   ExternalUserDto, ExternalUsersDto
 } from './dtos/api.section.external.users.dto'
-import baseLogger from '../logger'
-import { roleStringsToEnums } from './api.utils'
-
-const logger = baseLogger.child({ filePath: __filename })
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')
 export class APIController {
-  constructor (private readonly apiService: APIService) {}
+  constructor (private readonly apiService: APIService) { }
 
   @Get('globals')
   getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
@@ -121,8 +115,7 @@ export class APIController {
   @ApiSecurity('CSRF-Token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
-    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User, @Session() session: SessionData
-  ): Promise<ExternalUserData> {
+    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User): Promise<ExternalUserData> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
 
     const result = await this.apiService.createExternalUsers(user, externalUsers)
@@ -145,7 +138,7 @@ export class APIController {
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string,
-    @UserDec() user: User
+      @UserDec() user: User
   ): Promise<CanvasUser> {
     const result = await this.apiService.getUserInfoAsAdmin(user, loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)

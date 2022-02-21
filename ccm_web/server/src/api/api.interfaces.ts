@@ -1,7 +1,7 @@
 import { hasKeys } from '../typeUtils'
 
 import { CirrusErrorData, CirrusInvitationResponse } from '../invitation/cirrus-invitation.interfaces'
-import { CanvasEnrollment, CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
+import { CanvasUserLoginEmail } from '../canvas/canvas.interfaces'
 
 export interface Globals {
   environment: 'production' | 'development'
