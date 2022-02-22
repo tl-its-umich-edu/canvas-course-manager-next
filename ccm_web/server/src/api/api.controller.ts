@@ -124,6 +124,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
+  @ApiSecurity('CSRF-Token')
   @Post('/sections/enroll')
   async enrollUsersToSections (
     @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User
