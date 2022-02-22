@@ -40,7 +40,7 @@ import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
 import {
   ExternalUserDto, ExternalUsersDto
-} from './dtos/api.section.external.users.dto'
+} from './dtos/api.external.users.dto'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')

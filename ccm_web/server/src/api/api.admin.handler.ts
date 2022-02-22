@@ -9,7 +9,7 @@ import {
   makeResponse,
   NS_PER_SEC
 } from './api.utils'
-import { ExternalUserDto } from './dtos/api.section.external.users.dto'
+import { ExternalUserDto } from './dtos/api.external.users.dto'
 import {
   CanvasAccount,
   CanvasCourse,

@@ -9,7 +9,7 @@ import { SectionApiHandler } from './api.section.handler'
 import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
-import { ExternalUserDto } from './dtos/api.section.external.users.dto'
+import { ExternalUserDto } from './dtos/api.external.users.dto'
 import {
   CanvasCourse,
   CanvasCourseBase,
