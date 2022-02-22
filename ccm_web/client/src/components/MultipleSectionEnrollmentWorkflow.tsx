@@ -216,7 +216,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <TableBody>
             {
               props.sections.map((s, i) => (
-                <TableRow key={i}>
+                <TableRow tabIndex={0} key={i}>
                   <TableCell>{s.name}</TableCell>
                   <TableCell>{s.id}</TableCell>
                 </TableRow>
