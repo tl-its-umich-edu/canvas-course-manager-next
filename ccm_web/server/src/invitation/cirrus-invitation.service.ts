@@ -26,8 +26,12 @@ export class CirrusInvitationService {
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
+    const apiURL = 'https://apps.cirrusidentity.com/console'
+    const cirrusAPIVersion = '/api/v1/'
+    const CirrusAPIEndPoint = '/batchInviteCsv'
+    this.url = apiURL + cirrusAPIVersion + CirrusAPIEndPoint
+
     const invitationConfig = configService.get('invitation', { infer: true })
-    this.url = invitationConfig.apiURL
     this.entityID = invitationConfig.apiEntityID
     this.sponsorName = invitationConfig.apiSponsorName
     this.key = invitationConfig.apiKey
