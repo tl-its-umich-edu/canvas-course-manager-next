@@ -39,13 +39,14 @@ export class CirrusInvitationService {
       throw new InvitationAPIError('Argument "userEmails" array is empty.')
     }
 
+    const requestID = `ccm-${randomUUID()}`
     const emailAddressCSV = `emailAddress\n${userEmails.join('\n')}`
 
     const data = new FormData()
-    data.append('cfile', emailAddressCSV, 'fake_file_name.csv')
+    data.append('cfile', emailAddressCSV, `${requestID}-upload.csv`)
     data.append('spEntityId', this.entityID)
     data.append('sponsorEppn', this.sponsorName)
-    data.append('clientRequestID', 'ccm-' + randomUUID())
+    data.append('clientRequestID', requestID)
 
     try {
       const response = await lastValueFrom(this.httpService.post<CirrusInvitationResponse>(this.url, data, {
