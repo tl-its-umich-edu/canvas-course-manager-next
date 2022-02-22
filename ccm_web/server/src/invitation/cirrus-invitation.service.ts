@@ -59,7 +59,7 @@ export class CirrusInvitationService {
       }))
 
       return response.data
-    } catch (error: unknown) {
+    } catch (error) {
       if (axios.isAxiosError(error) && error.response !== undefined) {
         logger.error(`Cirrus API error encountered: ${JSON.stringify(error.response.data)}`)
         const errors = error.response.data.errors as unknown
