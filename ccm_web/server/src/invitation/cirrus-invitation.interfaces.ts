@@ -1,7 +1,6 @@
 import { hasKeys } from '../typeUtils'
 
-export const apiURL = 'https://apps.cirrusidentity.com/console'
-export const cirrusAPIVersion = '/api/v1/'
+export const cirrusAPIVersion = '/api/v1'
 export const CirrusAPIEndPoint = '/batchInviteCsv'
 
 export interface CirrusInvitationResponse {

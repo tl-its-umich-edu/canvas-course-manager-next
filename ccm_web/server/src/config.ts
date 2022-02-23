@@ -36,6 +36,7 @@ interface CanvasConfig {
 }
 
 export interface InvitationConfig {
+  apiURL: string
   apiKey: string
   apiSecret: string
   apiEntityID: string
@@ -163,6 +164,7 @@ export function validateConfig (): Config {
       )
     }
     invitation = {
+      apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
       apiKey: validate<string>('INVITATION_API_KEY', env.INVITATION_API_KEY, isString, [isNotEmpty]),
       apiSecret: validate<string>('INVITATION_API_SECRET', env.INVITATION_API_SECRET, isString, [isNotEmpty]),
       apiEntityID: validate<string>('INVITATION_API_ENTITY_ID', env.INVITATION_API_ENTITY_ID, isString, [isNotEmpty]),

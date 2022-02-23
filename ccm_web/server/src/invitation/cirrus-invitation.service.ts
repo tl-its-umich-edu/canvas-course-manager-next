@@ -6,7 +6,7 @@ import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
 
-import { apiURL, CirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
+import { CirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
 import { InvitationAPIError } from './invitation.errors'
 
 import { Config } from '../config'
@@ -26,9 +26,9 @@ export class CirrusInvitationService {
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
-    this.url = apiURL + cirrusAPIVersion + CirrusAPIEndPoint
-
     const invitationConfig = configService.get('invitation', { infer: true })
+    const apiURL = invitationConfig.apiURL
+    this.url = apiURL + cirrusAPIVersion + CirrusAPIEndPoint
     this.entityID = invitationConfig.apiEntityID
     this.sponsorName = invitationConfig.apiSponsorName
     this.key = invitationConfig.apiKey
