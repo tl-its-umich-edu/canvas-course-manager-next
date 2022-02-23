@@ -134,9 +134,9 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
-  async createExternalUsers (user: User, externalUsers: ExternalUserDto[]): Promise<ExternalUserCreationResult> {
+  async createExternalUsers (externalUsers: ExternalUserDto[]): Promise<ExternalUserCreationResult> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
-    const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
+    const adminHandler = new AdminApiHandler(adminRequestor)
     const newUserAccountID = this.configService.get('canvas.newUserAccountID', { infer: true })
 
     const resultData: ExternalUserData = {}
@@ -198,9 +198,9 @@ export class APIService {
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
-  async getUserInfoAsAdmin (user: User, loginId: string): Promise<CanvasUser | APIErrorData> {
+  async getUserInfoAsAdmin (loginId: string): Promise<CanvasUser | APIErrorData> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
-    const adminHandler = new AdminApiHandler(adminRequestor, user.loginId)
+    const adminHandler = new AdminApiHandler(adminRequestor)
     return await adminHandler.getUserInfo(loginId)
   }
 

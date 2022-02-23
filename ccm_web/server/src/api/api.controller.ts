@@ -114,10 +114,10 @@ export class APIController {
   @ApiSecurity('CSRF-Token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
-    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User
+    @Body() externalUsersData: ExternalUsersDto
   ): Promise<ExternalUserData> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
-    const result = await this.apiService.createExternalUsers(user, externalUsers)
+    const result = await this.apiService.createExternalUsers(externalUsers)
     if (!result.success) throw new HttpException(result.data, result.statusCode)
     return result.data
   }
@@ -137,10 +137,9 @@ export class APIController {
   // Do NOT use `InvalidTokenInterceptor` here!
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
-    @Param('loginId') loginId: string,
-      @UserDec() user: User
+    @Param('loginId') loginId: string
   ): Promise<CanvasUser> {
-    const result = await this.apiService.getUserInfoAsAdmin(user, loginId)
+    const result = await this.apiService.getUserInfoAsAdmin(loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
