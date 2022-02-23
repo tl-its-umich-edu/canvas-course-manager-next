@@ -111,7 +111,6 @@ export class APIController {
     return result
   }
 
-  @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
