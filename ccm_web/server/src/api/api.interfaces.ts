@@ -40,7 +40,17 @@ export interface ExternalUserData {
   }
 }
 
-export interface ExternalUserCreationResult {
-  success: boolean
+interface ExternalUserCreationResultBase {
   data: ExternalUserData
 }
+
+interface ExternalUserCreationFailureResult extends ExternalUserCreationResultBase {
+  success: false
+  statusCode: number
+}
+
+interface ExternalUserCreationSuccessResult extends ExternalUserCreationResultBase {
+  success: true
+}
+
+export type ExternalUserCreationResult = ExternalUserCreationFailureResult | ExternalUserCreationSuccessResult

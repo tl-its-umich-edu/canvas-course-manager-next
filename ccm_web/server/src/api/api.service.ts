@@ -6,7 +6,7 @@ import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, Globals, isAPIErrorData, ExternalUserData, ExternalUserCreationResult } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
+import { createLimitedPromises, determineStatusCode, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import { ExternalUserDto } from './dtos/api.external.users.dto'
@@ -21,7 +21,7 @@ import {
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
-import { isCirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
+import { CirrusErrorData, CirrusInvitationResponse, isCirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
 import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
 import { User } from '../user/user.model'
 
@@ -160,20 +160,28 @@ export class APIService {
       }
       resultData[email] = { userCreated }
     })
-    if (createErrors.length === externalUsers.length) return { success: false, data: resultData }
+    if (createErrors.length === externalUsers.length) {
+      const statusCode = determineStatusCode(createErrors.map(e => e.statusCode))
+      return { success: false, statusCode, data: resultData }
+    }
 
     // Invite only new users
+    let inviteResult: CirrusInvitationResponse | CirrusErrorData | undefined
     if (newUsers.length > 0) {
       const newUsersEmails = newUsers.map(u => u.email)
-      const inviteResult = await this.invitationService.sendInvitations(newUsersEmails)
+      inviteResult = await this.invitationService.sendInvitations(newUsersEmails)
       newUsersEmails.forEach(email => {
         resultData[email].invited = inviteResult
       })
-      // Bail if it failed
-      if (isCirrusErrorData(inviteResult)) return { success: false, data: resultData }
     }
 
-    return { success: (createErrors.length === 0), data: resultData }
+    if (isCirrusErrorData(inviteResult) || createErrors.length > 0) {
+      const statusCodes = createErrors.map(e => e.statusCode)
+      if (isCirrusErrorData(inviteResult)) statusCodes.push(inviteResult.statusCode)
+      return { success: false, data: resultData, statusCode: determineStatusCode(statusCodes) }
+    }
+
+    return { success: true, data: resultData }
   }
 
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {

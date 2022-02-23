@@ -51,16 +51,22 @@ export function parseErrorBody (body: unknown): string {
   return errorMessage
 }
 
+export function determineStatusCode (codes: HttpStatus[]): HttpStatus {
+  if (codes.length === 0) throw new Error('determineStatusCode received an array with length 0.')
+  const uniqueStatusCodes: Set<HttpStatus> = new Set(codes)
+  return uniqueStatusCodes.size > 1 ? HttpStatus.BAD_GATEWAY : [...uniqueStatusCodes][0]
+}
+
 export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] | APIErrorData {
   const failures = []
-  const statusCodes: Set<number> = new Set()
+  const statusCodes: HttpStatus[] = []
   const successes = []
 
   for (const result of multipleResults) {
     if (isAPIErrorData(result)) {
       const { statusCode, errors } = result
       failures.push(...errors)
-      statusCodes.add(statusCode)
+      statusCodes.push(statusCode)
     } else {
       successes.push(result)
     }
@@ -70,7 +76,7 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
     return successes
   } else {
     return {
-      statusCode: statusCodes.size > 1 ? 502 : [...statusCodes][0],
+      statusCode: determineStatusCode(statusCodes),
       errors: failures
     }
   }

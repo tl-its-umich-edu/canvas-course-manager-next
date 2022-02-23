@@ -115,11 +115,11 @@ export class APIController {
   @ApiSecurity('CSRF-Token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
-    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User): Promise<ExternalUserData> {
+    @Body() externalUsersData: ExternalUsersDto, @UserDec() user: User
+  ): Promise<ExternalUserData> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
-
     const result = await this.apiService.createExternalUsers(user, externalUsers)
-    if (!result.success) throw new HttpException(result.data, HttpStatus.BAD_GATEWAY)
+    if (!result.success) throw new HttpException(result.data, result.statusCode)
     return result.data
   }
 
