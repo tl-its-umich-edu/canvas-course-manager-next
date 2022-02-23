@@ -5,11 +5,7 @@ import pLimit from 'p-limit'
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
 } from './api.interfaces'
-import {
-  CanvasRole,
-  isCanvasErrorBody,
-  isCanvasRole
-} from '../canvas/canvas.interfaces'
+import { isCanvasErrorBody } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
@@ -82,18 +78,6 @@ export function makeResponse<T> (multipleResults: Array<APIErrorData | T>): T[] 
       errors: failures
     }
   }
-}
-
-export function roleStringsToEnums (roleStrings: string[]): CanvasRole[] {
-  // FIXME: Could cause problems when new roles added to Canvas?
-  const roleEnums: CanvasRole[] = []
-  for (const roleString of roleStrings) {
-    if (!isCanvasRole(roleString)) {
-      throw Error(`Invalid Canvas role "${roleString}"."`)
-    }
-    roleEnums.push(roleString)
-  }
-  return roleEnums
 }
 
 /*

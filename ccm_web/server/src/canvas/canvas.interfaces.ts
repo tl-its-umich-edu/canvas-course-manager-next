@@ -84,10 +84,6 @@ export enum CustomCanvasRoleType {
   Assistant = CanvasRole.Assistant
 }
 
-export const isCanvasRole = (value: string): value is CanvasRole => {
-  return Object.values(CanvasRole).map(m => String(m)).includes(value)
-}
-
 export enum UserEnrollmentType {
   DesignerEnrollment = CanvasRole.DesignerEnrollment,
   ObserverEnrollment = CanvasRole.ObserverEnrollment,
@@ -108,47 +104,6 @@ export enum LTIEnrollmentType {
   DesignerEnrollment = CanvasRole.DesignerEnrollment,
   TaEnrollment = CanvasRole.TaEnrollment,
   Assistant = CanvasRole.Assistant
-}
-
-const levelOneAddableRoles = [CanvasRole.StudentEnrollment]
-const levelTwoAddableRoles = [...levelOneAddableRoles, CanvasRole.ObserverEnrollment]
-const levelThreeAddableRoles = [
-  ...levelTwoAddableRoles, CanvasRole.TaEnrollment, CanvasRole.DesignerEnrollment, CanvasRole.TeacherEnrollment
-]
-
-type RankedRoleData = Record<CanvasRole, number>
-
-export const rankedRoleData: RankedRoleData = {
-  StudentEnrollment: 0,
-  ObserverEnrollment: 0,
-  Assistant: 1,
-  Librarian: 1,
-  TaEnrollment: 2,
-  TeacherEnrollment: 3,
-  DesignerEnrollment: 3,
-  'Sub-Account Admin': 3,
-  'Account Admin': 3,
-  'Support Consultant': 0
-} as const
-
-const getMostPrivilegedRole = (roles: CanvasRole[]): CanvasRole => {
-  if (roles.length === 0) throw new Error('Roles array must contain one or more roles.')
-  return roles.sort((a, b) => rankedRoleData[a] > rankedRoleData[b] ? -1 : 1)[0]
-}
-
-export const getRolesUserCanEnroll = (roles: CanvasRole[]): CanvasRole[] => {
-  const mostPrivRole = getMostPrivilegedRole(roles)
-  const rank = rankedRoleData[mostPrivRole]
-  switch (rank) {
-    case 1:
-      return levelOneAddableRoles
-    case 2:
-      return levelTwoAddableRoles
-    case 3:
-      return levelThreeAddableRoles
-    default:
-      return []
-  }
 }
 
 export interface CanvasEnrollment {
