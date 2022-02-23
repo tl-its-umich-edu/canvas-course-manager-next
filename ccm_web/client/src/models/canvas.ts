@@ -107,7 +107,7 @@ type RankedRoleData = Record<RoleEnum, number>
 export const rankedRoleData: RankedRoleData = {
   StudentEnrollment: 0,
   Observer: 0,
-  Assistant: 1,
+  Assistant: 3,
   TaEnrollment: 2,
   TeacherEnrollment: 3,
   DesignerEnrollment: 3,
