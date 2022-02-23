@@ -22,7 +22,7 @@ export class CirrusInvitationService {
   key: string
   secret: string
 
-  constructor(
+  constructor (
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
@@ -35,7 +35,7 @@ export class CirrusInvitationService {
     this.secret = invitationConfig.apiSecret
   }
 
-  async sendInvitations(userEmails: string[]): Promise<CirrusInvitationResponse | CirrusErrorData> {
+  async sendInvitations (userEmails: string[]): Promise<CirrusInvitationResponse | CirrusErrorData> {
     if (userEmails.length === 0) {
       throw new Error('Argument "userEmails" array is empty.')
     }
