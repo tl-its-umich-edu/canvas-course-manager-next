@@ -172,10 +172,12 @@ export class AdminApiHandler {
     const start = process.hrtime.bigint()
 
     // Try creating all Canvas users; failure often means user already exists
-    const createUserPromises = users.map(async (user) => {
-      const result = await this.createExternalUser(user, accountID)
-      return { result, email: user.email }
-    })
+    const createUserPromises = createLimitedPromises(
+      users.map(user => async () => {
+        const result = await this.createExternalUser(user, accountID)
+        return { result, email: user.email }
+      })
+    )
     const createUserResponses = await Promise.all(createUserPromises)
 
     const end = process.hrtime.bigint()
