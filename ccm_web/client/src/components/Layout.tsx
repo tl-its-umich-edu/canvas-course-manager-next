@@ -11,9 +11,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     padding: theme.spacing(2)
   },
-  breadcrumbsContainer: {
-    marginBottom: theme.spacing(2)
-  },
   spacing: {
     marginBottom: theme.spacing(2)
   },
@@ -56,7 +53,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
     <Grid container className={classes.root}>
       <Grid item sm={12} md={10} lg={9}>
         {devBlock}
-        <div className={classes.breadcrumbsContainer}><Breadcrumbs {...props} /></div>
+        <div className={classes.spacing}><Breadcrumbs {...props} /></div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />
         <footer>
