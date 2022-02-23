@@ -6,7 +6,7 @@ import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
 
-import { CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
+import { apiURL, CirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
 import { InvitationAPIError } from './invitation.errors'
 
 import { Config } from '../config'
@@ -26,9 +26,6 @@ export class CirrusInvitationService {
     private readonly configService: ConfigService<Config, true>,
     private readonly httpService: HttpService
   ) {
-    const apiURL = 'https://apps.cirrusidentity.com/console'
-    const cirrusAPIVersion = '/api/v1/'
-    const CirrusAPIEndPoint = '/batchInviteCsv'
     this.url = apiURL + cirrusAPIVersion + CirrusAPIEndPoint
 
     const invitationConfig = configService.get('invitation', { infer: true })
