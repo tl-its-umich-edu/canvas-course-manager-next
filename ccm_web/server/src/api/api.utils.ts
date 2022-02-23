@@ -91,7 +91,7 @@ export function createLimitedPromises<T> (
   const limit = pLimit(maxConcurrentPromises)
   const limitedPromises = funcs.map(async (func) => {
     return await limit<[], T>(async () => {
-      logger.debug(`Promises still in queue: ${String(limit.pendingCount)}`)
+      logger.debug(`Promises still in queue: ${limit.pendingCount}`)
       return await func()
     })
   })
