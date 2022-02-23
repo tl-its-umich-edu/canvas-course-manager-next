@@ -20,7 +20,6 @@ export enum HttpMethod {
   Delete = 'DELETE'
 }
 
-// Rename as handleCanvasAPIError?
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {
   const failedInput = input === undefined ? null : input
   if (error instanceof CanvasApiError && error.response !== undefined) {
