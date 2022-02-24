@@ -115,15 +115,11 @@ export interface CanvasEnrollment {
 }
 
 export interface CanvasUser {
-  id?: number
+  id: number
   name: string
   sortable_name: string
-  short_name?: string
-}
-
-export interface CanvasUserLoginEmail extends CanvasUser {
+  short_name: string
   login_id: string
-  email: string
 }
 
 export interface CanvasEnrollmentWithUser extends CanvasEnrollment {

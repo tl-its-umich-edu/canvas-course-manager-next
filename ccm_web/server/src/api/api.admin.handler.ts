@@ -15,7 +15,6 @@ import {
   CanvasAccount,
   CanvasCourse,
   CanvasUser,
-  CanvasUserLoginEmail,
   CourseWithSections,
   CourseWorkflowState
 } from '../canvas/canvas.interfaces'
@@ -120,7 +119,7 @@ export class AdminApiHandler {
     return finalResult
   }
 
-  async createExternalUser (user: ExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData | false> {
+  async createExternalUser (user: ExternalUserDto, accountID: number): Promise<CanvasUser | APIErrorData | false> {
     const email = user.email
     const loginId = email.replace('@', '+')
     const fullName = `${user.givenName} ${user.surname}`
@@ -148,7 +147,7 @@ export class AdminApiHandler {
         force_validations: false
       }
       logger.debug(`Sending admin request to Canvas endpoint: "${endpoint}"; method: "${method}"; body: "${JSON.stringify(body)}"`)
-      const response = await this.requestor.request<CanvasUserLoginEmail>(endpoint, method, body)
+      const response = await this.requestor.request<CanvasUser>(endpoint, method, body)
       logger.debug(`Received response with status code (${String(response.statusCode)})`)
       const {
         id,
@@ -157,7 +156,7 @@ export class AdminApiHandler {
         short_name, // eslint-disable-line
         login_id // eslint-disable-line
       } = response.body
-      return { id, name, sortable_name, short_name, login_id, email }
+      return { id, name, sortable_name, short_name, login_id }
     } catch (error: unknown) {
       if (checkForUniqueIdError(error)) return false
       const errorResponse = handleAPIError(error, loginId)
@@ -170,7 +169,7 @@ export class AdminApiHandler {
 
   async createExternalUsers (
     users: ExternalUserDto[], accountID: number
-  ): Promise<Array<{ result: CanvasUserLoginEmail | APIErrorData | false, email: string }>> {
+  ): Promise<Array<{ result: CanvasUser | APIErrorData | false, email: string }>> {
     const start = process.hrtime.bigint()
 
     // Try creating all Canvas users; failure often means user already exists
@@ -201,13 +200,15 @@ export class AdminApiHandler {
         id,
         name,
         sortable_name, // eslint-disable-line
-        short_name // eslint-disable-line
+        short_name, // eslint-disable-line
+        login_id // eslint-disable-line
       } = response.body
       return {
         id,
         name,
         sortable_name,
-        short_name
+        short_name,
+        login_id
       }
     } catch (error) {
       const errorResponse = handleAPIError(error, `Login ID: ${loginId}`)

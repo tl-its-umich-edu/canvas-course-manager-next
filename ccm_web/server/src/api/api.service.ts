@@ -17,7 +17,6 @@ import {
   CanvasCourseSectionBase,
   CanvasEnrollment,
   CanvasUser,
-  CanvasUserLoginEmail,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -141,7 +140,7 @@ export class APIService {
 
     const resultData: ExternalUserData = {}
     const createErrors: APIErrorData[] = []
-    const newUsers: CanvasUserLoginEmail[] = []
+    const newUserEmails: string[] = []
     const createUserResponses = await adminHandler.createExternalUsers(externalUsers, newUserAccountID)
 
     // Handle create user responses: success, failure, and already exists
@@ -149,7 +148,7 @@ export class APIService {
       if (isAPIErrorData(result)) {
         createErrors.push(result)
       } else if (result !== false) {
-        newUsers.push(result)
+        newUserEmails.push(email)
       }
       resultData[email] = { userCreated: result }
     })
@@ -160,10 +159,9 @@ export class APIService {
 
     // Invite only new users
     let inviteResult: CirrusInvitationResponse | CirrusErrorData | undefined
-    if (newUsers.length > 0) {
-      const newUsersEmails = newUsers.map(u => u.email)
-      inviteResult = await this.invitationService.sendInvitations(newUsersEmails)
-      newUsersEmails.forEach(email => {
+    if (newUserEmails.length > 0) {
+      inviteResult = await this.invitationService.sendInvitations(newUserEmails)
+      newUserEmails.forEach(email => {
         resultData[email].invited = inviteResult
       })
     }
