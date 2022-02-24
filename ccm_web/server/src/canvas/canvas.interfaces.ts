@@ -169,7 +169,7 @@ export function isCanvasMessageErrorsBody (value: unknown): value is CanvasMessa
 }
 
 interface UniqueIdErrorData {
-  attribute: 'unique_id'
+  attribute: string
   type: string
   message: string
 }
