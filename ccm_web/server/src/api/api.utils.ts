@@ -23,8 +23,6 @@ export enum HttpMethod {
 export function checkForUniqueIdError (error: unknown): boolean {
   if (!(error instanceof CanvasApiError && error.response !== undefined)) return false
   const { statusCode, body } = error.response
-  logger.debug('Checking if an error was thrown because the user already exists...')
-  logger.debug(JSON.stringify(body, null, 2))
   return (
     statusCode === HttpStatus.BAD_REQUEST &&
     isCanvasUniqueIdErrorsBody(body) &&
