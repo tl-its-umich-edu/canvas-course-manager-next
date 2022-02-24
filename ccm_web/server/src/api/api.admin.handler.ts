@@ -3,6 +3,7 @@ import CanvasRequestor from '@kth/canvas-api'
 import { CourseApiHandler } from './api.course.handler'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import {
+  checkForUniqueIdError,
   createLimitedPromises,
   handleAPIError,
   HttpMethod,
@@ -119,7 +120,7 @@ export class AdminApiHandler {
     return finalResult
   }
 
-  async createExternalUser (user: ExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData> {
+  async createExternalUser (user: ExternalUserDto, accountID: number): Promise<CanvasUserLoginEmail | APIErrorData | false> {
     const email = user.email
     const loginId = email.replace('@', '+')
     const fullName = `${user.givenName} ${user.surname}`
@@ -158,6 +159,7 @@ export class AdminApiHandler {
       } = response.body
       return { id, name, sortable_name, short_name, login_id, email }
     } catch (error: unknown) {
+      if (checkForUniqueIdError(error)) return false
       const errorResponse = handleAPIError(error, loginId)
       return {
         statusCode: errorResponse.canvasStatusCode,
@@ -168,7 +170,7 @@ export class AdminApiHandler {
 
   async createExternalUsers (
     users: ExternalUserDto[], accountID: number
-  ): Promise<Array<{ result: CanvasUserLoginEmail | APIErrorData, email: string }>> {
+  ): Promise<Array<{ result: CanvasUserLoginEmail | APIErrorData | false, email: string }>> {
     const start = process.hrtime.bigint()
 
     // Try creating all Canvas users; failure often means user already exists
