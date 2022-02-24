@@ -5,7 +5,7 @@ import pLimit from 'p-limit'
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
 } from './api.interfaces'
-import { isCanvasErrorBody } from '../canvas/canvas.interfaces'
+import { isCanvasMessageErrorBody, isCanvasMessageErrorsBody, isCanvasUniqueIdErrorsBody } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
 
@@ -20,13 +20,43 @@ export enum HttpMethod {
   Delete = 'DELETE'
 }
 
+export function checkForUniqueIdError (error: unknown): boolean {
+  if (!(error instanceof CanvasApiError && error.response !== undefined)) return false
+  const { statusCode, body } = error.response
+  logger.debug('Checking if an error was thrown because the user already exists...')
+  logger.debug(JSON.stringify(body, null, 2))
+  return (
+    statusCode === HttpStatus.BAD_REQUEST &&
+    isCanvasUniqueIdErrorsBody(body) &&
+    body.errors.pseudonym.unique_id.length > 0 &&
+    body.errors.pseudonym.unique_id[0].type === 'taken'
+  )
+}
+
+function parseErrorBody (body: unknown): string {
+  if (body === null || body === undefined || String(body).startsWith('<!DOCTYPE html>')) return 'No response body was found.'
+  if (isCanvasMessageErrorBody(body)) {
+    return body.message
+  } else if (isCanvasMessageErrorsBody(body)) {
+    return body.errors.map(e => e.message).join(' ')
+  } else if (isCanvasUniqueIdErrorsBody(body)) {
+    return (
+      body.errors.pseudonym.unique_id.length > 0
+        ? body.errors.pseudonym.unique_id[0].message
+        : 'Unique ID error had no message.'
+    )
+  } else {
+    return `Canvas response body had unhandled shape: ${JSON.stringify(body)}`
+  }
+}
+
 export function handleAPIError (error: unknown, input?: string): APIErrorPayload {
   const failedInput = input === undefined ? null : input
   if (error instanceof CanvasApiError && error.response !== undefined) {
     const { statusCode, body } = error.response
     const bodyText = parseErrorBody(body)
     logger.error(`Received error status code: (${String(statusCode)})`)
-    logger.error(`Response body: (${bodyText})`)
+    logger.error(`Response message(s): (${bodyText})`)
     logger.error(`Failed input: (${String(failedInput)})`)
     return { canvasStatusCode: statusCode, message: bodyText, failedInput: failedInput }
   } else {
@@ -34,21 +64,6 @@ export function handleAPIError (error: unknown, input?: string): APIErrorPayload
     const defaultMessage = 'A non-HTTP error occurred while communicating with Canvas.'
     return { canvasStatusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: defaultMessage, failedInput: failedInput }
   }
-}
-
-export function parseErrorBody (body: unknown): string {
-  if (body === null || body === undefined || String(body).startsWith('<!DOCTYPE html>')) return 'No response body was found.'
-  if (!isCanvasErrorBody(body)) {
-    return `Response body had unexpected shape: ${JSON.stringify(body)}`
-  }
-  let errorMessage: string
-  try {
-    errorMessage = body.errors.map(e => e.message).join(' ')
-  } catch (e) {
-    errorMessage = JSON.stringify(body)
-    logger.debug(errorMessage)
-  }
-  return errorMessage
 }
 
 export function determineStatusCode (codes: HttpStatus[]): HttpStatus {

@@ -1,5 +1,5 @@
 import { SessionData } from 'express-session'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
@@ -146,19 +146,12 @@ export class APIService {
 
     // Handle create user responses: success, failure, and already exists
     createUserResponses.forEach(({ email, result }) => {
-      let userCreated: false | APIErrorData | CanvasUserLoginEmail
       if (isAPIErrorData(result)) {
-        if (result.statusCode === HttpStatus.BAD_REQUEST) {
-          userCreated = false
-        } else {
-          userCreated = result
-          createErrors.push(result)
-        }
-      } else {
-        userCreated = result
+        createErrors.push(result)
+      } else if (result !== false) {
         newUsers.push(result)
       }
-      resultData[email] = { userCreated }
+      resultData[email] = { userCreated: result }
     })
     if (createErrors.length === externalUsers.length) {
       const statusCode = determineStatusCode(createErrors.map(e => e.statusCode))

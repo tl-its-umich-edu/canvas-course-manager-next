@@ -1,7 +1,7 @@
 import { hasKeys } from '../typeUtils'
 
 export const cirrusAPIVersion = '/api/v1'
-export const CirrusAPIEndPoint = '/batchInviteCsv'
+export const cirrusAPIEndPoint = '/batchInviteCsv'
 
 export interface CirrusInvitationResponse {
   clientRequestID?: string
