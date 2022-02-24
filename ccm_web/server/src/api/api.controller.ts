@@ -1,11 +1,23 @@
 import { SessionData } from 'express-session'
 import {
-  BadRequestException, Body, Controller, Delete, Get, HttpException, Param, ParseIntPipe,
-  Post, Put, Query, Session, UseGuards, UseInterceptors
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  Session,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData } from './api.interfaces'
+import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
@@ -17,15 +29,23 @@ import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { SessionGuard } from '../auth/session.guard'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CourseWithSections
+  CanvasCourseBase,
+  CanvasCourseSection,
+  CanvasCourseSectionBase,
+  CanvasEnrollment,
+  CourseWithSections,
+  CanvasUser
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
+import {
+  ExternalUserDto, ExternalUsersDto
+} from './dtos/api.external.users.dto'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')
 export class APIController {
-  constructor (private readonly apiService: APIService) {}
+  constructor (private readonly apiService: APIService) { }
 
   @Get('globals')
   getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
@@ -91,6 +111,18 @@ export class APIController {
     return result
   }
 
+  // Uses admin token, so InvalidTokenInterceptor omitted
+  @ApiSecurity('CSRF-Token')
+  @Post('admin/createExternalUsers')
+  async createExternalUsers (
+    @Body() externalUsersData: ExternalUsersDto
+  ): Promise<ExternalUserData> {
+    const externalUsers: ExternalUserDto[] = externalUsersData.users
+    const result = await this.apiService.createExternalUsers(externalUsers)
+    if (!result.success) throw new HttpException(result.data, result.statusCode)
+    return result.data
+  }
+
   @UseInterceptors(InvalidTokenInterceptor)
   @ApiSecurity('CSRF-Token')
   @Post('/sections/enroll')
@@ -101,6 +133,16 @@ export class APIController {
     const enrollmentsResult = await this.apiService.createSectionEnrollments(user, enrollments)
     if (isAPIErrorData(enrollmentsResult)) throw new HttpException(enrollmentsResult, enrollmentsResult.statusCode)
     return enrollmentsResult
+  }
+
+  // Uses admin token, so InvalidTokenInterceptor omitted
+  @Get('admin/user/:loginId')
+  async getUserInfoAsAdmin (
+    @Param('loginId') loginId: string
+  ): Promise<CanvasUser> {
+    const result = await this.apiService.getUserInfoAsAdmin(loginId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

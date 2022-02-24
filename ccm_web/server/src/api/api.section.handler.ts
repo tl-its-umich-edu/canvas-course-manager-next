@@ -51,9 +51,11 @@ export class SectionApiHandler {
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
-    const enrollLoginId = user.loginId
+    const loginId = user.loginId
+    const enrollId = loginId
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
+
     const enrollmentType = user.type
     const roleParams = (
       this.customCanvasRoles !== undefined &&
@@ -69,8 +71,9 @@ export class SectionApiHandler {
       const enrollment = {
         // 'sis_login_id:' prefix per...
         // https://canvas.instructure.com/doc/api/file.object_ids.html
-        user_id: `sis_login_id:${enrollLoginId}`,
+        user_id: `sis_login_id:${enrollId}`,
         enrollment_state: 'active',
+        notify: false,
         ...roleParams
       }
 
@@ -93,7 +96,7 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${user.loginId}; Role: ${user.type}`)
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]

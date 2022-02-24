@@ -4,16 +4,24 @@ import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
-import { APIErrorData, Globals, isAPIErrorData } from './api.interfaces'
+import { APIErrorData, Globals, isAPIErrorData, ExternalUserData, ExternalUserCreationResult } from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
-import { createLimitedPromises, handleAPIError, makeResponse } from './api.utils'
+import { createLimitedPromises, determineStatusCode, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
 import { SectionUserDto } from './dtos/api.section.users.dto'
+import { ExternalUserDto } from './dtos/api.external.users.dto'
 import {
-  CanvasCourse, CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CanvasCourse,
+  CanvasCourseBase,
+  CanvasCourseSection,
+  CanvasCourseSectionBase,
+  CanvasEnrollment,
+  CanvasUser,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
+import { CirrusErrorData, CirrusInvitationResponse, isCirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
+import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
 import { User } from '../user/user.model'
 
 import { Config } from '../config'
@@ -25,7 +33,8 @@ const logger = baseLogger.child({ filePath: __filename })
 export class APIService {
   constructor (
     private readonly canvasService: CanvasService,
-    private readonly configService: ConfigService<Config, true>
+    private readonly configService: ConfigService<Config, true>,
+    private readonly invitationService: CirrusInvitationService
   ) {}
 
   getGlobals (user: User, sessionData: SessionData): Globals {
@@ -124,6 +133,48 @@ export class APIService {
     return await sectionHandler.enrollUsers(sectionUsers)
   }
 
+  async createExternalUsers (externalUsers: ExternalUserDto[]): Promise<ExternalUserCreationResult> {
+    const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
+    const adminHandler = new AdminApiHandler(adminRequestor)
+    const newUserAccountID = this.configService.get('canvas.newUserAccountID', { infer: true })
+
+    const resultData: ExternalUserData = {}
+    const createErrors: APIErrorData[] = []
+    const newUserEmails: string[] = []
+    const createUserResponses = await adminHandler.createExternalUsers(externalUsers, newUserAccountID)
+
+    // Handle create user responses: success, failure, and already exists
+    createUserResponses.forEach(({ email, result }) => {
+      if (isAPIErrorData(result)) {
+        createErrors.push(result)
+      } else if (result !== false) {
+        newUserEmails.push(email)
+      }
+      resultData[email] = { userCreated: result }
+    })
+    if (createErrors.length === externalUsers.length) {
+      const statusCode = determineStatusCode(createErrors.map(e => e.statusCode))
+      return { success: false, statusCode, data: resultData }
+    }
+
+    // Invite only new users
+    let inviteResult: CirrusInvitationResponse | CirrusErrorData | undefined
+    if (newUserEmails.length > 0) {
+      inviteResult = await this.invitationService.sendInvitations(newUserEmails)
+      newUserEmails.forEach(email => {
+        resultData[email].invited = inviteResult
+      })
+    }
+
+    if (isCirrusErrorData(inviteResult) || createErrors.length > 0) {
+      const statusCodes = createErrors.map(e => e.statusCode)
+      if (isCirrusErrorData(inviteResult)) statusCodes.push(inviteResult.statusCode)
+      return { success: false, data: resultData, statusCode: determineStatusCode(statusCodes) }
+    }
+
+    return { success: true, data: resultData }
+  }
+
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
     const customCanvasRoles = this.configService.get('canvas.customCanvasRoleData', { infer: true })
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
@@ -136,6 +187,12 @@ export class APIService {
     )
     const enrollmentResults = await Promise.all(apiPromises)
     return makeResponse<CanvasEnrollment>(enrollmentResults)
+  }
+
+  async getUserInfoAsAdmin (loginId: string): Promise<CanvasUser | APIErrorData> {
+    const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
+    const adminHandler = new AdminApiHandler(adminRequestor)
+    return await adminHandler.getUserInfo(loginId)
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {

@@ -30,7 +30,17 @@ interface CanvasConfig {
   instanceURL: string
   apiClientId: string
   apiSecret: string
+  adminApiToken: string
+  newUserAccountID: number
   customCanvasRoleData: CustomCanvasRoleData
+}
+
+export interface InvitationConfig {
+  apiURL: string
+  apiKey: string
+  apiSecret: string
+  apiEntityID: string
+  apiSponsorName: string
 }
 
 export interface DatabaseConfig {
@@ -45,6 +55,7 @@ export interface Config {
   server: ServerConfig
   lti: LTIConfig
   canvas: CanvasConfig
+  invitation: InvitationConfig
   db: DatabaseConfig
   baseHelpURL: string
 }
@@ -119,6 +130,7 @@ export function validateConfig (): Config {
   let server
   let lti
   let canvas
+  let invitation
   let db
   let baseHelpURL
 
@@ -145,9 +157,18 @@ export function validateConfig (): Config {
       instanceURL: validate<string>('CANVAS_INSTANCE_URL', env.CANVAS_INSTANCE_URL, isString, [isNotEmpty]),
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
+      adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty]),
+      newUserAccountID: validate<number>('CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1),
       customCanvasRoleData: validate<CustomCanvasRoleData>(
         'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
       )
+    }
+    invitation = {
+      apiURL: validate<string>('INVITATION_API_URL', env.INVITATION_API_URL, isString, [isNotEmpty]),
+      apiKey: validate<string>('INVITATION_API_KEY', env.INVITATION_API_KEY, isString, [isNotEmpty]),
+      apiSecret: validate<string>('INVITATION_API_SECRET', env.INVITATION_API_SECRET, isString, [isNotEmpty]),
+      apiEntityID: validate<string>('INVITATION_API_ENTITY_ID', env.INVITATION_API_ENTITY_ID, isString, [isNotEmpty]),
+      apiSponsorName: validate<string>('INVITATION_API_SPONSOR_NAME', env.INVITATION_API_SPONSOR_NAME, isString, [isNotEmpty])
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
@@ -161,5 +182,5 @@ export function validateConfig (): Config {
     logger.error(error)
     throw new Error(String(error))
   }
-  return { server, lti, canvas, db, baseHelpURL }
+  return { server, lti, canvas, invitation, db, baseHelpURL }
 }

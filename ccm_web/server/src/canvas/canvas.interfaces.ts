@@ -114,6 +114,14 @@ export interface CanvasEnrollment {
   type: UserEnrollmentType
 }
 
+export interface CanvasUser {
+  id: number
+  name: string
+  sortable_name: string
+  short_name: string
+  login_id: string
+}
+
 export interface CanvasEnrollmentWithUser extends CanvasEnrollment {
   user: { login_id: string }
 }
@@ -130,27 +138,63 @@ export interface CourseWithSections extends CanvasCourseBase {
   sections: CanvasCourseSection[]
 }
 
-// Errors
+// Error Data
 
-interface CanvasError {
+export interface CanvasMessageErrorBody {
   message: string
 }
 
-function isCanvasError (value: unknown): value is CanvasError {
+export function isCanvasMessageErrorBody (value: unknown): value is CanvasMessageErrorBody {
   return hasKeys(value, ['message'])
 }
 
-export interface CanvasErrorBody {
-  errors: CanvasError[]
+export interface CanvasErrorsBody {
+  errors: unknown
 }
 
-export function isCanvasErrorBody (value: unknown): value is CanvasErrorBody {
-  if (!hasKeys(value, ['errors']) || !Array.isArray(value.errors)) {
-    return false
-  } else {
-    const result = value.errors.map(e => isCanvasError(e)).every(e => e)
-    return result
+export function isCanvasErrorsBody (value: unknown): value is CanvasErrorsBody {
+  return hasKeys(value, ['errors'])
+}
+
+export interface CanvasMessageErrorsBody extends CanvasErrorsBody {
+  errors: CanvasMessageErrorBody[]
+}
+
+export function isCanvasMessageErrorsBody (value: unknown): value is CanvasMessageErrorsBody {
+  if (!isCanvasErrorsBody(value)) return false
+  return (
+    Array.isArray(value.errors) &&
+    value.errors.every(e => isCanvasMessageErrorBody(e))
+  )
+}
+
+interface UniqueIdErrorData {
+  attribute: string
+  type: string
+  message: string
+}
+
+export interface CanvasUniqueIdErrorsBody extends CanvasErrorsBody {
+  errors: {
+    pseudonym: {
+      unique_id: UniqueIdErrorData[]
+    }
   }
+}
+
+export function isCanvasUniqueIdErrorsBody (value: unknown): value is CanvasUniqueIdErrorsBody {
+  if (!isCanvasErrorsBody(value)) return false
+  return (
+    hasKeys(value.errors, ['pseudonym']) &&
+    hasKeys(value.errors.pseudonym, ['unique_id']) &&
+    Array.isArray(value.errors.pseudonym.unique_id) &&
+    value.errors.pseudonym.unique_id.every(o => {
+      return (
+        hasKeys(o, ['attribute', 'type', 'message']) &&
+        Object.values(o).every(v => typeof v === 'string')
+      )
+    })
+  )
 }
 
 export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
