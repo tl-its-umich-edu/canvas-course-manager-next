@@ -28,7 +28,6 @@ import { getRowNumber } from '../utils/fileUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   confirmContainer: {
