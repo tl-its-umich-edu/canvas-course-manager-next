@@ -41,11 +41,7 @@ export class AdminApiHandler {
 
   constructor (requestor: CanvasRequestor, userLoginId?: string) {
     this.requestor = requestor
-    if (typeof userLoginId !== 'undefined') {
-      this.userLoginId = `"${userLoginId}"`
-    } else {
-      this.userLoginId = '(undefined)'
-    }
+    this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
   }
 
   async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
