@@ -111,6 +111,7 @@ export class APIController {
     return result
   }
 
+  // Uses admin token, so InvalidTokenInterceptor omitted
   @ApiSecurity('CSRF-Token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
@@ -134,7 +135,7 @@ export class APIController {
     return enrollmentsResult
   }
 
-  // Do NOT use `InvalidTokenInterceptor` here!
+  // Uses admin token, so InvalidTokenInterceptor omitted
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string
