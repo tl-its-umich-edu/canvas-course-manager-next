@@ -21,7 +21,6 @@ import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   uploadHeader: {

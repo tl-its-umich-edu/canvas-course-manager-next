@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Button, Grid, LinearProgress, makeStyles, Typography } from '@material-ui/core'
+import { Button, Grid, LinearProgress, makeStyles, Paper, Typography } from '@material-ui/core'
 
 import { useSnackbar } from 'notistack'
 
@@ -19,16 +19,22 @@ import Help from '../components/Help'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
+  },
+  spacing: {
+    marginBottom: theme.spacing(2)
   },
   sectionSelectionContainer: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
-    borderStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: '#EEEEEE'
+    // https://stackoverflow.com/a/65816577
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  selectorPaper: {
+    padding: theme.spacing(2),
+    height: '100%'
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -213,12 +219,16 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getSelectSections = (): JSX.Element => {
     return (
       <>
-      <Grid container spacing={5} style={{ marginBottom: '0px', marginTop: '0px' }}>
-        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
-          {getSelectSectionsUnstaged()}
+      <Grid container spacing={1}>
+        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+          <Paper variant='outlined' className={classes.selectorPaper}>
+            {getSelectSectionsUnstaged()}
+          </Paper>
         </Grid>
-        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={6}>
-          {getSelectSectionsStaged()}
+        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+          <Paper variant='outlined' className={classes.selectorPaper}>
+            {getSelectSectionsStaged()}
+          </Paper>
         </Grid>
       </Grid>
       <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
@@ -256,7 +266,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   return (
     <div className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
-      <Typography variant='h5' component='h1'>{props.title}</Typography>
+      <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       {renderComponent()}
     </div>
   )

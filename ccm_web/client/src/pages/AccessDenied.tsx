@@ -1,13 +1,8 @@
 import React from 'react'
-import { Link, makeStyles, Typography } from '@material-ui/core'
+import { Link, Typography } from '@material-ui/core'
 
 import InlineErrorAlert from '../components/InlineErrorAlert'
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    margin: theme.spacing(2)
-  }
-}))
+import Layout from '../components/Layout'
 
 interface AccessDeniedProps {
   email: string
@@ -15,7 +10,6 @@ interface AccessDeniedProps {
 }
 
 export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
-  const classes = useStyles()
   const emailLink = <Link href={`mailto:${props.email}`}>{props.email}</Link>
   const forHelpLink = (
     <Link href={props.helpLink} target='_blank' rel='noopener'>
@@ -24,7 +18,7 @@ export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
   )
 
   return (
-    <div className={classes.container}>
+    <Layout>
       <InlineErrorAlert>
         <Typography variant='subtitle1' component='h1'>Access Denied</Typography>
         <Typography>
@@ -34,6 +28,6 @@ export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
           If you believe this message is in error, please contact {emailLink} or visit the {forHelpLink}.
         </Typography>
       </InlineErrorAlert>
-    </div>
+    </Layout>
   )
 }

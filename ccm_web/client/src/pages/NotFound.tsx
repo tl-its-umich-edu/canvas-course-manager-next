@@ -3,7 +3,6 @@ import { makeStyles, Typography } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   spacing: {

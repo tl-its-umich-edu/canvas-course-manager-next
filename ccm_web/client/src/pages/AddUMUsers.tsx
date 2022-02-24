@@ -14,7 +14,6 @@ import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   spacing: {

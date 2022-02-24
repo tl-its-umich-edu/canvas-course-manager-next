@@ -29,7 +29,6 @@ import { createOutputFileName, getRowNumber, prepDownloadDataString } from '../u
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   buttonGroup: {
