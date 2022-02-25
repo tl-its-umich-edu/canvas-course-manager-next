@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
 import { Globals } from './models/models'
-import handleErrors from './utils/handleErrors'
+import handleErrors, { CanvasError } from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
 
@@ -150,4 +150,23 @@ export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]):
   const resp = await fetch('/api/sections/unmerge', request)
   await handleErrors(resp)
   return await resp.json()
+}
+
+export const checkIfUserExists = async (loginId: string): Promise<boolean> => {
+  const request = getGet()
+  const resp = await fetch(`/api/admin/user/${loginId}`, request)
+  try {
+    await handleErrors(resp)
+  } catch (error: unknown) {
+    if (
+      error instanceof CanvasError &&
+      error.errors.length > 0 &&
+      error.errors[0].canvasStatusCode === 404
+    ) {
+      return false
+    } else {
+      throw error
+    }
+  }
+  return true
 }

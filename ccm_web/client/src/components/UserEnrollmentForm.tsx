@@ -62,9 +62,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [doSearchForUser, isSearchForUserLoading, searchForUserError, clearSearchForUserError] = usePromise(
     async (loginId: string): Promise<boolean> => {
-      const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
-      await promise
-      return Math.random() > 0.5
+      return await api.checkIfUserExists(loginId)
     },
     (result: boolean) => setUserExists(result)
   )
