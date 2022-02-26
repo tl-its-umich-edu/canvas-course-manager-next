@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import {
+  Backdrop, Box, Button, CircularProgress, Grid, List, ListItem, makeStyles, Typography
+} from '@material-ui/core'
 
 import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
@@ -15,10 +17,11 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import CanvasSettingsLink from './CanvasSettingsLink'
+import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
-  injectCourseName
+  getCanvasRole, injectCourseName
 } from '../models/canvas'
 import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 import { createSectionRoles } from '../models/feature'
@@ -88,14 +91,26 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
+  const [preexistingUsers, setPreexistingUsers] = useState<string[] | undefined>(undefined)
+
   const [
-    doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError, clearAddExternalEnrollmentsError
+    doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError,
+    clearAddExternalEnrollmentsError
   ] = usePromise(
-    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]) => {
-      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
-      return await promise
+    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<string[]> => {
+      const result = await api.createExternalUsers(
+        enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
+      )
+      const preexistingUsers = Object.keys(result).filter(k => result[k].userCreated === false)
+      await api.addSectionEnrollments(
+        sectionId, enrollments.map(e => ({ loginId: e.email, type: getCanvasRole(e.role) }))
+      )
+      return preexistingUsers
     },
-    () => { setActiveStep(CSVWorkflowStep.Confirmation) }
+    (preexistingUsers: string[]) => {
+      if (preexistingUsers.length > 0) setPreexistingUsers(preexistingUsers)
+      setActiveStep(CSVWorkflowStep.Confirmation)
+    }
   )
 
   const handleResetUpload = (): void => {
@@ -334,13 +349,26 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderSuccess = (): JSX.Element => {
-    // Need to process actual result here somehow
+  const renderSuccess = (preexistingUsers?: string[]): JSX.Element => {
     const message = (
+      <>
       <Typography>
         Non-UM Users have been added to the selected section!
+      </Typography>
+      <Typography>
         New users have also been added to Canvas and sent an email invitation to choose a login method.
       </Typography>
+      {
+        preexistingUsers !== undefined && (
+          <>
+          <Typography>
+            Accounts already exist in Canvas for the following emails:
+          </Typography>
+          <List>{preexistingUsers.map((u, i) => <ListItem key={i}>{u}</ListItem>)}</List>
+          </>
+        )
+      }
+      </>
     )
     const nextAction = (
       <span>See the users in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
@@ -370,7 +398,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         }
         return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
-        return renderSuccess()
+        return renderSuccess(preexistingUsers)
       default:
         return <ErrorAlert />
     }

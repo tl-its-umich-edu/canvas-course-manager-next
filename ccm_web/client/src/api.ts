@@ -1,5 +1,9 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CourseWithSections
+} from './models/canvas'
+import { ExternalUserData } from './models/enrollment'
 import { Globals } from './models/models'
 import handleErrors, { CanvasError } from './utils/handleErrors'
 
@@ -169,4 +173,18 @@ export const checkIfUserExists = async (loginId: string): Promise<boolean> => {
     }
   }
   return true
+}
+
+interface ExternalUser {
+  email: string
+  surname: string
+  givenName: string
+}
+
+export const createExternalUsers = async (newUsers: ExternalUser[]): Promise<ExternalUserData> => {
+  const body = JSON.stringify({ users: newUsers })
+  const request = getPost(body)
+  const resp = await fetch('/api/admin/createExternalUsers', request)
+  await handleErrors(resp)
+  return await resp.json()
 }

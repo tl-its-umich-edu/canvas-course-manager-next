@@ -39,6 +39,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+interface ExternalEnrollmentSummary {
+  createdAndInvited: boolean
+  enrolled: boolean
+}
+
 interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
@@ -58,7 +63,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [lastNameValidationResult, setLastNameValidationResult] = useState<ValidationResult | undefined>(undefined)
   const [role, setRole] = useState<ClientEnrollmentType | undefined>(undefined)
 
-  const [success, setSuccess] = useState<true | undefined>(undefined)
+  const [successResult, setSuccessResult] = useState<ExternalEnrollmentSummary | undefined>(undefined)
 
   const [doSearchForUser, isSearchForUserLoading, searchForUserError, clearSearchForUserError] = usePromise(
     async (loginId: string): Promise<boolean> => {
@@ -71,18 +76,24 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
       sectionId, [{ loginId: enrollment.email, role: enrollment.role }]
     ),
-    () => setSuccess(true)
+    () => setSuccessResult({ createdAndInvited: false, enrolled: true })
   )
 
   const [
     doAddNewExternalEnrollment, isAddNewExternalEnrollmentLoading, addNewExternalEnrollmentError,
     clearAddNewExternalEnrollmentError
   ] = usePromise(
-    async (sectionId: number, enrollment: AddNewExternalUserEnrollment) => {
-      const promise = new Promise(resolve => setTimeout(resolve, 2000)) // Mocking this for now
-      return await promise
+    async (sectionId: number, enrollment: AddNewExternalUserEnrollment): Promise<ExternalEnrollmentSummary> => {
+      const { email, firstName, lastName, role } = enrollment
+      const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }])
+      let createdAndInvited = false
+      if (result[email].userCreated !== false && result[email].invited !== undefined) {
+        createdAndInvited = true
+        await api.addSectionEnrollments(sectionId, [{ loginId: email, type: getCanvasRole(role) }])
+      }
+      return { createdAndInvited, enrolled: true }
     },
-    () => setSuccess(true)
+    (result: ExternalEnrollmentSummary) => setSuccessResult(result)
   )
 
   const errorsWithContext = [
@@ -349,11 +360,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     )
   }
 
-  const renderSuccess = (userExists: boolean): JSX.Element => {
+  const renderSuccess = (result: ExternalEnrollmentSummary): JSX.Element => {
     const messageText = (
-      userExists
+      result.createdAndInvited
         ? 'The existing user was'
-        : 'The new user was sent an email invitation to choose a login method, added to Canvas, and'
+        : 'The new user was added to Canvas, sent an email invitation to choose a login method, and'
     ) + ' enrolled in the selected section!'
     const nextAction = (
       <span>See the user in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
@@ -374,7 +385,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   return (
     <div id='single-add-user'>
       <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
-      {success !== true || userExists === undefined ? renderForm() : renderSuccess(userExists)}
+      {successResult === undefined ? renderForm() : renderSuccess(successResult)}
     </div>
   )
 }
