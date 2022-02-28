@@ -85,14 +85,6 @@ export interface CanvasEnrollment {
   role: ClientEnrollmentType
 }
 
-export interface CanvasUser {
-  id: number
-  name: string
-  sortable_name: string
-  short_name: string
-  login_id: string
-}
-
 const levelOneAddableRoles = [ClientEnrollmentType.Student]
 const levelTwoAddableRoles = [...levelOneAddableRoles, ClientEnrollmentType.Observer]
 const levelThreeAddableRoles = [

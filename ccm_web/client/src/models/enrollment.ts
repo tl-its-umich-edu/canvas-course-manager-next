@@ -1,4 +1,4 @@
-import { CanvasUser, ClientEnrollmentType } from './canvas'
+import { ClientEnrollmentType } from './canvas'
 import { CSVRecord } from '../utils/FileParserWrapper'
 
 interface RowNumberedData {
@@ -71,7 +71,7 @@ export interface CirrusInvitationResponse {
 
 export interface ExternalUserData {
   [email: string]: {
-    userCreated: CanvasUser | false
-    invited?: CirrusInvitationResponse
+    userCreated: true | false
+    invited?: true
   }
 }

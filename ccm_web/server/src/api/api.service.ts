@@ -145,12 +145,17 @@ export class APIService {
 
     // Handle create user responses: success, failure, and already exists
     createUserResponses.forEach(({ email, result }) => {
+      let userCreated: boolean | APIErrorData
       if (isAPIErrorData(result)) {
+        userCreated = result
         createErrors.push(result)
-      } else if (result !== false) {
+      } else if (result === false) {
+        userCreated = result
+      } else {
+        userCreated = true
         newUserEmails.push(email)
       }
-      resultData[email] = { userCreated: result }
+      resultData[email] = { userCreated }
     })
     if (createErrors.length === externalUsers.length) {
       const statusCode = determineStatusCode(createErrors.map(e => e.statusCode))
@@ -162,7 +167,9 @@ export class APIService {
     if (newUserEmails.length > 0) {
       inviteResult = await this.invitationService.sendInvitations(newUserEmails)
       newUserEmails.forEach(email => {
-        resultData[email].invited = inviteResult
+        resultData[email].invited = isCirrusErrorData(inviteResult) || inviteResult === undefined
+          ? inviteResult
+          : true
       })
     }
 

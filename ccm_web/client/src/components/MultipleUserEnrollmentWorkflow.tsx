@@ -101,7 +101,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const result = await api.createExternalUsers(
         enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
       )
-      const preexistingUsers = Object.keys(result).filter(k => result[k].userCreated === false)
+      const preexistingUsers = Object.keys(result).filter(k => !result[k].userCreated)
       await api.addSectionEnrollments(
         sectionId, enrollments.map(e => ({ loginId: e.email, type: getCanvasRole(e.role) }))
       )

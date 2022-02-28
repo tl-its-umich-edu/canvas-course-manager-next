@@ -139,10 +139,9 @@ export class APIController {
   @Get('admin/user/:loginId')
   async getUserInfoAsAdmin (
     @Param('loginId') loginId: string
-  ): Promise<CanvasUser> {
+  ): Promise<void> {
     const result = await this.apiService.getUserInfoAsAdmin(loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

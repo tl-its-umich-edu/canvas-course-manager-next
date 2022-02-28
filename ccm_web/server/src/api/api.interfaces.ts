@@ -35,8 +35,8 @@ export function isAPIErrorData (value: unknown): value is APIErrorData {
 
 export interface ExternalUserData {
   [email: string]: {
-    userCreated: CanvasUser | APIErrorData | false
-    invited?: CirrusInvitationResponse | CirrusErrorData
+    userCreated: boolean | APIErrorData
+    invited?: true | CirrusErrorData
   }
 }
 
