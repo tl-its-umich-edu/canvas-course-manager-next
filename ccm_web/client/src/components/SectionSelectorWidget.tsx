@@ -9,6 +9,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 import SortIcon from '@material-ui/icons/Sort'
 import { useDebounce } from '@react-hook/debounce'
 
+import APIErrorMessage from './APIErrorMessage'
 import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
@@ -169,9 +170,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar('Error unmerging', {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        <APIErrorMessage context='unmerging' error={unmergeError} />,
+        { variant: 'error' }
+      )
     }
   }, [unmergeError])
 
@@ -281,10 +283,12 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   })
 
   useEffect(() => {
-    if (searchError !== undefined || initError !== undefined) {
-      enqueueSnackbar('Error searching sections', {
-        variant: 'error'
-      })
+    const searchErrors = [searchError, initError].filter(e => e !== undefined) as Error[]
+    if (searchErrors.length > 0) {
+      enqueueSnackbar(
+        <APIErrorMessage context='searching for sections' error={searchErrors[0]} />,
+        { variant: 'error' }
+      )
     }
   }, [searchError, initError])
 

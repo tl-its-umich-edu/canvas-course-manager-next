@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
 
+import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
@@ -107,7 +108,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
 
   const getSectionsErrorAlert = (
     <ErrorAlert
-      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      messages={[<APIErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
       tryAgain={props.doGetSections}
     />
   )

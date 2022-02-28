@@ -1,9 +1,15 @@
-import { Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography } from '@material-ui/core'
+import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
+import {
+  Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography
+} from '@material-ui/core'
+
+import APIErrorMessage from './APIErrorMessage'
 import { getCourseSections, unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName } from '../models/canvas'
-import { useSnackbar } from 'notistack'
+import {
+  CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName
+} from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
 const useStyles = makeStyles((theme) => ({
@@ -66,11 +72,10 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
       void doUnmerge()
     }
   }, [sectionsToUnmerge])
+
   useEffect(() => {
     if (unmergeError !== undefined) {
-      enqueueSnackbar('Error unmerging', {
-        variant: 'error'
-      })
+      enqueueSnackbar(<APIErrorMessage context='unmerging sections' error={unmergeError} />, { variant: 'error' })
     }
   }, [unmergeError])
 
@@ -80,9 +85,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   useEffect(() => {
     if (error !== undefined) {
-      enqueueSnackbar('Error loading sections', {
-        variant: 'error'
-      })
+      enqueueSnackbar(<APIErrorMessage context='loading section data' error={error} />, { variant: 'error' })
     }
   }, [error])
 

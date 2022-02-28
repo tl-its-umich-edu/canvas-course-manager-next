@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack'
 
 import { adminRoles } from '../models/feature'
 import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
+import APIErrorMessage from '../components/APIErrorMessage'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
 import {
   CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount,
@@ -93,9 +94,10 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   useEffect(() => {
     if (mergeError !== undefined) {
-      enqueueSnackbar('Error merging', {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        <APIErrorMessage context={'merging section(s)'} error={mergeError} />,
+        { variant: 'error' }
+      )
     }
   }, [mergeError])
 

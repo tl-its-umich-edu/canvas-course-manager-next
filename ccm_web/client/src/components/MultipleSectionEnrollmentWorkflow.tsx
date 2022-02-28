@@ -5,6 +5,7 @@ import {
 } from '@material-ui/core'
 
 import Accordion from './Accordion'
+import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
 import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
@@ -90,7 +91,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const getSectionsErrorAlert = (
     <ErrorAlert
-      messages={[<Typography key={0}>An error occurred while loading section data from Canvas.</Typography>]}
+      messages={[<APIErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
       tryAgain={props.doGetSections}
     />
   )

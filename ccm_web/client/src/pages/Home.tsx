@@ -1,17 +1,20 @@
+import { useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography } from '@material-ui/core'
-import { useSnackbar } from 'notistack'
 
-import InlineTextEdit from '../components/InlineTextEdit'
+import APIErrorMessage from '../components/APIErrorMessage'
 import FeatureCard from '../components/FeatureCard'
 import Help from '../components/Help'
-import allFeatures, { FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles } from '../models/FeatureUIData'
+import InlineTextEdit from '../components/InlineTextEdit'
 import { setCourseName as apiSetCourseName } from '../api'
+import usePromise from '../hooks/usePromise'
 import { courseRenameRoles } from '../models/feature'
+import allFeatures, {
+  FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles
+} from '../models/FeatureUIData'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
-import usePromise from '../hooks/usePromise'
 import { courseNameSchema, validateString } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
@@ -56,7 +59,10 @@ function Home (props: HomeProps): JSX.Element {
 
   useEffect(() => {
     if (setCourseNameError !== undefined) {
-      enqueueSnackbar('Error saving course name', { variant: 'error' })
+      enqueueSnackbar(
+        <APIErrorMessage context='saving course name' error={setCourseNameError} />,
+        { variant: 'error' }
+      )
     }
   }, [setCourseNameError])
 

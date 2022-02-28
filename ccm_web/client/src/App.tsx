@@ -3,7 +3,9 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { getCourse } from './api'
 import './App.css'
+import APIErrorMessage from './components/APIErrorMessage'
 import AuthorizePrompt from './components/AuthorizePrompt'
+import ErrorAlert from './components/ErrorAlert'
 import Layout from './components/Layout'
 import useGlobals from './hooks/useGlobals'
 import usePromise from './hooks/usePromise'
@@ -57,7 +59,9 @@ function App (): JSX.Element {
   if (getCourseError !== undefined || course === undefined) {
     return (
       <Layout>
-        <p>Course info failed to load.</p>
+        <ErrorAlert
+          messages={[<APIErrorMessage key={0} context='loading course data' error={getCourseError} />]}
+        />
       </Layout>
     )
   }
