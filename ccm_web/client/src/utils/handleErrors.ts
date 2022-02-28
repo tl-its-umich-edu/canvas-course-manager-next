@@ -66,10 +66,6 @@ const handleErrors = async (resp: Response): Promise<void> => {
     throw new Error(`Non-JSON error encountered with status code ${resp.status}`)
   }
 
-  if (resp.status === 401 && errorBody.redirect === true) {
-    redirect('/')
-    throw new UnauthorizedError()
-  }
   if (isCanvasAPIErrorData(errorBody)) throw new CanvasError(errorBody.errors)
 
   const apiErrorMessage = Array.isArray(errorBody.message) ? errorBody.message.join(' ') : errorBody.message
@@ -77,6 +73,7 @@ const handleErrors = async (resp: Response): Promise<void> => {
     case 400:
       throw new BadRequestError(apiErrorMessage)
     case 401:
+      if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
       throw new ForbiddenError()
