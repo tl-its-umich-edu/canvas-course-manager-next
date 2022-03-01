@@ -71,7 +71,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
-      sectionId, [{ loginId: enrollment.email, type: enrollment.role }]
+      sectionId, [{ loginId: enrollment.email, role: enrollment.role }]
     ),
     () => setSuccess(true)
   )

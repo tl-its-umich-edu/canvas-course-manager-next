@@ -75,7 +75,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
-      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: e.role }))
+      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
       await api.addSectionEnrollments(section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }

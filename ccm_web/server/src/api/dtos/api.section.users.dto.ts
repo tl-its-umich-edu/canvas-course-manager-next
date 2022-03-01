@@ -18,11 +18,11 @@ export class SectionUserDto {
   @ApiProperty({ enum: ClientEnrollmentType })
   @IsNotEmpty()
   @IsIn(Object.values(ClientEnrollmentType))
-  type: ClientEnrollmentType
+  role: ClientEnrollmentType
 
-  constructor (loginId: string, type: ClientEnrollmentType) {
+  constructor (loginId: string, role: ClientEnrollmentType) {
     this.loginId = loginId
-    this.type = type
+    this.role = role
   }
 }
 

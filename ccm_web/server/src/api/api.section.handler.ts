@@ -56,7 +56,7 @@ export class SectionApiHandler {
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
 
-    const enrollmentType = getCanvasRole(user.type)
+    const enrollmentType = getCanvasRole(user.role)
     const roleParams = (
       this.customCanvasRoles !== undefined &&
       Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
@@ -96,7 +96,7 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]

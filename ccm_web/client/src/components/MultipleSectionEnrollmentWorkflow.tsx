@@ -83,7 +83,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(
-        enrollments.map(e => ({ loginId: e.loginId, type: e.role, sectionId: e.sectionId }))
+        enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
