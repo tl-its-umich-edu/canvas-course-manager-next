@@ -85,16 +85,6 @@ export interface CanvasEnrollment {
   type: CanvasEnrollmentType
 }
 
-const clientToCanvasRoleMap: Record<ClientEnrollmentType, CanvasEnrollmentType> = {
-  student: CanvasEnrollmentType.Student,
-  teacher: CanvasEnrollmentType.Teacher,
-  ta: CanvasEnrollmentType.TA,
-  observer: CanvasEnrollmentType.Observer,
-  designer: CanvasEnrollmentType.Designer,
-  assistant: CanvasEnrollmentType.Assistant,
-  librarian: CanvasEnrollmentType.Librarian
-}
-
 const levelOneAddableRoles = [ClientEnrollmentType.Student]
 const levelTwoAddableRoles = [...levelOneAddableRoles, ClientEnrollmentType.Observer]
 const levelThreeAddableRoles = [
@@ -141,10 +131,6 @@ export const getRolesUserCanEnroll = (roles: RoleEnum[]): ClientEnrollmentType[]
 
 export const isValidRole = (role: string): role is ClientEnrollmentType => {
   return clientStringValues.includes(role)
-}
-
-export const getCanvasRole = (clientName: ClientEnrollmentType): CanvasEnrollmentType => {
-  return clientToCanvasRoleMap[clientName]
 }
 
 export const injectCourseName = (sections: CanvasCourseSection[], courseName: string): CanvasCourseSectionWithCourseName[] => {

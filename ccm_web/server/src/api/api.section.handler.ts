@@ -4,7 +4,7 @@ import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -56,7 +56,7 @@ export class SectionApiHandler {
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
 
-    const enrollmentType = user.type
+    const enrollmentType = getCanvasRole(user.type)
     const roleParams = (
       this.customCanvasRoles !== undefined &&
       Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&

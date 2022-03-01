@@ -19,7 +19,7 @@ import TableCaption from './TableCaption'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { ClientEnrollmentType } from '../models/canvas'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
@@ -83,7 +83,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(
-        enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role), sectionId: e.sectionId }))
+        enrollments.map(e => ({ loginId: e.loginId, type: e.role, sectionId: e.sectionId }))
       )
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)

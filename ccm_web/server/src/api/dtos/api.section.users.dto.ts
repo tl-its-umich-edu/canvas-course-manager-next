@@ -8,19 +8,19 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
+import { ClientEnrollmentType } from '../../canvas/canvas.interfaces'
 
 export class SectionUserDto {
   @ApiProperty()
   @IsNotEmpty()
   loginId: string
 
-  @ApiProperty({ enum: UserEnrollmentType })
+  @ApiProperty({ enum: ClientEnrollmentType })
   @IsNotEmpty()
-  @IsIn(Object.values(UserEnrollmentType))
-  type: UserEnrollmentType
+  @IsIn(Object.values(ClientEnrollmentType))
+  type: ClientEnrollmentType
 
-  constructor (loginId: string, type: UserEnrollmentType) {
+  constructor (loginId: string, type: ClientEnrollmentType) {
     this.loginId = loginId
     this.type = type
   }

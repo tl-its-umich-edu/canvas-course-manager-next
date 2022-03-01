@@ -11,7 +11,7 @@ import SuccessCard from './SuccessCard'
 import ValidatedFormField from './ValidatedFormField'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName, ClientEnrollmentType, getCanvasRole } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { APIErrorWithContext } from '../models/models'
@@ -71,7 +71,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
-      sectionId, [{ loginId: enrollment.email, type: getCanvasRole(enrollment.role) }]
+      sectionId, [{ loginId: enrollment.email, type: enrollment.role }]
     ),
     () => setSuccess(true)
   )
