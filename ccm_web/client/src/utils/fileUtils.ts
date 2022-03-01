@@ -15,7 +15,7 @@ Examples:
 */
 function createOutputFileName (oldFileName: string, newfileEnding?: string): string {
   if (newfileEnding === undefined) {
-    newfileEnding = '-formatterd'
+    newfileEnding = '-formatted'
   }
   const splitName = oldFileName.split('.')
   const filenameIndex = splitName.length >= 2 ? splitName.length - 2 : 0
