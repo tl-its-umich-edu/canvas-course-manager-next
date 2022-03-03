@@ -60,11 +60,3 @@ export interface EnrollmentWithSectionIdRecord extends CSVRecord {
 export const isEnrollmentWithSectionIdRecord = (record: CSVRecord): record is EnrollmentWithSectionIdRecord => {
   return REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS.every(h => typeof record[h] === 'string')
 }
-
-export interface CirrusInvitationResponse {
-  clientRequestID?: string
-  spEntityId?: string
-  batchId?: string
-  errors: string[]
-  addresses?: string[]
-}
