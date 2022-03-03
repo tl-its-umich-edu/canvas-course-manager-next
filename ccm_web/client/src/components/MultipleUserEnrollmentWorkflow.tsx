@@ -4,7 +4,7 @@ import {
 } from '@material-ui/core'
 
 import APIErrorMessage from './APIErrorMessage'
-import BulkApiErrorContent from './BulkApiErrorContent'
+import APIErrorsTable from './APIErrorsTable'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget'
@@ -24,6 +24,7 @@ import {
   getCanvasRole, injectCourseName
 } from '../models/canvas'
 import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
+import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
@@ -34,6 +35,7 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
+import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -73,6 +75,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+interface APIProcessResult {
+  preexistingUsers: string[]
+  errors: ErrorDescription[]
+}
+
 interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
   onSectionCreated: (newSection: CanvasCourseSection) => void
@@ -91,25 +98,50 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
-  const [preexistingUsers, setPreexistingUsers] = useState<string[] | undefined>(undefined)
+  const [processResult, setProcessResult] = useState<APIProcessResult | undefined>(undefined)
 
   const [
     doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError,
     clearAddExternalEnrollmentsError
   ] = usePromise(
-    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<string[]> => {
-      const result = await api.createExternalUsers(
-        enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
-      )
-      const preexistingUsers = Object.keys(result).filter(k => !result[k].userCreated)
-      await api.addSectionEnrollments(
-        sectionId, enrollments.map(e => ({ loginId: e.email, type: getCanvasRole(e.role) }))
-      )
-      return preexistingUsers
+    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<APIProcessResult> => {
+      let successes: ExternalUserSuccess[]
+      const errors: ErrorDescription[] = []
+      try {
+        successes = await api.createExternalUsers(
+          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
+        )
+      } catch (error: unknown) {
+        if (error instanceof ExternalUserProcessError) {
+          errors.push(...error.describeErrors())
+          successes = error.data.filter(r => isExternalUserSuccess(r)) as ExternalUserSuccess[]
+        } else {
+          throw error
+        }
+      }
+      const preexistingUsers = successes.filter(s => !s.userCreated).map(s => s.email)
+      const allUsersToEnroll = successes.map(s => s.email)
+      const enrollmentsToAdd = enrollments.filter(e => allUsersToEnroll.includes(e.email))
+
+      if (enrollmentsToAdd.length > 0) {
+        try {
+          await api.addSectionEnrollments(
+            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, type: getCanvasRole(e.role) }))
+          )
+        } catch (error: unknown) {
+          if (error instanceof CanvasError) {
+            errors.push(...error.describeErrors('enrolling a user to a Canvas section'))
+          } else {
+            throw error
+          }
+        }
+      }
+
+      return { preexistingUsers, errors }
     },
-    (preexistingUsers: string[]) => {
-      if (preexistingUsers.length > 0) setPreexistingUsers(preexistingUsers)
-      setActiveStep(CSVWorkflowStep.Confirmation)
+    (result: APIProcessResult) => {
+      setProcessResult(result)
+      if (result.errors.length === 0) setActiveStep(CSVWorkflowStep.Confirmation)
     }
   )
 
@@ -349,6 +381,41 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
+  const renderPreexistingMessage = (users: string[]): JSX.Element => {
+    return (
+      <>
+      <Typography>
+        Accounts already exist in Canvas for the following emails:
+      </Typography>
+      <List>{users.map((u, i) => <ListItem key={i}>{u}</ListItem>)}</List>
+      </>
+    )
+  }
+
+  const renderPartialSuccess = (processResult: APIProcessResult): JSX.Element => {
+    const tableBlock = (
+      <>
+      <APIErrorsTable errors={processResult.errors} />
+      {renderPreexistingMessage}
+      </>
+    )
+
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={tableBlock}
+        title='Some errors occurred'
+        resetUpload={() => {
+          handleResetUpload()
+          setProcessResult(undefined)
+          setActiveStep(CSVWorkflowStep.Upload)
+        }}
+      />
+      </>
+    )
+  }
+
   const renderSuccess = (preexistingUsers?: string[]): JSX.Element => {
     const message = (
       <>
@@ -358,16 +425,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <Typography>
         New users have also been added to Canvas and sent an email invitation to choose a login method.
       </Typography>
-      {
-        preexistingUsers !== undefined && (
-          <>
-          <Typography>
-            Accounts already exist in Canvas for the following emails:
-          </Typography>
-          <List>{preexistingUsers.map((u, i) => <ListItem key={i}>{u}</ListItem>)}</List>
-          </>
-        )
-      }
+      {preexistingUsers !== undefined && renderPreexistingMessage(preexistingUsers)}
       </>
     )
     const nextAction = (
@@ -394,11 +452,24 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       case CSVWorkflowStep.Review:
         if (validEnrollments === undefined || selectedSection === undefined) return <ErrorAlert />
         if (addExternalEnrollmentsError !== undefined) {
-          return <BulkApiErrorContent error={addExternalEnrollmentsError} file={file} tryAgain={handleResetUpload} />
+          const errorMessage = (
+            <APIErrorMessage key={0} error={addExternalEnrollmentsError} context='processing external users' />
+          )
+          return (
+            <ErrorAlert
+              messages={[errorMessage]}
+              tryAgain={() => {
+                handleResetUpload()
+                setActiveStep(CSVWorkflowStep.Upload)
+              }}
+            />
+          )
         }
+        if (processResult !== undefined) return renderPartialSuccess(processResult)
         return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
-        return renderSuccess(preexistingUsers)
+        if (processResult === undefined) return <ErrorAlert />
+        return renderSuccess(processResult.preexistingUsers)
       default:
         return <ErrorAlert />
     }

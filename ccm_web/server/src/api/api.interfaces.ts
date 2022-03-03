@@ -33,14 +33,13 @@ export function isAPIErrorData (value: unknown): value is APIErrorData {
 }
 
 export interface ExternalUserData {
-  [email: string]: {
-    userCreated: boolean | APIErrorData
-    invited?: true | CirrusErrorData
-  }
+  email: string
+  userCreated: boolean | APIErrorPayload
+  invited?: true | CirrusErrorData
 }
 
 interface ExternalUserCreationResultBase {
-  data: ExternalUserData
+  data: ExternalUserData[]
 }
 
 interface ExternalUserCreationFailureResult extends ExternalUserCreationResultBase {

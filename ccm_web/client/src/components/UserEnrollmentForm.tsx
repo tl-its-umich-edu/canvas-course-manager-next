@@ -15,6 +15,7 @@ import { CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../mode
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { APIErrorWithContext } from '../models/models'
+import { CanvasError, ExternalUserProcessError } from '../utils/handleErrors'
 import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
@@ -87,7 +88,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       const { email, firstName, lastName, role } = enrollment
       const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }])
       let createdAndInvited = false
-      if (result[email].userCreated && result[email].invited === true) {
+      if (result.length > 0 && result[0].userCreated && result[0].invited === true) {
         createdAndInvited = true
         await api.addSectionEnrollments(sectionId, [{ loginId: email, type: getCanvasRole(role) }])
       }
@@ -99,8 +100,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const errorsWithContext = [
     { error: props.getSectionsError, context: 'loading section data' },
     { error: searchForUserError, context: 'searching for the user' },
-    { error: addEnrollmentError, context: 'enrolling the user in a section' },
-    { error: addNewExternalEnrollmentError, context: 'adding the new external user' }
+    { error: addEnrollmentError, context: 'enrolling the user in a section' }
   ].filter(d => d.error !== undefined) as APIErrorWithContext[]
 
   const isEnrollmentLoading = isAddEnrollmentLoading || isAddNewExternalEnrollmentLoading
@@ -267,6 +267,26 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const renderForm = (): JSX.Element => {
     if (errorsWithContext.length > 0) {
       return <ErrorAlert messages={[<APIErrorMessage key={0} {...errorsWithContext[0]} />]} tryAgain={resetAll} />
+    }
+
+    if (addNewExternalEnrollmentError !== undefined) {
+      if (addNewExternalEnrollmentError instanceof ExternalUserProcessError) {
+        const descriptions = addNewExternalEnrollmentError.describeErrors()
+        if (descriptions.length === 0) return <ErrorAlert />
+        const { context, errorText, action } = descriptions[0]
+        const messageBlock = [context, `Error message: "${errorText}"`, action].map((t, i) => <Typography key={i}>{t}</Typography>)
+        return (<ErrorAlert messages={[<div key={0}>{messageBlock}</div>]} tryAgain={resetAll} />)
+      } else {
+        const context = addNewExternalEnrollmentError instanceof CanvasError
+          ? 'enrolling the new user in a section'
+          : 'adding the new external user'
+        return (
+          <ErrorAlert
+            messages={[<APIErrorMessage key={0} context={context} error={addNewExternalEnrollmentError} />]}
+            tryAgain={resetAll}
+          />
+        )
+      }
     }
 
     return (

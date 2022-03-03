@@ -33,8 +33,7 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
-  CourseWithSections,
-  CanvasUser
+  CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
@@ -116,10 +115,12 @@ export class APIController {
   @Post('admin/createExternalUsers')
   async createExternalUsers (
     @Body() externalUsersData: ExternalUsersDto
-  ): Promise<ExternalUserData> {
+  ): Promise<ExternalUserData[]> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
     const result = await this.apiService.createExternalUsers(externalUsers)
-    if (!result.success) throw new HttpException(result.data, result.statusCode)
+    if (!result.success) {
+      throw new HttpException({ statusCode: result.statusCode, data: result.data }, result.statusCode)
+    }
     return result.data
   }
 

@@ -68,10 +68,3 @@ export interface CirrusInvitationResponse {
   errors: string[]
   addresses?: string[]
 }
-
-export interface ExternalUserData {
-  [email: string]: {
-    userCreated: true | false
-    invited?: true
-  }
-}

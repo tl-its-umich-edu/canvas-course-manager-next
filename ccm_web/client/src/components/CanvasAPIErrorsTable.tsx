@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
 
 import CustomTable, { TableColumn } from './CustomTable'
-import { APIErrorPayload } from '../models/models'
+import { CanvasAPIErrorPayload } from '../models/models'
 
 interface CanvasAPIErrorsTableProps {
-  errors: APIErrorPayload[]
+  errors: CanvasAPIErrorPayload[]
 }
 
-interface NumberedAPIErrorPayload extends APIErrorPayload {
+interface NumberedCanvasAPIErrorPayload extends CanvasAPIErrorPayload {
   rowNumber: number
 }
 
-const columns: Array<TableColumn<NumberedAPIErrorPayload>> = [
+const columns: Array<TableColumn<NumberedCanvasAPIErrorPayload>> = [
   { id: 'rowNumber', label: 'Error Number', minWidth: 25 },
   // Thinking this will just confuse users, so may not include it.
   // { id: 'canvasStatusCode', label: 'Canvas Status Code', minWidth: 100 },
@@ -25,7 +25,7 @@ function CanvasAPIErrorsTable (props: CanvasAPIErrorsTableProps): JSX.Element {
   const tableRows = props.errors.map((e, i) => ({ ...e, rowNumber: i + 1 }))
   const caption = `${props.errors.length} Canvas errors occurred.`
 
-  return <CustomTable<NumberedAPIErrorPayload> {...{ tableRows, columns, page, setPage, caption }} />
+  return <CustomTable<NumberedCanvasAPIErrorPayload> {...{ tableRows, columns, page, setPage, caption }} />
 }
 
 export default CanvasAPIErrorsTable

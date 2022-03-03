@@ -3,7 +3,7 @@ import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
   CourseWithSections
 } from './models/canvas'
-import { ExternalUserData } from './models/enrollment'
+import { ExternalUserSuccess } from './models/externalUser'
 import { Globals } from './models/models'
 import handleErrors, { CanvasError } from './utils/handleErrors'
 
@@ -181,7 +181,7 @@ interface ExternalUser {
   givenName: string
 }
 
-export const createExternalUsers = async (newUsers: ExternalUser[]): Promise<ExternalUserData> => {
+export const createExternalUsers = async (newUsers: ExternalUser[]): Promise<ExternalUserSuccess[]> => {
   const body = JSON.stringify({ users: newUsers })
   const request = getPost(body)
   const resp = await fetch('/api/admin/createExternalUsers', request)

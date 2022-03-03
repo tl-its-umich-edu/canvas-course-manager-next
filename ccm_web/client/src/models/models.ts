@@ -2,6 +2,17 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
+// Type guard ensuring an unknown value is a non-null object and has all the specified keys
+// https://stackoverflow.com/a/45390578
+function isRecord (x: unknown): x is Record<string | number | symbol, unknown> {
+  return (typeof x === 'object' && x !== null)
+}
+
+export function hasKeys<K extends string> (x: unknown, keys: K[]): x is Record<K, unknown> {
+  if (!isRecord(x)) return false
+  return keys.every(k => k in x)
+}
+
 // Globals
 
 /* Left side = canvas display value
@@ -44,16 +55,18 @@ export interface Globals {
 
 // API Errors
 
-export interface APIErrorPayload {
+export interface CanvasAPIErrorPayload {
   canvasStatusCode: number
   message: string
   failedInput: string | null
 }
 
-const isAPIErrorPayload = (v: unknown): v is APIErrorPayload => {
+export const isCanvasAPIErrorPayload = (v: unknown): v is CanvasAPIErrorPayload => {
   return (
-    (typeof v === 'object' && v !== null) &&
-    'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+    hasKeys(v, ['canvasStatusCode', 'message', 'failedInput']) &&
+    typeof v.canvasStatusCode === 'number' &&
+    typeof v.message === 'string' &&
+    (v.failedInput === null || typeof v.failedInput === 'string')
   )
 }
 
@@ -65,14 +78,14 @@ export interface APIErrorData extends Record<string, unknown> {
 }
 
 export interface CanvasAPIErrorData extends APIErrorData {
-  errors: APIErrorPayload[]
+  errors: CanvasAPIErrorPayload[]
 }
 
 export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is CanvasAPIErrorData => {
   return (
     'errors' in errorData &&
     Array.isArray(errorData.errors) &&
-    errorData.errors.every(e => isAPIErrorPayload(e))
+    errorData.errors.every(e => isCanvasAPIErrorPayload(e))
   )
 }
 
