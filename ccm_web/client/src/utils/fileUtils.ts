@@ -5,9 +5,9 @@ const prepDownloadDataString = (data: string): string => {
 }
 
 /*
-Takes a file name and replaces the string segment(as optional) without a period
-just before the file name extension with that segment plus a new provided ending.
-the default string segment is '-formatted'
+Takes a file name and replaces the string segment without a period
+just before the file name extension with that segment plus a new ending
+(which can be optionally provided). The default new ending is '-formatted'.
 Examples:
   createOutputFileName('old-file-name.csv', '-new') returns 'old-file-name-new.csv'
   createOutputFileName('old-file-name') returns 'old-file-name-formatted
