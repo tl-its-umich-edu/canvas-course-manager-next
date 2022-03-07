@@ -389,7 +389,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
                   setActiveStep(CSVWorkflowStep.Upload)
                 }}
                 download={{
-                  fileName: createOutputFileName(file.name, '-puff'),
+                  fileName: createOutputFileName(file.name),
                   data: dataToDownload
                 }}
               />
