@@ -187,7 +187,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
     const fileData =
       `${REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS.join(',')}
-       teacherone,teacher,1001`
+      teacherone,teacher,1001`
 
     const sectionDataToDownload = prepDownloadDataString(
       parser.createCSV<string[]>([
