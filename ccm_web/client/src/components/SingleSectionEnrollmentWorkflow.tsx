@@ -214,11 +214,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
     const fileData =
     `${REQUIRED_ENROLLMENT_HEADERS.join(',')}
-    student,studentone
-    teacher,teacherone
-    ta,taone
-    observer,observerone
-    designer,designerone`
+    studentone, student`
 
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
