@@ -213,8 +213,8 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
     const fileData =
-    `${REQUIRED_ENROLLMENT_HEADERS.join(',')}
-    studentone, student`
+    `${REQUIRED_ENROLLMENT_HEADERS.join(',')}\n` +
+    'studentone, student\n'
 
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
