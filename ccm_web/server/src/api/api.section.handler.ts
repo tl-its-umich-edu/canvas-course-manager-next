@@ -18,11 +18,13 @@ Handler class for Canvas API calls dealing with a specific section (i.e. those b
 export class SectionApiHandler {
   requestor: CanvasRequestor
   sectionId: number
+  showSectionIdErrReport? = false
   customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoleData) {
+  constructor (requestor: CanvasRequestor, sectionId: number, showSectionIdErrReport?: boolean, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
+    this.showSectionIdErrReport = showSectionIdErrReport
     this.customCanvasRoles = customCanvasRoles
   }
 
@@ -96,7 +98,8 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role}`)
+      const sectionID = this.showSectionIdErrReport === true ? `Section ID: ${this.sectionId}` : ''
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role} ${sectionID}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
