@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Backdrop, Box, Button, CircularProgress, Grid, List, ListItem, makeStyles, Typography
+  Backdrop, Box, Button, CircularProgress, Grid, List, ListItem, Paper, makeStyles, Typography
 } from '@material-ui/core'
 
 import APIErrorMessage from './APIErrorMessage'
@@ -72,6 +72,10 @@ const useStyles = makeStyles((theme) => ({
   table: {
     paddingLeft: 10,
     paddingRight: 10
+  },
+  preexisting: {
+    marginTop: theme.spacing(2),
+    padding: theme.spacing(2)
   }
 }))
 
@@ -387,7 +391,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <Typography>
         Accounts already exist in Canvas for the following emails:
       </Typography>
-      <List>{users.map((u, i) => <ListItem key={i}>{u}</ListItem>)}</List>
+      <List style={{ maxHeight: 300 }}>
+        {users.map((u, i) => <ListItem key={i} tabIndex={0}>{u}</ListItem>)}
+      </List>
       </>
     )
   }
@@ -396,7 +402,11 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     const tableBlock = (
       <>
       <APIErrorsTable errors={processResult.errors} />
-      {renderPreexistingMessage}
+      {processResult.preexistingUsers.length > 0 && (
+        <Paper className={classes.preexisting}>
+          {renderPreexistingMessage(processResult.preexistingUsers)}
+        </Paper>
+      )}
       </>
     )
 
