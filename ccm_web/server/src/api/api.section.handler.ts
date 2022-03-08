@@ -98,8 +98,8 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const sectionID = this.showSectionIdErrReport === true ? `Section ID: ${this.sectionId}` : ''
-      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role} ${sectionID}`)
+      const sectionId = this.showSectionIdErrReport ? `; Section ID: ${this.sectionId}` : ''
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role}${sectionId}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]
