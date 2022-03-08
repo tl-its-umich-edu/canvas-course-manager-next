@@ -416,7 +416,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderSuccess = (preexistingUsers?: string[]): JSX.Element => {
+  const renderSuccess = (preexistingUsers: string[]): JSX.Element => {
     const message = (
       <>
       <Typography>
@@ -425,7 +425,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <Typography>
         New users have also been added to Canvas and sent an email invitation to choose a login method.
       </Typography>
-      {preexistingUsers !== undefined && renderPreexistingMessage(preexistingUsers)}
+      {preexistingUsers.length > 0 && renderPreexistingMessage(preexistingUsers)}
       </>
     )
     const nextAction = (
