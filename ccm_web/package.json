@@ -32,6 +32,7 @@
     "@nestjs/sequelize": "^8.0.0",
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/swagger": "^5.1.4",
+    "@nestjs/terminus": "^8.0.4",
     "@react-hook/debounce": "^4.0.0",
     "axios": "^0.24.0",
     "class-transformer": "^0.4.0",

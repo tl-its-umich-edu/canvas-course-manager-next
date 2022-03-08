@@ -12,6 +12,7 @@ import { APIModule } from './api/api.module'
 import { AuthModule } from './auth/auth.module'
 import { CanvasModule } from './canvas/canvas.module'
 import { CanvasToken } from './canvas/canvas.model'
+import { HealthModule } from './health/health.module'
 import { LTIModule } from './lti/lti.module'
 import { UserModule } from './user/user.module'
 import { User } from './user/user.model'
@@ -39,7 +40,7 @@ const logger = baseLogger.child({ filePath: __filename })
             configService.get('server.isDev', { infer: true }) ? path.join('dist', 'client') : 'client'
           )
         ),
-        exclude: ['/api/*', '/auth/*', '/canvas/*', '/lti/*']
+        exclude: ['/api/*', '/auth/*', '/canvas/*', '/health/*', '/lti/*']
       }])
     }),
     UserModule,
@@ -61,7 +62,8 @@ const logger = baseLogger.child({ filePath: __filename })
       })
     }),
     CanvasModule,
-    APIModule
+    APIModule,
+    HealthModule
   ],
   providers: [
     {
