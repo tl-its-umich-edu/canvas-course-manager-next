@@ -4,7 +4,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 
-import { UserEnrollmentType } from '../../canvas/canvas.interfaces'
+import { ClientEnrollmentType } from '../../canvas/canvas.interfaces'
 
 export class SectionEnrollmentDto {
   @ApiProperty()
@@ -12,19 +12,19 @@ export class SectionEnrollmentDto {
   @MaxLength(255)
   loginId: string
 
-  @ApiProperty({ enum: UserEnrollmentType })
+  @ApiProperty({ enum: ClientEnrollmentType })
   @IsNotEmpty()
-  @IsIn(Object.values(UserEnrollmentType))
-  type: UserEnrollmentType
+  @IsIn(Object.values(ClientEnrollmentType))
+  role: ClientEnrollmentType
 
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
   sectionId: number
 
-  constructor (loginId: string, type: UserEnrollmentType, sectionId: number) {
+  constructor (loginId: string, role: ClientEnrollmentType, sectionId: number) {
     this.loginId = loginId
-    this.type = type
+    this.role = role
     this.sectionId = sectionId
   }
 }

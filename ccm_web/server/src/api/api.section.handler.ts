@@ -4,7 +4,7 @@ import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -18,11 +18,13 @@ Handler class for Canvas API calls dealing with a specific section (i.e. those b
 export class SectionApiHandler {
   requestor: CanvasRequestor
   sectionId: number
+  showSectionIdErrReport = false
   customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number, customCanvasRoles?: CustomCanvasRoleData) {
+  constructor (requestor: CanvasRequestor, sectionId: number, showSectionIdErrReport = false, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
+    this.showSectionIdErrReport = showSectionIdErrReport
     this.customCanvasRoles = customCanvasRoles
   }
 
@@ -56,7 +58,7 @@ export class SectionApiHandler {
       .replace(/@([^@.]+\.)*umich\.edu$/gi, '')
       .replace('@', '+')
 
-    const enrollmentType = user.type
+    const enrollmentType = getCanvasRole(user.role)
     const roleParams = (
       this.customCanvasRoles !== undefined &&
       Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
@@ -96,7 +98,8 @@ export class SectionApiHandler {
         type
       }
     } catch (error) {
-      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.type}`)
+      const sectionId = this.showSectionIdErrReport ? `; Section ID: ${this.sectionId}` : ''
+      const errorResponse = handleAPIError(error, `Login ID: ${loginId}; Role: ${user.role}${sectionId}`)
       return {
         statusCode: errorResponse.canvasStatusCode,
         errors: [errorResponse]

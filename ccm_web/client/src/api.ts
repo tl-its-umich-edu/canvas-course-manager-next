@@ -83,7 +83,7 @@ export const addCourseSections = async (courseId: number, sectionNames: string[]
 
 export interface AddSectionEnrollment {
   loginId: string
-  type: string
+  role: string
 }
 
 interface AddEnrollmentWithSectionId extends AddSectionEnrollment {

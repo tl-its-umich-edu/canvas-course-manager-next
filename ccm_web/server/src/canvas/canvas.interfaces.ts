@@ -93,6 +93,29 @@ export enum UserEnrollmentType {
   Librarian = CanvasRole.Librarian,
   Assistant = CanvasRole.Assistant
 }
+export const clientToCanvasRoleMap: Record<ClientEnrollmentType, UserEnrollmentType> = {
+  student: UserEnrollmentType.StudentEnrollment,
+  teacher: UserEnrollmentType.TeacherEnrollment,
+  ta: UserEnrollmentType.TaEnrollment,
+  observer: UserEnrollmentType.ObserverEnrollment,
+  designer: UserEnrollmentType.DesignerEnrollment,
+  assistant: UserEnrollmentType.Assistant,
+  librarian: UserEnrollmentType.Librarian
+}
+
+export enum ClientEnrollmentType {
+  Student = 'student',
+  Teacher = 'teacher',
+  TA = 'ta',
+  Observer = 'observer',
+  Designer = 'designer',
+  Assistant = 'assistant',
+  Librarian = 'librarian'
+}
+
+export const getCanvasRole = (clientName: ClientEnrollmentType): UserEnrollmentType => {
+  return clientToCanvasRoleMap[clientName]
+}
 
 // valid role types for LTI launch
 // as defined in https://docs.google.com/spreadsheets/d/1pm5y9FX0zrDX7Zy3mOyDLxmA-iKoWfmlxvbtNkWg6Zw/edit#gid=1360549473

@@ -18,7 +18,7 @@ import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
-  getCanvasRole, injectCourseName
+  injectCourseName
 } from '../models/canvas'
 import {
   EnrollmentRecord, isEnrollmentRecord, MAX_ENROLLMENT_MESSAGE, MAX_ENROLLMENT_RECORDS,
@@ -75,7 +75,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
-      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, type: getCanvasRole(e.role) }))
+      const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
       await api.addSectionEnrollments(section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
