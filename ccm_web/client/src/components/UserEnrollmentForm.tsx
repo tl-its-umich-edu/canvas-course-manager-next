@@ -88,7 +88,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       const { email, firstName, lastName, role } = enrollment
       const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }])
       let createdAndInvited = false
-      if (result.length > 0 && result[0].userCreated && result[0].invited === true) {
+      if (result.length > 0 && result[0].userCreated) {
         createdAndInvited = true
         await api.addSectionEnrollments(sectionId, [{ loginId: email, type: getCanvasRole(role) }])
       }
