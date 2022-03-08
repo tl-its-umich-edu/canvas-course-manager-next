@@ -13,17 +13,25 @@ const isExternalUserResultBase = (v: unknown): v is ExternalUserResultBase => {
   return hasKeys(v, ['email']) && typeof v.email === 'string'
 }
 
-export interface ExternalUserSuccess extends ExternalUserResultBase {
-  userCreated: boolean
-  invited?: true
+interface ExternalUserSuccessNotCreated extends ExternalUserResultBase {
+  userCreated: false
 }
+
+interface ExternalUserSuccessCreatedAndInvited extends ExternalUserResultBase {
+  userCreated: true
+  invited: true
+}
+
+export type ExternalUserSuccess = ExternalUserSuccessNotCreated | ExternalUserSuccessCreatedAndInvited
 
 export const isExternalUserSuccess = (v: unknown): v is ExternalUserSuccess => {
   return (
     isExternalUserResultBase(v) &&
-    hasKeys(v, ['userCreated', 'invited']) &&
-    typeof v.userCreated === 'boolean' &&
-    (v.invited === undefined || v.invited === true)
+    hasKeys(v, ['userCreated']) &&
+    (
+      (v.userCreated === true && hasKeys(v, ['invited']) && v.invited === true) ||
+      (v.userCreated === false)
+    )
   )
 }
 
