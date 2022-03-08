@@ -383,8 +383,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const renderSuccess = (result: ExternalEnrollmentSummary): JSX.Element => {
     const messageText = (
       result.createdAndInvited
-        ? 'The existing user was'
-        : 'The new user was added to Canvas, sent an email invitation to choose a login method, and'
+        ? 'The new user was added to Canvas, sent an email invitation to choose a login method, and'
+        : 'The existing user was'
+
     ) + ' enrolled in the selected section!'
     const nextAction = (
       <span>See the user in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
