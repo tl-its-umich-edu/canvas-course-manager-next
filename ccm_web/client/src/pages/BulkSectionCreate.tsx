@@ -401,7 +401,7 @@ Section 001`
         return renderSuccess()
       case BulkSectionCreatePageState.CreateSectionsError:
         if (addSectionsError !== undefined) {
-          return <BulkApiErrorContent error={addSectionsError} file={file} tryAgain={resetPageState} />
+          return <BulkApiErrorContent error={addSectionsError} file={file} tryAgain={resetPageState} context='creating a new section' />
         }
         return
       default:

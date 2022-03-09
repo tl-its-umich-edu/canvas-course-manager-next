@@ -315,7 +315,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         return renderUpload()
       case CSVWorkflowState.Review:
         if (addEnrollmentsError !== undefined) {
-          return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={resetUpload} />
+          return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={resetUpload} context='enrolling a user' />
         }
         if (validEnrollments !== undefined) return renderReview(validEnrollments)
         return <ErrorAlert />
