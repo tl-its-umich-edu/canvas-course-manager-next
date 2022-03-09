@@ -90,7 +90,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       let createdAndInvited = false
       if (result.length > 0 && result[0].userCreated) {
         createdAndInvited = true
-        await api.addSectionEnrollments(sectionId, [{ loginId: email, type: getCanvasRole(role) }])
+        await api.addSectionEnrollments(sectionId, [{ loginId: email, role }])
       }
       return { createdAndInvited, enrolled: true }
     },

@@ -20,8 +20,7 @@ import CanvasSettingsLink from './CanvasSettingsLink'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
-  getCanvasRole, injectCourseName
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, injectCourseName
 } from '../models/canvas'
 import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
 import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser'
@@ -128,7 +127,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       if (enrollmentsToAdd.length > 0) {
         try {
           await api.addSectionEnrollments(
-            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, type: getCanvasRole(e.role) }))
+            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role }))
           )
         } catch (error: unknown) {
           if (error instanceof CanvasError) {
