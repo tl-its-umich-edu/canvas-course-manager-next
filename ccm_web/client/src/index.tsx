@@ -10,6 +10,11 @@ import ccmTheme from './theme'
 import AccessDenied from './pages/AccessDenied'
 import LaunchError from './pages/LaunchError'
 
+const helpContactProps = {
+  email: '4help@umich.edu',
+  helpLink: 'https://its.umich.edu/help'
+}
+
 ReactDOM.render(
   <React.StrictMode>
    <ThemeProvider theme={ccmTheme}>
@@ -17,10 +22,10 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <Route exact={true} path='/access-denied'>
-            <AccessDenied email='4help@umich.edu' helpLink='https://its.umich.edu/help' />
+            <AccessDenied {...helpContactProps} />
           </Route>
           <Route exact={true} path='/launch-error'>
-            <LaunchError />
+            <LaunchError {...helpContactProps} />
           </Route>
           <Route><App /></Route>
         </Switch>
