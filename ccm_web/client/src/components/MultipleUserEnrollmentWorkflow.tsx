@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Backdrop, Box, Button, CircularProgress, Grid, List, ListItem, Paper, makeStyles, Typography
+  Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography
 } from '@material-ui/core'
 
 import APIErrorMessage from './APIErrorMessage'
@@ -80,7 +80,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface APIProcessResult {
-  preexistingUsers: string[]
   errors: ErrorDescription[]
 }
 
@@ -123,7 +122,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           throw error
         }
       }
-      const preexistingUsers = successes.filter(s => !s.userCreated).map(s => s.email)
       const allUsersToEnroll = successes.map(s => s.email)
       const enrollmentsToAdd = enrollments.filter(e => allUsersToEnroll.includes(e.email))
 
@@ -141,7 +139,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         }
       }
 
-      return { preexistingUsers, errors }
+      return { errors }
     },
     (result: APIProcessResult) => {
       setProcessResult(result)
@@ -385,36 +383,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderPreexistingMessage = (users: string[]): JSX.Element => {
-    return (
-      <>
-      <Typography>
-        Accounts already exist in Canvas for the following emails:
-      </Typography>
-      <List style={{ maxHeight: 300 }}>
-        {users.map((u, i) => <ListItem key={i} tabIndex={0}>{u}</ListItem>)}
-      </List>
-      </>
-    )
-  }
-
   const renderPartialSuccess = (processResult: APIProcessResult): JSX.Element => {
-    const tableBlock = (
-      <>
-      <APIErrorsTable errors={processResult.errors} />
-      {processResult.preexistingUsers.length > 0 && (
-        <Paper className={classes.preexisting}>
-          {renderPreexistingMessage(processResult.preexistingUsers)}
-        </Paper>
-      )}
-      </>
-    )
-
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
       <RowLevelErrorsContent
-        table={tableBlock}
+        table={<APIErrorsTable errors={processResult.errors} />}
         title='Some errors occurred'
         resetUpload={() => {
           handleResetUpload()
@@ -426,7 +400,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderSuccess = (preexistingUsers: string[]): JSX.Element => {
+  const renderSuccess = (): JSX.Element => {
     const message = (
       <>
       <Typography>
@@ -435,7 +409,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <Typography>
         New users have also been added to Canvas and sent an email invitation to choose a login method.
       </Typography>
-      {preexistingUsers.length > 0 && renderPreexistingMessage(preexistingUsers)}
       </>
     )
     const nextAction = (
@@ -479,7 +452,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
         if (processResult === undefined) return <ErrorAlert />
-        return renderSuccess(processResult.preexistingUsers)
+        return renderSuccess()
       default:
         return <ErrorAlert />
     }
