@@ -1,26 +1,19 @@
 import React from 'react'
 
-import { makeStyles, Typography } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
 
 import InlineErrorAlert from '../components/InlineErrorAlert'
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    margin: theme.spacing(2)
-  }
-}))
+import Layout from '../components/Layout'
 
 export default function LaunchError (): JSX.Element {
-  const classes = useStyles()
-
   return (
-    <div className={classes.container}>
+    <Layout>
       <InlineErrorAlert>
         <Typography variant='subtitle1' component='h1'>Launch Error</Typography>
         <Typography>
           The tool could not be launched. This is likely due to settings related to cookies on your Internet browser.
         </Typography>
       </InlineErrorAlert>
-    </div>
+    </Layout>
   )
 }
