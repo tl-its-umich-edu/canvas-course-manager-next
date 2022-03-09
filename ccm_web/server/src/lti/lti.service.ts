@@ -113,6 +113,10 @@ export class LTIService implements BeforeApplicationShutdown {
       })
     })
 
+    provider.onInvalidToken(async (req: Request, res: Response) => {
+      return res.redirect('/launch-error')
+    })
+
     await provider.deploy({ serverless: true })
 
     await provider.registerPlatform({
