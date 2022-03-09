@@ -11,7 +11,8 @@ export default function LaunchError (): JSX.Element {
       <InlineErrorAlert>
         <Typography variant='subtitle1' component='h1'>Launch Error</Typography>
         <Typography>
-          The tool could not be launched. This is likely due to settings related to cookies on your Internet browser.
+          The tool could not be launched. It is likely your browser is blocking third-party cookies,
+          which are required for this application.
         </Typography>
       </InlineErrorAlert>
     </Layout>
