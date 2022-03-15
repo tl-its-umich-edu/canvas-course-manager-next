@@ -20,7 +20,7 @@ const logger = baseLogger.child({ filePath: __filename })
 
 const generateToken = promisify(crypto.randomBytes)
 
-@UseGuards(JwtAuthGuard, SessionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('canvas')
 export class CanvasController {
   constructor (private readonly canvasService: CanvasService) {}

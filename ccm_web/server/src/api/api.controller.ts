@@ -41,7 +41,7 @@ import {
   ExternalUserDto, ExternalUsersDto
 } from './dtos/api.external.users.dto'
 
-@UseGuards(JwtAuthGuard, SessionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('api')
 export class APIController {
   constructor (private readonly apiService: APIService) { }
