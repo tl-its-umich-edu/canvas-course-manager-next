@@ -428,7 +428,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         if (validEnrollments === undefined || selectedSection === undefined) return <ErrorAlert />
         if (addExternalEnrollmentsError !== undefined) {
           const errorMessage = (
-            <APIErrorMessage key={0} error={addExternalEnrollmentsError} context='processing external users' />
+            <APIErrorMessage key={0} error={addExternalEnrollmentsError} context='processing non-UM users' />
           )
           return (
             <ErrorAlert

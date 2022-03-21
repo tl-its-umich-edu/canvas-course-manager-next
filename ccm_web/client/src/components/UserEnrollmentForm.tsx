@@ -279,7 +279,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       } else {
         const context = addNewExternalEnrollmentError instanceof CanvasError
           ? 'enrolling the new user in a section'
-          : 'adding the new external user'
+          : 'adding the new non-UM user'
         return (
           <ErrorAlert
             messages={[<APIErrorMessage key={0} context={context} error={addNewExternalEnrollmentError} />]}
