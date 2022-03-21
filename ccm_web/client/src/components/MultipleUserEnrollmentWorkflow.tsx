@@ -71,16 +71,8 @@ const useStyles = makeStyles((theme) => ({
   table: {
     paddingLeft: 10,
     paddingRight: 10
-  },
-  preexisting: {
-    marginTop: theme.spacing(2),
-    padding: theme.spacing(2)
   }
 }))
-
-interface APIProcessResult {
-  errors: ErrorDescription[]
-}
 
 interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
@@ -100,13 +92,13 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
-  const [processResult, setProcessResult] = useState<APIProcessResult | undefined>(undefined)
+  const [processErrors, setProcessErrors] = useState<ErrorDescription[] | undefined>(undefined)
 
   const [
     doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError,
     clearAddExternalEnrollmentsError
   ] = usePromise(
-    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<APIProcessResult> => {
+    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<ErrorDescription[]> => {
       let successes: ExternalUserSuccess[]
       const errors: ErrorDescription[] = []
       try {
@@ -138,11 +130,11 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         }
       }
 
-      return { errors }
+      return errors
     },
-    (result: APIProcessResult) => {
-      setProcessResult(result)
-      if (result.errors.length === 0) setActiveStep(CSVWorkflowStep.Confirmation)
+    (errors: ErrorDescription[]) => {
+      setProcessErrors(errors)
+      if (errors.length === 0) setActiveStep(CSVWorkflowStep.Confirmation)
     }
   )
 
@@ -382,16 +374,16 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
-  const renderPartialSuccess = (processResult: APIProcessResult): JSX.Element => {
+  const renderPartialSuccess = (errors: ErrorDescription[]): JSX.Element => {
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
       <RowLevelErrorsContent
-        table={<APIErrorsTable errors={processResult.errors} />}
+        table={<APIErrorsTable errors={errors} />}
         title='Some errors occurred'
         resetUpload={() => {
           handleResetUpload()
-          setProcessResult(undefined)
+          setProcessErrors(undefined)
           setActiveStep(CSVWorkflowStep.Upload)
         }}
       />
@@ -447,10 +439,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
             />
           )
         }
-        if (processResult !== undefined) return renderPartialSuccess(processResult)
+        if (processErrors !== undefined) return renderPartialSuccess(processErrors)
         return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
-        if (processResult === undefined) return <ErrorAlert />
         return renderSuccess()
       default:
         return <ErrorAlert />
