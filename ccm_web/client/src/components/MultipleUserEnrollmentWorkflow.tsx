@@ -381,6 +381,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <RowLevelErrorsContent
         table={<APIErrorsTable errors={errors} />}
         title='Some errors occurred'
+        message={<Typography>One or more errors occurred while processing non-UM users.</Typography>}
         resetUpload={() => {
           handleResetUpload()
           setProcessErrors(undefined)
