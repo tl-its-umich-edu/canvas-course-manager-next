@@ -61,7 +61,11 @@ async function bootstrap (): Promise<void> {
     })
   )
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    forbidUnknownValues: true
+  }))
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()
