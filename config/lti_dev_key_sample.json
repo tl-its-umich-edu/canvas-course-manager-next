@@ -1,5 +1,5 @@
 {
-  "title": "Canvas Course Manager",
+  "title": "pu_ccm_lti",
   "scopes": [],
   "extensions": [
     {
@@ -10,12 +10,12 @@
           {
             "placement": "course_navigation",
             "message_type": "LtiResourceLinkRequest",
-            "target_link_uri": "https://{ccm_app_hostname}/lti",
+            "target_link_uri": "https://e973-68-43-190-24.ngrok.io/lti",
             "visibility": "admins"
           }
         ]
       },
-      "domain": "{ccm_app_hostname}",
+      "domain": "e973-68-43-190-24.ngrok.io",
       "privacy_level": "public"
     }
   ],
@@ -27,7 +27,7 @@
     "login_id": "$Canvas.user.loginId",
     "course_id": "$Canvas.course.id"
   },
-  "public_jwk_url": "https://{ccm_app_hostname}/lti/keys",
-  "target_link_uri": "https://{ccm_app_hostname}/lti",
-  "oidc_initiation_url": "https://{ccm_app_hostname}/lti/login"
+  "public_jwk_url": "https://e973-68-43-190-24.ngrok.io/lti/keys",
+  "target_link_uri": "https://e973-68-43-190-24.ngrok.io/lti",
+  "oidc_initiation_url": "https://e973-68-43-190-24.ngrok.io/lti/login"
 }
