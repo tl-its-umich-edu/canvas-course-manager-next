@@ -36,7 +36,7 @@ export const isExternalUserSuccess = (v: unknown): v is ExternalUserSuccess => {
   )
 }
 
-interface ExternalUserCreationFailure extends ExternalUserResultBase{
+interface ExternalUserCreationFailure extends ExternalUserResultBase {
   userCreated: CanvasAPIErrorPayload
 }
 
