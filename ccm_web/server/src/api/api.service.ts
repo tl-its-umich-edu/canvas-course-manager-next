@@ -172,11 +172,8 @@ export class APIService {
     if (newUserEmails.length > 0) {
       inviteResult = await this.invitationService.sendInvitations(newUserEmails)
       const inviteData = isCirrusErrorData(inviteResult) || inviteResult === undefined ? inviteResult : true
-      newUserEmails.forEach(email => {
-        const index = userResults.findIndex(r => r.email === email)
-        if (index !== -1) {
-          userResults[index].invited = inviteData
-        }
+      userResults.forEach(u => {
+        if (newUserEmails.includes(u.email)) u.invited = inviteData
       })
     }
 
