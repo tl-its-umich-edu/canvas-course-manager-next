@@ -46,6 +46,13 @@ interface ICanvasError {
   errors: CanvasAPIErrorPayload[]
 }
 
+export interface ErrorDescription {
+  input?: string
+  context: string
+  errorText: string
+  action: string
+}
+
 enum RecommendedAction {
   TryAgainOrContact = 'Try again or contact support for assistance.',
   CheckOrContact = 'Check inputs or contact support for assistance.',
@@ -73,13 +80,6 @@ class CanvasError extends Error implements ICanvasError {
           : RecommendedAction.Contact
     }))
   }
-}
-
-export interface ErrorDescription {
-  input?: string
-  context: string
-  errorText: string
-  action: string
 }
 
 class ExternalUserProcessError extends Error {
