@@ -1,6 +1,7 @@
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  ArrayUnique,
   IsArray,
   IsEmail,
   IsNotEmpty,
@@ -40,6 +41,7 @@ export class ExternalUsersDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(200)
   @ValidateNested({ each: true })
+  @ArrayUnique((i: ExternalUserDto) => i.email)
   @Type(() => ExternalUserDto)
   users: ExternalUserDto[]
 
