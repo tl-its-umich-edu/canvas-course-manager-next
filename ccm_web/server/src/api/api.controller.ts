@@ -138,11 +138,11 @@ export class APIController {
 
   // Uses admin token, so InvalidTokenInterceptor omitted
   @Get('admin/user/:loginId')
-  async getUserInfoAsAdmin (
+  async checkIfUserExistsAsAdmin (
     @Param('loginId') loginId: string
   ): Promise<void> {
-    const result = await this.apiService.getUserInfoAsAdmin(loginId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    const result = await this.apiService.checkIfUserExistsAsAdmin(loginId)
+    if (result !== undefined) throw new HttpException(result, result.statusCode)
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

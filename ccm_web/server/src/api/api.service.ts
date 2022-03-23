@@ -18,7 +18,6 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
-  CanvasUser,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -199,10 +198,11 @@ export class APIService {
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
-  async getUserInfoAsAdmin (loginId: string): Promise<CanvasUser | APIErrorData> {
+  async checkIfUserExistsAsAdmin (loginId: string): Promise<APIErrorData | undefined> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor)
-    return await adminHandler.getUserInfo(loginId)
+    const result = await adminHandler.getUserInfo(loginId)
+    if (isAPIErrorData(result)) return result
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
