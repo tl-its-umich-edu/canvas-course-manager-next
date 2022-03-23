@@ -4,7 +4,8 @@ See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/sr
 */
 
 import redirect from './redirect'
-import { APIErrorData, APIErrorPayload, isCanvasAPIErrorData } from '../models/models'
+import { ExternalUserResult, isExternalUserAPIErrorData, isExternalUserFailure } from '../models/externalUser'
+import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorData } from '../models/models'
 
 /*
 Custom Error types
@@ -42,16 +43,79 @@ class NotFoundError extends Error {
 }
 
 interface ICanvasError {
-  errors: APIErrorPayload[]
+  errors: CanvasAPIErrorPayload[]
+}
+
+export interface ErrorDescription {
+  input?: string
+  context: string
+  errorText: string
+  action: string
+}
+
+enum RecommendedAction {
+  TryAgainOrContact = 'Try again or contact support for assistance.',
+  CheckOrContact = 'Check inputs or contact support for assistance.',
+  Contact = 'Contact support for assistance.'
 }
 
 class CanvasError extends Error implements ICanvasError {
   public name = 'CanvasError'
-  errors: APIErrorPayload[]
+  errors: CanvasAPIErrorPayload[]
 
-  constructor (errors: APIErrorPayload[]) {
+  constructor (errors: CanvasAPIErrorPayload[]) {
     super('Received one or more errors associated with this request from Canvas')
     this.errors = errors
+  }
+
+  describeErrors (context?: string): ErrorDescription[] {
+    return this.errors.map(e => ({
+      input: e.failedInput ?? 'no input',
+      context: `Error occurred while ${context ?? 'communicating with Canvas'}.`,
+      errorText: e.message,
+      action: e.canvasStatusCode >= 500
+        ? RecommendedAction.TryAgainOrContact
+        : e.canvasStatusCode >= 400
+          ? RecommendedAction.CheckOrContact
+          : RecommendedAction.Contact
+    }))
+  }
+}
+
+class ExternalUserProcessError extends Error {
+  public name = 'ExternalUserProcessError'
+  data: ExternalUserResult[]
+
+  constructor (data: ExternalUserResult[]) {
+    super(
+      'Received one or more errors while creating an external user in Canvas ' +
+      'and inviting them to select a login method using Cirrus.'
+    )
+    this.data = data
+  }
+
+  describeErrors (): ErrorDescription[] {
+    const descriptions: ErrorDescription[] = []
+    this.data.forEach(result => {
+      if (isExternalUserFailure(result)) {
+        if (result.userCreated !== true) {
+          descriptions.push({
+            input: result.email,
+            context: 'Error occurred while creating the new user in Canvas.',
+            errorText: result.userCreated.message,
+            action: RecommendedAction.TryAgainOrContact
+          })
+        } else {
+          descriptions.push({
+            input: result.email,
+            context: 'Error occurred while sending the user an email invitation to choose a login method.',
+            errorText: result.invited.messages.join(' '),
+            action: RecommendedAction.Contact
+          })
+        }
+      }
+    })
+    return descriptions
   }
 }
 
@@ -67,6 +131,7 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 
   if (isCanvasAPIErrorData(errorBody)) throw new CanvasError(errorBody.errors)
+  if (isExternalUserAPIErrorData(errorBody)) throw new ExternalUserProcessError(errorBody.data)
 
   const apiErrorMessage = Array.isArray(errorBody.message) ? errorBody.message.join(' ') : errorBody.message
   switch (resp.status) {
@@ -84,4 +149,4 @@ const handleErrors = async (resp: Response): Promise<void> => {
   }
 }
 
-export { handleErrors as default, CanvasError }
+export { handleErrors as default, CanvasError, ExternalUserProcessError }

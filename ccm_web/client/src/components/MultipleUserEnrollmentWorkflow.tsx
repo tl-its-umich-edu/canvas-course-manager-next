@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import {
+  Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography
+} from '@material-ui/core'
 
 import APIErrorMessage from './APIErrorMessage'
-import BulkApiErrorContent from './BulkApiErrorContent'
+import APIErrorsTable from './APIErrorsTable'
 import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
 import ConfirmDialog from './ConfirmDialog'
 import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget'
@@ -15,12 +17,13 @@ import SuccessCard from './SuccessCard'
 import ValidationErrorTable from './ValidationErrorTable'
 import WorkflowStepper from './WorkflowStepper'
 import CanvasSettingsLink from './CanvasSettingsLink'
+import * as api from '../api'
 import usePromise from '../hooks/usePromise'
 import {
-  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType,
-  injectCourseName
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, injectCourseName
 } from '../models/canvas'
 import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
+import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
 import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
@@ -31,6 +34,7 @@ import {
 } from '../utils/enrollmentValidators'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
+import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors'
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -88,14 +92,50 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
 
+  const [processErrors, setProcessErrors] = useState<ErrorDescription[] | undefined>(undefined)
+
   const [
-    doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError, clearAddExternalEnrollmentsError
+    doAddExternalEnrollments, isAddExternalEnrollmentsLoading, addExternalEnrollmentsError,
+    clearAddExternalEnrollmentsError
   ] = usePromise(
-    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]) => {
-      const promise = new Promise(resolve => setTimeout(resolve, 3000)) // Mocking this for now
-      return await promise
+    async (sectionId: number, enrollments: AddNewExternalUserEnrollment[]): Promise<ErrorDescription[]> => {
+      let successes: ExternalUserSuccess[]
+      const errors: ErrorDescription[] = []
+      try {
+        successes = await api.createExternalUsers(
+          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
+        )
+      } catch (error: unknown) {
+        if (error instanceof ExternalUserProcessError) {
+          errors.push(...error.describeErrors())
+          successes = error.data.filter(r => isExternalUserSuccess(r)) as ExternalUserSuccess[]
+        } else {
+          throw error
+        }
+      }
+      const allUsersToEnroll = successes.map(s => s.email)
+      const enrollmentsToAdd = enrollments.filter(e => allUsersToEnroll.includes(e.email))
+
+      if (enrollmentsToAdd.length > 0) {
+        try {
+          await api.addSectionEnrollments(
+            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role }))
+          )
+        } catch (error: unknown) {
+          if (error instanceof CanvasError) {
+            errors.push(...error.describeErrors('enrolling a user to a Canvas section'))
+          } else {
+            throw error
+          }
+        }
+      }
+
+      return errors
     },
-    () => { setActiveStep(CSVWorkflowStep.Confirmation) }
+    (errors: ErrorDescription[]) => {
+      setProcessErrors(errors)
+      if (errors.length === 0) setActiveStep(CSVWorkflowStep.Confirmation)
+    }
   )
 
   const handleResetUpload = (): void => {
@@ -334,13 +374,34 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
   }
 
+  const renderPartialSuccess = (errors: ErrorDescription[]): JSX.Element => {
+    return (
+      <>
+      {file !== undefined && <CSVFileName file={file} />}
+      <RowLevelErrorsContent
+        table={<APIErrorsTable errors={errors} includeContext />}
+        title='Some errors occurred'
+        message={<Typography>One or more errors occurred while processing non-UM users.</Typography>}
+        resetUpload={() => {
+          handleResetUpload()
+          setProcessErrors(undefined)
+          setActiveStep(CSVWorkflowStep.Upload)
+        }}
+      />
+      </>
+    )
+  }
+
   const renderSuccess = (): JSX.Element => {
-    // Need to process actual result here somehow
     const message = (
+      <>
       <Typography>
         Non-UM Users have been added to the selected section!
+      </Typography>
+      <Typography>
         New users have also been added to Canvas and sent an email invitation to choose a login method.
       </Typography>
+      </>
     )
     const nextAction = (
       <span>See the users in the course&apos;s sections on the <CanvasSettingsLink url={props.settingsURL} /> for your course.</span>
@@ -366,8 +427,20 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       case CSVWorkflowStep.Review:
         if (validEnrollments === undefined || selectedSection === undefined) return <ErrorAlert />
         if (addExternalEnrollmentsError !== undefined) {
-          return <BulkApiErrorContent error={addExternalEnrollmentsError} file={file} tryAgain={handleResetUpload} />
+          const errorMessage = (
+            <APIErrorMessage key={0} error={addExternalEnrollmentsError} context='processing non-UM users' />
+          )
+          return (
+            <ErrorAlert
+              messages={[errorMessage]}
+              tryAgain={() => {
+                handleResetUpload()
+                setActiveStep(CSVWorkflowStep.Upload)
+              }}
+            />
+          )
         }
+        if (processErrors !== undefined) return renderPartialSuccess(processErrors)
         return renderReview(selectedSection.id, validEnrollments)
       case CSVWorkflowStep.Confirmation:
         return renderSuccess()

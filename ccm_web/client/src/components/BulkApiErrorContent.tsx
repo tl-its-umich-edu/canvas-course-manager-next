@@ -1,7 +1,7 @@
 import React from 'react'
 import { Typography } from '@material-ui/core'
 
-import CanvasAPIErrorsTable from './CanvasAPIErrorsTable'
+import APIErrorsTable from './APIErrorsTable'
 import CSVFileName from './CSVFileName'
 import ErrorAlert from './ErrorAlert'
 import RowLevelErrorsContent from './RowLevelErrorsContent'
@@ -24,7 +24,7 @@ export default function BulkApiErrorContent (props: BulkApiErrorContentProps): J
           <>
           {file !== undefined && <CSVFileName file={file} />}
           <RowLevelErrorsContent
-            table={<CanvasAPIErrorsTable errors={error.errors} />}
+            table={<APIErrorsTable errors={error.describeErrors()} />}
             title='Some errors occurred'
             message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
             resetUpload={tryAgain}

@@ -33,8 +33,7 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
-  CourseWithSections,
-  CanvasUser
+  CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
 import { User } from '../user/user.model'
@@ -116,10 +115,12 @@ export class APIController {
   @Post('admin/createExternalUsers')
   async createExternalUsers (
     @Body() externalUsersData: ExternalUsersDto
-  ): Promise<ExternalUserData> {
+  ): Promise<ExternalUserData[]> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
     const result = await this.apiService.createExternalUsers(externalUsers)
-    if (!result.success) throw new HttpException(result.data, result.statusCode)
+    if (!result.success) {
+      throw new HttpException({ statusCode: result.statusCode, data: result.data }, result.statusCode)
+    }
     return result.data
   }
 
@@ -137,12 +138,11 @@ export class APIController {
 
   // Uses admin token, so InvalidTokenInterceptor omitted
   @Get('admin/user/:loginId')
-  async getUserInfoAsAdmin (
+  async checkIfUserExistsAsAdmin (
     @Param('loginId') loginId: string
-  ): Promise<CanvasUser> {
-    const result = await this.apiService.getUserInfoAsAdmin(loginId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
-    return result
+  ): Promise<void> {
+    const result = await this.apiService.checkIfUserExistsAsAdmin(loginId)
+    if (result !== undefined) throw new HttpException(result, result.statusCode)
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

@@ -1,7 +1,6 @@
 import { hasKeys } from '../typeUtils'
 
-import { CirrusErrorData, CirrusInvitationResponse } from '../invitation/cirrus-invitation.interfaces'
-import { CanvasUser } from '../canvas/canvas.interfaces'
+import { CirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
 
 export interface Globals {
   environment: 'production' | 'development'
@@ -34,14 +33,13 @@ export function isAPIErrorData (value: unknown): value is APIErrorData {
 }
 
 export interface ExternalUserData {
-  [email: string]: {
-    userCreated: CanvasUser | APIErrorData | false
-    invited?: CirrusInvitationResponse | CirrusErrorData
-  }
+  email: string
+  userCreated: boolean | APIErrorPayload
+  invited?: true | CirrusErrorData
 }
 
 interface ExternalUserCreationResultBase {
-  data: ExternalUserData
+  data: ExternalUserData[]
 }
 
 interface ExternalUserCreationFailureResult extends ExternalUserCreationResultBase {

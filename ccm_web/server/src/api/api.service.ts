@@ -4,7 +4,9 @@ import { ConfigService } from '@nestjs/config'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
-import { APIErrorData, Globals, isAPIErrorData, ExternalUserData, ExternalUserCreationResult } from './api.interfaces'
+import {
+  APIErrorData, APIErrorPayload, ExternalUserCreationResult, ExternalUserData, Globals, isAPIErrorData
+} from './api.interfaces'
 import { SectionApiHandler } from './api.section.handler'
 import { createLimitedPromises, determineStatusCode, handleAPIError, makeResponse } from './api.utils'
 import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
@@ -16,7 +18,6 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
-  CanvasUser,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -138,41 +139,49 @@ export class APIService {
     const adminHandler = new AdminApiHandler(adminRequestor)
     const newUserAccountID = this.configService.get('canvas.newUserAccountID', { infer: true })
 
-    const resultData: ExternalUserData = {}
-    const createErrors: APIErrorData[] = []
+    const userResults: ExternalUserData[] = []
+    const createErrors: APIErrorPayload[] = []
     const newUserEmails: string[] = []
     const createUserResponses = await adminHandler.createExternalUsers(externalUsers, newUserAccountID)
 
     // Handle create user responses: success, failure, and already exists
     createUserResponses.forEach(({ email, result }) => {
+      let userCreated: boolean | APIErrorPayload
       if (isAPIErrorData(result)) {
-        createErrors.push(result)
-      } else if (result !== false) {
+        if (result.errors.length !== 1) {
+          throw Error(`Expected one error payload from Canvas (found ${result.errors.length})`)
+        }
+        userCreated = result.errors[0]
+        createErrors.push(result.errors[0])
+      } else if (result === false) {
+        userCreated = result
+      } else {
+        userCreated = true
         newUserEmails.push(email)
       }
-      resultData[email] = { userCreated: result }
+      userResults.push({ email, userCreated })
     })
     if (createErrors.length === externalUsers.length) {
-      const statusCode = determineStatusCode(createErrors.map(e => e.statusCode))
-      return { success: false, statusCode, data: resultData }
+      const statusCode = determineStatusCode(createErrors.map(e => e.canvasStatusCode))
+      return { success: false, statusCode, data: userResults }
     }
 
     // Invite only new users
     let inviteResult: CirrusInvitationResponse | CirrusErrorData | undefined
     if (newUserEmails.length > 0) {
       inviteResult = await this.invitationService.sendInvitations(newUserEmails)
-      newUserEmails.forEach(email => {
-        resultData[email].invited = inviteResult
+      const inviteData = isCirrusErrorData(inviteResult) || inviteResult === undefined ? inviteResult : true
+      userResults.forEach(u => {
+        if (newUserEmails.includes(u.email)) u.invited = inviteData
       })
     }
 
     if (isCirrusErrorData(inviteResult) || createErrors.length > 0) {
-      const statusCodes = createErrors.map(e => e.statusCode)
+      const statusCodes = createErrors.map(e => e.canvasStatusCode)
       if (isCirrusErrorData(inviteResult)) statusCodes.push(inviteResult.statusCode)
-      return { success: false, data: resultData, statusCode: determineStatusCode(statusCodes) }
+      return { success: false, data: userResults, statusCode: determineStatusCode(statusCodes) }
     }
-
-    return { success: true, data: resultData }
+    return { success: true, data: userResults }
   }
 
   async createSectionEnrollments (user: User, enrollments: SectionEnrollmentDto[]): Promise<CanvasEnrollment[] | APIErrorData> {
@@ -189,10 +198,11 @@ export class APIService {
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
-  async getUserInfoAsAdmin (loginId: string): Promise<CanvasUser | APIErrorData> {
+  async checkIfUserExistsAsAdmin (loginId: string): Promise<APIErrorData | undefined> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor)
-    return await adminHandler.getUserInfo(loginId)
+    const result = await adminHandler.getUserInfo(loginId)
+    if (isAPIErrorData(result)) return result
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {

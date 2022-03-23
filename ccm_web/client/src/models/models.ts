@@ -2,6 +2,8 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
+import { hasKeys } from './typeUtils'
+
 // Globals
 
 /* Left side = canvas display value
@@ -44,16 +46,18 @@ export interface Globals {
 
 // API Errors
 
-export interface APIErrorPayload {
+export interface CanvasAPIErrorPayload {
   canvasStatusCode: number
   message: string
   failedInput: string | null
 }
 
-const isAPIErrorPayload = (v: unknown): v is APIErrorPayload => {
+export const isCanvasAPIErrorPayload = (v: unknown): v is CanvasAPIErrorPayload => {
   return (
-    (typeof v === 'object' && v !== null) &&
-    'canvasStatusCode' in v && 'message' in v && 'failedInput' in v
+    hasKeys(v, ['canvasStatusCode', 'message', 'failedInput']) &&
+    typeof v.canvasStatusCode === 'number' &&
+    typeof v.message === 'string' &&
+    (v.failedInput === null || typeof v.failedInput === 'string')
   )
 }
 
@@ -65,14 +69,14 @@ export interface APIErrorData extends Record<string, unknown> {
 }
 
 export interface CanvasAPIErrorData extends APIErrorData {
-  errors: APIErrorPayload[]
+  errors: CanvasAPIErrorPayload[]
 }
 
 export const isCanvasAPIErrorData = (errorData: APIErrorData): errorData is CanvasAPIErrorData => {
   return (
     'errors' in errorData &&
     Array.isArray(errorData.errors) &&
-    errorData.errors.every(e => isAPIErrorPayload(e))
+    errorData.errors.every(e => isCanvasAPIErrorPayload(e))
   )
 }
 

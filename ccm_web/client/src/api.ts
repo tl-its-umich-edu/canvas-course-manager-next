@@ -1,7 +1,11 @@
 import Cookies from 'js-cookie'
-import { CanvasCourseBase, CanvasCourseSection, CanvasEnrollment, CanvasCourseSectionBase, CourseWithSections } from './models/canvas'
+import {
+  CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
+  CourseWithSections
+} from './models/canvas'
+import { ExternalUserSuccess } from './models/externalUser'
 import { Globals } from './models/models'
-import handleErrors from './utils/handleErrors'
+import handleErrors, { CanvasError } from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
 
@@ -148,6 +152,39 @@ export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]):
   const body = JSON.stringify({ sectionIds: sectionsToUnmerge.map(section => { return section.id }) })
   const request = getDelete(body)
   const resp = await fetch('/api/sections/unmerge', request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const checkIfUserExists = async (loginId: string): Promise<boolean> => {
+  const request = getGet()
+  const resp = await fetch(`/api/admin/user/${loginId}`, request)
+  try {
+    await handleErrors(resp)
+  } catch (error: unknown) {
+    if (
+      error instanceof CanvasError &&
+      error.errors.length > 0 &&
+      error.errors[0].canvasStatusCode === 404
+    ) {
+      return false
+    } else {
+      throw error
+    }
+  }
+  return true
+}
+
+interface ExternalUser {
+  email: string
+  surname: string
+  givenName: string
+}
+
+export const createExternalUsers = async (newUsers: ExternalUser[]): Promise<ExternalUserSuccess[]> => {
+  const body = JSON.stringify({ users: newUsers })
+  const request = getPost(body)
+  const resp = await fetch('/api/admin/createExternalUsers', request)
   await handleErrors(resp)
   return await resp.json()
 }
