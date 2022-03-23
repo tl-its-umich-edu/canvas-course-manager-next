@@ -95,7 +95,6 @@ class ExternalUserProcessError extends Error {
   }
 
   describeErrors (): ErrorDescription[] {
-    if (this.data.length === 0) return []
     const descriptions: ErrorDescription[] = []
     this.data.forEach(result => {
       if (isExternalUserFailure(result)) {
