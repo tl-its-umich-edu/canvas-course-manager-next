@@ -24,7 +24,9 @@ interface APIErrorsTableProps {
 function APIErrorsTable (props: APIErrorsTableProps): JSX.Element {
   const [page, setPage] = useState<number>(0)
 
-  const columnsToUse = props.includeContext === true ? mainColumns.concat([contextColumn]) : mainColumns
+  const columnsToUse = props.includeContext === true
+    ? [...mainColumns.slice(0, 1), contextColumn, ...mainColumns.slice(1)]
+    : mainColumns
 
   const tableRows = props.errors.map((e, i) => ({ ...e, rowNumber: i + 1 }))
   const caption = `${props.errors.length} API errors occurred.`
