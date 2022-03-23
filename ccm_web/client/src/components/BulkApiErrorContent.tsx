@@ -9,7 +9,6 @@ import { CanvasError } from '../utils/handleErrors'
 
 interface BulkApiErrorContentProps {
   error: Error
-  context?: string
   file?: File
   tryAgain: () => void
 }
@@ -25,7 +24,7 @@ export default function BulkApiErrorContent (props: BulkApiErrorContentProps): J
           <>
           {file !== undefined && <CSVFileName file={file} />}
           <RowLevelErrorsContent
-            table={<APIErrorsTable errors={error.describeErrors(props.context)} />}
+            table={<APIErrorsTable errors={error.describeErrors()} />}
             title='Some errors occurred'
             message={<Typography>Some of your entries received errors when being added to Canvas.</Typography>}
             resetUpload={tryAgain}

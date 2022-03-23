@@ -379,7 +379,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <>
       {file !== undefined && <CSVFileName file={file} />}
       <RowLevelErrorsContent
-        table={<APIErrorsTable errors={errors} />}
+        table={<APIErrorsTable errors={errors} includeContext />}
         title='Some errors occurred'
         message={<Typography>One or more errors occurred while processing non-UM users.</Typography>}
         resetUpload={() => {
