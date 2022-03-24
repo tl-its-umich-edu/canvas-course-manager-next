@@ -133,7 +133,7 @@ Explicit steps for setting up CCM in a development environment.
     "Users - manage login details" permission.  That is the only permission  
     needed, so for the best security, create a role for only that one.  
 21. Copy the static API key created in Canvas. The ID is the long number shown
-    in the "Details" column of the "Developer Keys" page. It usually begins
+    in the "Approved Integrations" section of the admin user's account "Settings" page. It usually begins
     with "1770~…".
 
 ##### Configure local environment
@@ -156,7 +156,7 @@ Explicit steps for setting up CCM in a development environment.
      7. Add to the `CANVAS_ADMIN_API_TOKEN` key the API token copied earlier  
         (in step 21).
      8. Configure invitation API settings.  The invitation API used by CCM is
-        currently based on Cirrus Identity services.  Provide values for each
+        currently based on [Cirrus Identity services](https://www.cirrusidentity.com/).  Provide values for each
         of the following keys:
         1. `INVITATION_API_KEY`
         2. `INVITATION_API_SECRET`
