@@ -23,6 +23,7 @@ import { InvalidTokenInterceptor } from './invalid.token.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
+import { GetSectionsInstructorQueryDto } from './dtos/api.get.sections.instructor.dto'
 import { SectionEnrollmentsDto } from './dtos/api.section.enrollment.dto'
 import { SectionIdsDto } from './dtos/api.section.ids.dto'
 import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
@@ -146,11 +147,12 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
+  @ApiQuery({ name: 'term_id', type: Number })
   @Get('instructor/sections')
   async getCourseSectionsInTermAsInstructor (
-    @UserDec() user: User, @Query('term_id', ParseIntPipe) termId: number
+    @UserDec() user: User, @Query() query: GetSectionsInstructorQueryDto
   ): Promise<CourseWithSections[]> {
-    const result = await this.apiService.getCourseSectionsInTermAsInstructor(user, termId)
+    const result = await this.apiService.getCourseSectionsInTermAsInstructor(user, query.term_id)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
