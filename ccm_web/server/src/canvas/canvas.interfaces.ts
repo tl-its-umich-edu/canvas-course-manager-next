@@ -1,3 +1,4 @@
+import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto'
 import { hasKeys } from '../typeUtils'
 
 // OAuth
@@ -5,11 +6,28 @@ import { hasKeys } from '../typeUtils'
 export interface OAuthGoodResponseQuery {
   code: string
   state: string
+  error: undefined
+  error_description: undefined
 }
+
 export interface OAuthErrorResponseQuery {
   error: string
+  code: undefined
   error_description?: string
   state?: string
+}
+
+export const isOAuthGoodResponseQuery = (value: CanvasOAuthReturnQueryDto): value is OAuthGoodResponseQuery => {
+  return (
+    value.code !== undefined &&
+    value.state !== undefined &&
+    value.error === undefined &&
+    value.error_description === undefined
+  )
+}
+
+export const isOAuthErrorResponseQuery = (value: CanvasOAuthReturnQueryDto): value is OAuthErrorResponseQuery => {
+  return value.error !== undefined && value.code === undefined
 }
 
 interface TokenBaseResponseBody {
@@ -218,8 +236,4 @@ export function isCanvasUniqueIdErrorsBody (value: unknown): value is CanvasUniq
       )
     })
   )
-}
-
-export const isOAuthErrorResponseQuery = (value: unknown): value is OAuthErrorResponseQuery => {
-  return hasKeys(value, ['error'])
 }

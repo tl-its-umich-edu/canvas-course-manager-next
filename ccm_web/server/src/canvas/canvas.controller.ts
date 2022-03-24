@@ -3,12 +3,14 @@ import { promisify } from 'util'
 
 import { Request, Response } from 'express'
 import {
+  BadRequestException,
   Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
 } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
-import { OAuthGoodResponseQuery, OAuthErrorResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
+import { isOAuthGoodResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
 import { CanvasService } from './canvas.service'
+import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { SessionGuard } from '../auth/session.guard'
 import { UserDec } from '../user/user.decorator'
@@ -52,10 +54,14 @@ export class CanvasController {
   @ApiExcludeEndpoint()
   @Get('returnFromOAuth')
   async returnFromOAuth (
-    @Query() query: OAuthGoodResponseQuery | OAuthErrorResponseQuery,
+    @Query() query: CanvasOAuthReturnQueryDto,
       @Req() req: Request, @Res() res: Response, @UserDec() user: User
   ): Promise<void> {
     logger.debug(`Query: ${JSON.stringify(query, null, 2)}`)
+    if (!(isOAuthGoodResponseQuery(query) || isOAuthErrorResponseQuery(query))) {
+      throw new BadRequestException('Query returned from Canvas could not be interpreted.')
+    }
+
     if (isOAuthErrorResponseQuery(query)) {
       if (query.error === 'access_denied') {
         logger.debug('User rejected Canvas OAuth; sending them back to application root...')
