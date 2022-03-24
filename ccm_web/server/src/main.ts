@@ -37,8 +37,8 @@ async function bootstrap (): Promise<void> {
   app.use(cookieParser(serverConfig.cookieSecret))
 
   const SequelizeStore = ConnectSessionSequelize(session.Store)
-  const options = { db: sequelize, tableName: 'session', disableTouch: true }
-  // const options = { db: sequelize, tableName: 'session' }
+  // const options = { db: sequelize, tableName: 'session', disableTouch: true }
+  const options = { db: sequelize, tableName: 'session' }
   const sessionStore = new SequelizeStore(options)
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 

@@ -15,7 +15,7 @@ export class CanvasTokenNotFoundError extends Error {
   constructor (userLoginId: string) {
     super(
       `The user ${userLoginId} does not have a CanvasToken and should; ` +
-      'the database may have been modified or there may be a problem with the application code.'
+      'the database may have been modified or there may be a problem with the application code..'
     )
     this.date = new Date()
   }

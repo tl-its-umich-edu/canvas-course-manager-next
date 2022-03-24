@@ -6,7 +6,7 @@ import { AuthService } from './auth.service'
 import { JwtAuthGuard } from './jwt-auth.guard'
 import { SessionGuard } from './session.guard'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('auth')
 export class AuthController {
   constructor (private readonly authService: AuthService) {}
