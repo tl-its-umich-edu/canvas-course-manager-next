@@ -4,9 +4,9 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class GetSectionsInstructorQueryDto {
   @ApiProperty({ type: Number })
-  @IsInt()
+  @Transform(({ value }) => (typeof value === 'string' && value.trim() === '') ? '' : Number(value))
   @IsNotEmpty()
-  @Transform(({ value }) => Number.parseInt(value))
+  @IsInt()
   term_id: number
 
   constructor (termId: number) {
