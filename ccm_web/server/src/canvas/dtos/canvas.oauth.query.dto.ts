@@ -14,8 +14,8 @@ export class CanvasOAuthReturnQueryDto {
   error_description?: string
 
   constructor (
-    code?: string,
     state?: string,
+    code?: string,
     error?: string,
     errorDescription?: string
   ) {
