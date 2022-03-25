@@ -4,7 +4,7 @@ import { urlencoded, json } from 'express'
 import session from 'express-session'
 import morgan from 'morgan'
 import { Sequelize } from 'sequelize-typescript'
-import { ValidationPipe } from '@nestjs/common'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
@@ -12,38 +12,31 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from './app.module'
 
-import { Config } from './config'
+import { Config, ServerConfig } from './config'
 import baseLogger from './logger'
 
 const logger = baseLogger.child({ filePath: __filename })
 
-async function bootstrap (): Promise<void> {
-  const isDev = process.env.NODE_ENV !== 'production'
+type PartialServerConfig = Omit<ServerConfig, 'isDev' | 'port'>
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: !isDev ? ['warn', 'error'] : undefined
-  })
-
-  const configService = app.get<ConfigService<Config, true>>(ConfigService)
-  const sequelize = app.get(Sequelize)
-  const serverConfig = configService.get('server', { infer: true })
+export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServerConfig): void {
+  // Logging
   baseLogger.level = serverConfig.logLevel
-
   const stream = { write: (message: string) => { logger.info(message.trim()) } }
   app.use(morgan('combined', { stream: stream }))
-
-  app.set('trust proxy', 1)
-
-  app.use(cookieParser(serverConfig.cookieSecret))
-
-  const SequelizeStore = ConnectSessionSequelize(session.Store)
-  const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
-  sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   // Controls size limit of data in payload and URL
   const payloadSizeLimit = '5mb'
   app.use(json({ limit: payloadSizeLimit }))
   app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
+
+  // Cookies and Sessions
+  app.use(cookieParser(serverConfig.cookieSecret))
+
+  const sequelize = app.get(Sequelize)
+  const SequelizeStore = ConnectSessionSequelize(session.Store)
+  const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
+  sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   app.use(
     session({
@@ -61,11 +54,27 @@ async function bootstrap (): Promise<void> {
     })
   )
 
+  // Validation
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
     forbidUnknownValues: true
   }))
+}
+
+async function bootstrap (): Promise<void> {
+  const isDev = process.env.NODE_ENV !== 'production'
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: !isDev ? ['warn', 'error'] : undefined
+  })
+
+  const configService = app.get<ConfigService<Config, true>>(ConfigService)
+  const serverConfig = configService.get('server', { infer: true })
+
+  app.set('trust proxy', 1)
+
+  doAppCoreSetup(app, serverConfig)
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()
@@ -96,6 +105,8 @@ async function bootstrap (): Promise<void> {
   )
 }
 
-bootstrap()
-  .then(() => logger.info('The application started successfully!'))
-  .catch((e) => logger.error('An error occurred while starting the application: ', e))
+if (require.main === module) {
+  bootstrap()
+    .then(() => logger.info('The application started successfully!'))
+    .catch((e) => logger.error('An error occurred while starting the application: ', e))
+}
