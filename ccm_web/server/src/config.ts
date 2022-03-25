@@ -2,7 +2,7 @@ import baseLogger from './logger'
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-interface ServerConfig {
+export interface ServerConfig {
   isDev: boolean
   port: number
   domain: string

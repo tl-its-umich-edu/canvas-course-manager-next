@@ -1,23 +1,28 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication, ValidationPipe } from '@nestjs/common'
 import request from 'supertest'
-import { AppModule } from './../src/app.module'
-import cookieParser from 'cookie-parser'
+import { INestApplication } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
+
+import { AppModule } from '../src/app.module'
+import { doAppCoreSetup } from '../src/main'
+import { Config } from '../src/config'
 
 describe('APIController (e2e)', () => {
   let app: INestApplication
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule]
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.use(cookieParser('SOME_COOKIE_SECRET'))
-    app.useGlobalPipes(new ValidationPipe())
-
+    const configService = app.get<ConfigService<Config, true>>(ConfigService)
+    const serverConfig = configService.get('server', { infer: true })
+    doAppCoreSetup(app, serverConfig)
     await app.init()
   })
+
+  afterAll(async () => await app.close(), 10000)
 
   it('/api/globals (GET) - Fails when unauthenticated', async () => {
     return await request(app.getHttpServer())
@@ -25,6 +30,4 @@ describe('APIController (e2e)', () => {
       .expect(401)
       .expect({ statusCode: 401, message: 'Unauthorized' })
   })
-
-  afterEach(async () => await app.close(), 10000)
 })
