@@ -21,7 +21,6 @@ export class AuthService {
       secure: true,
       sameSite: 'none',
       maxAge: (configService.get('server.maxAgeInSec', { infer: true })) * 1000
-      // maxAge: (24 * 60 * 60) * 1000
     }
   }
 

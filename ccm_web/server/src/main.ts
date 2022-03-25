@@ -37,9 +37,7 @@ async function bootstrap (): Promise<void> {
   app.use(cookieParser(serverConfig.cookieSecret))
 
   const SequelizeStore = ConnectSessionSequelize(session.Store)
-  // const options = { db: sequelize, tableName: 'session', disableTouch: true }
-  const options = { db: sequelize, tableName: 'session' }
-  const sessionStore = new SequelizeStore(options)
+  const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
 
   // Controls size limit of data in payload and URL
@@ -71,7 +69,7 @@ async function bootstrap (): Promise<void> {
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('Canvas Course Managers')
+      .setTitle('Canvas Course Manager')
       .setDescription('CCM application API description and explorer')
       .addSecurity(
         'CSRF-Token', {

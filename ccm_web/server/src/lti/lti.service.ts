@@ -1,5 +1,5 @@
 import { Express, Request, Response } from 'express'
-import { BeforeApplicationShutdown, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common'
+import { BeforeApplicationShutdown, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
@@ -9,7 +9,6 @@ import { AuthService } from '../auth/auth.service'
 import baseLogger from '../logger'
 import { Config } from '../config'
 import { LTIEnrollmentType } from '../canvas/canvas.interfaces'
-import { CustomData } from 'express-session'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -19,29 +18,6 @@ const createLaunchErrorResponse = (res: Response, action?: string): Response => 
     (action !== undefined ? action : 'please try to refresh the page or contact support.')
   )
   return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(message)
-}
-const checkSessionExpiration = (req: Request): void => {
-  logger.info(')))))))))))))))))))) checkSessionExpiration')
-  const { expires } = req.session.cookie
-  const tempSession = req.session.data
-  const curTime = new Date()
-  if ((expires !== undefined && expires < curTime)) {
-    logger.info('11111111111111111111 Session regenerated')
-    req.session.touch()
-  }
-}
-
-const saveSessiondata = (req: Request, res: Response, sessionData: CustomData): void => {
-  logger.info(`sessionData: ${JSON.stringify(sessionData)}`)
-  req.session.data = sessionData
-  req.session.save((err) => {
-    if (err !== null) {
-      logger.error('Failed to save session data due to error: ', err)
-      return createLaunchErrorResponse(res)
-    }
-  })
-  logger.info('3333333333333333 Session data saved')
-  return res.redirect('/')
 }
 
 // ltijs docs: https://cvmcosta.me/ltijs/#/
@@ -80,7 +56,7 @@ export class LTIService implements BeforeApplicationShutdown {
     )
 
     // Redirect to the Canvas token check and OAuth workflow after a successful launch
-    await provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
+    provider.onConnect(async (token: IdToken, req: Request, res: Response) => {
       logger.debug(`The LTI launch was successful! User info: ${JSON.stringify(token.userInfo)}`)
       const customLTIVariables = token.platformContext.custom
       if (customLTIVariables.login_id === undefined || customLTIVariables.course_id === undefined ||
@@ -127,9 +103,14 @@ export class LTIService implements BeforeApplicationShutdown {
         course: course,
         isRootAdmin: isRootAdmin
       }
-      // await checkSessionExpiration(req)
-      logger.info('22222222222222222 Session regenerated next step')
-      await saveSessiondata(req, res, sessionData)
+      req.session.data = sessionData
+      req.session.save((err) => {
+        if (err !== null) {
+          logger.error('Failed to save session data due to error: ', err)
+          return createLaunchErrorResponse(res)
+        }
+        return res.redirect('/')
+      })
     })
 
     provider.onInvalidToken(async (req: Request, res: Response) => {

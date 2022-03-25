@@ -23,7 +23,7 @@ class UnauthorizedError extends Error {
   constructor () {
     super(
       'You are not authorized to perform that action. ' +
-      'If you believe this is an error, tru re-launching the application or contact support.'
+      'If you believe this is an error, try re-launching the application or contact support.'
     )
   }
 }
