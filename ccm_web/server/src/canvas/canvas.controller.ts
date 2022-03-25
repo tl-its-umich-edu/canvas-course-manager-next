@@ -3,8 +3,8 @@ import { promisify } from 'util'
 
 import { Request, Response } from 'express'
 import {
-  BadRequestException,
-  Controller, Get, InternalServerErrorException, Query, Req, Res, UnauthorizedException, UseGuards
+  BadRequestException, Controller, Get, InternalServerErrorException, Query, Req, Res,
+  UnauthorizedException, UseGuards
 } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
@@ -71,9 +71,9 @@ export class CanvasController {
 
       logger.error(`Canvas OAuth failed due to ${query.error}: ${String(query.error_description)}`)
       const message = query.error_description !== undefined
-        ? query.error_description
-        : 'Canvas OAuth error was sent without a description.'
-      throw new InternalServerErrorException(message)
+        ? `"${query.error_description}"`
+        : 'no description was provided.'
+      throw new InternalServerErrorException(`Canvas OAuth error encountered: ${message}`)
     }
 
     logger.debug('Comparing session to state parameter, and creating new Canvas token if matching')
