@@ -9,9 +9,7 @@ export class SessionGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<Request>()
 
-    const { expires } = request.session.cookie
-    const curTime = new Date()
-    if ((expires !== undefined && expires < curTime) || request.session.data === undefined) {
+    if (request.session.data === undefined) {
       throw new UnauthorizedException('The session has expired or is missing.')
     }
     return true

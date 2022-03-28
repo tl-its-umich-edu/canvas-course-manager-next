@@ -18,20 +18,22 @@ class BadRequestError extends Error {
   }
 }
 
+const authzErrorMessage = (
+  'You are not authorized to perform that action. ' +
+  'Try re-launching the application, or contact support.'
+)
+
 class UnauthorizedError extends Error {
   public name = 'UnauthorizedError'
   constructor () {
-    super(
-      'You are not authorized to perform that action. ' +
-      'You may need to authenticate differently.'
-    )
+    super(authzErrorMessage)
   }
 }
 
 class ForbiddenError extends Error {
   public name = 'ForbiddenError'
   constructor () {
-    super('You are not authorized to perform that action.')
+    super(authzErrorMessage)
   }
 }
 
