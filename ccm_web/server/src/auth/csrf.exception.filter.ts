@@ -20,7 +20,11 @@ export class CSRFExceptionFilter<T extends MaybeCSRFError> extends BaseException
   catch (exception: T, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>()
     if (exception.code === 'EBADCSRFTOKEN') {
-      logger.warn('Request was sent without a CSRF token in a header; a CSRF attack may be in progress.')
+      logger.warn(
+        'CSRF token verification failed. The request may have been sent without a CSRF token ' +
+        'or some other issue might have occurred (e.g. the session was missing). ' +
+        'A CSRF attack may be in progress.'
+      )
       res.status(HttpStatus.FORBIDDEN).json({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'CSRF token was missing or invalid.'
