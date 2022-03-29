@@ -5,7 +5,6 @@ import Help from './Help'
 
 const useStyles = makeStyles(() => ({
   root: {
-    padding: 25,
     textAlign: 'left'
   },
   button: {

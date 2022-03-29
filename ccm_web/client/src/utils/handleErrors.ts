@@ -140,7 +140,10 @@ const handleErrors = async (resp: Response): Promise<void> => {
     case 400:
       throw new BadRequestError(apiErrorMessage)
     case 401:
-      if (errorBody.redirect === true) redirect('/')
+      if (errorBody.redirect === true) {
+        redirect('/')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
       throw new UnauthorizedError()
     case 403:
       throw new ForbiddenError()
