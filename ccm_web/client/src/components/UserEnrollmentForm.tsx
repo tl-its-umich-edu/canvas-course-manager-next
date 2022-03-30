@@ -16,7 +16,9 @@ import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../mode
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { APIErrorWithContext } from '../models/models'
 import { CanvasError, ExternalUserProcessError } from '../utils/handleErrors'
-import { emailSchema, firstNameSchema, lastNameSchema, validateString, ValidationResult } from '../utils/validation'
+import {
+  emailInputSchema, firstNameInputSchema, lastNameInputSchema, validateString, ValidationResult
+} from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -133,7 +135,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const handleSearchClick = async (): Promise<void> => {
-    const result = validateString(email, emailSchema)
+    const result = validateString(email, emailInputSchema)
     setEmailValidationResult(result)
     if (!result.isValid || email === undefined) return
     return await doSearchForUser(email)
@@ -156,9 +158,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     if (userExists) {
       return await doAddEnrollment(selectedSection.id, { email, role })
     }
-    const firstNameResult = validateString(firstName, firstNameSchema)
+    const firstNameResult = validateString(firstName, firstNameInputSchema)
     setFirstNameValidationResult(firstNameResult)
-    const lastNameResult = validateString(lastName, lastNameSchema)
+    const lastNameResult = validateString(lastName, lastNameInputSchema)
     setLastNameValidationResult(lastNameResult)
     if (
       firstName !== undefined &&
