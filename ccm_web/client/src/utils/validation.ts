@@ -9,14 +9,16 @@ const createExceededMessage = (fieldName: string, max: number): string => {
 }
 
 const createBlankMessage = (fieldName: string): string => `Value for the ${fieldName} may not be blank.`
+const createBlankMessageCommand = (fieldName: string): string => `Please enter ${fieldName}.`
 
 export const createInvalidIDMessage = (fieldName: string): string => {
   return `Value for the ${fieldName} must be a positive integer.`
 }
 
 const canvasMaxNameLength = 255
-const createCanvasNameSchema = (fieldName: string): StringSchema => {
-  return string().required(createBlankMessage(fieldName))
+const createCanvasNameSchema = (fieldName: string, command?: boolean): StringSchema => {
+  const createBlank = command === true ? createBlankMessageCommand : createBlankMessage
+  return string().required(createBlank(fieldName))
     .max(canvasMaxNameLength, ({ max }) => createExceededMessage(fieldName, max))
 }
 
@@ -26,16 +28,24 @@ const createCanvasIdentifierSchema = (fieldName: string): NumberSchema => {
     .required(createBlankMessage(fieldName)).truncate().positive(message).integer(message)
 }
 
-export const courseNameSchema = createCanvasNameSchema('course name')
+const createEmailSchema = (command?: boolean): StringSchema => {
+  return createCanvasNameSchema('email address', command)
+    .email('The value is not a valid email address.')
+    .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
+}
+
+export const courseNameInputSchema = createCanvasNameSchema('course name', true)
 export const assignmentHeaderSchema = createCanvasNameSchema('assignment header')
 export const sectionIdSchema = createCanvasIdentifierSchema('section ID')
 export const sectionNameSchema = createCanvasNameSchema('section name')
 export const loginIDSchema = createCanvasNameSchema('login ID')
-export const emailSchema = createCanvasNameSchema('email address')
-  .email('The value is not a valid email address.')
-  .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
+export const loginIDInputSchema = createCanvasNameSchema('login ID', true)
+export const emailSchema = createEmailSchema()
+export const emailInputSchema = createEmailSchema(true)
 export const firstNameSchema = createCanvasNameSchema('first name')
+export const firstNameInputSchema = createCanvasNameSchema('first name', true)
 export const lastNameSchema = createCanvasNameSchema('last name')
+export const lastNameInputSchema = createCanvasNameSchema('last name', true)
 
 // Type validator(s)
 

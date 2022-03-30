@@ -15,7 +15,7 @@ import allFeatures, {
 } from '../models/FeatureUIData'
 import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
-import { courseNameSchema, validateString } from '../utils/validation'
+import { courseNameInputSchema, validateString } from '../utils/validation'
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -105,7 +105,7 @@ function Home (props: HomeProps): JSX.Element {
           text={props.course.name}
           placeholderText='Course name'
           fontSize='1.5rem'
-          validate={(value) => validateString(value, courseNameSchema)}
+          validate={(value) => validateString(value, courseNameInputSchema)}
           save={doSetCourseName}
           isSaving={setCourseNameLoading}
         />
