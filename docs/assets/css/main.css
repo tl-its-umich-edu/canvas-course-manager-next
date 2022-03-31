@@ -86,7 +86,7 @@ overflow-y: scroll;
 
 /* Change color on hover */
 .topnav a:hover {
-  background-color: #ddd;
+  background-color: #0D57AA;
   color: black;
 }
 
@@ -129,6 +129,7 @@ overflow-y: scroll;
   padding: 20px;
   text-align: center;
   background: #333333;
+  color: #9B9B9B;
   margin-top: 20px;
 }
 
