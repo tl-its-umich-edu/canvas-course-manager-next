@@ -131,12 +131,14 @@ body {
   color: #9B9B9B;
   margin-top: 20px;
 }
+
 .footer-content {
   display: flex;
   text-align: justify
 }
 
 .footer-text {
+  float: right;
   color: #ffffff;
   font-size: 0.8rem;
 }
