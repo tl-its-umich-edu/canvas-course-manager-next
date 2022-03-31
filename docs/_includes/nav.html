@@ -1,4 +1,4 @@
-<nav>
+<!-- <nav>
   <ul>
     {% for item in site.data.navigation %}
     <li>
@@ -7,4 +7,8 @@
     </li>
     {% endfor %}
   </ul>
-</nav>
+</nav> -->
+
+{% for item in site.data.navigation %}
+    <a href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: red;" {% endif%}>{{item.name}}</a>
+{% endfor %}

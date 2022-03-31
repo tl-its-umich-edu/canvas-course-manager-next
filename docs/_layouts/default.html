@@ -8,9 +8,23 @@
 </head>
 
 <body>
-  <div id="page-container">
+  <div class="header">
+    <h1>Canvas Course Manager Documentation</h1>
+  </div>
+  <div class="topnav">
     {% include nav.html %}
+  </div>
+
+  <div class="row">
+    <div class="leftcolumn">
+      <div class="card">
     {{ content }}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <h2>Footer</h2>
     {% include footer.html %}
   </div>
 </body>
