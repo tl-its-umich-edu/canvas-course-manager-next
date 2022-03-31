@@ -72,7 +72,7 @@ overflow-y: scroll;
 .topnav {
   overflow: hidden;
   background: #e9ecef;
-  color: 4A6D95;
+  color: #4A6D95;
 }
 
 /* Style the topnav links */
@@ -128,7 +128,7 @@ overflow-y: scroll;
 .footer {
   padding: 20px;
   text-align: center;
-  background: #ddd;
+  background: #333333;
   margin-top: 20px;
 }
 
