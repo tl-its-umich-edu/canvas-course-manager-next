@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
+import { TooManyResultsError } from './api.errors'
 import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
@@ -169,9 +170,18 @@ export class APIController {
     if (query.instructor_name === undefined && query.course_name === undefined) {
       throw new BadRequestException('You must specify either instructor or course_name as a URL parameter.')
     }
-    const result = await this.apiService.getCourseSectionsInTermAsAdmin(
-      user, query.term_id, query.instructor_name, query.course_name
-    )
+    let result
+    try {
+      result = await this.apiService.getCourseSectionsInTermAsAdmin(
+        user, query.term_id, query.instructor_name, query.course_name
+      )
+    } catch (error: unknown) {
+      if (error instanceof TooManyResultsError) {
+        throw new BadRequestException('Too many courses matched your search term; please refine your search.')
+      } else {
+        throw error
+      }
+    }
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

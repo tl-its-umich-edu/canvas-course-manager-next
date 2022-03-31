@@ -1,6 +1,7 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
+import { TooManyResultsError } from './api.errors'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import {
   checkForUniqueIdError,
@@ -104,6 +105,7 @@ export class AdminApiHandler {
     const allCourses: CanvasCourse[] = []
     result.map(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
+    if (allCourses.length > 50) throw new TooManyResultsError()
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(

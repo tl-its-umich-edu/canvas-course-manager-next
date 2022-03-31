@@ -14,7 +14,7 @@ Custom Error types
 class BadRequestError extends Error {
   public name = 'BadRequestError'
   constructor (message: string | undefined) {
-    super('Your request was not valid' + (message !== undefined ? `: ${message}` : '.'))
+    super('Your request was not valid.' + (message !== undefined ? ` ${message}` : ''))
   }
 }
 
