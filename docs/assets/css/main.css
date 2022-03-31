@@ -138,16 +138,14 @@ body {
 }
 
 .footer-text {
-  float: right;
   color: #ffffff;
   font-size: 0.8rem;
 }
 
 .footer-logo {
-  margin: 20px auto;
-  padding: 0;
   display: block;
   width: 150px;
+  margin-right: 20px;
 }
 /* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
 @media screen and (max-width: 800px) {
