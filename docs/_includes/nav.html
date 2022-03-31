@@ -10,5 +10,5 @@
 </nav> -->
 
 {% for item in site.data.navigation %}
-    <a href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: red;" {% endif%}>{{item.name}}</a>
+    <a href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: #9A3324;" {% endif%}>{{item.name}}</a>
 {% endfor %}

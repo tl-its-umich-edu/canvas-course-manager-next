@@ -51,9 +51,8 @@ body {
   font-family: Roboto, sans-serif;
   padding: 10px;
   background: #fffefe;
-  color: #333333;
   font-size: 1em;
-overflow-y: scroll; 
+  overflow-y: scroll; 
 }
 
 /* Header/Blog Title */
@@ -72,7 +71,6 @@ overflow-y: scroll;
 .topnav {
   overflow: hidden;
   background: #e9ecef;
-  color: #4A6D95;
 }
 
 /* Style the topnav links */
@@ -82,12 +80,13 @@ overflow-y: scroll;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+  color: #4A6D95;
 }
 
 /* Change color on hover */
 .topnav a:hover {
-  background-color: #0D57AA;
-  color: black;
+  background-color: #E4E1DF;
+  color: #4A6D95;
 }
 
 /* Create two unequal columns that floats next to each other */
