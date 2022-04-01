@@ -1,5 +1,4 @@
-- name: Home
-  link: /index.html
+
 - name: Merge Sections
   link: /merge-sections.html
 - name: Create Sections
