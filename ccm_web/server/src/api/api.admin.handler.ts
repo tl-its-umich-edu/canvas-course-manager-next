@@ -103,6 +103,7 @@ export class AdminApiHandler {
     if (isAPIErrorData(result)) return result
     const allCourses: CanvasCourse[] = []
     result.map(cs => allCourses.push(...cs))
+    logger.info(`Number of courses: ${allCourses.length}`)
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(
