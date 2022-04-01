@@ -1,16 +1,4 @@
-<!-- <nav>
-  <ul>
-    {% for item in site.data.navigation %}
-    <li>
-      <a href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: red;" {% endif
-        %}>{{item.name}}</a>
-    </li>
-    {% endfor %}
-  </ul>
-</nav> -->
-
 {% for item in site.data.navigation %}
-    <!-- <a href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: #9A3324;" {% endif%}>{{item.name}}</a> -->
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="{{item.link | relative_url }}" {% if page.url==item.link %}style="color: #9A3324;" {% endif%}>{{item.name}}</a>
