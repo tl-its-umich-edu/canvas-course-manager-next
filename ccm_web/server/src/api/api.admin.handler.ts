@@ -76,10 +76,16 @@ export class AdminApiHandler {
     try {
       const endpoint = `accounts/${accountId}/courses`
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const courses = await this.requestor.listItems<CanvasCourse>(endpoint, queryParams).toArray()
+      const courses = []
+      const pages = this.requestor.listPages<CanvasCourse[]>(endpoint, queryParams)
+      for await (const courseResponse of pages) {
+        courses.push(...courseResponse.body)
+        if (courses.length > 1000) throw new TooManyResultsError()
+      }
       logger.debug('Received response (status code unknown)')
       return courses
     } catch (error) {
+      if (error instanceof TooManyResultsError) throw error
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
