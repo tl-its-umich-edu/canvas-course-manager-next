@@ -1,9 +1,9 @@
 /* :root {
   --bs-light: #00274c
 } */
-main > .container {
+/* main > .container {
   padding: 60px 15px 0;
-}
+} */
 
 img {
   vertical-align: middle !important;
@@ -12,14 +12,8 @@ img {
   width: calc(100px + 6 * ((100vw - 320px) / 680))
 }
 
-.support {
-  font-size: 21px !important;
-  font-weight: bold;
-  margin-bottom: calc(40px + (48 - 40) * ((100vw - 360px) / (1600 - 360))) !important;
-  color: #ffffff!important
-}
-
-.footer-main {
+.c-footer-style {
+  padding: 20px;
   background: #333333;
   color: #ffffff;
 }
