@@ -1,9 +1,9 @@
 /* :root {
   --bs-light: #00274c
 } */
-/* main > .container {
+main > .container {
   padding: 60px 15px 0;
-} */
+}
 
 img {
   vertical-align: middle !important;
