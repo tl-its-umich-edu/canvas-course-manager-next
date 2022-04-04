@@ -33,6 +33,7 @@ interface CanvasConfig {
   adminApiToken: string
   newUserAccountID: number
   customCanvasRoleData: CustomCanvasRoleData
+  maxSearchCourses: number
 }
 
 export interface InvitationConfig {
@@ -67,6 +68,7 @@ const isNotEmpty = (v: string): boolean => v.length > 0
 
 const isNumber = (v: unknown): v is number => typeof v === 'number'
 const isNotNan = (v: number): boolean => !isNaN(v)
+const isInteger = (v: number): boolean => Number.isInteger(v)
 
 // Tests if an unknown value is one of four allowed string log levels
 const isLogLevel = (v: unknown): v is LogLevel => {
@@ -75,8 +77,8 @@ const isLogLevel = (v: unknown): v is LogLevel => {
 const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoleData => {
   if (typeof v === 'object' && v !== null) {
     for (const [key, value] of Object.entries(v)) {
-      if (typeof value !== 'number') return false
-      if (typeof key !== 'string') return false
+      if (!(isNumber(value) && isNotNan(value) && isInteger(value))) return false
+      if (!isString(key)) return false
     }
     return true
   } else {
@@ -137,13 +139,15 @@ export function validateConfig (): Config {
   try {
     server = {
       isDev: env.NODE_ENV !== 'production',
-      port: validate<number>('PORT', prepNumber(env.PORT), isNumber, [isNotNan], 4000),
+      port: validate<number>('PORT', prepNumber(env.PORT), isNumber, [isNotNan, isInteger], 4000),
       domain: validate<string>('DOMAIN', env.DOMAIN, isString, [isNotEmpty]),
       frameDomain: validate<string>('FRAME_DOMAIN', env.FRAME_DOMAIN, isString, [isNotEmpty]),
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, [], 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, [isNotEmpty], 'TOKENSECRET'),
       cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'COOKIESECRET'),
-      maxAgeInSec: validate<number>('MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan], (24 * 60 * 60))
+      maxAgeInSec: validate<number>(
+        'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
+      )
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, [isNotEmpty], 'LTIKEY'),
@@ -158,9 +162,14 @@ export function validateConfig (): Config {
       apiClientId: validate<string>('CANVAS_API_CLIENT_ID', env.CANVAS_API_CLIENT_ID, isString, [isNotEmpty]),
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
       adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty]),
-      newUserAccountID: validate<number>('CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1),
+      newUserAccountID: validate<number>(
+        'CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1
+      ),
       customCanvasRoleData: validate<CustomCanvasRoleData>(
         'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
+      ),
+      maxSearchCourses: validate<number>(
+        'CANVAS_MAX_SEARCH_COURSES', prepNumber(env.CANVAS_MAX_SEARCH_COURSES), isNumber, [isNotNan], 1000
       )
     }
     invitation = {
@@ -172,7 +181,7 @@ export function validateConfig (): Config {
     }
     db = {
       host: validate<string>('DB_HOST', env.DB_HOST, isString, [isNotEmpty]),
-      port: validate<number>('DB_PORT', prepNumber(env.DB_PORT), isNumber, [isNotNan], 3306),
+      port: validate<number>('DB_PORT', prepNumber(env.DB_PORT), isNumber, [isNotNan, isInteger], 3306),
       name: validate<string>('DB_NAME', env.DB_NAME, isString, [isNotEmpty]),
       user: validate<string>('DB_USER', env.DB_USER, isString, [isNotEmpty]),
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString, [isNotEmpty])

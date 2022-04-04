@@ -39,10 +39,13 @@ or account-scoped operations that make use of other handler instances for Canvas
 export class AdminApiHandler {
   requestor: CanvasRequestor
   userLoginId: string
+  maxSearchCourses: number
 
-  constructor (requestor: CanvasRequestor, userLoginId?: string) {
+  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 1000) {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
+    this.maxSearchCourses = maxSearchCourses
+    console.log(this.maxSearchCourses)
   }
 
   async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
@@ -80,7 +83,7 @@ export class AdminApiHandler {
       const pages = this.requestor.listPages<CanvasCourse[]>(endpoint, queryParams)
       for await (const courseResponse of pages) {
         courses.push(...courseResponse.body)
-        if (courses.length > 1000) throw new TooManyResultsError()
+        if (courses.length > this.maxSearchCourses) throw new TooManyResultsError()
       }
       logger.debug('Received response (status code unknown)')
       return courses
@@ -111,7 +114,7 @@ export class AdminApiHandler {
     const allCourses: CanvasCourse[] = []
     result.map(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
-    if (allCourses.length > 1000) throw new TooManyResultsError()
+    if (allCourses.length > this.maxSearchCourses) throw new TooManyResultsError()
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(
