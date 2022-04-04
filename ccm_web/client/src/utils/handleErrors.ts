@@ -30,10 +30,13 @@ class UnauthorizedError extends Error {
   }
 }
 
-class ForbiddenError extends Error {
+export class ForbiddenError extends Error {
   public name = 'ForbiddenError'
-  constructor () {
-    super(authzErrorMessage)
+  warning: boolean
+
+  constructor (message?: string, warning?: boolean) {
+    super(message ?? authzErrorMessage)
+    this.warning = Boolean(warning)
   }
 }
 
@@ -143,7 +146,9 @@ const handleErrors = async (resp: Response): Promise<void> => {
       if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
-      throw new ForbiddenError()
+      throw new ForbiddenError(
+        errorBody.warning === true ? apiErrorMessage : undefined, errorBody.warning
+      )
     case 404:
       throw new NotFoundError()
     default:

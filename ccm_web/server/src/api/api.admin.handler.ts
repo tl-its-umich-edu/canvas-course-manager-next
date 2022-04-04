@@ -105,7 +105,7 @@ export class AdminApiHandler {
     const allCourses: CanvasCourse[] = []
     result.map(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
-    if (allCourses.length > 50) throw new TooManyResultsError()
+    if (allCourses.length > 1000) throw new TooManyResultsError()
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(

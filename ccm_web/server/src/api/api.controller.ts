@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpException,
   Param,
@@ -177,7 +178,10 @@ export class APIController {
       )
     } catch (error: unknown) {
       if (error instanceof TooManyResultsError) {
-        throw new BadRequestException('Too many courses matched your search term; please refine your search.')
+        throw new ForbiddenException({
+          message: 'Too many courses matched your search term; please refine your search.',
+          warning: true
+        })
       } else {
         throw error
       }
