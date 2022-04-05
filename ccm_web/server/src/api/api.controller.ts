@@ -178,10 +178,7 @@ export class APIController {
       )
     } catch (error: unknown) {
       if (error instanceof TooManyResultsError) {
-        throw new ForbiddenException({
-          message: 'Too many courses matched your search term; please refine your search.',
-          warning: true
-        })
+        throw new ForbiddenException('Too many courses matched your search term; please refine your search.')
       } else {
         throw error
       }

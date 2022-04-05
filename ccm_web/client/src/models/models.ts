@@ -66,7 +66,6 @@ export interface APIErrorData extends Record<string, unknown> {
   error?: string
   message?: string | string[]
   redirect?: boolean
-  warning?: boolean
 }
 
 export interface CanvasAPIErrorData extends APIErrorData {
