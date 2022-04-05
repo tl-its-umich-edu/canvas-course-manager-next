@@ -111,7 +111,7 @@ export class AdminApiHandler {
     const result = makeResponse<CanvasCourse[]>(coursesResponses)
     if (isAPIErrorData(result)) return result
     const allCourses: CanvasCourse[] = []
-    result.map(cs => allCourses.push(...cs))
+    result.forEach(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
     if (allCourses.length > this.maxSearchCourses) throw new TooManyResultsError()
 
@@ -125,7 +125,8 @@ export class AdminApiHandler {
     const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
     const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
     if (!isAPIErrorData(finalResult)) {
-      logger.debug(`Number of sections returned: ${finalResult.length}`)
+      const sectionNum = finalResult.map(c => c.sections.length).reduce((runSum, a) => runSum + a, 0)
+      logger.debug(`Number of sections returned: ${sectionNum}`)
     }
 
     const end = process.hrtime.bigint()
