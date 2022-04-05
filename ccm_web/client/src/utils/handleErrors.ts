@@ -18,14 +18,15 @@ class BadRequestError extends Error {
   }
 }
 
-const authzError = 'You are not authorized to perform that action.'
-const authzRecommendation = 'Try re-launching the application, or contact support.'
-const authzFullErrorMessage = `${authzError} ${authzRecommendation}`
+const defaultAuthzErrorMessage = (
+  'You are not authorized to perform that action. ' +
+  'Try re-launching the application, or contact support.'
+)
 
 class UnauthorizedError extends Error {
   public name = 'UnauthorizedError'
   constructor () {
-    super(authzFullErrorMessage)
+    super(defaultAuthzErrorMessage)
   }
 }
 
@@ -33,7 +34,7 @@ class ForbiddenError extends Error {
   public name = 'ForbiddenError'
 
   constructor (message?: string) {
-    super(`${message ?? authzError} ${authzRecommendation}`)
+    super(message ?? defaultAuthzErrorMessage)
   }
 }
 
