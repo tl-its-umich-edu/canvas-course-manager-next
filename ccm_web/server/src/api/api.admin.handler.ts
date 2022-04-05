@@ -72,6 +72,11 @@ export class AdminApiHandler {
     return parentAccounts
   }
 
+  logTooManyCourseResultsWarning (queryParams: AccountCoursesQueryParams): void {
+    const relevantParams = { by_teachers: queryParams.by_teachers, search_term: queryParams.search_term }
+    logger.warn('Query with the following search term(s) returned too many results: ' + JSON.stringify(relevantParams))
+  }
+
   async getAccountCourses (
     accountId: number, queryParams: AccountCoursesQueryParams
   ): Promise<CanvasCourse[] | APIErrorData> {
@@ -82,7 +87,10 @@ export class AdminApiHandler {
       const pages = this.requestor.listPages<CanvasCourse[]>(endpoint, queryParams)
       for await (const courseResponse of pages) {
         courses.push(...courseResponse.body)
-        if (courses.length > this.maxSearchCourses) throw new TooManyResultsError()
+        if (courses.length > this.maxSearchCourses) {
+          this.logTooManyCourseResultsWarning(queryParams)
+          throw new TooManyResultsError()
+        }
       }
       logger.debug('Received response (status code unknown)')
       return courses
@@ -113,7 +121,10 @@ export class AdminApiHandler {
     const allCourses: CanvasCourse[] = []
     result.forEach(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
-    if (allCourses.length > this.maxSearchCourses) throw new TooManyResultsError()
+    if (allCourses.length > this.maxSearchCourses) {
+      this.logTooManyCourseResultsWarning(queryParams)
+      throw new TooManyResultsError()
+    }
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(
