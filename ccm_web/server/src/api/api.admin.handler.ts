@@ -45,7 +45,6 @@ export class AdminApiHandler {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
     this.maxSearchCourses = maxSearchCourses
-    console.log(this.maxSearchCourses)
   }
 
   async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
