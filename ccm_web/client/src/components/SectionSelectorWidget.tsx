@@ -13,7 +13,6 @@ import APIErrorMessage from './APIErrorMessage'
 import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
-import { ForbiddenError } from '../utils/handleErrors'
 import { ISectionSearcher } from '../utils/SectionSearcher'
 
 const useStyles = makeStyles((theme) => ({
@@ -286,10 +285,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   useEffect(() => {
     const searchErrors = [searchError, initError].filter(e => e !== undefined) as Error[]
     if (searchErrors.length > 0) {
-      const errorToReport = searchErrors[0]
       enqueueSnackbar(
         <APIErrorMessage context='searching for sections' error={searchErrors[0]} />,
-        { variant: errorToReport instanceof ForbiddenError && errorToReport.warning ? 'warning' : 'error' }
+        { variant: 'error' }
       )
     }
   }, [searchError, initError])
