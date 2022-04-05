@@ -169,7 +169,7 @@ export function validateConfig (): Config {
         'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
       ),
       maxSearchCourses: validate<number>(
-        'CANVAS_MAX_SEARCH_COURSES', prepNumber(env.CANVAS_MAX_SEARCH_COURSES), isNumber, [isNotNan, isInteger], 1000
+        'CANVAS_MAX_SEARCH_COURSES', prepNumber(env.CANVAS_MAX_SEARCH_COURSES), isNumber, [isNotNan, isInteger], 400
       )
     }
     invitation = {

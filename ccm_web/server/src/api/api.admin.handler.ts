@@ -41,7 +41,7 @@ export class AdminApiHandler {
   userLoginId: string
   maxSearchCourses: number
 
-  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 1000) {
+  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 400) {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
     this.maxSearchCourses = maxSearchCourses
