@@ -163,13 +163,13 @@ export function validateConfig (): Config {
       apiSecret: validate<string>('CANVAS_API_SECRET', env.CANVAS_API_SECRET, isString, [isNotEmpty]),
       adminApiToken: validate<string>('CANVAS_ADMIN_API_TOKEN', env.CANVAS_ADMIN_API_TOKEN, isString, [isNotEmpty]),
       newUserAccountID: validate<number>(
-        'CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan], 1
+        'CANVAS_NEW_USER_ACCOUNT_ID', prepNumber(env.CANVAS_NEW_USER_ACCOUNT_ID), isNumber, [isNotNan, isInteger], 1
       ),
       customCanvasRoleData: validate<CustomCanvasRoleData>(
         'CANVAS_CUSTOM_ROLES', prepObjectFromJSON(env.CANVAS_CUSTOM_ROLES), isCustomCanvasRoles, [], { Assistant: 34, Librarian: 21 }
       ),
       maxSearchCourses: validate<number>(
-        'CANVAS_MAX_SEARCH_COURSES', prepNumber(env.CANVAS_MAX_SEARCH_COURSES), isNumber, [isNotNan], 1000
+        'CANVAS_MAX_SEARCH_COURSES', prepNumber(env.CANVAS_MAX_SEARCH_COURSES), isNumber, [isNotNan, isInteger], 1000
       )
     }
     invitation = {
