@@ -103,6 +103,7 @@ export class AdminApiHandler {
     if (isAPIErrorData(result)) return result
     const allCourses: CanvasCourse[] = []
     result.map(cs => allCourses.push(...cs))
+    logger.debug(`Number of courses matching search term: ${allCourses.length}`)
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(
@@ -113,6 +114,9 @@ export class AdminApiHandler {
     )
     const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
     const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
+    if (!isAPIErrorData(finalResult)) {
+      logger.debug(`Number of sections returned: ${finalResult.length}`)
+    }
 
     const end = process.hrtime.bigint()
     logger.debug(`Time elapsed: (${(end - start) / NS_PER_SEC}) seconds`)
