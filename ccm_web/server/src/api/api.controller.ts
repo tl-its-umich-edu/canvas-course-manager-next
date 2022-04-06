@@ -4,7 +4,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpException,
   Param,
@@ -18,10 +17,10 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { TooManyResultsError } from './api.errors'
 import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
 import { APIService } from './api.service'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor'
+import { TooManyResultsInterceptor } from './too.many.results.interceptor'
 import { CourseNameDto } from './dtos/api.course.name.dto'
 import { CreateSectionsDto } from './dtos/api.create.sections.dto'
 import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
@@ -159,7 +158,7 @@ export class APIController {
     return result
   }
 
-  @UseInterceptors(InvalidTokenInterceptor)
+  @UseInterceptors(InvalidTokenInterceptor, new TooManyResultsInterceptor('courses'))
   @ApiQuery({ name: 'term_id', type: Number })
   @ApiQuery({ name: 'instructor_name', required: false, type: String })
   @ApiQuery({ name: 'course_name', required: false, type: String })
@@ -171,18 +170,9 @@ export class APIController {
     if (query.instructor_name === undefined && query.course_name === undefined) {
       throw new BadRequestException('You must specify either instructor or course_name as a URL parameter.')
     }
-    let result
-    try {
-      result = await this.apiService.getCourseSectionsInTermAsAdmin(
-        user, query.term_id, query.instructor_name, query.course_name
-      )
-    } catch (error: unknown) {
-      if (error instanceof TooManyResultsError) {
-        throw new ForbiddenException('Too many courses matched your search term; please refine your search.')
-      } else {
-        throw error
-      }
-    }
+    const result = await this.apiService.getCourseSectionsInTermAsAdmin(
+      user, query.term_id, query.instructor_name, query.course_name
+    )
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
