@@ -72,9 +72,9 @@ export class AdminApiHandler {
     return parentAccounts
   }
 
-  logTooManyCourseResultsWarning (queryParams: AccountCoursesQueryParams): void {
+  logTooManyCoursesErrorDetails (queryParams: AccountCoursesQueryParams): void {
     const relevantParams = { by_teachers: queryParams.by_teachers, search_term: queryParams.search_term }
-    logger.warn('Query with the following search term(s) returned too many results: ' + JSON.stringify(relevantParams))
+    logger.error('Query with the following search term(s) returned too many course results: ' + JSON.stringify(relevantParams))
   }
 
   async getAccountCourses (
@@ -88,7 +88,7 @@ export class AdminApiHandler {
       for await (const courseResponse of pages) {
         courses.push(...courseResponse.body)
         if (courses.length > this.maxSearchCourses) {
-          this.logTooManyCourseResultsWarning(queryParams)
+          this.logTooManyCoursesErrorDetails(queryParams)
           throw new TooManyResultsError()
         }
       }
@@ -122,7 +122,7 @@ export class AdminApiHandler {
     result.forEach(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
     if (allCourses.length > this.maxSearchCourses) {
-      this.logTooManyCourseResultsWarning(queryParams)
+      this.logTooManyCoursesErrorDetails(queryParams)
       throw new TooManyResultsError()
     }
 
