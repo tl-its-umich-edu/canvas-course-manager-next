@@ -1,6 +1,7 @@
 import CanvasRequestor from '@kth/canvas-api'
 
 import { CourseApiHandler } from './api.course.handler'
+import { TooManyResultsError } from './api.errors'
 import { APIErrorData, isAPIErrorData } from './api.interfaces'
 import {
   checkForUniqueIdError,
@@ -38,10 +39,12 @@ or account-scoped operations that make use of other handler instances for Canvas
 export class AdminApiHandler {
   requestor: CanvasRequestor
   userLoginId: string
+  maxSearchCourses: number
 
-  constructor (requestor: CanvasRequestor, userLoginId?: string) {
+  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 400) {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
+    this.maxSearchCourses = maxSearchCourses
   }
 
   async getParentAccounts (): Promise<CanvasAccount[] | APIErrorData> {
@@ -69,16 +72,30 @@ export class AdminApiHandler {
     return parentAccounts
   }
 
+  logTooManyCoursesErrorDetails (queryParams: AccountCoursesQueryParams): void {
+    const relevantParams = { by_teachers: queryParams.by_teachers, search_term: queryParams.search_term }
+    logger.error('Query with the following search term(s) returned too many course results: ' + JSON.stringify(relevantParams))
+  }
+
   async getAccountCourses (
     accountId: number, queryParams: AccountCoursesQueryParams
   ): Promise<CanvasCourse[] | APIErrorData> {
     try {
       const endpoint = `accounts/${accountId}/courses`
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
-      const courses = await this.requestor.listItems<CanvasCourse>(endpoint, queryParams).toArray()
+      const courses = []
+      const pages = this.requestor.listPages<CanvasCourse[]>(endpoint, queryParams)
+      for await (const courseResponse of pages) {
+        courses.push(...courseResponse.body)
+        if (courses.length > this.maxSearchCourses) {
+          this.logTooManyCoursesErrorDetails(queryParams)
+          throw new TooManyResultsError()
+        }
+      }
       logger.debug('Received response (status code unknown)')
       return courses
     } catch (error) {
+      if (error instanceof TooManyResultsError) throw error
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
@@ -102,8 +119,12 @@ export class AdminApiHandler {
     const result = makeResponse<CanvasCourse[]>(coursesResponses)
     if (isAPIErrorData(result)) return result
     const allCourses: CanvasCourse[] = []
-    result.map(cs => allCourses.push(...cs))
+    result.forEach(cs => allCourses.push(...cs))
     logger.debug(`Number of courses matching search term: ${allCourses.length}`)
+    if (allCourses.length > this.maxSearchCourses) {
+      this.logTooManyCoursesErrorDetails(queryParams)
+      throw new TooManyResultsError()
+    }
 
     // Get sections for those courses
     const coursesWithSectionsApiPromises = createLimitedPromises(
@@ -115,7 +136,8 @@ export class AdminApiHandler {
     const coursesWithSectionsResult = await Promise.all(coursesWithSectionsApiPromises)
     const finalResult = makeResponse<CourseWithSections>(coursesWithSectionsResult)
     if (!isAPIErrorData(finalResult)) {
-      logger.debug(`Number of sections returned: ${finalResult.length}`)
+      const sectionNum = finalResult.map(c => c.sections.length).reduce((runSum, a) => runSum + a, 0)
+      logger.debug(`Number of sections returned: ${sectionNum}`)
     }
 
     const end = process.hrtime.bigint()

@@ -91,8 +91,9 @@ export class APIService {
   async getCourseSectionsInTermAsAdmin (
     user: User, termId: number, instructor: string | undefined, courseName: string | undefined
   ): Promise<CourseWithSections[] | APIErrorData> {
+    const maxSearchCourses = this.configService.get('canvas.maxSearchCourses', { infer: true })
     const requestor = await this.canvasService.createRequestorForUser(user, '/api/v1/')
-    const adminHandler = new AdminApiHandler(requestor, user.loginId)
+    const adminHandler = new AdminApiHandler(requestor, user.loginId, maxSearchCourses)
     const accountsOrErrorData = await adminHandler.getParentAccounts()
     if (isAPIErrorData(accountsOrErrorData)) return accountsOrErrorData
     const accounts = accountsOrErrorData

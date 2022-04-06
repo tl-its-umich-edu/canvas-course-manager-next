@@ -27,7 +27,7 @@ export class CSRFExceptionFilter<T extends MaybeCSRFError> extends BaseException
       )
       res.status(HttpStatus.FORBIDDEN).json({
         statusCode: HttpStatus.FORBIDDEN,
-        message: 'CSRF token was missing or invalid.'
+        message: 'CSRF token was missing or invalid. Try re-launching the application, or contact support.'
       })
     } else {
       super.catch(exception, host)

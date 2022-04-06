@@ -14,11 +14,11 @@ Custom Error types
 class BadRequestError extends Error {
   public name = 'BadRequestError'
   constructor (message: string | undefined) {
-    super('Your request was not valid' + (message !== undefined ? `: ${message}` : '.'))
+    super('Your request was not valid.' + (message !== undefined ? ` ${message}` : ''))
   }
 }
 
-const authzErrorMessage = (
+const defaultAuthzErrorMessage = (
   'You are not authorized to perform that action. ' +
   'Try re-launching the application, or contact support.'
 )
@@ -26,14 +26,15 @@ const authzErrorMessage = (
 class UnauthorizedError extends Error {
   public name = 'UnauthorizedError'
   constructor () {
-    super(authzErrorMessage)
+    super(defaultAuthzErrorMessage)
   }
 }
 
 class ForbiddenError extends Error {
   public name = 'ForbiddenError'
-  constructor () {
-    super(authzErrorMessage)
+
+  constructor (message?: string) {
+    super(message ?? defaultAuthzErrorMessage)
   }
 }
 
@@ -143,7 +144,7 @@ const handleErrors = async (resp: Response): Promise<void> => {
       if (errorBody.redirect === true) redirect('/')
       throw new UnauthorizedError()
     case 403:
-      throw new ForbiddenError()
+      throw new ForbiddenError(apiErrorMessage)
     case 404:
       throw new NotFoundError()
     default:
