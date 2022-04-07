@@ -2,11 +2,11 @@
   link: /merge-sections.html
 - name: Create Sections
   link: /create-sections.html
-- name: Format Canvas Gradebook
-  link: /gradebook-canvas.html
-- name: Format Third-Party Gradebook
-  link: /gradebook-thirdparty.html
 - name: Add U-M Users
   link: /add-um-users.html
 - name: Add Non-UM Users
   link: /add-non-um-users.html
+- name: Format Canvas Gradebook
+  link: /gradebook-canvas.html
+- name: Format Third-Party Gradebook
+  link: /gradebook-thirdparty.html
