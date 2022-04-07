@@ -43,7 +43,7 @@ const formatThirdPartyGradebookProps: FeatureDataProps = {
 const createSectionsProps: FeatureDataProps = {
   id: 'CreateSections',
   title: 'Create Sections',
-  description: 'Create sections through csv files into your own course',
+  description: 'Create sections through a CSV file in your course',
   ordinality: 4,
   roles: adminRoles,
   helpURLEnding: '/create-sections.html'

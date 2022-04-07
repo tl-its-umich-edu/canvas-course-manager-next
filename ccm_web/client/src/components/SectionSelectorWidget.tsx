@@ -109,8 +109,8 @@ const useStyles = makeStyles((theme) => ({
   },
   highlighted: {
     borderLeftStyle: 'solid',
-    borderLeftColor: '#3777c5',
-    borderLeftWidth: '1px'
+    borderLeftColor: '#3777C5',
+    borderLeftWidth: '16px'
   },
   button: {
     margin: theme.spacing(1)
