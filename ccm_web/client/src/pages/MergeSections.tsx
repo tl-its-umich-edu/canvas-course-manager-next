@@ -190,7 +190,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         <SectionSelectorWidget
           action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
           height={400}
-          header={{ title: 'Prepared to merge' }}
+          header={{ title: 'Review before merge' }}
           search={ [new CourseSectionSearcher(props.course.enrollment_term_id, props.globals.course.id, updateStagedSections, props.course.name)] }
           multiSelect={true}
           showCourseName={true}
