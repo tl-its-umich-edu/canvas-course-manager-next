@@ -1,10 +1,3 @@
-/* :root {
-  --bs-light: #00274c
-} */
-/* main > .container {
-  padding: 60px 15px 0;
-} */
-
 img {
   vertical-align: middle !important;
   width: 100%;
@@ -21,6 +14,10 @@ img {
   font-size: 21px !important;
   font-weight: bold;
   margin-bottom: calc(40px + (48 - 40) * ((100vw - 360px) / (1600 - 360))) !important;
+}
+
+.navbar-brand:hover{
+  text-decoration: underline;
 }
 
 
