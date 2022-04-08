@@ -13,7 +13,6 @@
 .footer-heading-row {
   font-size: 21px !important;
   font-weight: bold;
-  margin-bottom: calc(40px + (48 - 40) * ((100vw - 360px) / (1600 - 360))) !important;
 }
 
 .navbar-brand:hover, .c-underline {
