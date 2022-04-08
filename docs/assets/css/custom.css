@@ -1,0 +1,17 @@
+.c-footer-style {
+  padding: 20px;
+  background: #333333;
+  color: #ffffff;
+}
+.footer-heading-row {
+  font-size: 21px !important;
+  font-weight: bold;
+}
+
+.navbar-brand:hover, .c-underline, .navbar-link:hover {
+  text-decoration: underline;
+}
+
+
+
+
