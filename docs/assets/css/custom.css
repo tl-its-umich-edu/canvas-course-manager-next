@@ -8,7 +8,7 @@
   font-weight: bold;
 }
 
-.navbar-brand:hover, .c-underline {
+.navbar-brand:hover, .c-underline, .navbar-link:hover {
   text-decoration: underline;
 }
 
