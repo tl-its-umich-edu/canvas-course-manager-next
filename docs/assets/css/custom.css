@@ -16,8 +16,10 @@
   margin-bottom: calc(40px + (48 - 40) * ((100vw - 360px) / (1600 - 360))) !important;
 }
 
-.navbar-brand:hover{
+.navbar-brand:hover, .c-underline {
   text-decoration: underline;
 }
+
+
 
 
