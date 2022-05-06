@@ -11,7 +11,7 @@ import SuccessCard from './SuccessCard'
 import ValidatedFormField from './ValidatedFormField'
 import * as api from '../api'
 import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName, ClientEnrollmentType } from '../models/canvas'
+import { CanvasCourseSectionWithCourseName, CanvasUserCondensed, ClientEnrollmentType } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
 import { APIErrorWithContext } from '../models/models'
@@ -56,7 +56,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [emailValidationResult, setEmailValidationResult] = useState<ValidationResult | undefined>(undefined)
-  const [userExists, setUserExists] = useState<boolean | undefined>(undefined)
+  const [userExists, setUserExists] = useState<CanvasUserCondensed | false | undefined>(undefined)
   const [showIncompleteAlerts, setShowIncompleteAlerts] = useState<boolean>(false)
 
   const [firstName, setFirstName] = useState<string | undefined>(undefined)
@@ -69,10 +69,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [successResult, setSuccessResult] = useState<ExternalEnrollmentSummary | undefined>(undefined)
 
   const [doSearchForUser, isSearchForUserLoading, searchForUserError, clearSearchForUserError] = usePromise(
-    async (loginId: string): Promise<boolean> => {
-      return await api.checkIfUserExists(loginId)
+    async (loginId: string): Promise<CanvasUserCondensed | false | undefined> => {
+      return await api.checkIfUserExists(loginId) 
     },
-    (result: boolean) => setUserExists(result)
+    (result: CanvasUserCondensed | false | undefined) => setUserExists(result) 
   )
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
@@ -298,11 +298,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           userExists !== undefined && (
             <Paper className={`${classes.alert} ${classes.spacing}`} role='alert' variant='outlined'>
               {
-                !userExists
+                !userExists  
                   ? nameInput
                   : (
                       <Typography>
-                        This email is already associated with a Canvas user.
+                        This email is already associated with a Canvas user ({userExists.name}).
                         Finish the form to enroll them in the section.
                       </Typography>
                     )

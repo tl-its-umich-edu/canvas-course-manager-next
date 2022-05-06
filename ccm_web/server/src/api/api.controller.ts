@@ -35,6 +35,7 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
+  CanvasUserCondensed,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
@@ -142,9 +143,10 @@ export class APIController {
   @Get('admin/user/:loginId')
   async checkIfUserExistsAsAdmin (
     @Param('loginId') loginId: string
-  ): Promise<void> {
+  ): Promise<CanvasUserCondensed> {
     const result = await this.apiService.checkIfUserExistsAsAdmin(loginId)
-    if (result !== undefined) throw new HttpException(result, result.statusCode)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

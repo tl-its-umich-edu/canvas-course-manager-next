@@ -18,6 +18,7 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
+  CanvasUserCondensed,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { CanvasService } from '../canvas/canvas.service'
@@ -27,6 +28,7 @@ import { User } from '../user/user.model'
 
 import { Config } from '../config'
 import baseLogger from '../logger'
+import { Json } from 'sequelize/types/utils'
 
 const logger = baseLogger.child({ filePath: __filename })
 
@@ -199,11 +201,15 @@ export class APIService {
     return makeResponse<CanvasEnrollment>(enrollmentResults)
   }
 
-  async checkIfUserExistsAsAdmin (loginId: string): Promise<APIErrorData | undefined> {
+  async checkIfUserExistsAsAdmin (loginId: string): Promise<APIErrorData | CanvasUserCondensed> {
     const adminRequestor = this.canvasService.createRequestorForAdmin('/api/v1/')
     const adminHandler = new AdminApiHandler(adminRequestor)
     const result = await adminHandler.getUserInfo(loginId)
     if (isAPIErrorData(result)) return result
+    return {
+      loginId : result.login_id,
+      name : result.name
+    }
   }
 
   async mergeSections (user: User, targetCourseId: number, sectionIds: number[]): Promise<CanvasCourseSectionBase[] | APIErrorData> {
