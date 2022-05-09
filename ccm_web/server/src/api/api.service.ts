@@ -206,7 +206,7 @@ export class APIService {
     const result = await adminHandler.getUserInfo(loginId)
     if (isAPIErrorData(result)) return result
     return {
-      loginId: result.login_id,
+      login_id: result.login_id,
       name: result.name
     }
   }

@@ -1,8 +1,7 @@
 import Cookies from 'js-cookie'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
-  CanvasUserCondensed,
-  CourseWithSections
+  CanvasUserCondensed, CourseWithSections
 } from './models/canvas'
 import { ExternalUserSuccess } from './models/externalUser'
 import { Globals } from './models/models'

@@ -223,10 +223,7 @@ export interface CanvasUniqueIdErrorsBody extends CanvasErrorsBody {
   }
 }
 
-export interface CanvasUserCondensed {
-  loginId: string
-  name: string
-}
+export type CanvasUserCondensed = Pick<CanvasUser, 'login_id' | 'name'>
 
 export function isCanvasUniqueIdErrorsBody (value: unknown): value is CanvasUniqueIdErrorsBody {
   if (!isCanvasErrorsBody(value)) return false

@@ -152,7 +152,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     }
     setShowIncompleteAlerts(false)
 
-    // Included to ensure types and as a precaution; userExists depends on email being valid.
+    // Included to ensure types and as a precaution; userInfo depends on email being valid.
     if (email === undefined || emailValidationResult?.isValid !== true) return
 
     if (userInfo !== null) {
@@ -178,7 +178,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas. (Required)
       </Typography>
       {
-        showIncompleteAlerts && userInfo === undefined &&
+        showIncompleteAlerts && (userInfo === undefined) &&
           <InlineErrorAlert>You must search for the user to complete the form.</InlineErrorAlert>
       }
       <Grid container spacing={2} alignItems='center'>
