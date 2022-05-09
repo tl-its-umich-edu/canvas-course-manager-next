@@ -141,7 +141,7 @@ export class APIController {
 
   // Uses admin token, so InvalidTokenInterceptor omitted
   @Get('admin/user/:loginId')
-  async checkIfUserExistsAsAdmin (
+  async getUserInfoAsAdmin (
     @Param('loginId') loginId: string
   ): Promise<CanvasUserCondensed> {
     const result = await this.apiService.getUserInfoAsAdmin(loginId)
