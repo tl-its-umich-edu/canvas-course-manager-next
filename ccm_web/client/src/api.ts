@@ -157,10 +157,9 @@ export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]):
   return await resp.json()
 }
 
-export const checkIfUserExists = async (loginId: string): Promise<CanvasUserCondensed | false> => {
+export const getUserInfo = async (loginId: string): Promise<CanvasUserCondensed | null> => {
   const request = getGet()
   const resp = await fetch(`/api/admin/user/${loginId}`, request)
-  console.log(resp)
   try {
     await handleErrors(resp)
   } catch (error: unknown) {
@@ -169,12 +168,12 @@ export const checkIfUserExists = async (loginId: string): Promise<CanvasUserCond
       error.errors.length > 0 &&
       error.errors[0].canvasStatusCode === 404
     ) {
-      return false
+      return null
     } else {
       throw error
     }
   }
-  return resp.json()
+  return await resp.json()
 }
 
 interface ExternalUser {

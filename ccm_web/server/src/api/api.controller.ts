@@ -144,7 +144,7 @@ export class APIController {
   async checkIfUserExistsAsAdmin (
     @Param('loginId') loginId: string
   ): Promise<CanvasUserCondensed> {
-    const result = await this.apiService.checkIfUserExistsAsAdmin(loginId)
+    const result = await this.apiService.getUserInfoAsAdmin(loginId)
     if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }

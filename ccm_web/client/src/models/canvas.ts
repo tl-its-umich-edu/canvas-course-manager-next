@@ -142,6 +142,6 @@ export function sortSections<T extends CanvasCourseSection> (sections: T[]): T[]
 }
 
 export interface CanvasUserCondensed {
-  loginId : string,
-  name : string
+  loginId: string
+  name: string
 }

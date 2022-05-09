@@ -56,7 +56,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [emailValidationResult, setEmailValidationResult] = useState<ValidationResult | undefined>(undefined)
-  const [userExists, setUserExists] = useState<CanvasUserCondensed | false | undefined>(undefined)
+  const [userInfo, setUserInfo] = useState<CanvasUserCondensed | null | undefined>(undefined)
   const [showIncompleteAlerts, setShowIncompleteAlerts] = useState<boolean>(false)
 
   const [firstName, setFirstName] = useState<string | undefined>(undefined)
@@ -69,10 +69,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const [successResult, setSuccessResult] = useState<ExternalEnrollmentSummary | undefined>(undefined)
 
   const [doSearchForUser, isSearchForUserLoading, searchForUserError, clearSearchForUserError] = usePromise(
-    async (loginId: string): Promise<CanvasUserCondensed | false | undefined> => {
-      return await api.checkIfUserExists(loginId) 
+    async (loginId: string): Promise<CanvasUserCondensed | null> => {
+      return await api.getUserInfo(loginId)
     },
-    (result: CanvasUserCondensed | false | undefined) => setUserExists(result) 
+    (result: CanvasUserCondensed | null) => setUserInfo(result)
   )
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
@@ -111,7 +111,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   // Handlers
 
   const resetNameEntryState = (): void => {
-    setUserExists(undefined)
+    setUserInfo(undefined)
     setFirstName(undefined)
     setLastName(undefined)
     setEmailValidationResult(undefined)
@@ -143,8 +143,8 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const handleSubmitClick = async (): Promise<void> => {
     if (
-      userExists === undefined ||
-      (!userExists && firstName === undefined && lastName === undefined) ||
+      userInfo === undefined ||
+      (userInfo === null && firstName === undefined && lastName === undefined) ||
       role === undefined ||
       selectedSection === undefined
     ) {
@@ -155,7 +155,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
     // Included to ensure types and as a precaution; userExists depends on email being valid.
     if (email === undefined || emailValidationResult?.isValid !== true) return
 
-    if (userExists) {
+    if (userInfo !== null) {
       return await doAddEnrollment(selectedSection.id, { email, role })
     }
     const firstNameResult = validateString(firstName, firstNameInputSchema)
@@ -178,7 +178,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas. (Required)
       </Typography>
       {
-        showIncompleteAlerts && userExists === undefined &&
+        showIncompleteAlerts && userInfo === undefined &&
           <InlineErrorAlert>You must search for the user to complete the form.</InlineErrorAlert>
       }
       <Grid container spacing={2} alignItems='center'>
@@ -295,14 +295,14 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       <div className={classes.container}>
         {emailField}
         {
-          userExists !== undefined && (
+          userInfo !== undefined && (
             <Paper className={`${classes.alert} ${classes.spacing}`} role='alert' variant='outlined'>
               {
-                !userExists  
+                userInfo === null
                   ? nameInput
                   : (
                       <Typography>
-                        This email is already associated with a Canvas user ({userExists.name}).
+                        This email is already associated with a Canvas user ({userInfo.name}).
                         Finish the form to enroll them in the section.
                       </Typography>
                     )

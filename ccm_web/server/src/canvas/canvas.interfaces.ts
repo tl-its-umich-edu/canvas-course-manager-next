@@ -1,6 +1,5 @@
 import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto'
 import { hasKeys } from '../typeUtils'
-import { string } from 'yup'
 
 // OAuth
 
@@ -225,8 +224,8 @@ export interface CanvasUniqueIdErrorsBody extends CanvasErrorsBody {
 }
 
 export interface CanvasUserCondensed {
-  loginId : string,
-  name : string
+  loginId: string
+  name: string
 }
 
 export function isCanvasUniqueIdErrorsBody (value: unknown): value is CanvasUniqueIdErrorsBody {
