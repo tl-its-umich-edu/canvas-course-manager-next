@@ -163,6 +163,8 @@ export interface CanvasUser {
   login_id: string
 }
 
+export type CanvasUserCondensed = Pick<CanvasUser, 'login_id' | 'name'>
+
 export interface CanvasEnrollmentWithUser extends CanvasEnrollment {
   user: { login_id: string }
 }

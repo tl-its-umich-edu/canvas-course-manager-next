@@ -35,6 +35,7 @@ import {
   CanvasCourseSection,
   CanvasCourseSectionBase,
   CanvasEnrollment,
+  CanvasUserCondensed,
   CourseWithSections
 } from '../canvas/canvas.interfaces'
 import { UserDec } from '../user/user.decorator'
@@ -140,11 +141,12 @@ export class APIController {
 
   // Uses admin token, so InvalidTokenInterceptor omitted
   @Get('admin/user/:loginId')
-  async checkIfUserExistsAsAdmin (
+  async getUserInfoAsAdmin (
     @Param('loginId') loginId: string
-  ): Promise<void> {
-    const result = await this.apiService.checkIfUserExistsAsAdmin(loginId)
-    if (result !== undefined) throw new HttpException(result, result.statusCode)
+  ): Promise<CanvasUserCondensed> {
+    const result = await this.apiService.getUserInfoAsAdmin(loginId)
+    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    return result
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

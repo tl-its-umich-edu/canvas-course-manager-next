@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
-  CourseWithSections
+  CanvasUserCondensed, CourseWithSections
 } from './models/canvas'
 import { ExternalUserSuccess } from './models/externalUser'
 import { Globals } from './models/models'
@@ -156,7 +156,7 @@ export const unmergeSections = async (sectionsToUnmerge: CanvasCourseSection[]):
   return await resp.json()
 }
 
-export const checkIfUserExists = async (loginId: string): Promise<boolean> => {
+export const getUserInfo = async (loginId: string): Promise<CanvasUserCondensed | null> => {
   const request = getGet()
   const resp = await fetch(`/api/admin/user/${loginId}`, request)
   try {
@@ -167,12 +167,12 @@ export const checkIfUserExists = async (loginId: string): Promise<boolean> => {
       error.errors.length > 0 &&
       error.errors[0].canvasStatusCode === 404
     ) {
-      return false
+      return null
     } else {
       throw error
     }
   }
-  return true
+  return await resp.json()
 }
 
 interface ExternalUser {

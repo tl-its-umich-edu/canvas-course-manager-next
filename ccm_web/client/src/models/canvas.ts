@@ -140,3 +140,8 @@ export const injectCourseName = (sections: CanvasCourseSection[], courseName: st
 export function sortSections<T extends CanvasCourseSection> (sections: T[]): T[] {
   return sections.sort((a, b) => { return a.name.localeCompare(b.name, undefined, { numeric: true }) })
 }
+
+export interface CanvasUserCondensed {
+  login_id: string
+  name: string
+}
