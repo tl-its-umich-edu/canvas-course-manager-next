@@ -32,5 +32,5 @@ services:
     ports:
       - 5400:3306
     volumes:
-      - ./.mysql_data_prod/mysql:/var/lib/mysql
+      - ./.mysql_data_prod:/var/lib/mysql
     container_name: ccm_db_prod
