@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
 
@@ -28,18 +28,17 @@ services:
       - database
 
   database:
-    image: mysql:5.7
-    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    image: mysql:8-oracle
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--socket=/tmp/mysql.sock']
     environment:
       - MYSQL_ROOT_PASSWORD=ccm_root_pw
       - MYSQL_HOST=ccm_db
-      - MYSQL_PORT=3306
+      - MYSQL_TCP_PORT=3306
       - MYSQL_DATABASE=ccm
       - MYSQL_USER=admin
       - MYSQL_PASSWORD=admin
-    entrypoint: ['docker-entrypoint.sh', '--default-authentication-plugin=mysql_native_password']
     ports:
       - 5400:3306
     volumes:
-      - ./.mysql_data:/var/lib/mysql:delegated
+      - ./.mysql_data:/var/lib/mysql
     container_name: ccm_db
