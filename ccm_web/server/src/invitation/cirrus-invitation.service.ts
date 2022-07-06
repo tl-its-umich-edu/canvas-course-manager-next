@@ -6,7 +6,9 @@ import { HttpService } from '@nestjs/axios'
 import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
 
-import { cirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse } from './cirrus-invitation.interfaces'
+import {
+  cirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse, isCirrusAPIErrorData
+} from './cirrus-invitation.interfaces'
 import { InvitationAPIError } from './invitation.errors'
 
 import { Config } from '../config'
@@ -64,10 +66,10 @@ export class CirrusInvitationService {
     } catch (error) {
       if (axios.isAxiosError(error) && error.response !== undefined) {
         logger.error(`Cirrus API error encountered: ${JSON.stringify(error.response.data)}`)
-        const errors = error.response.data.errors as unknown
-        const messages = (Array.isArray(errors) && errors.every(e => typeof e === 'string'))
-          ? errors
-          : [`Received an unexpected shape for Cirrus errors: ${JSON.stringify(errors)}`]
+        const { data } = error.response
+        const messages = isCirrusAPIErrorData(data)
+          ? data.errors
+          : [`Received an unexpected shape for Cirrus errors: ${JSON.stringify(data)}`]
         return { statusCode: error.response.status, messages }
       }
       throw new InvitationAPIError(String(error))

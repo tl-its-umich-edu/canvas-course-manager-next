@@ -11,6 +11,20 @@ export interface CirrusInvitationResponse {
   addresses?: string[]
 }
 
+// Error data expected to be returned from the Cirrus API
+export interface CirrusAPIErrorData {
+  errors: string[]
+}
+
+export const isCirrusAPIErrorData = (value: unknown): value is CirrusAPIErrorData => {
+  return (
+    hasKeys(value, ['errors']) &&
+    Array.isArray(value.errors) &&
+    value.errors.every(e => typeof e === 'string')
+  )
+}
+
+// Normalized error data returned from the invitation service
 export interface CirrusErrorData {
   statusCode: number
   messages: string[]
