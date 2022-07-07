@@ -21,8 +21,8 @@ export default class FileParserWrapper {
 
   static readonly defaultParseConfigOptions: Papa.ParseConfig = Object.freeze({
     header: true,
-    transform: value => value.trim(),
-    transformHeader: header => header.toUpperCase()
+    transform: (value: string) => value.trim(),
+    transformHeader: (header: string) => header.toUpperCase()
   })
 
   constructor (parseConfig?: Papa.ParseConfig, unparseConfig?: Papa.UnparseConfig) {
