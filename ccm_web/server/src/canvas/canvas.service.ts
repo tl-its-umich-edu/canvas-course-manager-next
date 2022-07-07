@@ -3,7 +3,7 @@ import got, { Options as GotOptions } from 'got'
 import { lastValueFrom } from 'rxjs'
 import CanvasRequestor from '@kth/canvas-api'
 import { HttpService } from '@nestjs/axios'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
