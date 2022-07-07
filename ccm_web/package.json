@@ -70,8 +70,6 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^8.4.7",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^12.1.5",
     "@types/cookie-parser": "^1.4.3",
     "@types/csurf": "^1.11.2",
     "@types/express": "^4.17.13",
