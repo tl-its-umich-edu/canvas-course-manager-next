@@ -3,7 +3,7 @@
 # - https://dev.to/chrsgrrtt/dockerising-a-next-js-project-1ck5
 
 # Base stage
-FROM node:16-slim AS base
+FROM node:18-slim AS base
 WORKDIR /base/
 
 COPY package*.json ./
@@ -14,7 +14,7 @@ ARG PORT
 EXPOSE ${PORT}
 
 # Build stage (build client and compile server to JS)
-FROM node:16-slim AS build
+FROM node:18-slim AS build
 WORKDIR /build/
 
 COPY --from=base /base ./
