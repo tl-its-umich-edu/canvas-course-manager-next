@@ -6,7 +6,6 @@
             "type": "node",
             "request": "attach",
             "name": "CCM_Debug",
-            "protocol": "inspector",
             "address": "localhost",
             "localRoot": "${workspaceFolder}/ccm_web",
             "remoteRoot": "/base",
