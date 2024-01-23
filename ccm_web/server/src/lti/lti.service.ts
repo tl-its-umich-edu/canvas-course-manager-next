@@ -64,7 +64,7 @@ export class LTIService implements BeforeApplicationShutdown {
         return createLaunchErrorResponse(res, 'please check the LTI configuration in Canvas.')
       }
       const loginId = customLTIVariables.login_id as string
-      const courseId = customLTIVariables.course_id as number
+      const courseId = customLTIVariables.course_id as string
       const roles = customLTIVariables.roles as string
       const isRootAdmin = customLTIVariables.is_root_account_admin as boolean
 
@@ -96,7 +96,7 @@ export class LTIService implements BeforeApplicationShutdown {
       }
       // More data will be added to the session here later
       const course = {
-        id: courseId,
+        id: Number(courseId),
         roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
       }
       const sessionData = {
