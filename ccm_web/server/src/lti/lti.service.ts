@@ -61,7 +61,7 @@ export class LTIService implements BeforeApplicationShutdown {
       const customLTIVariables = token.platformContext.custom
       if (customLTIVariables.login_id === undefined || customLTIVariables.course_id === undefined ||
         customLTIVariables.roles === undefined || customLTIVariables.is_root_account_admin === undefined) {
-        return createLaunchErrorResponse(res, 'please check the LTI configuration in Canvas.')
+        return createLaunchErrorResponse(res, 'One or more required custom LTI variables were not defined. Please check the LTI configuration in Canvas.')
       }
       const loginId = customLTIVariables.login_id as string
       const courseId = customLTIVariables.course_id as string
@@ -94,16 +94,26 @@ export class LTIService implements BeforeApplicationShutdown {
         logger.error(`Something went wrong while creating user with loginId ${loginId}: ${logMessageEnding}`)
         return createLaunchErrorResponse(res)
       }
-      // More data will be added to the session here later
-      const course = {
-        id: Number(courseId),
-        roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
+    
+      try {
+        // More data will be added to the session here later
+        const course = {
+          id: Number(courseId),
+          roles: (roles.length > 0) ? roles.split(',') : [] // role won't be empty but adding a validation for safety
+        }
+        const sessionData = {
+          course: course,
+          isRootAdmin: isRootAdmin
+        }
+        req.session.data = sessionData
+      } catch (e) {
+        const logMessageEnding = e instanceof Error
+          ? `error ${String(e.name)} due to ${String(e.message)}`
+          : String(e)
+        logger.error(`Failed to build session data with course ID ${courseId} and roles ${roles}: ${logMessageEnding}`)
+        return createLaunchErrorResponse(res)
       }
-      const sessionData = {
-        course: course,
-        isRootAdmin: isRootAdmin
-      }
-      req.session.data = sessionData
+      
       req.session.save((err) => {
         if (err !== null) {
           logger.error('Failed to save session data due to error: ', err)
