@@ -32,7 +32,7 @@ COPY --from=base \
     /base/ecosystem.config.js \
     ./
 RUN npm install --production
-RUN npm install pm2@5.2.0 -g
+RUN npm install pm2@5.3.1 -g
 COPY --from=build /build/dist/ ./
 
 # Set PM2_HOME so that .pm2 files are written in /tmp/
