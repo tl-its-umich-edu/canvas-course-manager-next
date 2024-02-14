@@ -4,7 +4,7 @@ import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, CanvasRole, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
@@ -59,9 +59,10 @@ export class SectionApiHandler {
       .replace('@', '+')
 
     const enrollmentType = getCanvasRole(user.role)
+
     const roleParams = (
       this.customCanvasRoles !== undefined &&
-      Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
+      Object.values(CustomCanvasRoleType).includes(enrollmentType as unknown as CustomCanvasRoleType) &&
       Object.keys(this.customCanvasRoles).includes(String(enrollmentType))
     )
       ? { role_id: this.customCanvasRoles[enrollmentType] }
