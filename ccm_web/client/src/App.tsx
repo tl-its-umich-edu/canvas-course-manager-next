@@ -35,7 +35,7 @@ function App (): JSX.Element {
       void doLoadCourse(globals.course.id)
     }
   }, [globals])
-
+  // Delete the comment 
   const loading = <div className='App'><p>Loading...</p></div>
 
   if (isAuthenticated === undefined || isLoading) return loading
