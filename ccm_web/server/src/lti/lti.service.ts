@@ -94,7 +94,7 @@ export class LTIService implements BeforeApplicationShutdown {
         logger.error(`Something went wrong while creating user with loginId ${loginId}: ${logMessageEnding}`)
         return createLaunchErrorResponse(res)
       }
-    
+
       try {
         // More data will be added to the session here later
         const course = {
@@ -113,7 +113,7 @@ export class LTIService implements BeforeApplicationShutdown {
         logger.error(`Failed to build session data with course ID ${courseId} and roles ${roles}: ${logMessageEnding}`)
         return createLaunchErrorResponse(res)
       }
-      
+
       req.session.save((err) => {
         if (err !== null) {
           logger.error('Failed to save session data due to error: ', err)
