@@ -1,17 +1,16 @@
-import { createStyles, TableCell, Theme, withStyles } from '@material-ui/core'
-import { grey } from '@material-ui/core/colors'
+import { TableCell } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { grey } from '@mui/material/colors'
 
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      backgroundColor: grey[100],
-      color: theme.palette.common.black,
-      fontWeight: 'bold'
-    },
-    body: {
-      fontSize: 24
-    }
-  })
-)(TableCell)
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  '&.MuiTableCell-head': {
+    backgroundColor: grey[100],
+    color: theme.palette.common.black,
+    fontWeight: 'bold'
+  },
+  '&.MuiTableCell-body': {
+    fontSize: 24
+  }
+}))
 
 export default StyledTableCell

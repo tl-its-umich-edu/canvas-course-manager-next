@@ -1,23 +1,40 @@
 import React from 'react'
-import { Button, makeStyles, Paper, Typography } from '@material-ui/core'
-import CloudDoneIcon from '@material-ui/icons/CloudDone'
+import { styled } from '@mui/material/styles'
+import { Button, Paper, Typography } from '@mui/material'
+import CloudDoneIcon from '@mui/icons-material/CloudDone'
 
 import { DownloadData } from '../models/models'
 
-const useStyles = makeStyles((theme) => ({
-  padding: {
+const PREFIX = 'ConfirmDialog'
+
+const classes = {
+  padding: `${PREFIX}-padding`,
+  dialog: `${PREFIX}-dialog`,
+  dialogIcon: `${PREFIX}-dialogIcon`,
+  dialogButton: `${PREFIX}-dialogButton`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.padding}`]: {
     padding: theme.spacing(1)
   },
-  dialog: {
+
+  [`&.${classes.dialog}`]: {
     textAlign: 'center',
     margin: 'auto',
     marginTop: 30,
     marginBottom: 15
   },
-  dialogIcon: {
+
+  [`& .${classes.dialogIcon}`]: {
     color: theme.palette.info.main
   },
-  dialogButton: {
+
+  [`& .${classes.dialogButton}`]: {
     margin: 5
   }
 }))
@@ -33,7 +50,6 @@ interface ConfirmDialogProps {
 }
 
 export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
-  const classes = useStyles()
   const defaultTitle = 'Review your CSV file'
   const defaultMessage = 'Your file is valid! If this looks correct, click "Submit" to proceed.'
 
@@ -60,7 +76,7 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
   )
 
   return (
-    <div className={classes.dialog}>
+    <Root className={classes.dialog}>
       <Paper className={classes.padding} role='status'>
         <Typography>{props.title ?? defaultTitle}</Typography>
         {props.icon !== undefined ? props.icon : <CloudDoneIcon className={classes.dialogIcon} fontSize='large' />}
@@ -70,6 +86,6 @@ export default function ConfirmDialog (props: ConfirmDialogProps): JSX.Element {
         </Button>
         {submitButton}
       </Paper>
-    </div>
+    </Root>
   )
 }

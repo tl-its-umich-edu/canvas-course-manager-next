@@ -1,30 +1,45 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
-import { Card, CardActionArea, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/material'
 
 import { FeatureUIProps } from '../models/FeatureUIData'
 
-const useStyles = makeStyles((theme) => ({
-  cardContent: {
+const PREFIX = 'FeatureCard'
+
+const classes = {
+  cardContent: `${PREFIX}-cardContent`,
+  centered: `${PREFIX}-centered`,
+  title: `${PREFIX}-title`,
+  cardLink: `${PREFIX}-cardLink`
+}
+
+const StyledRouterLink = styled(RouterLink)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.cardContent}`]: {
     backgroundColor: '#FAFAFA',
     height: 200
   },
-  centered: {
+
+  [`& .${classes.centered}`]: {
     width: '100%'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     fontSize: 14
   },
-  cardLink: {
+
+  [`&.${classes.cardLink}`]: {
     textDecoration: 'none'
   }
 }))
 
 function FeatureCard (props: FeatureUIProps): JSX.Element {
-  const classes = useStyles()
-
   return (
-    <RouterLink className={classes.cardLink} to={props.route} tabIndex={-1}>
+    <StyledRouterLink className={classes.cardLink} to={props.route} tabIndex={-1}>
       <Card variant='outlined'>
         <CardActionArea>
           <CardContent className={`${classes.cardContent}`}>
@@ -46,7 +61,7 @@ function FeatureCard (props: FeatureUIProps): JSX.Element {
           </CardContent>
         </CardActionArea>
       </Card>
-    </RouterLink>
+    </StyledRouterLink>
   )
 }
 

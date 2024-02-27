@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import {
-  Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography
-} from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Box, Button, CircularProgress, Grid, Typography } from '@mui/material'
 
 import APIErrorMessage from './APIErrorMessage'
 import APIErrorsTable from './APIErrorsTable'
@@ -36,6 +35,42 @@ import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
 import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors'
 
+const PREFIX = 'MultipleUserEnrollmentWorkflow'
+
+const classes = {
+  backdrop: `${PREFIX}-backdrop`,
+  container: `${PREFIX}-container`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  table: `${PREFIX}-table`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.backdrop}`]: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#FFF',
+    position: 'absolute',
+    textAlign: 'center'
+  },
+
+  [`&.${classes.container}`]: {
+    position: 'relative',
+    zIndex: 0
+  },
+
+  [`& .${classes.buttonGroup}`]: {
+    marginTop: theme.spacing(1)
+  },
+
+  [`& .${classes.table}`]: {
+    paddingLeft: 10,
+    paddingRight: 10
+  }
+}))
+
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
 const FIRST_NAME_HEADER = 'FIRST_NAME'
@@ -54,26 +89,6 @@ export const isExternalEnrollmentRecord = (record: CSVRecord): record is Externa
   return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
 }
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#FFF',
-    position: 'absolute',
-    textAlign: 'center'
-  },
-  container: {
-    position: 'relative',
-    zIndex: 0
-  },
-  buttonGroup: {
-    marginTop: theme.spacing(1)
-  },
-  table: {
-    paddingLeft: 10,
-    paddingRight: 10
-  }
-}))
-
 interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
   onSectionCreated: (newSection: CanvasCourseSection) => void
@@ -81,8 +96,6 @@ interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
 }
 
 export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrollmentWorkflowProps): JSX.Element {
-  const classes = useStyles()
-
   const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
@@ -185,42 +198,40 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
-    return (
-      <>
-      <div className={classes.container}>
-        <CreateSelectSectionWidget
-          sections={props.sections}
-          selectedSection={selectedSection}
-          setSelectedSection={setSelectedSection}
-          {...createProps}
-        />
-        <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
-      <Grid container className={classes.buttonGroup} justifyContent='space-between'>
-        <Button
-          variant='outlined'
-          onClick={props.resetFeature}
-          aria-label='Back to input method select'
-        >
-          Back
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          aria-label='Select section'
-          disabled={selectedSection === undefined || props.isGetSectionsLoading}
-          onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-        >
-          Select
-        </Button>
-      </Grid>
-      </>
-    )
+    return <>
+    <Root className={classes.container}>
+      <CreateSelectSectionWidget
+        sections={props.sections}
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+        {...createProps}
+      />
+      <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+        <Grid container>
+          <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+          <Grid item xs={12}>Loading section data from Canvas</Grid>
+        </Grid>
+      </Backdrop>
+    </Root>
+    <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+      <Button
+        variant='outlined'
+        onClick={props.resetFeature}
+        aria-label='Back to input method select'
+      >
+        Back
+      </Button>
+      <Button
+        variant='contained'
+        color='primary'
+        aria-label='Select section'
+        disabled={selectedSection === undefined || props.isGetSectionsLoading}
+        onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+      >
+        Select
+      </Button>
+    </Grid>
+    </>
   }
 
   const renderUpload = (): JSX.Element => {
