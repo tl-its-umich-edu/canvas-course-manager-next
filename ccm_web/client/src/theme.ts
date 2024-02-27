@@ -1,6 +1,6 @@
-import { createTheme } from '@material-ui/core/styles'
+import { createTheme, adaptV4Theme } from '@mui/material/styles'
 
-const ccmTheme = createTheme({
+const ccmTheme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: '#00274C'
@@ -23,6 +23,6 @@ const ccmTheme = createTheme({
       underline: 'always'
     }
   }
-})
+}))
 
 export default ccmTheme

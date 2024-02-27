@@ -1,14 +1,29 @@
 import React from 'react'
-import { Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Grid, Paper, Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  padding: {
+const PREFIX = 'Alert'
+
+const classes = {
+  padding: `${PREFIX}-padding`,
+  standalone: `${PREFIX}-standalone`,
+  dialog: `${PREFIX}-dialog`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.padding}`]: {
     padding: theme.spacing(1)
   },
-  standalone: {
+
+  [`&.${classes.standalone}`]: {
     margin: 'auto'
   },
-  dialog: {
+
+  [`& .${classes.dialog}`]: {
     textAlign: 'center',
     margin: 'auto',
     marginTop: 30,
@@ -31,7 +46,6 @@ interface AlertProps {
 }
 
 export default function Alert (props: AlertProps): JSX.Element {
-  const classes = useStyles()
   const { title, icon, embedded, children } = props
 
   const core = (
@@ -44,8 +58,8 @@ export default function Alert (props: AlertProps): JSX.Element {
 
   if (embedded === true) return core
   return (
-    <Grid item xs={12} sm={9} md={6} className={classes.standalone}>
+    <StyledGrid item xs={12} sm={9} md={6} className={classes.standalone}>
       {core}
-    </Grid>
+    </StyledGrid>
   )
 }

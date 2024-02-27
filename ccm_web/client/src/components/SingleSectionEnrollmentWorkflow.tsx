@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Box, Button, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
 import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
@@ -31,28 +32,49 @@ import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from 
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
 
-const useStyles = makeStyles(theme => ({
-  spacing: {
+const PREFIX = 'SingleSectionEnrollmentWorkflow'
+
+const classes = {
+  spacing: `${PREFIX}-spacing`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  backdrop: `${PREFIX}-backdrop`,
+  instructions: `${PREFIX}-instructions`,
+  container: `${PREFIX}-container`,
+  table: `${PREFIX}-table`
+}
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute',
     textAlign: 'center'
   },
-  instructions: {
+
+  [`& .${classes.instructions}`]: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
-  table: {
+
+  [`& .${classes.table}`]: {
     paddingLeft: 10,
     paddingRight: 10
   }
@@ -64,8 +86,6 @@ interface SingleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
 }
 
 export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnrollmentWorkflowProps): JSX.Element {
-  const classes = useStyles()
-
   const [activeStep, setActiveStep] = useState(CSVWorkflowStep.Select)
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
   const [file, setFile] = useState<File | undefined>(undefined)
@@ -145,41 +165,41 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     }
 
     return (
-      <>
-      <div className={classes.container}>
-        <CreateSelectSectionWidget
-          sections={props.sections}
-          selectedSection={selectedSection}
-          setSelectedSection={setSelectedSection}
-          // Only admins have access to the Add UM Users feature, and they can create sections.
-          canCreate={true}
-          course={props.course}
-          onSectionCreated={(s) => {
-            setSelectedSection(injectCourseName([s], props.course.name)[0])
-            props.onSectionCreated(s)
-          }}
-        />
-        <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
-      <Grid container className={classes.buttonGroup} justifyContent='space-between'>
-        <Button variant='outlined' aria-label='Back to select input method' onClick={props.resetFeature}>
-          Back
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          disabled={selectedSection === undefined}
-          onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-        >
-          Select
-        </Button>
-      </Grid>
-      </>
+      (<Root>
+        <div className={classes.container}>
+          <CreateSelectSectionWidget
+            sections={props.sections}
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+            // Only admins have access to the Add UM Users feature, and they can create sections.
+            canCreate={true}
+            course={props.course}
+            onSectionCreated={(s) => {
+              setSelectedSection(injectCourseName([s], props.course.name)[0])
+              props.onSectionCreated(s)
+            }}
+          />
+          <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+            <Grid container>
+              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+              <Grid item xs={12}>Loading section data from Canvas</Grid>
+            </Grid>
+          </Backdrop>
+        </div>
+        <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+          <Button variant='outlined' aria-label='Back to select input method' onClick={props.resetFeature}>
+            Back
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            disabled={selectedSection === undefined}
+            onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+          >
+            Select
+          </Button>
+        </Grid>
+      </Root>)
     )
   }
 

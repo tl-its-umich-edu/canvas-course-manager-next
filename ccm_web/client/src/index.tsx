@@ -2,7 +2,7 @@ import { SnackbarProvider } from 'notistack'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import { ThemeProvider } from '@material-ui/core'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material'
 
 import App from './App'
 import './index.css'
@@ -17,21 +17,23 @@ const helpContactProps = {
 
 ReactDOM.render(
   <React.StrictMode>
-   <ThemeProvider theme={ccmTheme}>
-    <SnackbarProvider maxSnack={3}>
-      <BrowserRouter>
-        <Switch>
-          <Route exact={true} path='/access-denied'>
-            <AccessDenied {...helpContactProps} />
-          </Route>
-          <Route exact={true} path='/launch-error'>
-            <LaunchError {...helpContactProps} />
-          </Route>
-          <Route><App /></Route>
-        </Switch>
-      </BrowserRouter>
-    </SnackbarProvider>
-   </ThemeProvider>
+   <StyledEngineProvider injectFirst>
+     <ThemeProvider theme={ccmTheme}>
+      <SnackbarProvider maxSnack={3}>
+        <BrowserRouter>
+          <Switch>
+            <Route exact={true} path='/access-denied'>
+              <AccessDenied {...helpContactProps} />
+            </Route>
+            <Route exact={true} path='/launch-error'>
+              <LaunchError {...helpContactProps} />
+            </Route>
+            <Route><App /></Route>
+          </Switch>
+        </BrowserRouter>
+      </SnackbarProvider>
+     </ThemeProvider>
+   </StyledEngineProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )

@@ -1,14 +1,27 @@
 import React from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  fileNameContainer: {
+const PREFIX = 'CSVFileName'
+
+const classes = {
+  fileNameContainer: `${PREFIX}-fileNameContainer`,
+  fileName: `${PREFIX}-fileName`
+}
+
+const Root = styled('h5')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.fileNameContainer}`]: {
     marginBottom: 15,
     paddingLeft: 10,
     paddingRight: 10,
     textAlign: 'left'
   },
-  fileName: {
+
+  [`& .${classes.fileName}`]: {
     color: theme.palette.info.main,
     fontFamily: 'monospace'
   }
@@ -19,11 +32,10 @@ interface CSVFileNameProps {
 }
 
 export default function CSVFileName (props: CSVFileNameProps): JSX.Element {
-  const classes = useStyles()
   return (
-    <h5 className={classes.fileNameContainer}>
+    <Root className={classes.fileNameContainer}>
       <Typography component='span'>File: </Typography>
       <Typography component='span' className={classes.fileName}>{props.file.name}</Typography>
-    </h5>
+    </Root>
   )
 }

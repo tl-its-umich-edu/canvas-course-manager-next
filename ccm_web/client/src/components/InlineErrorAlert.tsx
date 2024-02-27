@@ -1,16 +1,29 @@
 import React from 'react'
-import { Grid, makeStyles, Paper } from '@material-ui/core'
-import red from '@material-ui/core/colors/red'
-import ErrorIcon from '@material-ui/icons/Error'
+import { styled } from '@mui/material/styles'
+import { Grid, Paper } from '@mui/material'
+import ErrorIcon from '@mui/icons-material/Error'
+import { red } from '@mui/material/colors'
 
-const useStyles = makeStyles((theme) => ({
-  alert: {
+const PREFIX = 'InlineErrorAlert'
+
+const classes = {
+  alert: `${PREFIX}-alert`,
+  icon: `${PREFIX}-icon`
+}
+
+const StyledPaper = styled(Paper)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.alert}`]: {
     marginBottom: theme.spacing(2),
     padding: theme.spacing(1),
     color: theme.palette.error.dark,
     backgroundColor: red[50]
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     color: theme.palette.error.main
   }
 }))
@@ -26,13 +39,12 @@ but is part of the core later in 5. We can use that once we update.
 */
 
 export default function InlineErrorAlert (props: InlineAlertProps): JSX.Element {
-  const classes = useStyles()
   return (
-    <Paper className={classes.alert} elevation={0} role='alert'>
+    <StyledPaper className={classes.alert} elevation={0} role='alert'>
       <Grid container spacing={2} alignItems='center' direction='row' wrap='nowrap'>
         <Grid item><ErrorIcon className={classes.icon} /></Grid>
         <Grid item>{props.children}</Grid>
       </Grid>
-    </Paper>
+    </StyledPaper>
   )
 }

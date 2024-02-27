@@ -1,7 +1,8 @@
 import { useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid, Typography } from '@material-ui/core'
+
+import { styled } from '@mui/material/styles'
+import { Grid, Typography } from '@mui/material'
 
 import APIErrorMessage from '../components/APIErrorMessage'
 import FeatureCard from '../components/FeatureCard'
@@ -17,18 +18,26 @@ import { Globals } from '../models/models'
 import { CanvasCourseBase } from '../models/canvas'
 import { courseNameInputSchema, validateString } from '../utils/validation'
 
-const useStyles = makeStyles((theme) => ({
-  title: {
-    textAlign: 'left',
-    marginBottom: theme.spacing(1)
-  },
-  courseNameContainer: {
-    marginBottom: theme.spacing(2)
-  },
-  courseName: {
+const PREFIX = 'Home'
+
+const classes = {
+  courseName: `${PREFIX}-courseName`,
+  courseNameContainer: `${PREFIX}-courseNameContainer`,
+  title: `${PREFIX}-title`
+}
+
+const Root = styled('div')(({ theme }) => ({
+  [`& .${classes.courseName}`]: {
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
     textAlign: 'left'
+  },
+  [`& .${classes.courseNameContainer}`]: {
+    marginBottom: theme.spacing(2)
+  },
+  [`& .${classes.title}`]: {
+    textAlign: 'left',
+    marginBottom: theme.spacing(1)
   }
 }))
 
@@ -41,7 +50,6 @@ interface HomeProps {
 
 function Home (props: HomeProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
-  const classes = useStyles()
 
   const setCourseNameAsync = async (
     newCourseName: string
@@ -126,7 +134,7 @@ function Home (props: HomeProps): JSX.Element {
   }
 
   return (
-    <>
+    <Root>
     <Help baseHelpURL={props.globals.baseHelpURL} />
     <div className={classes.courseNameContainer}>
       {renderCourseRename()}
@@ -138,7 +146,7 @@ function Home (props: HomeProps): JSX.Element {
         return (renderFeatureGroup(featureGroup))
       })}
     </Grid>
-    </>
+    </Root>
   )
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Box, Button, CircularProgress, Grid, Typography } from '@mui/material'
 
 import { addCourseSections, getCourseSections } from '../api'
 import APIErrorMessage from '../components/APIErrorMessage'
@@ -27,36 +28,60 @@ import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValida
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 import { getRowNumber } from '../utils/fileUtils'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'BulkSectionCreate'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  confirmContainer: `${PREFIX}-confirmContainer`,
+  uploadContainer: `${PREFIX}-uploadContainer`,
+  backdrop: `${PREFIX}-backdrop`,
+  popover: `${PREFIX}-popover`,
+  paper: `${PREFIX}-paper`,
+  table: `${PREFIX}-table`,
+  buttonGroup: `${PREFIX}-buttonGroup`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     textAlign: 'left'
   },
-  confirmContainer: {
+
+  [`& .${classes.confirmContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
-  uploadContainer: {
+
+  [`&.${classes.uploadContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  popover: {
+
+  [`& .${classes.popover}`]: {
     pointerEvents: 'none'
   },
-  paper: {
+
+  [`& .${classes.paper}`]: {
     padding: theme.spacing(1)
   },
-  table: {
+
+  [`& .${classes.table}`]: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   }
 }))
@@ -86,8 +111,6 @@ interface BulkSectionCreatePageStateData {
 }
 
 function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
-  const classes = useStyles()
-
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>(
     { state: BulkSectionCreatePageState.UploadPending, schemaInvalidations: [], rowInvalidations: [] }
   )
@@ -261,23 +284,25 @@ Section 001`
   }
 
   const renderFileUpload = (): JSX.Element => {
-    return <div className={classes.uploadContainer}>
-      <Grid container>
-        <Grid item xs={12}>
-          <FileUpload onUploadComplete={(file) => setFile(file)} />
-        </Grid>
-      </Grid>
-      <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+    return (
+      <Root className={classes.uploadContainer}>
         <Grid container>
           <Grid item xs={12}>
-            <CircularProgress color="inherit" />
-          </Grid>
-          <Grid item xs={12}>
-          {renderLoadingText()}
+            <FileUpload onUploadComplete={(file) => setFile(file)} />
           </Grid>
         </Grid>
-      </Backdrop>
-    </div>
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item xs={12}>
+            {renderLoadingText()}
+            </Grid>
+          </Grid>
+        </Backdrop>
+      </Root>
+    )
   }
 
   const renderUpload = (): JSX.Element => {
