@@ -1,6 +1,6 @@
-import { createTheme, adaptV4Theme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles'
 
-const ccmTheme = createTheme(adaptV4Theme({
+const ccmTheme = createTheme({
   palette: {
     primary: {
       main: '#00274C'
@@ -17,12 +17,7 @@ const ccmTheme = createTheme(adaptV4Theme({
     info: {
       main: '#3F648E'
     }
-  },
-  props: {
-    MuiLink: {
-      underline: 'always'
-    }
   }
-}))
+})
 
 export default ccmTheme

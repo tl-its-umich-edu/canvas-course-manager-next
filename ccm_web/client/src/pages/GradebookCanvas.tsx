@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { Box, Button, Grid, Link, Typography } from '@mui/material'
+import { Button, Grid, Link, Typography } from '@mui/material'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import CanvasSettingsLink from '../components/CanvasSettingsLink'
@@ -291,22 +291,18 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
       <Confirmation>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-              <GradebookUploadConfirmationTable grades={grades} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
-              <ConfirmDialog
-                message={overideGradeMismatchWarning ? warningText : undefined}
-                icon={overideGradeMismatchWarning ? warningIcon : undefined}
-                cancel={resetPageState}
-                submit={() => setPageState({ state: GradebookCanvasPageState.Success })}
-                download={downloadData}
-              />
-            </Grid>
-          </Box>
+          <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }}className={confirmationClasses.table}>
+            <GradebookUploadConfirmationTable grades={grades} />
+          </Grid>
+          <Grid item xs={12} sm={3} sx={{ order: { xs: 2, sm: 1 } }}>
+            <ConfirmDialog
+              message={overideGradeMismatchWarning ? warningText : undefined}
+              icon={overideGradeMismatchWarning ? warningIcon : undefined}
+              cancel={resetPageState}
+              submit={() => setPageState({ state: GradebookCanvasPageState.Success })}
+              download={downloadData}
+            />
+          </Grid>
         </Grid>
       </Confirmation>
     )
