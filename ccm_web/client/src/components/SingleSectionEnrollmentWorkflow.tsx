@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { Backdrop, Box, Button, CircularProgress, Grid, Link, Typography } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
 import APIErrorMessage from './APIErrorMessage'
 import BulkApiErrorContent from './BulkApiErrorContent'
@@ -272,20 +272,16 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.table}>
+            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
               <BulkEnrollUMUserConfirmationTable enrollments={enrollments} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
               <ConfirmDialog
                 submit={async () => await doAddEnrollments(section, enrollments)}
                 cancel={handleUploadReset}
                 disabled={isAddEnrollmentsLoading}
               />
             </Grid>
-          </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>

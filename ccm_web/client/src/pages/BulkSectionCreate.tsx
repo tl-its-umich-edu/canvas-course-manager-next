@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { Backdrop, Box, Button, CircularProgress, Grid, Typography } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Typography } from '@mui/material'
 
 import { addCourseSections, getCourseSections } from '../api'
 import APIErrorMessage from '../components/APIErrorMessage'
@@ -357,16 +357,12 @@ Section 001`
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.table}>
-              <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
-              <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
-            </Grid>
-          </Box>
+          <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
+            <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
+          </Grid>
+          <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
+            <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
+          </Grid>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddSectionsLoading}>
         <Grid container>

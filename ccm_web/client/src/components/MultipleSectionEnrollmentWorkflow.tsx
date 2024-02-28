@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles'
 import {
   Backdrop,
   Button,
-  Box,
   CircularProgress,
   Grid,
   Link,
@@ -293,20 +292,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.confirmationTable}>
+            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.confirmationTable}>
               <BulkEnrollUMUserToSectionsConfirmationTable enrollments={enrollments} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
               <ConfirmDialog
                 submit={async () => await doAddEnrollments(enrollmentData)}
                 cancel={resetUpload}
                 disabled={isAddEnrollmentsLoading}
               />
             </Grid>
-          </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>

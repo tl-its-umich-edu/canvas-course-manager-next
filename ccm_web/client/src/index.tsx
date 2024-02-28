@@ -1,6 +1,6 @@
 import { SnackbarProvider } from 'notistack'
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material'
 
@@ -15,7 +15,8 @@ const helpContactProps = {
   helpLink: 'https://its.umich.edu/help'
 }
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root') as Element)
+root.render(
   <React.StrictMode>
    <StyledEngineProvider injectFirst>
      <ThemeProvider theme={ccmTheme}>
@@ -34,6 +35,5 @@ ReactDOM.render(
       </SnackbarProvider>
      </ThemeProvider>
    </StyledEngineProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 )

@@ -53,8 +53,8 @@ export default function Accordion (props: AccordionProps): JSX.Element {
       <MUIAccordion defaultExpanded>
         <MUIAccordionSummary
           className={classes.summary}
-          classes={{ root: summaryTextClass, expandIcon: summaryTextClass }}
-          expandIcon={<ExpandMoreIcon />}
+          classes={{ root: summaryTextClass }}
+          expandIcon={<ExpandMoreIcon classes={{ root: summaryTextClass }}/>}
           id={`${props.id}-header`}
           aria-controls={`${props.id}-content`}
           onFocusVisible={() => setIsSummaryFocusVisible(true)}
