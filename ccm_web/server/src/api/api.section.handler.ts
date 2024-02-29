@@ -4,7 +4,7 @@ import { APIErrorData } from './api.interfaces'
 import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
 import { SectionUserDto } from './dtos/api.section.users.dto'
 import {
-  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, CanvasRole, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
+  CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
 } from '../canvas/canvas.interfaces'
 
 import baseLogger from '../logger'
