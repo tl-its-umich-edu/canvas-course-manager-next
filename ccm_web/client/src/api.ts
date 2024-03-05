@@ -11,7 +11,7 @@ const jsonMimeType = 'application/json'
 
 export const getCSRFToken = (): string | undefined => Cookies.get('CSRF-Token')
 
-const initCSRFRequest = (headers: string[][]): RequestInit => {
+const initCSRFRequest = (headers: Array<[string, string]>): RequestInit => {
   const csrfToken = getCSRFToken()
   if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
   const request: RequestInit = { headers }
@@ -25,7 +25,7 @@ const getGet = (): RequestInit => {
 }
 
 const getPost = (body: string): RequestInit => {
-  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initCSRFRequest(headers)
   request.method = 'POST'
   request.body = body
@@ -33,7 +33,7 @@ const getPost = (body: string): RequestInit => {
 }
 
 const getDelete = (body: string): RequestInit => {
-  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initCSRFRequest(headers)
   request.method = 'DELETE'
   request.body = body
@@ -42,7 +42,7 @@ const getDelete = (body: string): RequestInit => {
 
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (body: string): RequestInit => {
-  const headers: string[][] = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+  const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
   const request = initCSRFRequest(headers)
   request.method = 'PUT'
   request.body = body
