@@ -59,9 +59,10 @@ export class SectionApiHandler {
       .replace('@', '+')
 
     const enrollmentType = getCanvasRole(user.role)
+
     const roleParams = (
       this.customCanvasRoles !== undefined &&
-      Object.values(CustomCanvasRoleType).includes(String(enrollmentType)) &&
+      Object.values(CustomCanvasRoleType).includes(enrollmentType as unknown as CustomCanvasRoleType) &&
       Object.keys(this.customCanvasRoles).includes(String(enrollmentType))
     )
       ? { role_id: this.customCanvasRoles[enrollmentType] }
