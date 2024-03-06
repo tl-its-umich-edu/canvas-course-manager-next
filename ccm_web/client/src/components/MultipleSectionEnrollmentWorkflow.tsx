@@ -181,14 +181,14 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
     return (
-      (<Root>
+      (<>
         {file !== undefined && <CSVFileName file={file} />}
         <RowLevelErrorsContent
           table={<ValidationErrorTable invalidations={errors} />}
           title='Review your CSV file'
           resetUpload={resetUpload}
         />
-      </Root>)
+      </>)
     )
   }
 
@@ -354,9 +354,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   return (
-    <>
+    <Root>
     <Typography variant='h6' component='h2'>Add Users to Multiple Sections</Typography>
     {renderWorkflowState(workflowState)}
-    </>
+    </Root>
   )
 }

@@ -134,7 +134,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
 
   const getMerging = (): JSX.Element => {
     return (
-      <Root style={{ paddingTop: '20px', minHeight: '400px', textAlign: 'center' }}>
+      <div style={{ paddingTop: '20px', minHeight: '400px', textAlign: 'center' }}>
         <Grid container>
           <Grid item xs={12}>
             Merging sections...
@@ -143,7 +143,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
             <LinearProgress />
           </Grid>
         </Grid>
-      </Root>
+      </div>
     )
   }
 
@@ -289,11 +289,11 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

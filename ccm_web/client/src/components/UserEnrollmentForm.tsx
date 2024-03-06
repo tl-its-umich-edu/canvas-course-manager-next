@@ -190,7 +190,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   const emailField = (
-    <Root className={`${classes.spacing} ${classes.container}`}>
+    <div className={`${classes.spacing} ${classes.container}`}>
       <Typography className={classes.spacing}>
         Enter the user&apos;s non-UM email address, and click &quot;Search&quot; to see if they are in Canvas. (Required)
       </Typography>
@@ -235,7 +235,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           </Grid>
         </Grid>
       </Backdrop>
-    </Root>
+    </div>
   )
 
   const nameInput = (
@@ -423,9 +423,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   return (
-    <div id='single-add-user'>
+    <Root id='single-add-user'>
       <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
       {successResult === undefined ? renderForm() : renderSuccess(successResult)}
-    </div>
+    </Root>
   )
 }

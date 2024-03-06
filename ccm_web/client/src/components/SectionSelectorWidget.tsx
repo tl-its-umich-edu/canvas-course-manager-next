@@ -376,7 +376,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     } else if (searchFieldText.length > 0) {
       return (<ClearIcon onClick={clearSearch}/>)
     } else {
-      return (<Root></Root>)
+      return (<></>)
     }
   }
 
@@ -525,7 +525,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
-    <>
+    <Root>
     <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
       {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
     </span>
@@ -618,7 +618,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         </Backdrop>
       </Grid>
     </Grid>
-    </>
+    </Root>
   )
 }
 

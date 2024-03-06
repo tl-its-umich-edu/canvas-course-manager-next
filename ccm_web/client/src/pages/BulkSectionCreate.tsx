@@ -431,11 +431,11 @@ Section 001`
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

@@ -165,7 +165,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     }
 
     return (
-      (<Root>
+      (<>
         <div className={classes.container}>
           <CreateSelectSectionWidget
             sections={props.sections}
@@ -199,7 +199,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
             Select
           </Button>
         </Grid>
-      </Root>)
+      </>)
     )
   }
 
@@ -338,10 +338,10 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   }
 
   return (
-    <>
+    <Root>
     <Typography variant='h6' component='h2'>Add Users to Single Section</Typography>
     <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
     {getStepContent(activeStep)}
-    </>
+    </Root>
   )
 }

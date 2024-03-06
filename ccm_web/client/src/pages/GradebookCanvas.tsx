@@ -37,7 +37,7 @@ const Root = styled('div')((
     textAlign: 'left'
   },
 
-  [`&.${classes.uploadHeader}`]: {
+  [`& .${classes.uploadHeader}`]: {
     paddingTop: 15
   },
 
@@ -207,7 +207,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     return (
-      <Root className={classes.uploadHeader}>
+      <div className={classes.uploadHeader}>
         <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
         <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
         <br/>
@@ -217,7 +217,7 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
           <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_blank' rel="noopener">Grading scheme must be enabled in your course settings.</Link></Typography></li>
           <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook.</Link></Typography></li>
         </ol>
-      </Root>
+      </div>
     )
   }
 
@@ -350,11 +350,11 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

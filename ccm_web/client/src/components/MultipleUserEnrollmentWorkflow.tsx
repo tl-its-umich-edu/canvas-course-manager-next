@@ -199,7 +199,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       : { canCreate: false }
 
     return <>
-    <Root className={classes.container}>
+    <div className={classes.container}>
       <CreateSelectSectionWidget
         sections={props.sections}
         selectedSection={selectedSection}
@@ -212,7 +212,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           <Grid item xs={12}>Loading section data from Canvas</Grid>
         </Grid>
       </Backdrop>
-    </Root>
+    </div>
     <Grid container className={classes.buttonGroup} justifyContent='space-between'>
       <Button
         variant='outlined'
@@ -457,12 +457,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   return (
-    <div>
+    <Root>
       <Grid>
         <Typography variant='h6' component='h3'>Add Multiple Users Through CSV</Typography>
         <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
         <div>{renderActiveStep(activeStep)}</div>
       </Grid>
-    </div>
+    </Root>
   )
 }

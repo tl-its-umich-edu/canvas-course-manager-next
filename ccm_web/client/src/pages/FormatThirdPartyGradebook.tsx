@@ -243,7 +243,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
     }
 
     return (
-      <Root>
+      <div>
         <Typography align='left'>
           Select one or more sections whose students you want to collect grades from your CSV for.
         </Typography>
@@ -288,7 +288,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             Select{selectedSections !== undefined ? ` (${selectedSections.length})` : ''}
           </Button>
         </Grid>
-      </Root>
+      </div>
     )
   }
 
@@ -453,11 +453,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div>{renderStep(activeStep)}</div>
-    </div>
+    </Root>
   )
 }
