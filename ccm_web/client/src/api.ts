@@ -9,11 +9,10 @@ import handleErrors, { CanvasError } from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
 
-export const getCSRFToken = (): string | undefined => Cookies.get('CSRF-Token')
-
+export const getCSRFToken = (): string | undefined => Cookies.get('x-csrf-token')
 const initCSRFRequest = (headers: Array<[string, string]>): RequestInit => {
   const csrfToken = getCSRFToken()
-  if (csrfToken !== undefined) headers.push(['CSRF-Token', csrfToken])
+  // if (csrfToken !== undefined) headers.push(['x-csrf-token', csrfToken])
   const request: RequestInit = { headers }
   return request
 }

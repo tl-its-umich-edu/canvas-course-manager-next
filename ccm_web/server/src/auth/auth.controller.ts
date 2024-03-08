@@ -16,7 +16,14 @@ export class AuthController {
   async setCSRFTokenCookie (
     @Req() req: Request, @Res({ passthrough: true }) res: Response
   ): Promise<void> {
-    // Cookie options deliberately include defaults of httpOnly false and signed false.
-    res.cookie('CSRF-Token', req.csrfToken(), this.authService.commonCookieOptions)
+    const csrfToken = req.csrfToken?.()
+    console.log(`csrfToken in auth controller: ${csrfToken}`)
+    if (csrfToken !== undefined) {
+      // Cookie options deliberately include defaults of httpOnly false and signed false.
+      res.cookie('x-csrf-token', csrfToken, this.authService.commonCookieOptions)
+    }
+    else {
+      console.error('Failed to generate CSRF token.')
+    }
   }
 }
