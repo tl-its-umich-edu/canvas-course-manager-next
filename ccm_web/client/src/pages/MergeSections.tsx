@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
-import { Button, Grid, LinearProgress, makeStyles, Paper, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+
+import { Button, Grid, LinearProgress, Paper, Typography } from '@mui/material'
 
 import { useSnackbar } from 'notistack'
 
@@ -18,14 +20,32 @@ import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, Uniqnam
 import CourseSectionList from '../components/CourseSectionList'
 import Help from '../components/Help'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'MergeSections'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`,
+  sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
+  selectorPaper: `${PREFIX}-selectorPaper`,
+  backdrop: `${PREFIX}-backdrop`,
+  submitButton: `${PREFIX}-submitButton`,
+  buttonGroup: `${PREFIX}-buttonGroup`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     textAlign: 'left'
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  sectionSelectionContainer: {
+
+  [`& .${classes.sectionSelectionContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
@@ -33,19 +53,23 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column'
   },
-  selectorPaper: {
+
+  [`& .${classes.selectorPaper}`]: {
     padding: theme.spacing(2),
     height: '100%'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  submitButton: {
+
+  [`& .${classes.submitButton}`]: {
     float: 'right'
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   }
 }))
@@ -57,7 +81,6 @@ enum PageState {
 }
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
-  const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
@@ -266,11 +289,11 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

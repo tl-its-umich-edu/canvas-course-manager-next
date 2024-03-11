@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box, Button, Backdrop, CircularProgress, Grid, Link, makeStyles, Typography
-} from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Button, Backdrop, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
 import * as api from '../api'
 import APIErrorMessage from '../components/APIErrorMessage'
@@ -28,36 +27,62 @@ import ThirdPartyGradebookProcessor, {
 } from '../utils/ThirdPartyGradebookProcessor'
 import { createOutputFileName, getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'FormatThirdPartyGradebook'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  stepper: `${PREFIX}-stepper`,
+  table: `${PREFIX}-table`,
+  selectContainer: `${PREFIX}-selectContainer`,
+  uploadContainer: `${PREFIX}-uploadContainer`,
+  reviewContainer: `${PREFIX}-reviewContainer`,
+  reviewNotes: `${PREFIX}-reviewNotes`,
+  backdrop: `${PREFIX}-backdrop`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     textAlign: 'left'
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  stepper: {
+
+  [`& .${classes.stepper}`]: {
     textAlign: 'center',
     paddingTop: '20px'
   },
-  table: {
+
+  [`& .${classes.table}`]: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  selectContainer: {
+
+  [`& .${classes.selectContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
-  uploadContainer: {
+
+  [`& .${classes.uploadContainer}`]: {
     textAlign: 'center'
   },
-  reviewContainer: {
+
+  [`& .${classes.reviewContainer}`]: {
     textAlign: 'center'
   },
-  reviewNotes: {
+
+  [`& .${classes.reviewNotes}`]: {
     textAlign: 'left'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute'
@@ -67,8 +92,6 @@ const useStyles = makeStyles((theme) => ({
 interface FormatThirdPartyGradebookProps extends CCMComponentProps {}
 
 export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradebookProps): JSX.Element {
-  const classes = useStyles()
-
   const csvParser = new FileParserWrapper(
     Object.assign({ ...FileParserWrapper.defaultParseConfigOptions }, { transformHeader: undefined })
   )
@@ -368,8 +391,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       <div className={classes.reviewContainer}>
         <CSVFileName file={file} />
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 2, md: 1, lg: 1 }}>
-            <Grid item xs={12} sm={12} md={9} className={classes.table}>
+            <Grid item xs={12} sm={12} md={9} sx={{ order: { xs: 2, sm: 2, md: 1, lg: 1 } }} className={classes.table}>
               <Typography gutterBottom className={classes.reviewNotes}>
                 Notes: The first row shown below is the &quot;{POINTS_POS_TEXT}&quot; row.
                 In addition to the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; and assignment columns,
@@ -378,9 +400,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               </Typography>
               <ThirdPartyGradebookConfirmationTable records={recordsToReview} assignmentHeader={assignmentHeader} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 1, md: 2, lg: 2 }}>
-            <Grid item xs={12} sm={12} md={3}>
+            <Grid item xs={12} sm={12} md={3} sx={{ order: { xs: 1, sm: 1, md: 2, lg: 2 } }}>
               <ConfirmDialog
                 message='Your file is valid! If this looks correct, click "Submit" to proceed with downloading.'
                 submit={() => setActiveStep(CSVWorkflowStep.Confirmation)}
@@ -394,7 +414,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
                 }}
               />
             </Grid>
-          </Box>
         </Grid>
       </div>
     )
@@ -434,11 +453,11 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
       <div>{renderStep(activeStep)}</div>
-    </div>
+    </Root>
   )
 }

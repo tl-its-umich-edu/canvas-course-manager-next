@@ -1,5 +1,5 @@
 import React from 'react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
 import HelpContact, { HelpContactProps } from '../components/HelpContact'
 import InlineErrorAlert from '../components/InlineErrorAlert'

@@ -1,21 +1,39 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles'
 import {
-  Accordion as MUIAccordion, AccordionDetails as MUIAccordionDetails, AccordionSummary as MUIAccordionSummary,
-  makeStyles
-} from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+  Accordion as MUIAccordion,
+  AccordionDetails as MUIAccordionDetails,
+  AccordionSummary as MUIAccordionSummary
+} from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-const useStyles = makeStyles((theme) => ({
-  container: {
+const PREFIX = 'Accordion'
+
+const classes = {
+  container: `${PREFIX}-container`,
+  summary: `${PREFIX}-summary`,
+  summaryFocusVisible: `${PREFIX}-summaryFocusVisible`,
+  summaryFocusNotVisible: `${PREFIX}-summaryFocusNotVisible`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.container}`]: {
     paddingTop: theme.spacing(1)
   },
-  summary: {
+
+  [`& .${classes.summary}`]: {
     backgroundColor: theme.palette.primary.main
   },
-  summaryFocusVisible: {
+
+  [`& .${classes.summaryFocusVisible}`]: {
     color: theme.palette.primary.main
   },
-  summaryFocusNotVisible: {
+
+  [`& .${classes.summaryFocusNotVisible}`]: {
     color: theme.palette.primary.contrastText
   }
 }))
@@ -27,17 +45,16 @@ interface AccordionProps {
 }
 
 export default function Accordion (props: AccordionProps): JSX.Element {
-  const classes = useStyles()
   const [isSummaryFocusVisible, setIsSummaryFocusVisible] = useState(false)
   const summaryTextClass = isSummaryFocusVisible ? classes.summaryFocusVisible : classes.summaryFocusNotVisible
 
   return (
-    <div className={classes.container}>
+    <Root className={classes.container}>
       <MUIAccordion defaultExpanded>
         <MUIAccordionSummary
           className={classes.summary}
-          classes={{ root: summaryTextClass, expandIcon: summaryTextClass }}
-          expandIcon={<ExpandMoreIcon />}
+          classes={{ root: summaryTextClass }}
+          expandIcon={<ExpandMoreIcon classes={{ root: summaryTextClass }}/>}
           id={`${props.id}-header`}
           aria-controls={`${props.id}-content`}
           onFocusVisible={() => setIsSummaryFocusVisible(true)}
@@ -49,6 +66,6 @@ export default function Accordion (props: AccordionProps): JSX.Element {
           {props.children}
         </MUIAccordionDetails>
       </MUIAccordion>
-    </div>
+    </Root>
   )
 }

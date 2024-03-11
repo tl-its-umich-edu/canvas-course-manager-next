@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material'
 
 import APIErrorMessage from './APIErrorMessage'
 import CanvasSettingsLink from './CanvasSettingsLink'
@@ -20,21 +21,39 @@ import {
   emailInputSchema, firstNameInputSchema, lastNameInputSchema, validateString, ValidationResult
 } from '../utils/validation'
 
-const useStyles = makeStyles((theme) => ({
-  spacing: {
+const PREFIX = 'UserEnrollmentForm'
+
+const classes = {
+  spacing: `${PREFIX}-spacing`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  alert: `${PREFIX}-alert`,
+  container: `${PREFIX}-container`,
+  backdrop: `${PREFIX}-backdrop`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  alert: {
+
+  [`& .${classes.alert}`]: {
     padding: theme.spacing(2)
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute',
@@ -50,8 +69,6 @@ interface ExternalEnrollmentSummary {
 interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
-  const classes = useStyles()
-
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [email, setEmail] = useState<string | undefined>(undefined)
@@ -406,9 +423,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   return (
-    <div id='single-add-user'>
+    <Root id='single-add-user'>
       <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
       {successResult === undefined ? renderForm() : renderSuccess(successResult)}
-    </div>
+    </Root>
   )
 }

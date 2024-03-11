@@ -1,10 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { Button, Grid, TextField, Typography } from '@material-ui/core'
-import { Edit as EditIcon } from '@material-ui/icons'
+import { styled } from '@mui/material/styles'
+import { Button, Grid, TextField, Typography } from '@mui/material'
+import { Edit as EditIcon } from '@mui/icons-material'
 import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
 import { ValidationResult } from '../utils/validation'
+
+const PREFIX = 'InlineTextEdit'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  editIcon: `${PREFIX}-editIcon`,
+  buttonSep: `${PREFIX}-buttonSep`,
+  button: `${PREFIX}-button`
+}
+
+const Root = styled('div')(() => ({
+  [`&.${classes.root}`]: {
+    '& .MuiInputBase-root.Mui-disabled': {
+      color: 'rgba(0, 0, 0, 0.6)' // (default alpha is 0.38)
+    },
+    '& input:disabled': {
+      cursor: 'pointer'
+    }
+  },
+
+  [`& .${classes.editIcon}`]: {
+    cursor: 'pointer'
+  },
+
+  [`& .${classes.buttonSep}`]: {
+    marginRight: 15
+  },
+
+  [`& .${classes.button}`]: {
+    margin: 5
+  }
+}))
 
 interface InlineTextEditProps {
   text: string
@@ -15,28 +47,7 @@ interface InlineTextEditProps {
   save: (text: string) => Promise<void>
 }
 
-const useStyles = makeStyles(() => ({
-  root: {
-    '& .MuiInputBase-root.Mui-disabled': {
-      color: 'rgba(0, 0, 0, 0.6)' // (default alpha is 0.38)
-    },
-    '& input:disabled': {
-      cursor: 'pointer'
-    }
-  },
-  editIcon: {
-    cursor: 'pointer'
-  },
-  buttonSep: {
-    marginRight: 15
-  },
-  button: {
-    margin: 5
-  }
-}))
-
 function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
-  const classes = useStyles()
   const [isEditing, setIsEditing] = useState(false)
   const [tempTextValue, setTempTextValue] = useState(props.text)
   const [validationResult, setValidationResult] = useState<ValidationResult | undefined>(undefined)
@@ -87,7 +98,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
       : 'Value for the field is invalid.'
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       {
         isEditing
           ? (
@@ -145,7 +156,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
               </>
             )
       }
-    </div>
+    </Root>
   )
 }
 

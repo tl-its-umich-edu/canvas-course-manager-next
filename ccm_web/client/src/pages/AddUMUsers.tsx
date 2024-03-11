@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography } from '@mui/material'
 
 import { getCourseSections } from '../api'
 import Help from '../components/Help'
@@ -12,11 +13,23 @@ import {
 } from '../models/canvas'
 import { CCMComponentProps } from '../models/FeatureUIData'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'AddUMUsers'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   }
 }))
@@ -37,7 +50,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const { canvasURL, course } = props.globals
   const settingsURL = `${canvasURL}/courses/${course.id}/settings`
 
-  const classes = useStyles()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectInputMethod)
   const [inputMethod, setInputMethod] = useState<InputMethod>(InputMethod.CSVSingleSection)
 
@@ -98,7 +110,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>
@@ -110,7 +122,7 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
               : <MultipleSectionEnrollmentWorkflow {...commonProps} />
         }
       </div>
-    </div>
+    </Root>
   )
 }
 

@@ -1,8 +1,19 @@
 import React from 'react'
-import { makeStyles, Typography, Link } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography, Link } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  helpText: {
+const PREFIX = 'Help'
+
+const classes = {
+  helpText: `${PREFIX}-helpText`
+}
+
+const StyledTypography = styled(Typography)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.helpText}`]: {
     float: 'right'
   }
 }))
@@ -13,11 +24,8 @@ interface HelpLinkProps {
 }
 
 function Help (props: HelpLinkProps): JSX.Element {
-  const classes = useStyles()
   const fullURL = props.baseHelpURL + (props.helpURLEnding ?? '')
-  return (
-    <Typography className={classes.helpText} ><Link href={fullURL} target='_blank' rel="noopener">Need Help?</Link></Typography>
-  )
+  return <StyledTypography className={classes.helpText} ><Link href={fullURL} target='_blank' rel="noopener">Need Help?</Link></StyledTypography>
 }
 
 export default Help

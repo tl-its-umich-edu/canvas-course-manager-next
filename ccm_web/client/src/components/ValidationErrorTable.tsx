@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import {
   Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow
-} from '@material-ui/core'
+} from '@mui/material'
 import StyledTableCell from './StyledTableCell'
 import TableCaption from './TableCaption'
 import { TablePaginationActions } from './TablePagination'
