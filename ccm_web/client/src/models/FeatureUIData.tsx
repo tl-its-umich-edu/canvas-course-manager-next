@@ -1,10 +1,10 @@
 import React, { ComponentType } from 'react'
-import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined'
-import LibraryBooksOutlinedIcon from '@material-ui/icons/LibraryBooksOutlined'
-import MergeTypeIcon from '@material-ui/icons/MergeType'
-import PersonAddIcon from '@material-ui/icons/PersonAdd'
-import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined'
-import PostAddOutlinedIcon from '@material-ui/icons/PostAddOutlined'
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined'
+import MergeTypeIcon from '@mui/icons-material/MergeType'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
+import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined'
 
 import {
   FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,

@@ -1,23 +1,40 @@
 import React from 'react'
-import { Divider, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
-import BuildIcon from '@material-ui/icons/Build'
+import { styled } from '@mui/material/styles'
+import { Divider, Grid, Link, Paper, Typography } from '@mui/material'
+import BuildIcon from '@mui/icons-material/Build'
 
 import Breadcrumbs, { BreadcrumbsProps } from './Breadcrumbs'
 import ResponsiveHelper from './ResponsiveHelper'
 import { getCSRFToken } from '../api'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'Layout'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`,
+  devModePaper: `${PREFIX}-devModePaper`,
+  swaggerLink: `${PREFIX}-swaggerLink`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'center',
     padding: theme.spacing(2)
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  devModePaper: {
+
+  [`& .${classes.devModePaper}`]: {
     padding: theme.spacing(1)
   },
-  swaggerLink: {
+
+  [`& .${classes.swaggerLink}`]: {
     display: 'block',
     clear: 'both'
   }
@@ -29,8 +46,6 @@ interface LayoutProps extends BreadcrumbsProps {
 }
 
 export default function Layout (props: LayoutProps): JSX.Element {
-  const classes = useStyles()
-
   const devBlock = props.devMode === true && (
     <>
     <div className={`${classes.swaggerLink} ${classes.spacing}`}>
@@ -50,7 +65,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
   )
 
   return (
-    <Grid container className={classes.root}>
+    <StyledGrid container className={classes.root}>
       <Grid item sm={12} md={10} lg={9}>
         {devBlock}
         <div className={classes.spacing}><Breadcrumbs {...props} /></div>
@@ -60,6 +75,6 @@ export default function Layout (props: LayoutProps): JSX.Element {
           <Typography>Copyright © 2022 The Regents of the University of Michigan</Typography>
         </footer>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }

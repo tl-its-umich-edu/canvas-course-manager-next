@@ -1,20 +1,37 @@
 import React from 'react'
-import { Card, CardContent, CardActions, makeStyles } from '@material-ui/core'
-import CheckCircle from '@material-ui/icons/CheckCircle'
+import { styled } from '@mui/material/styles'
+import { Card, CardContent, CardActions } from '@mui/material'
+import CheckCircle from '@mui/icons-material/CheckCircle'
 
-const useStyles = makeStyles((theme) => ({
-  card: {
+const PREFIX = 'SuccessCard'
+
+const classes = {
+  card: `${PREFIX}-card`,
+  cardFooter: `${PREFIX}-cardFooter`,
+  cardFooterText: `${PREFIX}-cardFooterText`,
+  icon: `${PREFIX}-icon`
+}
+
+const StyledCard = styled(Card)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.card}`]: {
     textAlign: 'center'
   },
-  cardFooter: {
+
+  [`& .${classes.cardFooter}`]: {
     display: 'block',
     backgroundColor: '#F7F7F7',
     textAlign: 'center'
   },
-  cardFooterText: {
+
+  [`& .${classes.cardFooterText}`]: {
     textAlign: 'center'
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     color: theme.palette.success.main,
     width: 100,
     height: 100
@@ -27,9 +44,8 @@ interface SuccessCardProps {
 }
 
 export default function SuccessCard (props: SuccessCardProps): JSX.Element {
-  const classes = useStyles()
   return (
-    <Card className={classes.card} variant='outlined'>
+    <StyledCard className={classes.card} variant='outlined'>
       <CardContent>
         <CheckCircle className={classes.icon} fontSize='large'/>
         {props.message}
@@ -38,6 +54,6 @@ export default function SuccessCard (props: SuccessCardProps): JSX.Element {
         props.nextAction !== undefined &&
           <CardActions className={classes.cardFooter}>{props.nextAction}</CardActions>
       }
-    </Card>
+    </StyledCard>
   )
 }

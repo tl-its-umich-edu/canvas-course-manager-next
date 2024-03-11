@@ -1,8 +1,13 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+const PREFIX = 'TableCaption'
 
-const useStyles = makeStyles(() => ({
-  srOnly: {
+const classes = {
+  srOnly: `${PREFIX}-srOnly`
+}
+
+const Root = styled('caption')(() => ({
+  [`&.${classes.srOnly}`]: {
     position: 'absolute',
     width: '1px',
     height: '1px',
@@ -19,6 +24,5 @@ interface TableCaptionProps {
 }
 
 export default function TableCaption (props: TableCaptionProps): JSX.Element {
-  const classes = useStyles()
-  return <caption className={classes.srOnly}>{props.text}</caption>
+  return <Root className={classes.srOnly}>{props.text}</Root>
 }

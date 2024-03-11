@@ -1,8 +1,19 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles'
 import {
-  Backdrop, Button, Box, CircularProgress, Grid, Link, makeStyles, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Typography
-} from '@material-ui/core'
+  Backdrop,
+  Button,
+  CircularProgress,
+  Grid,
+  Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from '@mui/material'
 
 import Accordion from './Accordion'
 import APIErrorMessage from './APIErrorMessage'
@@ -34,31 +45,46 @@ import {
 import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
 
-enum CSVWorkflowState {
-  Upload,
-  Review,
-  Confirmation
+const PREFIX = 'MultipleSectionEnrollmentWorkflow'
+
+const classes = {
+  spacing: `${PREFIX}-spacing`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  sectionIdTable: `${PREFIX}-sectionIdTable`,
+  confirmationTable: `${PREFIX}-confirmationTable`,
+  container: `${PREFIX}-container`,
+  backdrop: `${PREFIX}-backdrop`
 }
 
-const useStyles = makeStyles((theme) => ({
-  spacing: {
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  sectionIdTable: {
+
+  [`& .${classes.sectionIdTable}`]: {
     maxHeight: 300
   },
-  confirmationTable: {
+
+  [`& .${classes.confirmationTable}`]: {
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1)
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute',
@@ -66,13 +92,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+enum CSVWorkflowState {
+  Upload,
+  Review,
+  Confirmation
+}
+
 interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {}
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
 
-  const classes = useStyles()
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
@@ -150,14 +181,14 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
     return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <RowLevelErrorsContent
-        table={<ValidationErrorTable invalidations={errors} />}
-        title='Review your CSV file'
-        resetUpload={resetUpload}
-      />
-      </>
+      (<>
+        {file !== undefined && <CSVFileName file={file} />}
+        <RowLevelErrorsContent
+          table={<ValidationErrorTable invalidations={errors} />}
+          title='Review your CSV file'
+          resetUpload={resetUpload}
+        />
+      </>)
     )
   }
 
@@ -261,20 +292,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.confirmationTable}>
+            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.confirmationTable}>
               <BulkEnrollUMUserToSectionsConfirmationTable enrollments={enrollments} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
               <ConfirmDialog
                 submit={async () => await doAddEnrollments(enrollmentData)}
                 cancel={resetUpload}
                 disabled={isAddEnrollmentsLoading}
               />
             </Grid>
-          </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
@@ -327,9 +354,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   return (
-    <>
+    <Root>
     <Typography variant='h6' component='h2'>Add Users to Multiple Sections</Typography>
     {renderWorkflowState(workflowState)}
-    </>
+    </Root>
   )
 }

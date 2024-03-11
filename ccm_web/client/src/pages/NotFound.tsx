@@ -1,24 +1,36 @@
 import React from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'NotFound'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   }
 }))
 
 export default function NotFound (): JSX.Element {
-  const classes = useStyles()
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Typography variant='h5' component='h1' className={classes.spacing}>Not Found</Typography>
       <Typography gutterBottom>There is no content at this route.</Typography>
       <Typography>
         You can use the &quot;Canvas Course Manager&quot; link above to return to the home page.
       </Typography>
-    </div>
+    </Root>
   )
 }

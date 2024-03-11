@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from 'react'
+import { styled } from '@mui/material/styles'
 import { useSnackbar } from 'notistack'
 import {
-  Backdrop, Button, ButtonBase, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid,
-  GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField,
-  Typography, useMediaQuery, useTheme
-} from '@material-ui/core'
-import ClearIcon from '@material-ui/icons/Clear'
-import SortIcon from '@material-ui/icons/Sort'
+  Backdrop,
+  Button,
+  ButtonBase,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  GridSize,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@mui/material'
+import ClearIcon from '@mui/icons-material/Clear'
+import SortIcon from '@mui/icons-material/Sort'
 import { useDebounce } from '@react-hook/debounce'
 
 import APIErrorMessage from './APIErrorMessage'
@@ -15,8 +35,34 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../utils/SectionSearcher'
 
-const useStyles = makeStyles((theme) => ({
-  listContainer: {
+const PREFIX = 'SectionSelectorWidget'
+
+const classes = {
+  listContainer: `${PREFIX}-listContainer`,
+  listItemRoot: `${PREFIX}-listItemRoot`,
+  listButton: `${PREFIX}-listButton`,
+  listButtonFocusVisible: `${PREFIX}-listButtonFocusVisible`,
+  searchContainer: `${PREFIX}-searchContainer`,
+  searchTextField: `${PREFIX}-searchTextField`,
+  title: `${PREFIX}-title`,
+  srOnly: `${PREFIX}-srOnly`,
+  secondaryTypography: `${PREFIX}-secondaryTypography`,
+  overflowEllipsis: `${PREFIX}-overflowEllipsis`,
+  header: `${PREFIX}-header`,
+  searchEndAdnornment: `${PREFIX}-searchEndAdnornment`,
+  sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
+  backdrop: `${PREFIX}-backdrop`,
+  highlighted: `${PREFIX}-highlighted`,
+  button: `${PREFIX}-button`
+}
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.listContainer}`]: {
     overflow: 'auto',
     marginBottom: '5px',
     '&& .Mui-disabled': {
@@ -36,11 +82,13 @@ const useStyles = makeStyles((theme) => ({
       }
     }
   },
-  listItemRoot: {
+
+  [`& .${classes.listItemRoot}`]: {
     paddingTop: '0px',
     paddingBottom: '0px'
   },
-  listButton: {
+
+  [`& .${classes.listButton}`]: {
     width: '100%',
     height: '100%',
     textAlign: 'left',
@@ -52,23 +100,28 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.action.hover
     }
   },
-  listButtonFocusVisible: {
+
+  [`& .${classes.listButtonFocusVisible}`]: {
     backgroundColor: theme.palette.action.focus
   },
-  searchContainer: {
+
+  [`& .${classes.searchContainer}`]: {
     textAlign: 'left'
   },
-  searchTextField: {
+
+  [`& .${classes.searchTextField}`]: {
     width: '100%'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     textAlign: 'left',
     display: 'flex',
     justifyContent: 'center',
     alignContent: 'center',
     flexDirection: 'column'
   },
-  srOnly: {
+
+  [`& .${classes.srOnly}`]: {
     position: 'absolute',
     width: '1px',
     height: '1px',
@@ -78,22 +131,27 @@ const useStyles = makeStyles((theme) => ({
     clip: 'rect(0,0,0,0)',
     border: '0'
   },
-  secondaryTypography: {
+
+  [`& .${classes.secondaryTypography}`]: {
     display: 'inline'
   },
-  overflowEllipsis: {
+
+  [`& .${classes.overflowEllipsis}`]: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: 'block'
   },
-  header: {
+
+  [`& .${classes.header}`]: {
     backgroundColor: '#F8F8F8'
   },
-  searchEndAdnornment: {
+
+  [`& .${classes.searchEndAdnornment}`]: {
     width: '200px'
   },
-  sectionSelectionContainer: {
+
+  [`& .${classes.sectionSelectionContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
@@ -102,17 +160,20 @@ const useStyles = makeStyles((theme) => ({
     borderColor: '#EEEEEE',
     minHeight: '100px'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  highlighted: {
+
+  [`& .${classes.highlighted}`]: {
     borderLeftStyle: 'solid',
     borderLeftColor: '#3777C5',
     borderLeftWidth: '16px'
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: theme.spacing(1)
   }
 }))
@@ -140,7 +201,6 @@ interface ISectionSelectorWidgetProps {
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
-  const classes = useStyles()
   const theme = useTheme()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -256,8 +316,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (searcher?.resetTitle !== undefined) searcher.resetTitle()
   }
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
-    const sort = event.target.value as string
+  const handleChange = (event: SelectChangeEvent): void => {
+    const sort = event.target.value
     const newSearcher = (props.search).filter(searcher => { return searcher.name === sort })[0]
     setSearcher(newSearcher)
     setSearchFieldLabel(newSearcher.helperText)
@@ -465,7 +525,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
-    <>
+    <Root>
     <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
       {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
     </span>
@@ -558,7 +618,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         </Backdrop>
       </Grid>
     </Grid>
-    </>
+    </Root>
   )
 }
 
