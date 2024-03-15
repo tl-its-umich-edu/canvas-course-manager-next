@@ -11,7 +11,7 @@ const jsonMimeType = 'application/json'
 
 export const getCSRFToken = (): string | undefined => Cookies.get('x-csrf-token')
 const initCSRFRequest = (headers: Array<[string, string]>): RequestInit => {
-  const csrfToken = getCSRFToken()
+  // const csrfToken = getCSRFToken()
   // if (csrfToken !== undefined) headers.push(['x-csrf-token', csrfToken])
   const request: RequestInit = { headers }
   return request
@@ -40,8 +40,8 @@ const getDelete = (body: string): RequestInit => {
 }
 
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
-const getPut = (body: string): RequestInit => {
-  const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType]]
+const getPut = (body: string, csrfToken: string): RequestInit => {
+  const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType], ['x-csrf-token', csrfToken]]
   const request = initCSRFRequest(headers)
   request.method = 'PUT'
   request.body = body
@@ -55,8 +55,8 @@ export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => 
   return await resp.json()
 }
 
-export const setCourseName = async (courseId: number, newName: string): Promise<CanvasCourseBase> => {
-  const request = getPut(JSON.stringify({ newName: newName }))
+export const setCourseName = async (courseId: number, newName: string, csrfToken: string): Promise<CanvasCourseBase> => {
+  const request = getPut(JSON.stringify({ newName: newName }), csrfToken)
   const resp = await fetch(`/api/course/${courseId}/name`, request)
   await handleErrors(resp)
   return await resp.json()

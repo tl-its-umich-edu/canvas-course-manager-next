@@ -1,29 +1,25 @@
 import { Request, Response } from 'express'
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
+import { BadRequestException, Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
-
-import { AuthService } from './auth.service'
 import { JwtAuthGuard } from './jwt-auth.guard'
 import { SessionGuard } from './session.guard'
+import { CSRFTokenResponse } from './auth.interfaces'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('auth')
 export class AuthController {
-  constructor (private readonly authService: AuthService) {}
 
   @ApiExcludeEndpoint()
   @Get('csrfToken')
   async setCSRFTokenCookie (
     @Req() req: Request, @Res({ passthrough: true }) res: Response
-  ): Promise<void> {
-    const csrfToken = req.csrfToken?.()
-    console.log(`csrfToken in auth controller: ${csrfToken}`)
-    if (csrfToken !== undefined) {
-      // Cookie options deliberately include defaults of httpOnly false and signed false.
-      res.cookie('x-csrf-token', csrfToken, this.authService.commonCookieOptions)
-    }
-    else {
-      console.error('Failed to generate CSRF token.')
-    }
+  // ): Promise<CSRFTokenResponse> {
+    ): Promise<void> {
+    // if(req.csrfToken) {
+    // return {token: req.csrfToken()}
+    // }
+    // else {
+    //   throw new BadRequestException('CSRF token not found')
+    // }
   }
 }

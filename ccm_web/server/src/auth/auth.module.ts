@@ -11,6 +11,7 @@ import { JwtStrategy } from './jwt.strategy'
 import { UserModule } from '../user/user.module'
 
 import { Config } from '../config'
+import { APP_FILTER } from '@nestjs/core'
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { Config } from '../config'
     AuthService,
     JwtStrategy,
     {
-      provide: 'APP_FILTER',
+      provide: APP_FILTER,
       useClass: CSRFExceptionFilter
     }
   ],

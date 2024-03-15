@@ -54,7 +54,7 @@ function Home (props: HomeProps): JSX.Element {
   const setCourseNameAsync = async (
     newCourseName: string
   ): Promise<CanvasCourseBase|undefined> => {
-    return await apiSetCourseName(props.globals.course.id, newCourseName)
+    return await apiSetCourseName(props.globals.course.id, newCourseName, props.globals.csrfToken)
   }
 
   const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(

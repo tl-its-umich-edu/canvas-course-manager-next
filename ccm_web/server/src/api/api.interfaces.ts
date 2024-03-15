@@ -13,7 +13,8 @@ export interface Globals {
   course: {
     id: number
     roles: string[]
-  }
+  },
+  csrfToken: string
   baseHelpURL: string
 }
 

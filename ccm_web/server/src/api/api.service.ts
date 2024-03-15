@@ -1,6 +1,7 @@
 import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Request } from 'express'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'
@@ -39,7 +40,7 @@ export class APIService {
     private readonly invitationService: CirrusInvitationService
   ) {}
 
-  getGlobals (user: User, sessionData: SessionData): Globals {
+  getGlobals (user: User, sessionData: SessionData, req: Request): Globals {
     return {
       environment: this.configService.get('server.isDev', { infer: true }) ? 'development' : 'production',
       canvasURL: this.configService.get('canvas.instanceURL', { infer: true }),
@@ -52,6 +53,7 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       },
+      csrfToken: req.csrfToken ? req.csrfToken() : '',
       baseHelpURL: this.configService.get('baseHelpURL', { infer: true })
     }
   }

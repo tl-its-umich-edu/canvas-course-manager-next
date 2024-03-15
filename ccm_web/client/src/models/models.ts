@@ -41,6 +41,7 @@ export interface Globals {
   canvasURL: string
   user: User
   course: Course
+  csrfToken: string
   baseHelpURL: string
 }
 

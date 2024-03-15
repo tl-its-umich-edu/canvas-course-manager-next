@@ -30,14 +30,12 @@ export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServ
   app.use(json({ limit: payloadSizeLimit }))
   app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
 
-  // Cookies and Sessions
-  app.use(cookieParser(serverConfig.cookieSecret))
-
+  
   const sequelize = app.get(Sequelize)
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
-
+  
   app.use(
     session({
       store: sessionStore,
@@ -52,7 +50,9 @@ export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServ
         maxAge: serverConfig.maxAgeInSec * 1000
       }
     })
-  )
+    )
+    // Cookies and Sessions
+    app.use(cookieParser(serverConfig.cookieSecret))
 
   // Validation
   app.useGlobalPipes(new ValidationPipe({

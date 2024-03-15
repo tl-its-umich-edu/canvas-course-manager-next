@@ -18,6 +18,7 @@ const logger = baseLogger.child({ filePath: __filename })
 @Catch()
 export class CSRFExceptionFilter<T extends MaybeCSRFError> extends BaseExceptionFilter {
   catch (exception: T, host: ArgumentsHost): void {
+    console.log('CSRFExceptionFilter.catch()')
     const res = host.switchToHttp().getResponse<Response>()
     if (exception.code === 'EBADCSRFTOKEN') {
       logger.warn(
