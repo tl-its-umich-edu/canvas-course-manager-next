@@ -14,7 +14,6 @@ export interface Globals {
     id: number
     roles: string[]
   },
-  csrfToken: string
   baseHelpURL: string
 }
 

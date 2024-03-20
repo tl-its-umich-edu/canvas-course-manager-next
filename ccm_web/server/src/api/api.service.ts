@@ -53,8 +53,6 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       },
-      // csrfToken: req.csrfToken ? req.csrfToken() : '',
-      csrfToken:  '',
       baseHelpURL: this.configService.get('baseHelpURL', { infer: true })
     }
   }
