@@ -20,7 +20,7 @@ function App (): JSX.Element {
 
   const location = useLocation()
 
-  const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
+  const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
@@ -42,7 +42,7 @@ function App (): JSX.Element {
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
-  if (globals === undefined || !isAuthenticated) {
+  if (globals === undefined || !isAuthenticated || csrfToken === undefined) {
     redirect('/access-denied')
     return (loading)
   }
@@ -74,7 +74,7 @@ function App (): JSX.Element {
     <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'}>
       <Switch>
         <Route exact={true} path='/'>
-          <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+          <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
         </Route>
         {features.map(feature => {
           return (

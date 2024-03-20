@@ -13,13 +13,13 @@ export class AuthController {
   @Get('csrfToken')
   async setCSRFTokenCookie (
     @Req() req: Request, @Res({ passthrough: true }) res: Response
-  // ): Promise<CSRFTokenResponse> {
-    ): Promise<void> {
-    // if(req.csrfToken) {
-    // return {token: req.csrfToken()}
-    // }
-    // else {
-    //   throw new BadRequestException('CSRF token not found')
-    // }
+  ): Promise<CSRFTokenResponse> {
+    // ): Promise<void> {
+    if(req.csrfToken) {
+    return {token: req.csrfToken()}
+    }
+    else {
+      throw new BadRequestException('CSRF token not found')
+    }
   }
 }

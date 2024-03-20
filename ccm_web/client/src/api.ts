@@ -4,7 +4,7 @@ import {
   CanvasUserCondensed, CourseWithSections
 } from './models/canvas'
 import { ExternalUserSuccess } from './models/externalUser'
-import { Globals } from './models/models'
+import { Globals, CsrfToken } from './models/models'
 import handleErrors, { CanvasError } from './utils/handleErrors'
 
 const jsonMimeType = 'application/json'
@@ -41,6 +41,7 @@ const getDelete = (body: string): RequestInit => {
 
 // This currently assumes all put requests have a JSON payload and receive a JSON response.
 const getPut = (body: string, csrfToken: string): RequestInit => {
+  console.log('getPut', csrfToken)
   const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType], ['x-csrf-token', csrfToken]]
   const request = initCSRFRequest(headers)
   request.method = 'PUT'
@@ -118,10 +119,11 @@ export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSec
   return await resp.json()
 }
 
-export const setCSRFTokenCookie = async (): Promise<void> => {
+export const getCSRFTokenResponse = async (): Promise<CsrfToken> => {
   const request = getGet()
   const resp = await fetch('/auth/csrfToken', request)
   await handleErrors(resp)
+  return await resp.json()
 }
 
 export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
