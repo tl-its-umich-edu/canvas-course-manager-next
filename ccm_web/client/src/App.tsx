@@ -71,7 +71,7 @@ function App (): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'}>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} csrfToken={csrfToken}>
       <Switch>
         <Route exact={true} path='/'>
           <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
@@ -81,6 +81,7 @@ function App (): JSX.Element {
             <Route key={feature.data.id} path={feature.route}>
               <feature.component
                 globals={globals}
+                csrfToken={csrfToken}
                 course={course}
                 title={feature.data.title}
                 helpURLEnding={feature.data.helpURLEnding}

@@ -50,7 +50,6 @@ interface HomeProps {
 }
 
 function Home (props: HomeProps): JSX.Element {
-  console.log('Home', props)
   const { enqueueSnackbar } = useSnackbar()
 
   const setCourseNameAsync = async (

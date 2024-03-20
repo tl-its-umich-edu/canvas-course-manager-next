@@ -5,7 +5,7 @@ import BuildIcon from '@mui/icons-material/Build'
 
 import Breadcrumbs, { BreadcrumbsProps } from './Breadcrumbs'
 import ResponsiveHelper from './ResponsiveHelper'
-import { getCSRFToken } from '../api'
+import { CsrfToken } from '../models/models'
 
 const PREFIX = 'Layout'
 
@@ -43,10 +43,11 @@ const StyledGrid = styled(Grid)((
 interface LayoutProps extends BreadcrumbsProps {
   devMode?: boolean
   children: React.ReactNode
+  csrfToken?: CsrfToken
 }
 
 export default function Layout (props: LayoutProps): JSX.Element {
-  const devBlock = props.devMode === true && (
+  const devBlock = props.devMode === true && props.csrfToken ? (
     <>
     <div className={`${classes.swaggerLink} ${classes.spacing}`}>
       <Paper variant='outlined' className={classes.devModePaper}>
@@ -54,7 +55,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
           <BuildIcon fontSize='small' /> Development Mode:&nbsp;
         </Typography>
         <Typography component='span'>
-          <Link href={`/swagger?csrfToken=${String(getCSRFToken())}`} target='_blank'>Swagger UI</Link>
+          <Link href={`/swagger?csrfToken=${String(props.csrfToken.token)}`} target='_blank'>Swagger UI</Link>
         </Typography>
       </Paper>
     </div>
@@ -62,7 +63,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
       <ResponsiveHelper />
     </div>
     </>
-  )
+  ) : null
 
   return (
     <StyledGrid container className={classes.root}>
