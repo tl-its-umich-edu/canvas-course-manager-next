@@ -16,7 +16,7 @@ export class DoubleCSRFProtectionMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const { doubleCsrfProtection } = doubleCsrf({
       getSecret: () => this.configService.get<string>('server.csrfSecret', { infer: true }),
-      cookieName: 'x-csrf-token',
+      cookieName: '_Secure-ccm.x-csrf-token',
       cookieOptions: this.authService.commonCookieOptions
     })
     doubleCsrfProtection(req, res, next)

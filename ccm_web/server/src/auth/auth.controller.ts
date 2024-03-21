@@ -14,7 +14,6 @@ export class AuthController {
   async setCSRFTokenCookie (
     @Req() req: Request, @Res({ passthrough: true }) res: Response
   ): Promise<CSRFTokenResponse> {
-    // ): Promise<void> {
     if(req.csrfToken) {
     return {token: req.csrfToken()}
     }
