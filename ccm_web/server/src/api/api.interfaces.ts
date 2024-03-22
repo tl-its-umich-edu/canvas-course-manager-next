@@ -13,7 +13,7 @@ export interface Globals {
   course: {
     id: number
     roles: string[]
-  },
+  }
   baseHelpURL: string
 }
 
