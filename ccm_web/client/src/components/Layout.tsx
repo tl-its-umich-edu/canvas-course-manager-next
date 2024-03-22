@@ -47,25 +47,25 @@ interface LayoutProps extends BreadcrumbsProps {
 }
 
 export default function Layout (props: LayoutProps): JSX.Element {
-  const devBlock = props.devMode === true && props.csrfToken 
-  ? (
-    <>
-    <div className={`${classes.swaggerLink} ${classes.spacing}`}>
-      <Paper variant='outlined' className={classes.devModePaper}>
-        <Typography component='span' variant='subtitle1'>
-          <BuildIcon fontSize='small' /> Development Mode:&nbsp;
-        </Typography>
-        <Typography component='span'>
-          <Link href={`/swagger?csrfToken=${String(props.csrfToken.token)}`} target='_blank'>Swagger UI</Link>
-        </Typography>
-      </Paper>
-    </div>
-    <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
-      <ResponsiveHelper />
-    </div>
-    </>
-  ) 
-  : null
+  const devBlock = props.devMode === true && props.csrfToken ? 
+    (
+      <>
+      <div className={`${classes.swaggerLink} ${classes.spacing}`}>
+        <Paper variant='outlined' className={classes.devModePaper}>
+          <Typography component='span' variant='subtitle1'>
+            <BuildIcon fontSize='small' /> Development Mode:&nbsp;
+          </Typography>
+          <Typography component='span'>
+            <Link href={`/swagger?csrfToken=${String(props.csrfToken.token)}`} target='_blank'>Swagger UI</Link>
+          </Typography>
+        </Paper>
+      </div>
+      <div style={{ position: 'fixed', right: '25px', top: '25px', zIndex: 999 }}>
+        <ResponsiveHelper />
+      </div>
+      </>
+    ) : 
+    null
 
   return (
     <StyledGrid container className={classes.root}>
