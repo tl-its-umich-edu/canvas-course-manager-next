@@ -8,7 +8,7 @@ const classes = {
 }
 
 const Root = styled('div')(({ theme }) => ({
-  [`& .${classes.root}`]: {
+  [`&.${classes.root}`]: {
     flexShrink: 0,
     marginLeft: theme.spacing(2.5)
   }
