@@ -40,7 +40,7 @@ export class APIService {
     private readonly invitationService: CirrusInvitationService
   ) {}
 
-  getGlobals (user: User, sessionData: SessionData, req: Request): Globals {
+  getGlobals (user: User, sessionData: SessionData): Globals {
     return {
       environment: this.configService.get('server.isDev', { infer: true }) ? 'development' : 'production',
       canvasURL: this.configService.get('canvas.instanceURL', { infer: true }),

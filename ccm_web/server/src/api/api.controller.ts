@@ -11,12 +11,10 @@ import {
   Post,
   Put,
   Query,
-  Req,
   Session,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common'
-import { Request } from 'express'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
 import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
@@ -52,8 +50,8 @@ export class APIController {
   constructor (private readonly apiService: APIService) { }
 
   @Get('globals')
-  getGlobals (@Session() session: SessionData, @UserDec() user: User, @Req() req: Request): Globals {
-    return this.apiService.getGlobals(user, session, req)
+  getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
+    return this.apiService.getGlobals(user, session)
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
