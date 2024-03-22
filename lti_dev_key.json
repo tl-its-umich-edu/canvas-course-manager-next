@@ -1,0 +1,33 @@
+{
+  "title": "jkrooss CCM",
+  "scopes": [],
+  "extensions": [
+    {
+      "platform": "canvas.instructure.com",
+      "settings": {
+        "platform": "canvas.instructure.com",
+        "placements": [
+          {
+            "placement": "course_navigation",
+            "message_type": "LtiResourceLinkRequest",
+            "target_link_uri": "https://161c-141-213-175-192.ngrok-free.app/lti",
+            "visibility": "admins"
+          }
+        ]
+      },
+      "domain": "161c-141-213-175-192.ngrok-free.app",
+      "privacy_level": "public"
+    }
+  ],
+  "public_jwk": {},
+  "description": "Sample LTI Developer Key for CCM",
+  "custom_fields": {
+    "roles": "$Canvas.membership.roles",
+    "is_root_account_admin": "$Canvas.user.isRootAccountAdmin",
+    "login_id": "$Canvas.user.loginId",
+    "course_id": "$Canvas.course.id"
+  },
+  "public_jwk_url": "https://161c-141-213-175-192.ngrok-free.app/lti/keys",
+  "target_link_uri": "https://161c-141-213-175-192.ngrok-free.app/lti",
+  "oidc_initiation_url": "https://161c-141-213-175-192.ngrok-free.app/lti/login"
+}

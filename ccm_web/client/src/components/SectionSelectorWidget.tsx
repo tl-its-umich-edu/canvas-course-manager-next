@@ -354,8 +354,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
-      <FormControl className={classes.searchEndAdnornment}>
-      <InputLabel id="demo-simple-select-label">Search By</InputLabel>
+      <FormControl variant="standard" className={classes.searchEndAdnornment}>
+        <InputLabel id="demo-simple-select-label">Search By</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
