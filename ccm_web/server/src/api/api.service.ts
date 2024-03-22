@@ -1,7 +1,6 @@
 import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Request } from 'express'
 
 import { AdminApiHandler } from './api.admin.handler'
 import { CourseApiHandler } from './api.course.handler'

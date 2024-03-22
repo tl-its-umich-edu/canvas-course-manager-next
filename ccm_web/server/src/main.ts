@@ -29,7 +29,6 @@ export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServ
   const payloadSizeLimit = '5mb'
   app.use(json({ limit: payloadSizeLimit }))
   app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
-
   
   const sequelize = app.get(Sequelize)
   const SequelizeStore = ConnectSessionSequelize(session.Store)

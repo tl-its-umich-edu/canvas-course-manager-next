@@ -47,7 +47,8 @@ interface LayoutProps extends BreadcrumbsProps {
 }
 
 export default function Layout (props: LayoutProps): JSX.Element {
-  const devBlock = props.devMode === true && props.csrfToken ? (
+  const devBlock = props.devMode === true && props.csrfToken 
+  ? (
     <>
     <div className={`${classes.swaggerLink} ${classes.spacing}`}>
       <Paper variant='outlined' className={classes.devModePaper}>
@@ -63,7 +64,8 @@ export default function Layout (props: LayoutProps): JSX.Element {
       <ResponsiveHelper />
     </div>
     </>
-  ) : null
+  ) 
+  : null
 
   return (
     <StyledGrid container className={classes.root}>
