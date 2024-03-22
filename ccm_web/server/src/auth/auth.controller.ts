@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { BadRequestException, Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
+import { Controller, ForbiddenException, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import { JwtAuthGuard } from './jwt-auth.guard'
 import { SessionGuard } from './session.guard'
@@ -18,7 +18,7 @@ export class AuthController {
     return {token: req.csrfToken()}
     }
     else {
-      throw new BadRequestException('CSRF token not found')
+      throw new ForbiddenException()
     }
   }
 }
