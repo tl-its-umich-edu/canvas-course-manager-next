@@ -180,7 +180,8 @@ const Root = styled('div')((
   },
 
   [`& .${classes.button}`]: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
+    marginLeft: '24px'
   }
 }))
 
