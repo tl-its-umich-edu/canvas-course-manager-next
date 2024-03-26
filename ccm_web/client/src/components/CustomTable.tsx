@@ -56,10 +56,9 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
             return (
               <TableRow hover key={row.rowNumber}>
                 {columns.map((column) => {
-                  const value = row[column.id]
                   return (
                     <TableCell key={String(column.id)} align={column.align}>
-                      {value}
+                      {String(row[column.id])}
                     </TableCell>
                   )
                 })}
