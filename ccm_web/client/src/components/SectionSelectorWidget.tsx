@@ -65,7 +65,7 @@ const Root = styled('div')((
   [`& .${classes.listContainer}`]: {
     overflow: 'auto',
     marginBottom: '5px',
-    '&& .Mui-disabled': {
+    '& .Mui-disabled': {
       opacity: 1,
       '& > .MuiListItemAvatar-root': {
         opacity: theme.palette.action.disabledOpacity
@@ -85,7 +85,12 @@ const Root = styled('div')((
 
   [`& .${classes.listItemRoot}`]: {
     paddingTop: '0px',
-    paddingBottom: '0px'
+    paddingBottom: '0px',
+    paddingRight: '0px',
+    display: 'block',
+    '& > .MuiListItemSecondaryAction-root': {
+      position: 'relative',
+    },
   },
 
   [`& .${classes.listButton}`]: {
@@ -174,7 +179,8 @@ const Root = styled('div')((
   },
 
   [`& .${classes.button}`]: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
+    marginLeft: '24px'
   }
 }))
 
@@ -354,8 +360,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
-      <FormControl className={classes.searchEndAdnornment}>
-      <InputLabel id="demo-simple-select-label">Search By</InputLabel>
+      <FormControl variant="standard" className={classes.searchEndAdnornment}>
+        <InputLabel id="demo-simple-select-label">Search By</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
@@ -419,7 +425,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 </Typography>
               )
             }
-            {unmergeButton(section)}
             <span style={props.showCourseName === true ? { float: 'right' } : undefined}>
               {`${section.total_students ?? '?'} students`}
             </span>
@@ -594,7 +599,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 divider
                 disableGutters
                 classes={{ root: classes.listItemRoot }}
-                selected={isSelected}
+                secondaryAction={unmergeButton(section)}
                 className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}
               >
                 <ButtonBase

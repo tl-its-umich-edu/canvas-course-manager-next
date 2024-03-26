@@ -2,41 +2,29 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, Paper, Typography } from '@mui/material'
 
-const PREFIX = 'Alert'
+const StyledGrid = styled(Grid)(() => ({
+  margin: 'auto'
 
-const classes = {
-  padding: `${PREFIX}-padding`,
-  standalone: `${PREFIX}-standalone`,
-  dialog: `${PREFIX}-dialog`
-}
+}))
 
-const StyledGrid = styled(Grid)((
+const StyledCorePaper = styled(Paper)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.padding}`]: {
-    padding: theme.spacing(1)
-  },
-
-  [`&.${classes.standalone}`]: {
+  textAlign: 'center',
+  padding: theme.spacing(1),
+  margin: 'auto',
+  marginTop: 30,
+  marginBottom: 15,
+  '& ol': {
     margin: 'auto'
   },
-
-  [`& .${classes.dialog}`]: {
-    textAlign: 'center',
-    margin: 'auto',
-    marginTop: 30,
-    marginBottom: 15,
-    '& ol': {
-      margin: 'auto'
-    },
-    '& li': {
-      textAlign: 'left',
-      marginBottom: 10
-    }
+  '& li': {
+    textAlign: 'left',
+    marginBottom: 10
   }
-}))
+  }));
 
 interface AlertProps {
   children: React.ReactNode
@@ -49,16 +37,16 @@ export default function Alert (props: AlertProps): JSX.Element {
   const { title, icon, embedded, children } = props
 
   const core = (
-    <Paper className={`${classes.dialog} ${classes.padding}`} role='alert'>
+    <StyledCorePaper role='alert'>
       <Typography gutterBottom>{title}</Typography>
       {icon}
       {children}
-    </Paper>
+    </StyledCorePaper>
   )
 
   if (embedded === true) return core
   return (
-    <StyledGrid item xs={12} sm={9} md={6} className={classes.standalone}>
+    <StyledGrid item xs={12} sm={9} md={6}>
       {core}
     </StyledGrid>
   )
