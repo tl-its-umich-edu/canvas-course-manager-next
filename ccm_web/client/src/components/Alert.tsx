@@ -2,22 +2,9 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, Paper, Typography } from '@mui/material'
 
-const PREFIX = 'Alert'
+const StyledGrid = styled(Grid)(() => ({
+  margin: 'auto'
 
-const classes = {
-  padding: `${PREFIX}-padding`,
-  standalone: `${PREFIX}-standalone`,
-  dialog: `${PREFIX}-dialog`
-}
-
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
-  [`&.${classes.standalone}`]: {
-    margin: 'auto'
-  },
 }))
 
 const StyledCorePaper = styled(Paper)((
@@ -26,16 +13,17 @@ const StyledCorePaper = styled(Paper)((
   }
 ) => ({
   textAlign: 'center',
-    margin: 'auto',
-    marginTop: 30,
-    marginBottom: 15,
-    '& ol': {
-      margin: 'auto'
-    },
-    '& li': {
-      textAlign: 'left',
-      marginBottom: 10
-    }
+  padding: theme.spacing(1),
+  margin: 'auto',
+  marginTop: 30,
+  marginBottom: 15,
+  '& ol': {
+    margin: 'auto'
+  },
+  '& li': {
+    textAlign: 'left',
+    marginBottom: 10
+  }
   }));
 
 interface AlertProps {
@@ -58,7 +46,7 @@ export default function Alert (props: AlertProps): JSX.Element {
 
   if (embedded === true) return core
   return (
-    <StyledGrid item xs={12} sm={9} md={6} className={classes.standalone}>
+    <StyledGrid item xs={12} sm={9} md={6}>
       {core}
     </StyledGrid>
   )
