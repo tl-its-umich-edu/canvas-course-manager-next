@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
   CanvasUserCondensed, CourseWithSections

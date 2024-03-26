@@ -47,7 +47,6 @@
     "form-data": "4.0.0",
     "got": "11.8.5",
     "helmet": "7.1.0",
-    "js-cookie": "3.0.5",
     "keycode-js": "3.1.0",
     "ltijs": "5.9.3",
     "ltijs-sequelize": "2.4.4",

@@ -8,7 +8,6 @@ import { CSRFTokenResponse } from './auth.interfaces'
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('auth')
 export class AuthController {
-
   @ApiExcludeEndpoint()
   @Get('csrfToken')
   async setCSRFTokenCookie (
