@@ -107,6 +107,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                   <Grid item md={9} sm={7} xs={7}>
                     <TextField
                       className={classes.buttonSep}
+                      variant='standard'
                       aria-readonly={false}
                       onClick={toggleEdit}
                       fullWidth={true}
@@ -149,7 +150,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
             )
           : (
               <>
-              <Typography className={classes.buttonSep} variant='inherit'>{props.text}</Typography>
+              <Typography className={classes.buttonSep} variant='inherit' component="span">{props.text}</Typography>
               <Button onClick={toggleEdit} disabled={props.isSaving} aria-label='Edit course name'>
                 <EditIcon className={classes.editIcon} style={{ fontSize: props.fontSize }} />
               </Button>

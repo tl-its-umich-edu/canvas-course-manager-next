@@ -33,7 +33,7 @@ const Root = styled('div')((
     theme
   }
 ) => ({
-  [`& .${classes.root}`]: {
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
 
