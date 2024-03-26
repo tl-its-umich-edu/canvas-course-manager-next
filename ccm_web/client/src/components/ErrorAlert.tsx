@@ -11,12 +11,12 @@ const classes = {
   dialogIcon: `${PREFIX}-dialogIcon`
 }
 
-const StyledAlert = styled(Alert)((
+const StyledErrorIcon = styled(ErrorIcon)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.dialogIcon}`]: {
+  [`&.${classes.dialogIcon}`]: {
     color: theme.palette.error.main
   }
 }))
@@ -42,14 +42,14 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
       : <ol>{messages.map((m, i) => <li key={i}>{m}</li>)}</ol>
 
   return (
-    <StyledAlert
+    <Alert
       title={title !== undefined ? title : 'Some errors occurred'}
-      icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
+      icon={icon !== undefined ? icon : <StyledErrorIcon className={classes.dialogIcon} fontSize='large' />}
       embedded={embedded}
     >
       {Boolean(messages?.length) && preface}
       {messageBlock}
       {tryAgain !== undefined && <Button color='primary' onClick={props.tryAgain}>Try Again</Button>}
-    </StyledAlert>
+    </Alert>
   )
 }

@@ -15,6 +15,7 @@ const StyledMUIStepper = styled(MUIStepper)((
 ) => ({
   [`&.${classes.stepper}`]: {
     textAlign: 'center',
+    padding: 24,
     paddingTop: theme.spacing(2)
   }
 }))
