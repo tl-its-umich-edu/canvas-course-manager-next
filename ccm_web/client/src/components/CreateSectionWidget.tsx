@@ -8,6 +8,7 @@ import APIErrorMessage from './APIErrorMessage'
 import { addCourseSections } from '../api'
 import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
 import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
+import { CsrfToken } from '../models/models'
 
 const PREFIX = 'CreateSectionWidget'
 
@@ -39,6 +40,7 @@ const Root = styled('div')((
 
 export interface CreateSectionWidgetProps {
   course: CanvasCourseBase
+  csrfToken: CsrfToken
   onSectionCreated: (newSection: CanvasCourseSection) => void
 }
 
@@ -66,7 +68,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     setIsCreating(true)
     nameValidator.validateSectionName(newSectionName).then(errors => {
       if (errors.length === 0) {
-        addCourseSections(props.course.id, [newSectionName])
+        addCourseSections(props.course.id, [newSectionName], props.csrfToken.token)
           .then(newSections => {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')

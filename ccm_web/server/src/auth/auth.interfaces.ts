@@ -8,3 +8,7 @@ export interface JwtPayload {
 export interface MaybeCSRFError extends Error {
   code?: string
 }
+
+export interface CSRFTokenResponse {
+  token: string
+}

@@ -25,7 +25,7 @@ import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment }
 import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser'
 import { createSectionRoles } from '../models/feature'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
+import { CSVWorkflowStep, CsrfToken, InvalidationType, RoleEnum } from '../models/models'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
 import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
@@ -91,6 +91,7 @@ export const isExternalEnrollmentRecord = (record: CSVRecord): record is Externa
 
 interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
+  csrfToken: CsrfToken
   onSectionCreated: (newSection: CanvasCourseSection) => void
   userCourseRoles: RoleEnum[]
 }
@@ -116,7 +117,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const errors: ErrorDescription[] = []
       try {
         successes = await api.createExternalUsers(
-          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
+          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName })),
+          props.csrfToken.token
         )
       } catch (error: unknown) {
         if (error instanceof ExternalUserProcessError) {
@@ -132,7 +134,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       if (enrollmentsToAdd.length > 0) {
         try {
           await api.addSectionEnrollments(
-            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role }))
+            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role })), props.csrfToken.token
           )
         } catch (error: unknown) {
           if (error instanceof CanvasError) {
@@ -205,6 +207,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
         {...createProps}
+        csrfToken={props.csrfToken}
       />
       <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
         <Grid container>
