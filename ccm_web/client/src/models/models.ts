@@ -44,6 +44,10 @@ export interface Globals {
   baseHelpURL: string
 }
 
+export interface CsrfToken {
+  token: string
+}
+
 // API Errors
 
 export interface CanvasAPIErrorPayload {

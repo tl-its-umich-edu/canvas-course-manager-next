@@ -6,11 +6,12 @@ import { PassportModule } from '@nestjs/passport'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { CSRFExceptionFilter } from './csrf.exception.filter'
-import { CSRFProtectionMiddleware } from './csrf.middleware'
+import { DoubleCSRFProtectionMiddleware } from './double.csrf.middleware'
 import { JwtStrategy } from './jwt.strategy'
 import { UserModule } from '../user/user.module'
 
 import { Config } from '../config'
+import { APP_FILTER } from '@nestjs/core'
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { Config } from '../config'
     AuthService,
     JwtStrategy,
     {
-      provide: 'APP_FILTER',
+      provide: APP_FILTER,
       useClass: CSRFExceptionFilter
     }
   ],
@@ -38,6 +39,6 @@ import { Config } from '../config'
 })
 export class AuthModule implements NestModule {
   configure (consumer: MiddlewareConsumer): void {
-    consumer.apply(CSRFProtectionMiddleware).forRoutes('/')
+    consumer.apply(DoubleCSRFProtectionMiddleware).forRoutes('/')
   }
 }

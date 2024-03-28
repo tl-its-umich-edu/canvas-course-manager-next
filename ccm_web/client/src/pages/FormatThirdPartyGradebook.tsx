@@ -253,6 +253,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             search={[]}
             multiSelect={true}
             sections={sections !== undefined ? sections : []}
+            csrfToken={props.csrfToken}
             selectedSections={selectedSections !== undefined ? selectedSections : []}
             selectionUpdated={(sections) => {
               if (sections.length === 0) {

@@ -10,6 +10,7 @@ export interface ServerConfig {
   logLevel: LogLevel
   cookieSecret: string
   tokenSecret: string
+  csrfSecret: string
   maxAgeInSec: number
 }
 
@@ -145,6 +146,7 @@ export function validateConfig (): Config {
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, [], 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, [isNotEmpty], 'TOKENSECRET'),
       cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'COOKIESECRET'),
+      csrfSecret: validate<string>('CSRF_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'CSRFSECRET'),
       maxAgeInSec: validate<number>(
         'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
       )

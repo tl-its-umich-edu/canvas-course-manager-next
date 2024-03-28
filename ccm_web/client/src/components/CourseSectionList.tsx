@@ -89,7 +89,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSection[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async () => await unmergeSections(sectionsToUnmerge),
+    async () => await unmergeSections(sectionsToUnmerge, props.csrfToken.token),
     (unmergedSections: CanvasCourseSectionBase[]) => {
       setSections(sections.filter(section => { return !unmergedSections.map(s => { return s.id }).includes(section.id) }))
       setSectionsToUnmerge([])
