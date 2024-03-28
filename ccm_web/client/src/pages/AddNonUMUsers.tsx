@@ -98,6 +98,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const renderActivePageState = (state: PageState): JSX.Element => {
     const commonProps = {
       sections: sections ?? [],
+      csrfToken: props.csrfToken,
       doGetSections: async () => {
         clearGetSectionsError()
         setSections(undefined)

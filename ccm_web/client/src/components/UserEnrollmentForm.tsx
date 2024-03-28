@@ -15,7 +15,7 @@ import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionWithCourseName, CanvasUserCondensed, ClientEnrollmentType } from '../models/canvas'
 import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
 import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
-import { APIErrorWithContext } from '../models/models'
+import { APIErrorWithContext, CsrfToken } from '../models/models'
 import { CanvasError, ExternalUserProcessError } from '../utils/handleErrors'
 import {
   emailInputSchema, firstNameInputSchema, lastNameInputSchema, validateString, ValidationResult
@@ -66,7 +66,9 @@ interface ExternalEnrollmentSummary {
   enrolled: boolean
 }
 
-interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
+interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {
+  csrfToken: CsrfToken
+}
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
@@ -94,7 +96,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
-      sectionId, [{ loginId: enrollment.email, role: enrollment.role }]
+      sectionId, [{ loginId: enrollment.email, role: enrollment.role }], props.csrfToken.token
     ),
     () => setSuccessResult({ createdAndInvited: false, enrolled: true })
   )
@@ -105,11 +107,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   ] = usePromise(
     async (sectionId: number, enrollment: AddNewExternalUserEnrollment): Promise<ExternalEnrollmentSummary> => {
       const { email, firstName, lastName, role } = enrollment
-      const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }])
+      const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }], props.csrfToken.token)
       let createdAndInvited = false
       if (result.length > 0 && result[0].userCreated) {
         createdAndInvited = true
-        await api.addSectionEnrollments(sectionId, [{ loginId: email, role }])
+        await api.addSectionEnrollments(sectionId, [{ loginId: email, role }], props.csrfToken.token)
       }
       return { createdAndInvited, enrolled: true }
     },
@@ -352,6 +354,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             search={[]}
             multiSelect={false}
             sections={props.sections}
+            csrfToken={props.csrfToken}
             selectedSections={selectedSection !== undefined ? [selectedSection] : []}
             selectionUpdated={(sections) => {
               if (sections.length === 0) {

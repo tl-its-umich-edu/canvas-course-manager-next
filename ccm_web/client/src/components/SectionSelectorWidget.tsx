@@ -34,6 +34,7 @@ import { unmergeSections } from '../api'
 import usePromise from '../hooks/usePromise'
 import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
 import { ISectionSearcher } from '../utils/SectionSearcher'
+import { CsrfToken } from '../models/models'
 
 const PREFIX = 'SectionSelectorWidget'
 
@@ -204,6 +205,7 @@ interface ISectionSelectorWidgetProps {
   canUnmerge: boolean
   sectionsRemoved?: (sections: CanvasCourseSectionBase[]) => void
   highlightUnlocked?: boolean
+  csrfToken: CsrfToken
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -226,7 +228,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async (sections: CanvasCourseSectionWithCourseName[]) => await unmergeSections(sections),
+    async (sections: CanvasCourseSectionWithCourseName[]) => await unmergeSections(sections, props.csrfToken.token),
     (unmergedSections: CanvasCourseSectionBase[]) => {
       const unmergedSectionIds = unmergedSections.map(s => s.id)
       setInternalSections(internalSections.filter(section => !unmergedSectionIds.includes(section.id)))

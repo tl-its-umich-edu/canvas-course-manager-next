@@ -75,7 +75,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Put('course/:id/name')
   async putCourseName (
     @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @UserDec() user: User
@@ -86,7 +86,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Post('course/:id/sections')
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections
@@ -104,7 +104,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Post('sections/:id/enroll')
   async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
     const users: SectionUserDto[] = sectionUsersData.users
@@ -114,7 +114,7 @@ export class APIController {
   }
 
   // Uses admin token, so InvalidTokenInterceptor omitted
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Post('admin/createExternalUsers')
   async createExternalUsers (
     @Body() externalUsersData: ExternalUsersDto
@@ -128,7 +128,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Post('/sections/enroll')
   async enrollUsersToSections (
     @Body() enrollmentsDto: SectionEnrollmentsDto, @UserDec() user: User
@@ -180,7 +180,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Post('course/:id/sections/merge')
   async mergeSections (
     @Param('id', ParseIntPipe) targetCourseId: number,
@@ -194,7 +194,7 @@ export class APIController {
   }
 
   @UseInterceptors(InvalidTokenInterceptor)
-  @ApiSecurity('CSRF-Token')
+  @ApiSecurity('x-csrf-token')
   @Delete('sections/unmerge')
   async unmergeSections (@Body() sectionIdsData: SectionIdsDto, @UserDec() user: User): Promise<CanvasCourseSectionBase[]> {
     const { sectionIds } = sectionIdsData
