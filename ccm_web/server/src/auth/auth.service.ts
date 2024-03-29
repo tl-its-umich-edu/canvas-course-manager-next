@@ -3,10 +3,10 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 
-import { UserToUpsert } from '../user/user.interfaces'
-import { UserService } from '../user/user.service'
+import { UserToUpsert } from '../user/user.interfaces.js'
+import { UserService } from '../user/user.service.js'
 
-import { Config } from '../config'
+import { Config } from '../config.js'
 
 @Injectable()
 export class AuthService {

@@ -7,17 +7,17 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
-import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
-import { CanvasToken } from './canvas.model'
-import canvasScopes from './canvas.scopes'
-import { User } from '../user/user.model'
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors.js'
+import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces.js'
+import { CanvasToken } from './canvas.model.js'
+import canvasScopes from './canvas.scopes.js'
+import { User } from '../user/user.model.js'
 
-import { Config } from '../config'
-import { DatabaseError } from '../errors'
-import baseLogger from '../logger'
+import { Config } from '../config.js'
+import { DatabaseError } from '../errors.js'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 

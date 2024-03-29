@@ -1,6 +1,6 @@
-import { sectionNameSchema, validateString } from './validation'
-import { getCourseSections } from '../api'
-import { CanvasCourseSection } from '../models/canvas'
+import { sectionNameSchema, validateString } from './validation.js'
+import { getCourseSections } from '../api.js'
+import { CanvasCourseSection } from '../models/canvas.js'
 
 export interface ICanvasSectionNameInvalidError {
   reason: string

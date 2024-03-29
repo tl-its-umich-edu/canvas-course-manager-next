@@ -1,16 +1,16 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { APIErrorData } from './api.interfaces'
-import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
-import { SectionUserDto } from './dtos/api.section.users.dto'
+import { APIErrorData } from './api.interfaces.js'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils.js'
+import { SectionUserDto } from './dtos/api.section.users.dto.js'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
-} from '../canvas/canvas.interfaces'
+} from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
-import { CustomCanvasRoleData } from '../config'
+import baseLogger from '../logger.js'
+import { CustomCanvasRoleData } from '../config.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 /*
 Handler class for Canvas API calls dealing with a specific section (i.e. those beginning with "/sections/:id")

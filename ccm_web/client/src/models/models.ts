@@ -2,7 +2,7 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
-import { hasKeys } from './typeUtils'
+import { hasKeys } from './typeUtils.js'
 
 // Globals
 

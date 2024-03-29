@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { Breadcrumbs as MuiBreadcrumbs, Link, Typography } from '@mui/material'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
-import { FeatureUIProps } from '../models/FeatureUIData'
+import { FeatureUIProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'Breadcrumbs'
 

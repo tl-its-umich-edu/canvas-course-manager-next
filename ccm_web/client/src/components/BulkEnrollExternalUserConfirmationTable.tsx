@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import CustomTable from './CustomTable'
-import { RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
+import CustomTable from './CustomTable.js'
+import { RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment.js'
 
 interface BulkEnrollExternalConfirmationTableProps {
   enrollments: RowNumberedAddNewExternalUserEnrollment[]

@@ -1,16 +1,16 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { SectionApiHandler } from './api.section.handler'
-import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import { APIErrorData, isAPIErrorData } from './api.interfaces.js'
+import { SectionApiHandler } from './api.section.handler.js'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils.js'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseInput, CanvasCourseSection, CanvasCourseSectionBase,
   CourseWithSections
-} from '../canvas/canvas.interfaces'
+} from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 /*
 Handler class for Canvas API calls dealing with a specific course (i.e. those beginning with "/courses/:id")

@@ -29,12 +29,12 @@ import ClearIcon from '@mui/icons-material/Clear'
 import SortIcon from '@mui/icons-material/Sort'
 import { useDebounce } from '@react-hook/debounce'
 
-import APIErrorMessage from './APIErrorMessage'
-import { unmergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
-import { ISectionSearcher } from '../utils/SectionSearcher'
-import { CsrfToken } from '../models/models'
+import APIErrorMessage from './APIErrorMessage.js'
+import { unmergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas.js'
+import { ISectionSearcher } from '../utils/SectionSearcher.js'
+import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'SectionSelectorWidget'
 

@@ -14,7 +14,7 @@ import { InvitationAPIError } from './invitation.errors'
 import { Config } from '../config'
 import baseLogger from '../logger'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 @Injectable()
 export class CirrusInvitationService {

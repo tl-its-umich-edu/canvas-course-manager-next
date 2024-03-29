@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material'
 
-import { ClientEnrollmentType } from '../models/canvas'
+import { ClientEnrollmentType } from '../models/canvas.js'
 
 const PREFIX = 'RoleSelect'
 

@@ -3,10 +3,10 @@ import { styled } from '@mui/material/styles'
 import { Tooltip, Typography } from '@mui/material'
 import HelpOutline from '@mui/icons-material/HelpOutline'
 
-import CreateSectionWidget from './CreateSectionWidget'
-import SectionSelectorWidget from './SectionSelectorWidget'
-import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName } from '../models/canvas'
-import { CsrfToken } from '../models/models'
+import CreateSectionWidget from './CreateSectionWidget.js'
+import SectionSelectorWidget from './SectionSelectorWidget.js'
+import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName } from '../models/canvas.js'
+import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'CreateSelectSectionWidget'
 

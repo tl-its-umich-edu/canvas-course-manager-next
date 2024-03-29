@@ -1,7 +1,7 @@
 import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescript'
 import { DataTypes, Optional } from 'sequelize'
 
-import { User } from '../user/user.model'
+import { User } from '../user/user.model.js'
 
 interface CanvasTokenAttributes {
   id: bigint

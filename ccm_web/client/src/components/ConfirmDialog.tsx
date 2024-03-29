@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import { Button, Paper, Typography } from '@mui/material'
 import CloudDoneIcon from '@mui/icons-material/CloudDone'
 
-import { DownloadData } from '../models/models'
+import { DownloadData } from '../models/models.js'
 
 const PREFIX = 'ConfirmDialog'
 

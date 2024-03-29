@@ -12,13 +12,13 @@ import {
   Typography
 } from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import { getCourseSections, unmergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
+import APIErrorMessage from './APIErrorMessage.js'
+import { getCourseSections, unmergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName
-} from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+} from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'CourseSectionList'
 

@@ -4,12 +4,12 @@ import pLimit from 'p-limit'
 
 import {
   APIErrorData, APIErrorPayload, isAPIErrorData
-} from './api.interfaces'
-import { isCanvasMessageErrorBody, isCanvasMessageErrorsBody, isCanvasUniqueIdErrorsBody } from '../canvas/canvas.interfaces'
+} from './api.interfaces.js'
+import { isCanvasMessageErrorBody, isCanvasMessageErrorsBody, isCanvasUniqueIdErrorsBody } from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 export const NS_PER_SEC = BigInt(1e9)
 

@@ -9,15 +9,15 @@ import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined'
 import {
   FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps
-} from './feature'
-import AddNonUMUsers from '../pages/AddNonUMUsers'
-import AddUMUsers from '../pages/AddUMUsers'
-import BulkSectionCreate from '../pages/BulkSectionCreate'
-import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
-import ConvertCanvasGradebook from '../pages/GradebookCanvas'
-import MergeSections from '../pages/MergeSections'
-import { CsrfToken, Globals, RoleEnum } from './models'
-import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas'
+} from './feature.js'
+import AddNonUMUsers from '../pages/AddNonUMUsers.js'
+import AddUMUsers from '../pages/AddUMUsers.js'
+import BulkSectionCreate from '../pages/BulkSectionCreate.js'
+import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
+import ConvertCanvasGradebook from '../pages/GradebookCanvas.js'
+import MergeSections from '../pages/MergeSections.js'
+import { CsrfToken, Globals, RoleEnum } from './models.js'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas.js'
 
 export interface CCMComponentProps {
   globals: Globals

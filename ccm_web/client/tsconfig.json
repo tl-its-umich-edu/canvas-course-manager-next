@@ -1,13 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "module": "es6",
+    "module": "ESNext",
     "jsx": "react-jsx",
     "sourceMap": true
   },

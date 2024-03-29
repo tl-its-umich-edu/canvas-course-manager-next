@@ -1,5 +1,5 @@
-import { ClientEnrollmentType } from './canvas'
-import { CSVRecord } from '../utils/FileParserWrapper'
+import { ClientEnrollmentType } from './canvas.js'
+import { CSVRecord } from '../utils/FileParserWrapper.js'
 
 interface RowNumberedData {
   rowNumber: number

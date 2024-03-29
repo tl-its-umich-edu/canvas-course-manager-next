@@ -1,8 +1,9 @@
-import * as path from 'path'
+import path from 'node:path'
 import * as webpack from 'webpack'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
+const __dirname = import.meta.dirname
 const clientPath = path.resolve(__dirname, '..', 'client')
 
 const commonConfig: webpack.Configuration = {

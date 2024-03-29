@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import { Button } from '@mui/material'
 import ErrorIcon from '@mui/icons-material/Error'
 
-import Alert from './Alert'
+import Alert from './Alert.js'
 
 const PREFIX = 'WarningAlert'
 

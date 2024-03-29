@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Link, Typography } from '@mui/material'
 
-import { prepDownloadDataString } from '../utils/fileUtils'
+import { prepDownloadDataString } from '../utils/fileUtils.js'
 
 const PREFIX = 'ExampleFileDownloadHeader'
 
