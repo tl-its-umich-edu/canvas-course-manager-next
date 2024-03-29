@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import process from 'process'
+import process from 'node:process'
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import { urlencoded, json } from 'express'

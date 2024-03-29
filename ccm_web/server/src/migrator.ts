@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 import { Umzug, SequelizeStorage } from 'umzug'
 import { Sequelize } from 'sequelize'
 import { validateConfig } from './config.js'
@@ -33,7 +34,7 @@ export const umzug = new Umzug({
 
 export type Migration = typeof umzug._types.migration
 
-if (process.argv[1] === import.meta.url) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   logger.info('Running migrations CLI...')
   umzug
     .runAsCLI()
@@ -41,4 +42,6 @@ if (process.argv[1] === import.meta.url) {
     .catch((e) =>
       logger.error('An error occured when running the migration tasks: ', e)
     )
+}else{
+  logger.error('Running migrations failed...')
 }
