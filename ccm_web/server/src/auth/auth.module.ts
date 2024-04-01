@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport'
 import { APP_FILTER } from '@nestjs/core'
 
 import { AuthController } from './auth.controller.js'
-import { AuthService } from './auth.service'
+import { AuthService } from './auth.service.js'
 import { CSRFExceptionFilter } from './csrf.exception.filter.js'
 import { DoubleCSRFProtectionMiddleware } from './double.csrf.middleware.js'
 import { JwtStrategy } from './jwt.strategy.js'

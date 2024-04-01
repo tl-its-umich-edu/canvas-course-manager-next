@@ -8,11 +8,11 @@ import { Injectable } from '@nestjs/common'
 
 import {
   cirrusAPIEndPoint, cirrusAPIVersion, CirrusErrorData, CirrusInvitationResponse, isCirrusAPIErrorData
-} from './cirrus-invitation.interfaces'
-import { InvitationAPIError } from './invitation.errors'
+} from './cirrus-invitation.interfaces.js'
+import { InvitationAPIError } from './invitation.errors.js'
 
-import { Config } from '../config'
-import baseLogger from '../logger'
+import { Config } from '../config.js'
+import baseLogger from '../logger.js'
 
 const logger = baseLogger.child({ filePath: import.meta.filename })
 

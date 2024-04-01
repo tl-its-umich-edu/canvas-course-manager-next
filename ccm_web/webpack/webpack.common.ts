@@ -32,7 +32,17 @@ const commonConfig: webpack.Configuration = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
+    extensions: ['.tsx', '.ts', '.js'],
+    extensionAlias: {
+      '.js': ['.ts', '.js', '.tsx', '.jsx'],
+      '.mjs': ['.mts', '.mjs'],
+    },
+  },
+  stats: {
+    colors: true,
+    modules: true,
+    reasons: true,
+    errorDetails: true
   },
   plugins: [
     new HtmlWebpackPlugin({

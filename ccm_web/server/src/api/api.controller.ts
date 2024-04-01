@@ -1,4 +1,4 @@
-import { SessionData } from 'express-session'
+import type { SessionData } from 'express-session'
 import {
   BadRequestException,
   Body,
@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces.js'
+import * as apiInterfacesJs from './api.interfaces.js'
 import { APIService } from './api.service.js'
 import { InvalidTokenInterceptor } from './invalid.token.interceptor.js'
 import { TooManyResultsInterceptor } from './too.many.results.interceptor.js'
@@ -50,7 +50,7 @@ export class APIController {
   constructor (private readonly apiService: APIService) { }
 
   @Get('globals')
-  getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
+  getGlobals (@Session() session: SessionData, @UserDec() user: User): apiInterfacesJs.Globals {
     return this.apiService.getGlobals(user, session)
   }
 
@@ -60,7 +60,7 @@ export class APIController {
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
   ): Promise<CanvasCourseSection[]> {
     const result = await this.apiService.getCourseSections(user, courseId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -70,7 +70,7 @@ export class APIController {
     @Param('id', ParseIntPipe) courseId: number, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
     const result = await this.apiService.getCourse(user, courseId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -81,7 +81,7 @@ export class APIController {
     @Param('id', ParseIntPipe) courseId: number, @Body() courseNameDto: CourseNameDto, @UserDec() user: User
   ): Promise<CanvasCourseBase> {
     const result = await this.apiService.putCourseName(user, courseId, courseNameDto.newName)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -91,7 +91,7 @@ export class APIController {
   async createSections (@Param('id', ParseIntPipe) courseId: number, @Body() createSectionsDto: CreateSectionsDto, @UserDec() user: User): Promise<CanvasCourseSection[]> {
     const sections = createSectionsDto.sections
     const result = await this.apiService.createSections(user, courseId, sections)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -99,7 +99,7 @@ export class APIController {
   @Get('sections/:id/students')
   async getStudentsEnrolledInSection (@Param('id', ParseIntPipe) sectionId: number, @UserDec() user: User): Promise<string[]> {
     const result = await this.apiService.getStudentsEnrolledInSection(user, sectionId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -109,7 +109,7 @@ export class APIController {
   async enrollSectionUsers (@Param('id', ParseIntPipe) sectionId: number, @Body() sectionUsersData: SectionUsersDto, @UserDec() user: User): Promise<CanvasEnrollment[]> {
     const users: SectionUserDto[] = sectionUsersData.users
     const result = await this.apiService.enrollSectionUsers(user, sectionId, users)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -118,7 +118,7 @@ export class APIController {
   @Post('admin/createExternalUsers')
   async createExternalUsers (
     @Body() externalUsersData: ExternalUsersDto
-  ): Promise<ExternalUserData[]> {
+  ): Promise<apiInterfacesJs.ExternalUserData[]> {
     const externalUsers: ExternalUserDto[] = externalUsersData.users
     const result = await this.apiService.createExternalUsers(externalUsers)
     if (!result.success) {
@@ -135,7 +135,7 @@ export class APIController {
   ): Promise<CanvasEnrollment[]> {
     const enrollments = enrollmentsDto.enrollments
     const enrollmentsResult = await this.apiService.createSectionEnrollments(user, enrollments)
-    if (isAPIErrorData(enrollmentsResult)) throw new HttpException(enrollmentsResult, enrollmentsResult.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(enrollmentsResult)) throw new HttpException(enrollmentsResult, enrollmentsResult.statusCode)
     return enrollmentsResult
   }
 
@@ -145,7 +145,7 @@ export class APIController {
     @Param('loginId') loginId: string
   ): Promise<CanvasUserCondensed> {
     const result = await this.apiService.getUserInfoAsAdmin(loginId)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -156,7 +156,7 @@ export class APIController {
     @UserDec() user: User, @Query() query: GetSectionsInstructorQueryDto
   ): Promise<CourseWithSections[]> {
     const result = await this.apiService.getCourseSectionsInTermAsInstructor(user, query.term_id)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -175,7 +175,7 @@ export class APIController {
     const result = await this.apiService.getCourseSectionsInTermAsAdmin(
       user, query.term_id, query.instructor_name, query.course_name
     )
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -189,7 +189,7 @@ export class APIController {
   ): Promise<CanvasCourseSectionBase[]> {
     const { sectionIds } = sectionIdsData
     const result = await this.apiService.mergeSections(user, targetCourseId, sectionIds)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 
@@ -199,7 +199,7 @@ export class APIController {
   async unmergeSections (@Body() sectionIdsData: SectionIdsDto, @UserDec() user: User): Promise<CanvasCourseSectionBase[]> {
     const { sectionIds } = sectionIdsData
     const result = await this.apiService.unmergeSections(user, sectionIds)
-    if (isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
+    if (apiInterfacesJs.isAPIErrorData(result)) throw new HttpException(result, result.statusCode)
     return result
   }
 }

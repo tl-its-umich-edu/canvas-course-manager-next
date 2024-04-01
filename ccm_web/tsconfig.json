@@ -21,7 +21,8 @@
   },
   "ts-node": {
     // Tell ts-node CLI to install the --loader automatically, explained below
-    "esm": true
+    "esm": true,
+    "transpileOnly": true,
   },
   "include": [
     /* client is compiled separately through webpack. */
