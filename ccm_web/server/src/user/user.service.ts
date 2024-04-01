@@ -25,8 +25,10 @@ export class UserService {
   We check explicitly for true to determine if it was created (otherwise it was updated).
   */
   async upsertUser (userToUpsert: UserToUpsert): Promise<User> {
+    console.log('userToUpsert', userToUpsert)
     try {
       const [record, created] = await this.userModel.upsert({ ...userToUpsert })
+      console.log(`UpserUser Status, ${record} ${created}`)
       const howChanged = created === true ? 'created' : 'updated'
       logger.info(`User ${record.loginId} was ${howChanged} in 'user' table.`)
       return record
@@ -39,6 +41,7 @@ export class UserService {
   }
 
   async findUserByLoginId (loginId: string): Promise<User | null> {
+    console.log('findUserByLoginId', loginId)
     try {
       const user = await this.userModel.findOne({
         where: { loginId },

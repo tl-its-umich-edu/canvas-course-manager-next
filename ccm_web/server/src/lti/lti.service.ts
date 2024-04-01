@@ -124,6 +124,7 @@ export class LTIService implements BeforeApplicationShutdown {
     })
 
     provider.onInvalidToken(async (req: Request, res: Response) => {
+      console.log('onInvalidToken')
       return res.redirect('/launch-error')
     })
 
