@@ -21,6 +21,8 @@ const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
+const { default: CanvasAPI } = CanvasRequestor
+
 const requestorOptions: GotOptions = {
   retry: {
     limit: 3,
@@ -240,12 +242,12 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken, requestorOptions)
+    const requestor = new CanvasAPI(this.url + endpoint, token.accessToken, requestorOptions)
     return requestor
   }
-
+  
   createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor {
-    const requestor = new CanvasRequestor(this.url + endpoint, this.adminToken, requestorOptions)
+    const requestor = new CanvasAPI(this.url + endpoint, this.adminToken, requestorOptions)
     return requestor
   }
 }
