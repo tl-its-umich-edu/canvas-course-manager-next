@@ -8,7 +8,7 @@
     "dev:client": "node --loader ts-node/esm node_modules/.bin/webpack --watch --config webpack/webpack.dev.ts",
     "predev": "wait-port ccm_db:3306",
     "dev": "node --loader ts-node/esm server/src/migrator.ts up && npm run dev:server & npm run dev:client",
-    "build:client": "webpack --config webpack/webpack.prod.ts",
+    "build:client": "node --loader ts-node/esm node_modules/.bin/webpack --config webpack/webpack.prod.ts",
     "build:server": "tsc --project tsconfig.build.json",
     "build": "npm run build:client && npm run build:server",
     "test": "jest",
