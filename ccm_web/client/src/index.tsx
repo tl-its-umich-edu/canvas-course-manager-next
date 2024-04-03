@@ -1,7 +1,7 @@
 import { SnackbarProvider } from 'notistack'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material'
 
 import App from './App'
@@ -22,15 +22,11 @@ root.render(
      <ThemeProvider theme={ccmTheme}>
       <SnackbarProvider maxSnack={3}>
         <BrowserRouter>
-          <Switch>
-            <Route exact={true} path='/access-denied'>
-              <AccessDenied {...helpContactProps} />
-            </Route>
-            <Route exact={true} path='/launch-error'>
-              <LaunchError {...helpContactProps} />
-            </Route>
-            <Route><App /></Route>
-          </Switch>
+          <Routes>
+            <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
+            <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
+            <Route path='*' element={<App />}/>
+          </Routes>
         </BrowserRouter>
       </SnackbarProvider>
      </ThemeProvider>
