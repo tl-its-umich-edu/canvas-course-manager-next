@@ -21,7 +21,7 @@ const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
-const { default: CanvasAPI } = CanvasRequestor
+const { default: CanvasAPI } = CanvasRequestor as any
 
 const requestorOptions: GotOptions = {
   retry: {
