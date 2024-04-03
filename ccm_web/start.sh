@@ -2,7 +2,7 @@
 set -e
 
 echo "Running any un-applied migrations"
-node server/src/migrator up
+node server/src/migrator.js up
 
 echo "Checking initialization and config before clustering"
 node server/src/init.js
