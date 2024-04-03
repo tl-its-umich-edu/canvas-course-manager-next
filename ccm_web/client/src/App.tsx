@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { getCourse } from './api'
 import './App.css'
@@ -72,13 +72,13 @@ function App (): JSX.Element {
 
   return (
     <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} csrfToken={csrfToken}>
-      <Switch>
-        <Route exact={true} path='/'>
+      <Routes>
+        <Route path='/' element={
           <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
-        </Route>
+          } />
         {features.map(feature => {
           return (
-            <Route key={feature.data.id} path={feature.route}>
+            <Route key={feature.data.id} path={feature.route} element={
               <feature.component
                 globals={globals}
                 csrfToken={csrfToken}
@@ -86,11 +86,11 @@ function App (): JSX.Element {
                 title={feature.data.title}
                 helpURLEnding={feature.data.helpURLEnding}
               />
-            </Route>
+            }/>
           )
         })}
-        <Route><NotFound /></Route>
-      </Switch>
+        <Route path="/*" element={<NotFound />}/>
+      </Routes>
     </Layout>
   )
 }
