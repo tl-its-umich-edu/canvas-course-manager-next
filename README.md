@@ -188,9 +188,9 @@ you create a migration file and run the migration using `umzug`.
 Developers have to write `up` and `down` migration steps manually.
 
 1. Running migrations locally
-    1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
-    2. Revert a migration: `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
-    3. Create a migration file: `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`.
+    1. Run migrations: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts up`
+    2. Revert a migration: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts down`.
+    3. Create a migration file: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts create --name my-migration.ts`.
 
         This generates a migration file called `<timestamp>.my-migration.ts`.
         The timestamp prefix can be customized to be date-only or omitted,
@@ -201,9 +201,9 @@ Developers have to write `up` and `down` migration steps manually.
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
 
 3. Running migrations `docker-compose-prod.yml`
-    1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up` and `docker exec -it ccm_web_prod node server/src/migrator down`.
+    1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node --loader ts-node/esm server/src/migrator.js up` and `docker exec -it ccm_web_prod node --loader ts-node/esm server/src/migrator.js down`.
     2. The reason for the separate setups for running migrations for local/non-prod and prod is locally, we don't
-    transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node
+    transpile TypeScript to Javascript and so we always use `ts-node/esm` module for running in node
     environment.
 
 #### Troubleshooting
