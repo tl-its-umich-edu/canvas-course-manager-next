@@ -106,8 +106,6 @@ async function bootstrap (): Promise<void> {
   )
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
 bootstrap()
   .then(() => logger.info('The application started successfully!'))
   .catch((e) => logger.error('An error occurred while starting the application: ', e))
-}
