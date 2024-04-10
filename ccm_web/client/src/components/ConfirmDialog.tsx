@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Paper, Typography } from '@mui/material'
-import CloudDoneIcon from '@mui/icons-material/CloudDone'
+import { CloudDone as CloudDoneIcon } from '@mui/icons-material'
 
 import { DownloadData } from '../models/models.js'
 

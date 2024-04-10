@@ -25,8 +25,8 @@ import {
   useMediaQuery,
   useTheme
 } from '@mui/material'
-import ClearIcon from '@mui/icons-material/Clear'
-import SortIcon from '@mui/icons-material/Sort'
+import { Clear as ClearIcon } from '@mui/icons-material'
+import { Sort as SortIcon } from '@mui/icons-material'
 import { useDebounce } from '@react-hook/debounce'
 
 import APIErrorMessage from './APIErrorMessage.js'

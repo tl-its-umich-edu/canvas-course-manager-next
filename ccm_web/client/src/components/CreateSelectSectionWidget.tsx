@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Tooltip, Typography } from '@mui/material'
-import HelpOutline from '@mui/icons-material/HelpOutline'
+import { HelpOutline } from '@mui/icons-material'
 
 import CreateSectionWidget from './CreateSectionWidget.js'
 import SectionSelectorWidget from './SectionSelectorWidget.js'

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Backdrop, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
-import * as api from '../api'
+import * as api from '../api.js'
 import APIErrorMessage from '../components/APIErrorMessage.js'
 import ConfirmDialog from '../components/ConfirmDialog.js'
 import CSVFileName from '../components/CSVFileName.js'

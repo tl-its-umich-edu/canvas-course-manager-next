@@ -1,10 +1,10 @@
 import React, { ComponentType } from 'react'
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
-import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined'
-import MergeTypeIcon from '@mui/icons-material/MergeType'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
-import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined'
+import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@mui/icons-material'
+import { LibraryBooksOutlined as LibraryBooksOutlinedIcon } from '@mui/icons-material'
+import { MergeType as MergeTypeIcon } from '@mui/icons-material'
+import { PersonAdd as PersonAddIcon } from '@mui/icons-material'
+import { PersonAddOutlined as PersonAddOutlinedIcon } from '@mui/icons-material'
+import { PostAddOutlined as PostAddOutlinedIcon } from '@mui/icons-material'
 
 import {
   FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,

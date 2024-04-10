@@ -4,7 +4,7 @@ import { Typography } from '@mui/material'
 
 import { getCourseSections } from '../api.js'
 import Help from '../components/Help.js'
-import MethodSelect from '../components/MethodSelect'
+import MethodSelect from '../components/MethodSelect.js'
 import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow.js'
 import SingleSectionEnrollmentWorkflow from '../components/SingleSectionEnrollmentWorkflow.js'
 import usePromise from '../hooks/usePromise.js'

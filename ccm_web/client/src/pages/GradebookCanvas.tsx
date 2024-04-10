@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Grid, Link, Typography } from '@mui/material'
-import WarningIcon from '@mui/icons-material/Warning'
+import { Warning as WarningIcon } from '@mui/icons-material'
 
 import CanvasSettingsLink from '../components/CanvasSettingsLink.js'
 import ConfirmDialog from '../components/ConfirmDialog.js'
