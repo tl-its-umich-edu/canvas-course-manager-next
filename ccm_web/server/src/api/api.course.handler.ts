@@ -17,10 +17,10 @@ Handler class for Canvas API calls dealing with a specific course (i.e. those be
 or course-scoped operations that make use of other handler instances for Canvas entities
 */
 export class CourseApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   courseId: number
 
-  constructor (requestor: CanvasRequestor, courseId: number) {
+  constructor (requestor: CanvasRequestor.default, courseId: number) {
     this.requestor = requestor
     this.courseId = courseId
   }

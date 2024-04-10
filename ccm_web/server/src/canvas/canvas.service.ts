@@ -21,13 +21,11 @@ const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
-const { default: CanvasAPI } = CanvasRequestor as any
-
-const requestorOptions: Partial<GotOptions> = {
+const requestorOptions: GotOptions = {
   retry: {
     limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    statusCodes: got.defaults.options.retry?.statusCodes?.concat([403]) ?? [403],
+    statusCodes: got.default.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
       const delay = computedValue === 0 ? 0 : 2000
 
@@ -52,10 +50,6 @@ const requestorOptions: Partial<GotOptions> = {
     }
   },
   hooks: {
-    init: [],
-    beforeRequest: [],
-    beforeRedirect: [],
-    beforeError: [],
     afterResponse: [(response, retryWithMergedOptions) => {
       let logMessage = 'afterResponse — '
 
@@ -71,7 +65,7 @@ const requestorOptions: Partial<GotOptions> = {
 
       return response
     }],
-    beforeRetry: [(error, retryCount) => {
+    beforeRetry: [(options, error, retryCount) => {
       logger.debug(`beforeRetry [${String(retryCount)}] - ` +
         `"error.response.statusCode": "${String(error?.response?.statusCode)}"; ` +
         `"error.code": "${String(error?.code)}"`)
@@ -237,7 +231,7 @@ export class CanvasService {
     }
   }
 
-  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor.default> {
     if (user.canvasToken === null) throw new CanvasTokenNotFoundError(user.loginId)
 
     let token = user.canvasToken
@@ -246,11 +240,13 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
+    const CanvasAPI = CanvasRequestor.default
     const requestor = new CanvasAPI(this.url + endpoint, token.accessToken, requestorOptions)
     return requestor
   }
   
-  createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor {
+  createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor.default {
+    const CanvasAPI = CanvasRequestor.default
     const requestor = new CanvasAPI(this.url + endpoint, this.adminToken, requestorOptions)
     return requestor
   }

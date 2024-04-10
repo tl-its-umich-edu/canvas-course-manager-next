@@ -1,3 +1,4 @@
+import CanvasRequestor from '@kth/canvas-api'
 import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto.js'
 import { hasKeys } from '../typeUtils.js'
 

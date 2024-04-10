@@ -16,12 +16,12 @@ const logger = baseLogger.child({ filePath: import.meta.filename })
 Handler class for Canvas API calls dealing with a specific section (i.e. those beginning with "/sections/:id")
 */
 export class SectionApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   sectionId: number
   showSectionIdErrReport = false
   customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number, showSectionIdErrReport = false, customCanvasRoles?: CustomCanvasRoleData) {
+  constructor (requestor: CanvasRequestor.default, sectionId: number, showSectionIdErrReport = false, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
     this.showSectionIdErrReport = showSectionIdErrReport

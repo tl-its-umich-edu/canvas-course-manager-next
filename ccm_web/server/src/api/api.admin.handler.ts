@@ -1,5 +1,4 @@
 import CanvasRequestor from '@kth/canvas-api'
-
 import { CourseApiHandler } from './api.course.handler.js'
 import { TooManyResultsError } from './api.errors.js'
 import { APIErrorData, isAPIErrorData } from './api.interfaces.js'
@@ -37,11 +36,11 @@ Handler class for Canvas API calls dealing with an admin's accounts (i.e. those 
 or account-scoped operations that make use of other handler instances for Canvas entities
 */
 export class AdminApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   userLoginId: string
   maxSearchCourses: number
 
-  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 400) {
+  constructor (requestor: any, userLoginId?: string, maxSearchCourses = 400) {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
     this.maxSearchCourses = maxSearchCourses
