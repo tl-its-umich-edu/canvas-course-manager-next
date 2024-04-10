@@ -23,11 +23,11 @@ type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
 const { default: CanvasAPI } = CanvasRequestor as any
 
-const requestorOptions: GotOptions = {
+const requestorOptions: Partial<GotOptions> = {
   retry: {
     limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
+    statusCodes: got.defaults.options.retry?.statusCodes?.concat([403]) ?? [403],
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
       const delay = computedValue === 0 ? 0 : 2000
 
@@ -52,6 +52,10 @@ const requestorOptions: GotOptions = {
     }
   },
   hooks: {
+    init: [],
+    beforeRequest: [],
+    beforeRedirect: [],
+    beforeError: [],
     afterResponse: [(response, retryWithMergedOptions) => {
       let logMessage = 'afterResponse — '
 
@@ -67,7 +71,7 @@ const requestorOptions: GotOptions = {
 
       return response
     }],
-    beforeRetry: [(options, error, retryCount) => {
+    beforeRetry: [(error, retryCount) => {
       logger.debug(`beforeRetry [${String(retryCount)}] - ` +
         `"error.response.statusCode": "${String(error?.response?.statusCode)}"; ` +
         `"error.code": "${String(error?.code)}"`)
