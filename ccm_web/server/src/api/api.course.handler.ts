@@ -70,7 +70,7 @@ export class CourseApiHandler {
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
       const sectionsFull = await this.requestor.listItems<CanvasCourseSection>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
-      return sectionsFull.map(s => ({
+      return sectionsFull.map((s: CanvasCourseSection) => ({
         id: s.id,
         name: s.name,
         course_id: s.course_id,

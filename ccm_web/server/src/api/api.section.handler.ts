@@ -49,7 +49,7 @@ export class SectionApiHandler {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
-    return enrollmentsResult.map(e => e.user.login_id)
+    return enrollmentsResult.map((e: CanvasEnrollmentWithUser)  => e.user.login_id)
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {
