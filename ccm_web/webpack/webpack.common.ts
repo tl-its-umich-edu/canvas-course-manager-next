@@ -38,12 +38,6 @@ const commonConfig: webpack.Configuration = {
       '.mjs': ['.mts', '.mjs'],
     },
   },
-  stats: {
-    colors: true,
-    modules: true,
-    reasons: true,
-    errorDetails: true
-  },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(clientPath, 'public', 'index.html'),
