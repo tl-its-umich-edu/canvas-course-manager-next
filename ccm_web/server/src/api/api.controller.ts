@@ -52,9 +52,7 @@ export class APIController {
 
   @Get('globals')
   getGlobals (@Session() session: SessionData, @UserDec() user: User): Globals {
-    const gloData = this.apiService.getGlobals(user, session)
-    console.log('gloData', gloData)
-    return gloData
+    return this.apiService.getGlobals(user, session)
   }
 
   @UseInterceptors(InvalidTokenInterceptor)

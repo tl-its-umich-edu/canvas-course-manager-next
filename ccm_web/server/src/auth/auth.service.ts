@@ -29,7 +29,6 @@ export class AuthService {
   }
 
   async loginLTI (userData: UserToUpsert, res: Response): Promise<void> {
-    console.log('loginLTI')
     const user = await this.userService.upsertUser(userData)
     const payload = { username: user.loginId, sub: user.id }
     const jwtToken = this.jwtService.sign(payload)
