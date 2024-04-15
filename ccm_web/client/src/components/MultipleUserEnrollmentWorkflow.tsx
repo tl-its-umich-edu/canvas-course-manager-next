@@ -56,7 +56,7 @@ const Root = styled('div')((
     textAlign: 'center'
   },
 
-  [`&.${classes.container}`]: {
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
