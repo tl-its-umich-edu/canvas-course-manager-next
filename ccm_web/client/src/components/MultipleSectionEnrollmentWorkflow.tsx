@@ -270,14 +270,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             <Link href={sectionDataToDownload} download='course_section_ids.csv'>
               Download a CSV with the Canvas Course Section IDs data
             </Link>
-            <Accordion title='Course Section Canvas IDs' id='section-ids'>{sectionIdsTable}</Accordion>
+            <Accordion title='Course Section Canvas IDs' id='section-ids'>
+              <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+                <Grid container>
+                  <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+                  <Grid item xs={12}>Loading section data from Canvas</Grid>
+                </Grid>
+              </Backdrop>
+              {sectionIdsTable}
+          </Accordion>
           </Grid>
-          <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>Loading section data from Canvas</Grid>
-            </Grid>
-          </Backdrop>
         </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
