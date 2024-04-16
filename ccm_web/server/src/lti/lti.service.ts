@@ -4,13 +4,13 @@ import { ConfigService } from '@nestjs/config'
 import { IdToken, Provider as LTIProvider } from 'ltijs'
 import Database from 'ltijs-sequelize'
 
-import { AuthService } from '../auth/auth.service'
+import { AuthService } from '../auth/auth.service.js'
 
-import baseLogger from '../logger'
-import { Config } from '../config'
-import { LTIEnrollmentType } from '../canvas/canvas.interfaces'
+import baseLogger from '../logger.js'
+import { Config } from '../config.js'
+import { LTIEnrollmentType } from '../canvas/canvas.interfaces.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 const createLaunchErrorResponse = (res: Response, action?: string): Response => {
   const message = (

@@ -1,4 +1,4 @@
-import { hasKeys } from '../typeUtils'
+import { hasKeys } from '../typeUtils.js'
 
 export const cirrusAPIVersion = '/api/v1'
 export const cirrusAPIEndPoint = '/batchInviteCsv'

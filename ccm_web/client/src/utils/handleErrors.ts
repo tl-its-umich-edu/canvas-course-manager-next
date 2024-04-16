@@ -3,9 +3,9 @@ Modified version of Remote Office Hours Queue implementation of custom errors an
 See https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/assets/src/services/api.ts
 */
 
-import redirect from './redirect'
-import { ExternalUserResult, isExternalUserAPIErrorData, isExternalUserFailure } from '../models/externalUser'
-import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorData } from '../models/models'
+import redirect from './redirect.js'
+import { ExternalUserResult, isExternalUserAPIErrorData, isExternalUserFailure } from '../models/externalUser.js'
+import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorData } from '../models/models.js'
 
 /*
 Custom Error types

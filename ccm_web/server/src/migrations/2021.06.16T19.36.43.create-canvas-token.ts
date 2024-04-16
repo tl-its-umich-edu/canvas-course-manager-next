@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize'
-import { Migration } from '../migrator'
+import { Migration } from '../migrator.js'
 
 export const up: Migration = async ({ context: sequelize }) => {
   await sequelize.getQueryInterface().createTable('canvas_token', {

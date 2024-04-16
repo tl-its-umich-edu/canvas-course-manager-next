@@ -1,8 +1,8 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material'
 import React from 'react'
-import StyledTableCell from './StyledTableCell'
-import TableCaption from './TableCaption'
-import { TablePaginationActions } from './TablePagination'
+import StyledTableCell from './StyledTableCell.js'
+import TableCaption from './TableCaption.js'
+import { TablePaginationActions } from './TablePagination.js'
 
 interface TableEntity {
   rowNumber: number

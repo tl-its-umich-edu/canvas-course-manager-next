@@ -1,5 +1,5 @@
-import { InvalidationType } from '../models/models'
-import { CSVRecord } from '../utils/FileParserWrapper'
+import { InvalidationType } from '../models/models.js'
+import { CSVRecord } from '../utils/FileParserWrapper.js'
 
 interface SchemaInvalidation {
   message: string

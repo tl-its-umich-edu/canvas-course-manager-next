@@ -1,9 +1,9 @@
 import React from 'react'
 import { Typography } from '@mui/material'
 
-import HelpContact, { HelpContactProps } from '../components/HelpContact'
-import InlineErrorAlert from '../components/InlineErrorAlert'
-import Layout from '../components/Layout'
+import HelpContact, { HelpContactProps } from '../components/HelpContact.js'
+import InlineErrorAlert from '../components/InlineErrorAlert.js'
+import Layout from '../components/Layout.js'
 
 interface AccessDeniedProps extends HelpContactProps {}
 

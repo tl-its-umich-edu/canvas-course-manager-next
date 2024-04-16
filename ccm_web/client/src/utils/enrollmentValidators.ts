@@ -1,10 +1,10 @@
-import { ClientEnrollmentType, isValidRole } from '../models/canvas'
-import { InvalidationType } from '../models/models'
-import { getRowNumber } from './fileUtils'
-import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation'
+import { ClientEnrollmentType, isValidRole } from '../models/canvas.js'
+import { InvalidationType } from '../models/models.js'
+import { getRowNumber } from './fileUtils.js'
+import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation.js'
 import {
   emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIdSchema, validateNumberString
-} from '../utils/validation'
+} from '../utils/validation.js'
 
 export interface EnrollmentInvalidation extends RowInvalidation {}
 

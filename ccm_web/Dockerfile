@@ -29,7 +29,7 @@ COPY --from=base \
     /base/package.json \
     /base/package-lock.json \
     /base/start.sh \
-    /base/ecosystem.config.js \
+    /base/ecosystem.config.cjs \
     ./
 RUN npm install --production
 RUN npm install pm2@5.3.1 -g

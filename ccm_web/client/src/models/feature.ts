@@ -1,4 +1,4 @@
-import { RoleEnum } from './models'
+import { RoleEnum } from './models.js'
 
 interface FeatureDataProps {
   id: string

@@ -1,7 +1,7 @@
 import { Express, Request, Response, NextFunction } from 'express'
 import { Injectable, NestMiddleware } from '@nestjs/common'
 
-import { LTIService } from './lti.service'
+import { LTIService } from './lti.service.js'
 
 @Injectable()
 export class LTIMiddleware implements NestMiddleware {

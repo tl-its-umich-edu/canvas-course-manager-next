@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Card, CardContent, Typography } from '@mui/material'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { useSnackbar } from 'notistack'
 
 const PREFIX = 'FileUpload'

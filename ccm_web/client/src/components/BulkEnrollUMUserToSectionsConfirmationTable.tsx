@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import CustomTable from './CustomTable'
-import { RowNumberedAddEnrollmentWithSectionId } from '../models/enrollment'
+import CustomTable from './CustomTable.js'
+import { RowNumberedAddEnrollmentWithSectionId } from '../models/enrollment.js'
 
 interface BulkEnrollUMUserSectionsConfirmationTableProps {
   enrollments: RowNumberedAddEnrollmentWithSectionId[]

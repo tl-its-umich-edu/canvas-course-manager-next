@@ -1,26 +1,26 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { APIErrorData, isAPIErrorData } from './api.interfaces'
-import { SectionApiHandler } from './api.section.handler'
-import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
+import { APIErrorData, isAPIErrorData } from './api.interfaces.js'
+import { SectionApiHandler } from './api.section.handler.js'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils.js'
 import {
   CanvasCourse, CanvasCourseBase, CanvasCourseInput, CanvasCourseSection, CanvasCourseSectionBase,
   CourseWithSections
-} from '../canvas/canvas.interfaces'
+} from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 /*
 Handler class for Canvas API calls dealing with a specific course (i.e. those beginning with "/courses/:id")
 or course-scoped operations that make use of other handler instances for Canvas entities
 */
 export class CourseApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   courseId: number
 
-  constructor (requestor: CanvasRequestor, courseId: number) {
+  constructor (requestor: CanvasRequestor.default, courseId: number) {
     this.requestor = requestor
     this.courseId = courseId
   }
@@ -70,7 +70,7 @@ export class CourseApiHandler {
       logger.debug(`Sending request to Canvas (get all pages) - Endpoint: ${endpoint}; Method: GET`)
       const sectionsFull = await this.requestor.listItems<CanvasCourseSection>(endpoint, queryParams).toArray()
       logger.debug('Received response (status code unknown)')
-      return sectionsFull.map(s => ({
+      return sectionsFull.map((s: CanvasCourseSection) => ({
         id: s.id,
         name: s.name,
         course_id: s.course_id,

@@ -7,17 +7,17 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors'
-import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces'
-import { CanvasToken } from './canvas.model'
-import canvasScopes from './canvas.scopes'
-import { User } from '../user/user.model'
+import { CanvasOAuthAPIError, CanvasTokenNotFoundError, InvalidTokenRefreshError } from './canvas.errors.js'
+import { TokenCodeResponseBody, TokenRefreshResponseBody } from './canvas.interfaces.js'
+import { CanvasToken } from './canvas.model.js'
+import canvasScopes from './canvas.scopes.js'
+import { User } from '../user/user.model.js'
 
-import { Config } from '../config'
-import { DatabaseError } from '../errors'
-import baseLogger from '../logger'
+import { Config } from '../config.js'
+import { DatabaseError } from '../errors.js'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type SupportedAPIEndpoint = '/api/v1/' | '/api/graphql/'
 
@@ -25,7 +25,7 @@ const requestorOptions: GotOptions = {
   retry: {
     limit: 3,
     methods: ['POST', 'GET', 'PUT', 'DELETE'],
-    statusCodes: got.defaults.options.retry.statusCodes.concat([403]),
+    statusCodes: got.default.defaults.options.retry.statusCodes.concat([403]),
     calculateDelay: ({ attemptCount, retryOptions, error, computedValue }) => {
       const delay = computedValue === 0 ? 0 : 2000
 
@@ -231,7 +231,7 @@ export class CanvasService {
     }
   }
 
-  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor> {
+  async createRequestorForUser (user: User, endpoint: SupportedAPIEndpoint): Promise<CanvasRequestor.default> {
     if (user.canvasToken === null) throw new CanvasTokenNotFoundError(user.loginId)
 
     let token = user.canvasToken
@@ -240,12 +240,14 @@ export class CanvasService {
       logger.debug('Token for user has expired; refreshing token...')
       token = await this.refreshToken(token)
     }
-    const requestor = new CanvasRequestor(this.url + endpoint, token.accessToken, requestorOptions)
+    const CanvasAPI = CanvasRequestor.default
+    const requestor = new CanvasAPI(this.url + endpoint, token.accessToken, requestorOptions)
     return requestor
   }
-
-  createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor {
-    const requestor = new CanvasRequestor(this.url + endpoint, this.adminToken, requestorOptions)
+  
+  createRequestorForAdmin (endpoint: SupportedAPIEndpoint): CanvasRequestor.default {
+    const CanvasAPI = CanvasRequestor.default
+    const requestor = new CanvasAPI(this.url + endpoint, this.adminToken, requestorOptions)
     return requestor
   }
 }

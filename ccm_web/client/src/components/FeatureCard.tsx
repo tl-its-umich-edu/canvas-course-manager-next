@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/material'
 
-import { FeatureUIProps } from '../models/FeatureUIData'
+import { FeatureUIProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'FeatureCard'
 

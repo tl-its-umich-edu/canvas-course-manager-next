@@ -1,9 +1,9 @@
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { Controller, ForbiddenException, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
-import { JwtAuthGuard } from './jwt-auth.guard'
-import { SessionGuard } from './session.guard'
-import { CSRFTokenResponse } from './auth.interfaces'
+import { JwtAuthGuard } from './jwt-auth.guard.js'
+import { SessionGuard } from './session.guard.js'
+import { CSRFTokenResponse } from './auth.interfaces.js'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('auth')

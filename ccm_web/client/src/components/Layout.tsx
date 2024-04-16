@@ -1,11 +1,11 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Divider, Grid, Link, Paper, Typography } from '@mui/material'
-import BuildIcon from '@mui/icons-material/Build'
+import { Build as BuildIcon } from '@mui/icons-material'
 
-import Breadcrumbs, { BreadcrumbsProps } from './Breadcrumbs'
-import ResponsiveHelper from './ResponsiveHelper'
-import { CsrfToken } from '../models/models'
+import Breadcrumbs, { BreadcrumbsProps } from './Breadcrumbs.js'
+import ResponsiveHelper from './ResponsiveHelper.js'
+import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'Layout'
 

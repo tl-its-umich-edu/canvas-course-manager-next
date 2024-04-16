@@ -2,16 +2,16 @@ import { SessionData } from 'express-session'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { AdminApiHandler } from './api.admin.handler'
-import { CourseApiHandler } from './api.course.handler'
+import { AdminApiHandler } from './api.admin.handler.js'
+import { CourseApiHandler } from './api.course.handler.js'
 import {
   APIErrorData, APIErrorPayload, ExternalUserCreationResult, ExternalUserData, Globals, isAPIErrorData
-} from './api.interfaces'
-import { SectionApiHandler } from './api.section.handler'
-import { createLimitedPromises, determineStatusCode, handleAPIError, makeResponse } from './api.utils'
-import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto'
-import { SectionUserDto } from './dtos/api.section.users.dto'
-import { ExternalUserDto } from './dtos/api.external.users.dto'
+} from './api.interfaces.js'
+import { SectionApiHandler } from './api.section.handler.js'
+import { createLimitedPromises, determineStatusCode, handleAPIError, makeResponse } from './api.utils.js'
+import { SectionEnrollmentDto } from './dtos/api.section.enrollment.dto.js'
+import { SectionUserDto } from './dtos/api.section.users.dto.js'
+import { ExternalUserDto } from './dtos/api.external.users.dto.js'
 import {
   CanvasCourse,
   CanvasCourseBase,
@@ -20,16 +20,16 @@ import {
   CanvasEnrollment,
   CanvasUserCondensed,
   CourseWithSections
-} from '../canvas/canvas.interfaces'
-import { CanvasService } from '../canvas/canvas.service'
-import { CirrusErrorData, CirrusInvitationResponse, isCirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
-import { CirrusInvitationService } from '../invitation/cirrus-invitation.service'
-import { User } from '../user/user.model'
+} from '../canvas/canvas.interfaces.js'
+import { CanvasService } from '../canvas/canvas.service.js'
+import { CirrusErrorData, CirrusInvitationResponse, isCirrusErrorData } from '../invitation/cirrus-invitation.interfaces.js'
+import { CirrusInvitationService } from '../invitation/cirrus-invitation.service.js'
+import { User } from '../user/user.model.js'
 
-import { Config } from '../config'
-import baseLogger from '../logger'
+import { Config } from '../config.js'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 @Injectable()
 export class APIService {

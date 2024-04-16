@@ -5,7 +5,7 @@ import {
   AccordionDetails as MUIAccordionDetails,
   AccordionSummary as MUIAccordionSummary
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 
 const PREFIX = 'Accordion'
 
