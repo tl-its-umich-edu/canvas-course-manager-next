@@ -6,19 +6,19 @@ import { Button, Grid, LinearProgress, Paper, Typography } from '@mui/material'
 
 import { useSnackbar } from 'notistack'
 
-import { adminRoles } from '../models/feature'
-import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
-import APIErrorMessage from '../components/APIErrorMessage'
-import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
+import { adminRoles } from '../models/feature.js'
+import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData.js'
+import APIErrorMessage from '../components/APIErrorMessage.js'
+import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget.js'
 import {
   CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount,
   CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort
-} from '../models/canvas'
-import { mergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
-import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
-import CourseSectionList from '../components/CourseSectionList'
-import Help from '../components/Help'
+} from '../models/canvas.js'
+import { mergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher.js'
+import CourseSectionList from '../components/CourseSectionList.js'
+import Help from '../components/Help.js'
 
 const PREFIX = 'MergeSections'
 

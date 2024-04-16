@@ -1,27 +1,27 @@
 import CanvasRequestor from '@kth/canvas-api'
 
-import { APIErrorData } from './api.interfaces'
-import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils'
-import { SectionUserDto } from './dtos/api.section.users.dto'
+import { APIErrorData } from './api.interfaces.js'
+import { createLimitedPromises, handleAPIError, HttpMethod, makeResponse } from './api.utils.js'
+import { SectionUserDto } from './dtos/api.section.users.dto.js'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment, CanvasEnrollmentWithUser, UserEnrollmentType, CustomCanvasRoleType, getCanvasRole
-} from '../canvas/canvas.interfaces'
+} from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
-import { CustomCanvasRoleData } from '../config'
+import baseLogger from '../logger.js'
+import { CustomCanvasRoleData } from '../config.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 /*
 Handler class for Canvas API calls dealing with a specific section (i.e. those beginning with "/sections/:id")
 */
 export class SectionApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   sectionId: number
   showSectionIdErrReport = false
   customCanvasRoles?: CustomCanvasRoleData
 
-  constructor (requestor: CanvasRequestor, sectionId: number, showSectionIdErrReport = false, customCanvasRoles?: CustomCanvasRoleData) {
+  constructor (requestor: CanvasRequestor.default, sectionId: number, showSectionIdErrReport = false, customCanvasRoles?: CustomCanvasRoleData) {
     this.requestor = requestor
     this.sectionId = sectionId
     this.showSectionIdErrReport = showSectionIdErrReport
@@ -49,7 +49,7 @@ export class SectionApiHandler {
       const errResponse = handleAPIError(error)
       return { statusCode: errResponse.canvasStatusCode, errors: [errResponse] }
     }
-    return enrollmentsResult.map(e => e.user.login_id)
+    return enrollmentsResult.map((e: CanvasEnrollmentWithUser)  => e.user.login_id)
   }
 
   async enrollUser (user: SectionUserDto): Promise<CanvasEnrollment | APIErrorData> {

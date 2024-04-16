@@ -1,24 +1,24 @@
 import crypto from 'crypto'
 import { promisify } from 'util'
 
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import {
   BadRequestException, Controller, Get, InternalServerErrorException, Query, Req, Res,
   UnauthorizedException, UseGuards
 } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
-import { isOAuthGoodResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces'
-import { CanvasService } from './canvas.service'
-import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'
-import { SessionGuard } from '../auth/session.guard'
-import { UserDec } from '../user/user.decorator'
-import { User } from '../user/user.model'
+import { isOAuthGoodResponseQuery, isOAuthErrorResponseQuery } from './canvas.interfaces.js'
+import { CanvasService } from './canvas.service.js'
+import { CanvasOAuthReturnQueryDto } from './dtos/canvas.oauth.query.dto.js'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { SessionGuard } from '../auth/session.guard.js'
+import { UserDec } from '../user/user.decorator.js'
+import { User } from '../user/user.model.js'
 
-import baseLogger from '../logger'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 const generateToken = promisify(crypto.randomBytes)
 

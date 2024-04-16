@@ -1,7 +1,7 @@
 import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescript'
 import { DataTypes, Optional } from 'sequelize'
 
-import { User } from '../user/user.model'
+import { User } from '../user/user.model.js'
 
 interface CanvasTokenAttributes {
   id: bigint
@@ -24,13 +24,13 @@ export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreatio
     autoIncrement: true,
     type: DataTypes.BIGINT
   })
-  id!: bigint
+  declare id: bigint
 
   @ForeignKey(() => User)
   @Column({
     type: DataTypes.BIGINT
   })
-  userId!: bigint
+  declare userId: bigint
 
   @BelongsTo(() => User)
   user!: User
@@ -38,17 +38,17 @@ export class CanvasToken extends Model<CanvasTokenAttributes, CanvasTokenCreatio
   @Column({
     type: DataTypes.STRING
   })
-  accessToken!: string
+  declare accessToken: string
 
   @Column({
     type: DataTypes.STRING
   })
-  refreshToken!: string
+  declare refreshToken: string
 
   @Column({
     type: DataTypes.DATE
   })
-  expiresAt!: string
+  declare expiresAt: string
 
   isExpired (): boolean {
     return new Date() > new Date(this.expiresAt)

@@ -6,10 +6,10 @@ import {
 import { Observable } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 
-import { isAPIErrorData } from './api.interfaces'
-import { CanvasTokenNotFoundError, InvalidTokenRefreshError } from '../canvas/canvas.errors'
-import { CanvasService } from '../canvas/canvas.service'
-import { RequestWithoutUserError } from '../user/user.errors'
+import { isAPIErrorData } from './api.interfaces.js'
+import { CanvasTokenNotFoundError, InvalidTokenRefreshError } from '../canvas/canvas.errors.js'
+import { CanvasService } from '../canvas/canvas.service.js'
+import { RequestWithoutUserError } from '../user/user.errors.js'
 
 const INVALID_TOKEN_TEXT = 'invalid access token'
 const INSUFFICIENT_SCOPES_TEXT = 'insufficient scopes on access token'

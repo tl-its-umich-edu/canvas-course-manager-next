@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import CustomTable from './CustomTable'
-import { REQUIRED_LOGIN_ID_HEADER } from '../utils/ThirdPartyGradebookProcessor'
+import CustomTable from './CustomTable.js'
+import { REQUIRED_LOGIN_ID_HEADER } from '../utils/ThirdPartyGradebookProcessor.js'
 
 interface NumberedSlimGradebookRecord extends Record<string, string | number | undefined> {
   rowNumber: number

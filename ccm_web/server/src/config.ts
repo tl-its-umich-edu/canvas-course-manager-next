@@ -1,4 +1,4 @@
-import baseLogger from './logger'
+import baseLogger from './logger.js'
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -62,7 +62,7 @@ export interface Config {
   baseHelpURL: string
 }
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 const isString = (v: unknown): v is string => typeof v === 'string'
 const isNotEmpty = (v: string): boolean => v.length > 0

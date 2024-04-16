@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import winston, { format } from 'winston'
 
 const logFormat = format.printf(

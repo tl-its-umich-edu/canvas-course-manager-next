@@ -4,12 +4,12 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 
-import { JwtPayload } from './auth.interfaces'
-import { UserNotFoundError } from '../user/user.errors'
-import { User } from '../user/user.model'
-import { UserService } from '../user/user.service'
+import { JwtPayload } from './auth.interfaces.js'
+import { UserNotFoundError } from '../user/user.errors.js'
+import { User } from '../user/user.model.js'
+import { UserService } from '../user/user.service.js'
 
-import { Config } from '../config'
+import { Config } from '../config.js'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(PassportJwtStrategy) {

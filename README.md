@@ -188,9 +188,9 @@ you create a migration file and run the migration using `umzug`.
 Developers have to write `up` and `down` migration steps manually.
 
 1. Running migrations locally
-    1. Run migrations: `docker exec -it ccm_web node -r ts-node/register server/src/migrator up`
-    2. Revert a migration: `docker exec -it ccm_web node -r ts-node/register server/src/migrator down`.
-    3. Create a migration file: `docker exec -it ccm_web node -r ts-node/register server/src/migrator create --name my-migration.ts`.
+    1. Run migrations: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts up`
+    2. Revert a migration: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts down`.
+    3. Create a migration file: `docker exec -it ccm_web node --loader ts-node/esm server/src/migrator.ts create --name my-migration.ts`.
 
         This generates a migration file called `<timestamp>.my-migration.ts`.
         The timestamp prefix can be customized to be date-only or omitted,
@@ -201,9 +201,9 @@ Developers have to write `up` and `down` migration steps manually.
 2. Running the migration are usually done when server is starting up, but in addition if you want to run migrations or revert use above commands
 
 3. Running migrations `docker-compose-prod.yml`
-    1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node server/src/migrator up` and `docker exec -it ccm_web_prod node server/src/migrator down`.
+    1. For running the migrations in in dev/test/prod, use `docker exec -it ccm_web_prod node --loader ts-node/esm server/src/migrator.js up` and `docker exec -it ccm_web_prod node --loader ts-node/esm server/src/migrator.js down`.
     2. The reason for the separate setups for running migrations for local/non-prod and prod is locally, we don't
-    transpile TypeScript to Javascript and so we always use `ts-node/register` module for running in node
+    transpile TypeScript to Javascript and so we always use `ts-node/esm` module for running in node
     environment.
 
 #### Troubleshooting
@@ -352,7 +352,7 @@ This code will hopefully only remain in this repository temporarily.
 2. The action is triggered whenever a commit is made to the `main` branch.  E.g., when a pull request is merged to `main`.
 3. OpenShift projects can periodically pull this image from GHCR.  Configure only **_NON-PRODUCTION_** CCM projects to pull the image…
     ```sh
-    oc tag ghcr.io/tl-its-umich-edu/canvas-course-manager-next:latest canvas-course-manager-next:latest --scheduled --reference-policy=local
+    oc tag ghcr.io/tl-its-umich-edu/canvas-course-manager-next:main canvas-course-manager-next:main --scheduled --reference-policy=local
     ```
     See the OpenShift documentation "[Managing image streams: Configuring periodic importing of image stream tags](https://docs.openshift.com/container-platform/4.11/openshift_images/image-streams-manage.html#images-imagestream-import_image-streams-managing)" for details.
 

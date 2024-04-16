@@ -1,11 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AuthModule } from '../auth/auth.module'
-import { AuthService } from '../auth/auth.service'
-import { Config } from '../config'
+import { AuthModule } from '../auth/auth.module.js'
+import { AuthService } from '../auth/auth.service.js'
+import { Config } from '../config.js'
 
-import { LTIMiddleware } from './lti.middleware'
-import { LTIService } from './lti.service'
+import { LTIMiddleware } from './lti.middleware.js'
+import { LTIService } from './lti.service.js'
 
 @Module({
   imports: [AuthModule],

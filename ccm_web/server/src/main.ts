@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import { urlencoded, json } from 'express'
@@ -10,12 +12,12 @@ import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
-import { AppModule } from './app.module'
+import { AppModule } from './app.module.js'
 
-import { Config, ServerConfig } from './config'
-import baseLogger from './logger'
+import { Config, ServerConfig } from './config.js'
+import baseLogger from './logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type PartialServerConfig = Omit<ServerConfig, 'isDev' | 'port'>
 
@@ -104,8 +106,6 @@ async function bootstrap (): Promise<void> {
   )
 }
 
-if (require.main === module) {
-  bootstrap()
-    .then(() => logger.info('The application started successfully!'))
-    .catch((e) => logger.error('An error occurred while starting the application: ', e))
-}
+bootstrap()
+  .then(() => logger.info('The application started successfully!'))
+  .catch((e) => logger.error('An error occurred while starting the application: ', e))

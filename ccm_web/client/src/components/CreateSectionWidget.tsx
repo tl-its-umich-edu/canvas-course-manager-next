@@ -4,11 +4,11 @@ import { useSnackbar } from 'notistack'
 import React, { ChangeEvent, useState } from 'react'
 import { Button, Grid, TextField } from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import { addCourseSections } from '../api'
-import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
-import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
-import { CsrfToken } from '../models/models'
+import APIErrorMessage from './APIErrorMessage.js'
+import { addCourseSections } from '../api.js'
+import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas.js'
+import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator.js'
+import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'CreateSectionWidget'
 

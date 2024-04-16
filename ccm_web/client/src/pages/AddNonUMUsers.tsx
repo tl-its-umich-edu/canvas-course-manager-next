@@ -2,18 +2,18 @@ import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
-import * as api from '../api'
-import ErrorAlert from '../components/ErrorAlert'
-import Help from '../components/Help'
-import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow'
-import UserEnrollmentForm from '../components/UserEnrollmentForm'
-import MethodSelect from '../components/MethodSelect'
-import usePromise from '../hooks/usePromise'
+import * as api from '../api.js'
+import ErrorAlert from '../components/ErrorAlert.js'
+import Help from '../components/Help.js'
+import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow.js'
+import UserEnrollmentForm from '../components/UserEnrollmentForm.js'
+import MethodSelect from '../components/MethodSelect.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName,
   sortSections
-} from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+} from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'AddNonUMUsers'
 

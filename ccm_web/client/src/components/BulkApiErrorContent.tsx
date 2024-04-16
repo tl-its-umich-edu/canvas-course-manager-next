@@ -1,11 +1,11 @@
 import React from 'react'
 import { Typography } from '@mui/material'
 
-import APIErrorsTable from './APIErrorsTable'
-import CSVFileName from './CSVFileName'
-import ErrorAlert from './ErrorAlert'
-import RowLevelErrorsContent from './RowLevelErrorsContent'
-import { CanvasError } from '../utils/handleErrors'
+import APIErrorsTable from './APIErrorsTable.js'
+import CSVFileName from './CSVFileName.js'
+import ErrorAlert from './ErrorAlert.js'
+import RowLevelErrorsContent from './RowLevelErrorsContent.js'
+import { CanvasError } from '../utils/handleErrors.js'
 
 interface BulkApiErrorContentProps {
   error: Error

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import CustomTable, { TableColumn } from './CustomTable'
-import { ErrorDescription } from '../utils/handleErrors'
+import CustomTable, { TableColumn } from './CustomTable.js'
+import { ErrorDescription } from '../utils/handleErrors.js'
 
 interface NumberedErrorDescription extends ErrorDescription {
   rowNumber: number

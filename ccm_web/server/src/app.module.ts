@@ -1,27 +1,28 @@
-import path from 'path'
+import path from 'node:path'
 
 import helmet from 'helmet'
-import { NoCacheInterceptor } from './no.cache.interceptor'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
 import { APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { ServeStaticModule } from '@nestjs/serve-static'
 
-import { APIModule } from './api/api.module'
-import { AuthModule } from './auth/auth.module'
-import { CanvasModule } from './canvas/canvas.module'
-import { CanvasToken } from './canvas/canvas.model'
-import { HealthModule } from './health/health.module'
-import { LTIModule } from './lti/lti.module'
-import { UserModule } from './user/user.module'
-import { User } from './user/user.model'
-import { UserService } from './user/user.service'
+import { APIModule } from './api/api.module.js'
+import { AuthModule } from './auth/auth.module.js'
+import { CanvasModule } from './canvas/canvas.module.js'
+import { CanvasToken } from './canvas/canvas.model.js'
+import { NoCacheInterceptor } from './no.cache.interceptor.js'
+import { HealthModule } from './health/health.module.js'
+import { LTIModule } from './lti/lti.module.js'
+import { UserModule } from './user/user.module.js'
+import { User } from './user/user.model.js'
+import { UserService } from './user/user.service.js'
 
-import { Config, validateConfig } from './config'
-import baseLogger from './logger'
+import { Config, validateConfig } from './config.js'
+import baseLogger from './logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const __dirname = import.meta.dirname
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 @Module({
   imports: [

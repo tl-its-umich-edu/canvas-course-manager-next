@@ -1,6 +1,6 @@
 import { Column, HasOne, Model, Table, Unique } from 'sequelize-typescript'
 import { Optional, DataTypes } from 'sequelize'
-import { CanvasToken } from '../canvas/canvas.model'
+import { CanvasToken } from '../canvas/canvas.model.js'
 
 // https://www.npmjs.com/package/sequelize-typescript#more-strict
 
@@ -28,29 +28,29 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     autoIncrement: true,
     type: DataTypes.BIGINT
   })
-  id!: bigint
+  declare id: bigint
 
   @Column({
     type: DataTypes.STRING
   })
-  firstName!: string
+  declare firstName: string
 
   @Column({
     type: DataTypes.STRING
   })
-  lastName!: string
+  declare lastName: string
 
   @Column({
     type: DataTypes.STRING
   })
-  email!: string
+  declare email: string
 
   @Unique
   @Column({
     type: DataTypes.STRING
   })
-  loginId!: string
+  declare loginId: string
 
   @HasOne(() => CanvasToken)
-  canvasToken!: CanvasToken | null
+  declare canvasToken: CanvasToken | null
 }

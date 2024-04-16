@@ -8,7 +8,7 @@ import {
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { ClientEnrollmentType } from '../../canvas/canvas.interfaces'
+import { ClientEnrollmentType } from '../../canvas/canvas.interfaces.js'
 
 export class SectionUserDto {
   @ApiProperty()
