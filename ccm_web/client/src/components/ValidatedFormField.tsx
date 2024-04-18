@@ -1,7 +1,7 @@
 import React from 'react'
 import { TextField } from '@mui/material'
 
-import { ValidationResult } from '../utils/validation'
+import { ValidationResult } from '../utils/validation.js'
 
 type TextChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 

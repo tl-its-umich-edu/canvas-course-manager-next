@@ -1,23 +1,23 @@
 import React, { ComponentType } from 'react'
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
-import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined'
-import MergeTypeIcon from '@mui/icons-material/MergeType'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
-import PostAddOutlinedIcon from '@mui/icons-material/PostAddOutlined'
+import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@mui/icons-material'
+import { LibraryBooksOutlined as LibraryBooksOutlinedIcon } from '@mui/icons-material'
+import { MergeType as MergeTypeIcon } from '@mui/icons-material'
+import { PersonAdd as PersonAddIcon } from '@mui/icons-material'
+import { PersonAddOutlined as PersonAddOutlinedIcon } from '@mui/icons-material'
+import { PostAddOutlined as PostAddOutlinedIcon } from '@mui/icons-material'
 
 import {
   FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps
-} from './feature'
-import AddNonUMUsers from '../pages/AddNonUMUsers'
-import AddUMUsers from '../pages/AddUMUsers'
-import BulkSectionCreate from '../pages/BulkSectionCreate'
-import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook'
-import ConvertCanvasGradebook from '../pages/GradebookCanvas'
-import MergeSections from '../pages/MergeSections'
-import { CsrfToken, Globals, RoleEnum } from './models'
-import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas'
+} from './feature.js'
+import AddNonUMUsers from '../pages/AddNonUMUsers.js'
+import AddUMUsers from '../pages/AddUMUsers.js'
+import BulkSectionCreate from '../pages/BulkSectionCreate.js'
+import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
+import ConvertCanvasGradebook from '../pages/GradebookCanvas.js'
+import MergeSections from '../pages/MergeSections.js'
+import { CsrfToken, Globals, RoleEnum } from './models.js'
+import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas.js'
 
 export interface CCMComponentProps {
   globals: Globals

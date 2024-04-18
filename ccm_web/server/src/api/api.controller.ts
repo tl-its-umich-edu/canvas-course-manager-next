@@ -1,4 +1,4 @@
-import { SessionData } from 'express-session'
+import type { SessionData } from 'express-session'
 import {
   BadRequestException,
   Body,
@@ -17,19 +17,20 @@ import {
 } from '@nestjs/common'
 import { ApiQuery, ApiSecurity } from '@nestjs/swagger'
 
-import { Globals, isAPIErrorData, ExternalUserData } from './api.interfaces'
-import { APIService } from './api.service'
-import { InvalidTokenInterceptor } from './invalid.token.interceptor'
-import { TooManyResultsInterceptor } from './too.many.results.interceptor'
-import { CourseNameDto } from './dtos/api.course.name.dto'
-import { CreateSectionsDto } from './dtos/api.create.sections.dto'
-import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto'
-import { GetSectionsInstructorQueryDto } from './dtos/api.get.sections.instructor.dto'
-import { SectionEnrollmentsDto } from './dtos/api.section.enrollment.dto'
-import { SectionIdsDto } from './dtos/api.section.ids.dto'
-import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'
-import { SessionGuard } from '../auth/session.guard'
+import type { Globals, ExternalUserData } from './api.interfaces.js'
+import { isAPIErrorData } from './api.interfaces.js'
+import { APIService } from './api.service.js'
+import { InvalidTokenInterceptor } from './invalid.token.interceptor.js'
+import { TooManyResultsInterceptor } from './too.many.results.interceptor.js'
+import { CourseNameDto } from './dtos/api.course.name.dto.js'
+import { CreateSectionsDto } from './dtos/api.create.sections.dto.js'
+import { GetSectionsAdminQueryDto } from './dtos/api.get.sections.admin.dto.js'
+import { GetSectionsInstructorQueryDto } from './dtos/api.get.sections.instructor.dto.js'
+import { SectionEnrollmentsDto } from './dtos/api.section.enrollment.dto.js'
+import { SectionIdsDto } from './dtos/api.section.ids.dto.js'
+import { SectionUserDto, SectionUsersDto } from './dtos/api.section.users.dto.js'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js'
+import { SessionGuard } from '../auth/session.guard.js'
 import {
   CanvasCourseBase,
   CanvasCourseSection,
@@ -37,12 +38,12 @@ import {
   CanvasEnrollment,
   CanvasUserCondensed,
   CourseWithSections
-} from '../canvas/canvas.interfaces'
-import { UserDec } from '../user/user.decorator'
-import { User } from '../user/user.model'
+} from '../canvas/canvas.interfaces.js'
+import { UserDec } from '../user/user.decorator.js'
+import { User } from '../user/user.model.js'
 import {
   ExternalUserDto, ExternalUsersDto
-} from './dtos/api.external.users.dto'
+} from './dtos/api.external.users.dto.js'
 
 @UseGuards(JwtAuthGuard, SessionGuard)
 @Controller('api')

@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Typography } from '@mui/material'
 
-import Help from './Help'
+import Help from './Help.js'
 
 const PREFIX = 'AuthorizePrompt'
 

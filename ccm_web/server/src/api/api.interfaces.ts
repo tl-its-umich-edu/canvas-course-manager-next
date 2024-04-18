@@ -1,6 +1,6 @@
-import { hasKeys } from '../typeUtils'
+import { hasKeys } from '../typeUtils.js'
 
-import { CirrusErrorData } from '../invitation/cirrus-invitation.interfaces'
+import { CirrusErrorData } from '../invitation/cirrus-invitation.interfaces.js'
 
 export interface Globals {
   environment: 'production' | 'development'

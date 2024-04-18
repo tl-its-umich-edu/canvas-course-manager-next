@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, Paper } from '@mui/material'
-import ErrorIcon from '@mui/icons-material/Error'
+import { Error as ErrorIcon } from '@mui/icons-material'
 import { red } from '@mui/material/colors'
 
 const PREFIX = 'InlineErrorAlert'

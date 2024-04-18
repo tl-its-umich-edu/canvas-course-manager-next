@@ -1,6 +1,6 @@
-import { getCourseSections, getTeacherSections, searchSections } from '../api'
-import { injectCourseName, CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas'
-import { localeIncludes } from './localeIncludes'
+import { getCourseSections, getTeacherSections, searchSections } from '../api.js'
+import { injectCourseName, CanvasCourseSectionWithCourseName, CourseWithSections } from '../models/canvas.js'
+import { localeIncludes } from './localeIncludes.js'
 
 export interface ISectionSearcher {
   name: string

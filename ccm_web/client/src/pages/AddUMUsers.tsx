@@ -2,16 +2,16 @@ import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
-import { getCourseSections } from '../api'
-import Help from '../components/Help'
-import MethodSelect from '../components/MethodSelect'
-import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow'
-import SingleSectionEnrollmentWorkflow from '../components/SingleSectionEnrollmentWorkflow'
-import usePromise from '../hooks/usePromise'
+import { getCourseSections } from '../api.js'
+import Help from '../components/Help.js'
+import MethodSelect from '../components/MethodSelect.js'
+import MultipleSectionEnrollmentWorkflow from '../components/MultipleSectionEnrollmentWorkflow.js'
+import SingleSectionEnrollmentWorkflow from '../components/SingleSectionEnrollmentWorkflow.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionWithCourseName, injectCourseName, sortSections
-} from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+} from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'AddUMUsers'
 

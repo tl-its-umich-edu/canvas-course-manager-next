@@ -1,6 +1,6 @@
-import { InvalidationType } from '../models/models'
-import { GradebookRecord } from '../pages/GradebookCanvas'
-import { RowInvalidation } from '../utils/rowValidation'
+import { InvalidationType } from '../models/models.js'
+import { GradebookRecord } from '../pages/GradebookCanvas.js'
+import { RowInvalidation } from '../utils/rowValidation.js'
 
 interface GradebookRowInvalidation extends RowInvalidation {}
 

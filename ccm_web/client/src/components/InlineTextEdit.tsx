@@ -4,7 +4,7 @@ import { Button, Grid, TextField, Typography } from '@mui/material'
 import { Edit as EditIcon } from '@mui/icons-material'
 import { CODE_ENTER, CODE_NUMPAD_ENTER, CODE_ESCAPE } from 'keycode-js'
 
-import { ValidationResult } from '../utils/validation'
+import { ValidationResult } from '../utils/validation.js'
 
 const PREFIX = 'InlineTextEdit'
 

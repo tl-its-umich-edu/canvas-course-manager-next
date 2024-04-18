@@ -1,9 +1,9 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Typography } from '@mui/material'
-import ErrorIcon from '@mui/icons-material/Error'
+import { Error as ErrorIcon } from '@mui/icons-material'
 
-import Alert from './Alert'
+import Alert from './Alert.js'
 
 const PREFIX = 'ErrorAlert'
 

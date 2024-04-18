@@ -1,10 +1,10 @@
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionBase, CanvasEnrollment,
   CanvasUserCondensed, CourseWithSections
-} from './models/canvas'
-import { ExternalUserSuccess } from './models/externalUser'
-import { Globals, CsrfToken } from './models/models'
-import handleErrors, { CanvasError } from './utils/handleErrors'
+} from './models/canvas.js'
+import { ExternalUserSuccess } from './models/externalUser.js'
+import { Globals, CsrfToken } from './models/models.js'
+import handleErrors, { CanvasError } from './utils/handleErrors.js'
 
 const jsonMimeType = 'application/json'
 

@@ -15,35 +15,35 @@ import {
   Typography
 } from '@mui/material'
 
-import Accordion from './Accordion'
-import APIErrorMessage from './APIErrorMessage'
-import BulkApiErrorContent from './BulkApiErrorContent'
-import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable'
-import ConfirmDialog from './ConfirmDialog'
-import CSVFileName from './CSVFileName'
-import ErrorAlert from './ErrorAlert'
-import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
-import FileUpload from './FileUpload'
-import RowLevelErrorsContent from './RowLevelErrorsContent'
-import SuccessCard from './SuccessCard'
-import TableCaption from './TableCaption'
-import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
-import * as api from '../api'
-import usePromise from '../hooks/usePromise'
-import { ClientEnrollmentType } from '../models/canvas'
+import Accordion from './Accordion.js'
+import APIErrorMessage from './APIErrorMessage.js'
+import BulkApiErrorContent from './BulkApiErrorContent.js'
+import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable.js'
+import ConfirmDialog from './ConfirmDialog.js'
+import CSVFileName from './CSVFileName.js'
+import ErrorAlert from './ErrorAlert.js'
+import ExampleFileDownloadHeader from './ExampleFileDownloadHeader.js'
+import FileUpload from './FileUpload.js'
+import RowLevelErrorsContent from './RowLevelErrorsContent.js'
+import SuccessCard from './SuccessCard.js'
+import TableCaption from './TableCaption.js'
+import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable.js'
+import * as api from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { ClientEnrollmentType } from '../models/canvas.js'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
   REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
-} from '../models/enrollment'
-import { AddUMUsersLeafProps } from '../models/FeatureUIData'
-import { CsrfToken, InvalidationType } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+} from '../models/enrollment.js'
+import { AddUMUsersLeafProps } from '../models/FeatureUIData.js'
+import { CsrfToken, InvalidationType } from '../models/models.js'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import {
   EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator, SectionIdRowsValidator
-} from '../utils/enrollmentValidators'
-import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+} from '../utils/enrollmentValidators.js'
+import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils.js'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
 
 const PREFIX = 'MultipleSectionEnrollmentWorkflow'
 

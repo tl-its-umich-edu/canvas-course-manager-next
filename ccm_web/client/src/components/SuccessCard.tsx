@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Card, CardContent, CardActions } from '@mui/material'
-import CheckCircle from '@mui/icons-material/CheckCircle'
+import  { CheckCircle } from '@mui/icons-material'
 
 const PREFIX = 'SuccessCard'
 

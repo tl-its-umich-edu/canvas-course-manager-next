@@ -3,9 +3,9 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 
-import { CanvasController } from './canvas.controller'
-import { CanvasToken } from './canvas.model'
-import { CanvasService } from './canvas.service'
+import { CanvasController } from './canvas.controller.js'
+import { CanvasToken } from './canvas.model.js'
+import { CanvasService } from './canvas.service.js'
 
 @Module({
   imports: [

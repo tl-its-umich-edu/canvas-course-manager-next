@@ -3,8 +3,8 @@ import { doubleCsrf } from 'csrf-csrf'
 import { NextFunction, Request, Response } from 'express'
 import { ConfigService } from '@nestjs/config'
 
-import { Config } from '../config'
-import { AuthService } from './auth.service'
+import { Config } from '../config.js'
+import { AuthService } from './auth.service.js'
 
 @Injectable()
 export class DoubleCSRFProtectionMiddleware implements NestMiddleware {

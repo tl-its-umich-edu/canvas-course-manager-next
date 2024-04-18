@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 
-import { CanvasToken } from '../canvas/canvas.model'
-import { UserToUpsert } from './user.interfaces'
-import { User } from './user.model'
+import { CanvasToken } from '../canvas/canvas.model.js'
+import { UserToUpsert } from './user.interfaces.js'
+import { User } from './user.model.js'
 
-import { DatabaseError } from '../errors'
-import baseLogger from '../logger'
+import { DatabaseError } from '../errors.js'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 @Injectable()
 export class UserService {
