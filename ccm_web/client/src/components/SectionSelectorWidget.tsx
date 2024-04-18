@@ -3,8 +3,8 @@ import { styled } from '@mui/material/styles'
 import { useSnackbar } from 'notistack'
 import {
   Backdrop,
+  Box,
   Button,
-  ButtonBase,
   Checkbox,
   CircularProgress,
   FormControl,
@@ -14,7 +14,7 @@ import {
   GridSize,
   InputLabel,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   Menu,
   MenuItem,
@@ -54,7 +54,8 @@ const classes = {
   sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
   backdrop: `${PREFIX}-backdrop`,
   highlighted: `${PREFIX}-highlighted`,
-  button: `${PREFIX}-button`
+  button: `${PREFIX}-button`,
+  unmergeWrapper: `${PREFIX}-unmergeWrapper`
 }
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
@@ -74,11 +75,6 @@ const Root = styled('div')((
       '& > .MuiListItemText-root': {
         '& > :not(.MuiListItemText-secondary)': {
           opacity: theme.palette.action.disabledOpacity
-        },
-        '& .MuiListItemText-secondary': {
-          '& > Button': {
-            pointerEvents: 'auto'
-          }
         }
       }
     }
@@ -181,7 +177,13 @@ const Root = styled('div')((
 
   [`& .${classes.button}`]: {
     margin: theme.spacing(1),
-    marginLeft: '24px'
+    marginLeft: '24px',
+  },
+
+  [`& .${classes.unmergeWrapper}`]: {
+    position: 'absolute',
+    right: '0',
+    padding: 'inherit'
   }
 }))
 
@@ -396,18 +398,20 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
-        <Button
-          className={classes.button}
-          color='primary'
-          variant='contained'
-          disabled={isUnmerging}
-          onClick={async (e) => {
-            e.stopPropagation()
-            await doUnmerge([section])
-          }}
-        >
-          Unmerge
-        </Button>
+        <Box component="div" className={classes.unmergeWrapper}>
+          <Button
+            sx={{ pointerEvents: 'auto'}}
+            color='primary'
+            variant='contained'
+            disabled={isUnmerging}
+            onClick={async (e) => {
+              e.stopPropagation()
+              await doUnmerge([section])
+            }}
+          >
+            Unmerge
+          </Button>
+        </Box>
       )
     }
   }
@@ -427,9 +431,9 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 </Typography>
               )
             }
-            <span style={props.showCourseName === true ? { float: 'right' } : undefined}>
+            <Box component="span" sx={props.showCourseName === true ? { display: 'block', textAlign: 'right', mt: 0.5 } : undefined}>
               {`${section.total_students ?? '?'} students`}
-            </span>
+            </Box>
           </React.Fragment>
         }>
       </ListItemText>
@@ -596,33 +600,29 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           {internalSections.map((section) => {
             const isSelected = isSectionSelected(section.id)
             return (
-              <ListItem
-                key={section.id}
-                divider
-                disableGutters
-                classes={{ root: classes.listItemRoot }}
-                secondaryAction={unmergeButton(section)}
-                className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}
-              >
-                <ButtonBase
-                  className={classes.listButton}
-                  onClick={() => handleListItemClick(section.id)}
-                  disabled={section.locked}
-                  aria-pressed={isSelected}
-                  focusVisibleClassName={classes.listButtonFocusVisible}
-                >
-                  {listItemText(section)}
-                </ButtonBase>
-              </ListItem>
+              <ListItemButton
+              key={section.id}
+              divider
+              disableGutters
+              onClick={() => handleListItemClick(section.id)}
+              selected={isSelected}
+              disabled={section.locked}
+              classes={{
+                root: `${classes.listItemRoot} ${classes.listButton}`,
+                focusVisible: classes.listButtonFocusVisible
+              }}>
+                {unmergeButton(section)}
+                {listItemText(section)}
+              </ListItemButton>
             )
           })}
-        </List>
-        <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
+          <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
           <Grid container>
             <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
             <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
           </Grid>
         </Backdrop>
+      </List>    
       </Grid>
     </Grid>
     </Root>
