@@ -54,8 +54,7 @@ const classes = {
   sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
   backdrop: `${PREFIX}-backdrop`,
   highlighted: `${PREFIX}-highlighted`,
-  button: `${PREFIX}-button`,
-  unmergeWrapper: `${PREFIX}-unmergeWrapper`
+  button: `${PREFIX}-button`
 }
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
@@ -178,12 +177,6 @@ const Root = styled('div')((
   [`& .${classes.button}`]: {
     margin: theme.spacing(1),
     marginLeft: '24px',
-  },
-
-  [`& .${classes.unmergeWrapper}`]: {
-    position: 'absolute',
-    right: '0',
-    padding: 'inherit'
   }
 }))
 
@@ -398,20 +391,18 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
-        <Box component="div" className={classes.unmergeWrapper}>
-          <Button
-            sx={{ pointerEvents: 'auto'}}
-            color='primary'
-            variant='contained'
-            disabled={isUnmerging}
-            onClick={async (e) => {
-              e.stopPropagation()
-              await doUnmerge([section])
-            }}
-          >
-            Unmerge
-          </Button>
-        </Box>
+        <Button
+          sx={{ pointerEvents: 'auto', marginTop: '8px'}}
+          color='primary'
+          variant='contained'
+          disabled={isUnmerging}
+          onClick={async (e) => {
+            e.stopPropagation()
+            await doUnmerge([section])
+          }}
+        >
+          Unmerge
+        </Button>
       )
     }
   }
@@ -431,8 +422,10 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 </Typography>
               )
             }
-            <Box component="span" sx={props.showCourseName === true ? { display: 'block', textAlign: 'right', mt: 0.5 } : undefined}>
-              {`${section.total_students ?? '?'} students`}
+            
+            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+              <Box component="span">{unmergeButton(section)}</Box>
+              <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
             </Box>
           </React.Fragment>
         }>
@@ -611,7 +604,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 root: `${classes.listItemRoot} ${classes.listButton}`,
                 focusVisible: classes.listButtonFocusVisible
               }}>
-                {unmergeButton(section)}
                 {listItemText(section)}
               </ListItemButton>
             )
