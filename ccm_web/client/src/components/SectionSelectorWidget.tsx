@@ -603,7 +603,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               classes={{
                 root: `${classes.listItemRoot} ${classes.listButton}`,
                 focusVisible: classes.listButtonFocusVisible
-              }}>
+              }}
+              className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}>
                 {listItemText(section)}
               </ListItemButton>
             )
