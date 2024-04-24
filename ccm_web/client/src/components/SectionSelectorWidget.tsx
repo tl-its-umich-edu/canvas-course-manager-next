@@ -3,8 +3,8 @@ import { styled } from '@mui/material/styles'
 import { useSnackbar } from 'notistack'
 import {
   Backdrop,
+  Box,
   Button,
-  ButtonBase,
   Checkbox,
   CircularProgress,
   FormControl,
@@ -14,7 +14,7 @@ import {
   GridSize,
   InputLabel,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   Menu,
   MenuItem,
@@ -74,11 +74,6 @@ const Root = styled('div')((
       '& > .MuiListItemText-root': {
         '& > :not(.MuiListItemText-secondary)': {
           opacity: theme.palette.action.disabledOpacity
-        },
-        '& .MuiListItemText-secondary': {
-          '& > Button': {
-            pointerEvents: 'auto'
-          }
         }
       }
     }
@@ -181,7 +176,7 @@ const Root = styled('div')((
 
   [`& .${classes.button}`]: {
     margin: theme.spacing(1),
-    marginLeft: '24px'
+    marginLeft: '24px',
   }
 }))
 
@@ -397,7 +392,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
         <Button
-          className={classes.button}
+          sx={{ pointerEvents: 'auto', marginTop: '8px'}}
           color='primary'
           variant='contained'
           disabled={isUnmerging}
@@ -427,9 +422,11 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 </Typography>
               )
             }
-            <span style={props.showCourseName === true ? { float: 'right' } : undefined}>
-              {`${section.total_students ?? '?'} students`}
-            </span>
+            
+            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+              <Box component="span">{unmergeButton(section)}</Box>
+              <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
+            </Box>
           </React.Fragment>
         }>
       </ListItemText>
@@ -596,33 +593,29 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           {internalSections.map((section) => {
             const isSelected = isSectionSelected(section.id)
             return (
-              <ListItem
-                key={section.id}
-                divider
-                disableGutters
-                classes={{ root: classes.listItemRoot }}
-                secondaryAction={unmergeButton(section)}
-                className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}
-              >
-                <ButtonBase
-                  className={classes.listButton}
-                  onClick={() => handleListItemClick(section.id)}
-                  disabled={section.locked}
-                  aria-pressed={isSelected}
-                  focusVisibleClassName={classes.listButtonFocusVisible}
-                >
-                  {listItemText(section)}
-                </ButtonBase>
-              </ListItem>
+              <ListItemButton
+              key={section.id}
+              divider
+              disableGutters
+              onClick={() => handleListItemClick(section.id)}
+              selected={isSelected}
+              disabled={section.locked}
+              classes={{
+                root: `${classes.listItemRoot} ${classes.listButton}`,
+                focusVisible: classes.listButtonFocusVisible
+              }}
+              className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}>
+                {listItemText(section)}
+              </ListItemButton>
             )
           })}
-        </List>
-        <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
+      </List> 
+      <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
           <Grid container>
             <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
             <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
           </Grid>
-        </Backdrop>
+        </Backdrop>   
       </Grid>
     </Grid>
     </Root>
