@@ -1,42 +1,62 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Link, makeStyles, Typography } from '@material-ui/core'
-import WarningIcon from '@material-ui/icons/Warning'
+import { styled } from '@mui/material/styles'
+import { Button, Grid, Link, Typography } from '@mui/material'
+import { Warning as WarningIcon } from '@mui/icons-material'
 
-import CanvasSettingsLink from '../components/CanvasSettingsLink'
-import ConfirmDialog from '../components/ConfirmDialog'
-import CSVFileName from '../components/CSVFileName'
-import ErrorAlert from '../components/ErrorAlert'
-import FileUpload from '../components/FileUpload'
-import Help from '../components/Help'
-import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
-import SuccessCard from '../components/SuccessCard'
-import ValidationErrorTable from '../components/ValidationErrorTable'
-import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable'
-import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators'
-import { CCMComponentProps } from '../models/FeatureUIData'
-import { DownloadData, InvalidationType } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils'
+import CanvasSettingsLink from '../components/CanvasSettingsLink.js'
+import ConfirmDialog from '../components/ConfirmDialog.js'
+import CSVFileName from '../components/CSVFileName.js'
+import ErrorAlert from '../components/ErrorAlert.js'
+import FileUpload from '../components/FileUpload.js'
+import Help from '../components/Help.js'
+import RowLevelErrorsContent from '../components/RowLevelErrorsContent.js'
+import SuccessCard from '../components/SuccessCard.js'
+import ValidationErrorTable from '../components/ValidationErrorTable.js'
+import GradebookUploadConfirmationTable, { StudentGrade } from '../components/GradebookUploadConfirmationTable.js'
+import { CurrentAndFinalGradeMatchGradebookValidator, GradebookRowInvalidation } from '../components/GradebookCanvasValidators.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
+import { DownloadData, InvalidationType } from '../models/models.js'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
+import { createOutputFileName, prepDownloadDataString } from '../utils/fileUtils.js'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'ConvertCanvasGradebook'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  uploadHeader: `${PREFIX}-uploadHeader`,
+  buttonGroup: `${PREFIX}-buttonGroup`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  uploadHeader: {
+
+  [`& .${classes.uploadHeader}`]: {
     paddingTop: 15
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   }
 }))
 
-const useConfirmationStyles = makeStyles((theme) => ({
-  table: {
+const confirmationClasses = {
+  table: 'Confirmation-table',
+  dialogWarningIcon: 'Confirmation-dialogWarningIcon'
+}
+
+const Confirmation = styled('div')(({ theme }) => ({
+  [`& .${confirmationClasses.table}`]: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  dialogWarningIcon: {
+  [`& .${confirmationClasses.dialogWarningIcon}`]: {
     color: theme.palette.warning.main
   }
 }))
@@ -78,9 +98,6 @@ const convertEmptyCellToUndefined = (cell: string | undefined): string | undefin
 }
 
 function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
-  const classes = useStyles()
-  const confirmationClasses = useConfirmationStyles()
-
   const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [downloadData, setDownloadData] = useState<DownloadData | undefined>(undefined)
@@ -189,17 +206,19 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   const renderUploadHeader = (): JSX.Element => {
-    return <div className={classes.uploadHeader}>
-      <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
-      <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
-      <br/>
-      <Typography><strong>Requirements</strong></Typography>
-      <ol>
-        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades' target='_blank' rel="noopener">All assignments are graded.</Link></Typography></li>
-        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_blank' rel="noopener">Grading scheme must be enabled in your course settings.</Link></Typography></li>
-        <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook.</Link></Typography></li>
-      </ol>
-    </div>
+    return (
+      <div className={classes.uploadHeader}>
+        <Typography variant='h6' component='h2'>Upload your CSV File</Typography>
+        <Typography>This tool reformats an exported Canvas gradebook file for upload to Faculty Center.</Typography>
+        <br/>
+        <Typography><strong>Requirements</strong></Typography>
+        <ol>
+          <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/tkb-p/Instructor#Grades' target='_blank' rel="noopener">All assignments are graded.</Link></Typography></li>
+          <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-enable-a-grading-scheme-for-a-course/ta-p/1042' target='_blank' rel="noopener">Grading scheme must be enabled in your course settings.</Link></Typography></li>
+          <li><Typography><Link href='https://community.canvaslms.com/t5/Instructor-Guide/How-do-I-export-grades-in-the-Gradebook/ta-p/809' target='_blank' rel="noopener">You have exported (downloaded) the completed Canvas gradebook.</Link></Typography></li>
+        </ol>
+      </div>
+    )
   }
 
   const renderFileUpload = (): JSX.Element => {
@@ -269,27 +288,23 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     )
 
     return (
-      <div>
+      <Confirmation>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={confirmationClasses.table}>
-              <GradebookUploadConfirmationTable grades={grades} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
-              <ConfirmDialog
-                message={overideGradeMismatchWarning ? warningText : undefined}
-                icon={overideGradeMismatchWarning ? warningIcon : undefined}
-                cancel={resetPageState}
-                submit={() => setPageState({ state: GradebookCanvasPageState.Success })}
-                download={downloadData}
-              />
-            </Grid>
-          </Box>
+          <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }}className={confirmationClasses.table}>
+            <GradebookUploadConfirmationTable grades={grades} />
+          </Grid>
+          <Grid item xs={12} sm={3} sx={{ order: { xs: 2, sm: 1 } }}>
+            <ConfirmDialog
+              message={overideGradeMismatchWarning ? warningText : undefined}
+              icon={overideGradeMismatchWarning ? warningIcon : undefined}
+              cancel={resetPageState}
+              submit={() => setPageState({ state: GradebookCanvasPageState.Success })}
+              download={downloadData}
+            />
+          </Grid>
         </Grid>
-      </div>
+      </Confirmation>
     )
   }
 
@@ -335,11 +350,11 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

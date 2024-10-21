@@ -1,14 +1,23 @@
 import React from 'react'
-import { Button, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Button, Typography } from '@mui/material'
 
-import Help from './Help'
+import Help from './Help.js'
 
-const useStyles = makeStyles(() => ({
-  root: {
+const PREFIX = 'AuthorizePrompt'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  button: `${PREFIX}-button`
+}
+
+const Root = styled('div')(() => ({
+  [`&.${classes.root}`]: {
     padding: 25,
     textAlign: 'left'
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     marginTop: 15
   }
 }))
@@ -18,9 +27,8 @@ interface AuthorizePromptProps {
 }
 
 export default function AuthorizePrompt (props: AuthorizePromptProps): JSX.Element {
-  const classes = useStyles()
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.helpURL} />
       <Typography variant='h5' component='h1' gutterBottom>
         Authorize Course Manager to Access Your Canvas Account
@@ -43,6 +51,6 @@ export default function AuthorizePrompt (props: AuthorizePromptProps): JSX.Eleme
       >
         GO TO AUTHORIZE PAGE
       </Button>
-    </div>
+    </Root>
   )
 }

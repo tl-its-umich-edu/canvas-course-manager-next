@@ -1,7 +1,7 @@
 import React from 'react'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
 
-import { CanvasError } from '../utils/handleErrors'
+import { CanvasError } from '../utils/handleErrors.js'
 
 interface APIErrorMessageProps {
   context: string

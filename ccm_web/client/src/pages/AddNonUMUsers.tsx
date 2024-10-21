@@ -1,24 +1,37 @@
 import React, { useState } from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography } from '@mui/material'
 
-import * as api from '../api'
-import ErrorAlert from '../components/ErrorAlert'
-import Help from '../components/Help'
-import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow'
-import UserEnrollmentForm from '../components/UserEnrollmentForm'
-import MethodSelect from '../components/MethodSelect'
-import usePromise from '../hooks/usePromise'
+import * as api from '../api.js'
+import ErrorAlert from '../components/ErrorAlert.js'
+import Help from '../components/Help.js'
+import MultipleUserEnrollmentWorkflow from '../components/MultipleUserEnrollmentWorkflow.js'
+import UserEnrollmentForm from '../components/UserEnrollmentForm.js'
+import MethodSelect from '../components/MethodSelect.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionWithCourseName, getRolesUserCanEnroll, injectCourseName,
   sortSections
-} from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+} from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'AddNonUMUsers'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   }
 }))
@@ -37,8 +50,6 @@ enum PageState {
 interface AddNonUMUsersProps extends CCMComponentProps {}
 
 export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
-  const classes = useStyles()
-
   const { course, canvasURL } = props.globals
   if (course.roles.length === 0) return <ErrorAlert />
 
@@ -87,6 +98,7 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const renderActivePageState = (state: PageState): JSX.Element => {
     const commonProps = {
       sections: sections ?? [],
+      csrfToken: props.csrfToken,
       doGetSections: async () => {
         clearGetSectionsError()
         setSections(undefined)
@@ -126,10 +138,10 @@ export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>{renderActivePageState(activePageState)}</div>
-    </div>
+    </Root>
   )
 }

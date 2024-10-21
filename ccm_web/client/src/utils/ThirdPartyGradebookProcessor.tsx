@@ -1,6 +1,6 @@
-import { CSVRecord } from '../utils/FileParserWrapper'
-import { InvalidationType } from '../models/models'
-import { assignmentHeaderSchema, validateString } from './validation'
+import { CSVRecord } from '../utils/FileParserWrapper.js'
+import { InvalidationType } from '../models/models.js'
+import { assignmentHeaderSchema, validateString } from './validation.js'
 
 export interface GradebookUploadRecord extends CSVRecord {
   'SIS Login ID': string

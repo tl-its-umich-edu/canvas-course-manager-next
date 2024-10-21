@@ -1,10 +1,17 @@
 import React from 'react'
-import { Link, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Link, Typography } from '@mui/material'
 
-import { prepDownloadDataString } from '../utils/fileUtils'
+import { prepDownloadDataString } from '../utils/fileUtils.js'
 
-const useStyles = makeStyles(() => ({
-  uploadHeader: {
+const PREFIX = 'ExampleFileDownloadHeader'
+
+const classes = {
+  uploadHeader: `${PREFIX}-uploadHeader`
+}
+
+const Root = styled('div')(() => ({
+  [`&.${classes.uploadHeader}`]: {
     marginTop: 15,
     marginBottom: 15
   }
@@ -18,11 +25,10 @@ interface ExampleFileDownloadHeaderProps {
 }
 
 function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.Element {
-  const classes = useStyles()
   const { body, description, fileData, fileName } = props
 
   return (
-    <div className={classes.uploadHeader}>
+    <Root className={classes.uploadHeader}>
       <Typography variant='h6' component='h2'>Upload your CSV file</Typography>
       {description !== undefined && <Typography>{props.description}</Typography>}
       <br/>
@@ -31,7 +37,7 @@ function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.
       <Link href={prepDownloadDataString(fileData)} download={fileName}>
         Download an example
       </Link>
-    </div>
+    </Root>
   )
 }
 

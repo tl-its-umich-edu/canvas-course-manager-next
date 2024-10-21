@@ -1,4 +1,4 @@
-import { Migration } from '../migrator'
+import { Migration } from '../migrator.js'
 
 export const up: Migration = async ({ context: sequelize }) => {
   await sequelize.getQueryInterface().addConstraint(

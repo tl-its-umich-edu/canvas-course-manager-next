@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import usePromise from './usePromise'
-import * as api from '../api'
-import { Globals } from '../models/models'
+import usePromise from './usePromise.js'
+import * as api from '../api.js'
+import { Globals, CsrfToken } from '../models/models.js'
 
 /*
 Hook for fetching global data, checking whether user is authenticated, and
@@ -10,27 +10,32 @@ requesting that the backend set the CSRF token cookie
 */
 function useGlobals (): [
   Globals | undefined,
+  CsrfToken | undefined,
   boolean | undefined,
   boolean,
   Error | undefined,
   Error | undefined
 ] {
   const [globals, setGlobals] = useState(undefined as Globals | undefined)
+  const [csrfToken, setCsrfToken] = useState(undefined as CsrfToken | undefined)
 
   const getGlobals = async (): Promise<Globals> => await api.getGlobals()
   const [doGetGlobals, getGlobalsLoading, getGlobalsError] = usePromise(
     getGlobals,
     (value: Globals) => setGlobals(value)
   )
-  const setCSRFTokenCookie = async (): Promise<void> => await api.setCSRFTokenCookie()
-  const [doSetCSRFTokenCookie, setCSRFTokenCookieLoading, setCSRFTokenCookieError] = usePromise(setCSRFTokenCookie)
+  const getCSRFTokenResponse = async (): Promise<CsrfToken> => await api.getCSRFTokenResponse()
+  const [doGetCSRFTokenResponse, getCSRFTokenReponseLoading, getCSRFTokenResponseError] = usePromise(
+    getCSRFTokenResponse,
+    (value: CsrfToken) => setCsrfToken(value)
+  )
 
   useEffect(() => {
     void doGetGlobals()
   }, [])
 
   useEffect(() => {
-    void doSetCSRFTokenCookie()
+    void doGetCSRFTokenResponse()
   }, [])
 
   let isAuthenticated
@@ -40,8 +45,8 @@ function useGlobals (): [
     isAuthenticated = false
   }
 
-  const loading = getGlobalsLoading || setCSRFTokenCookieLoading
-  return [globals, isAuthenticated, loading, getGlobalsError, setCSRFTokenCookieError]
+  const loading = getGlobalsLoading || getCSRFTokenReponseLoading
+  return [globals, csrfToken, isAuthenticated, loading, getGlobalsError, getCSRFTokenResponseError]
 }
 
 export default useGlobals

@@ -1,5 +1,5 @@
-import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorPayload } from './models'
-import { hasKeys } from './typeUtils'
+import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorPayload } from './models.js'
+import { hasKeys } from './typeUtils.js'
 
 interface CirrusErrorData {
   statusCode: number

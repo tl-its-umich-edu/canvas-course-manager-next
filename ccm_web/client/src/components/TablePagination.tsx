@@ -1,9 +1,14 @@
-import { IconButton, makeStyles, useTheme } from '@material-ui/core'
-import { KeyboardArrowRight, KeyboardArrowLeft, FirstPage, LastPage } from '@material-ui/icons'
+import { IconButton, useTheme } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { KeyboardArrowRight, KeyboardArrowLeft, FirstPage, LastPage } from '@mui/icons-material'
 import React from 'react'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const classes = {
+  root: 'TablePagination-root'
+}
+
+const Root = styled('div')(({ theme }) => ({
+  [`&.${classes.root}`]: {
     flexShrink: 0,
     marginLeft: theme.spacing(2.5)
   }
@@ -12,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
 type PageChangeCallback = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, page: number) => void
 
 function TablePaginationActions (props: { count: number, page: number, rowsPerPage: number, onPageChange: PageChangeCallback}): JSX.Element {
-  const classes = useStyles()
   const theme = useTheme()
   const { count, page, rowsPerPage, onPageChange } = props
 
@@ -33,32 +37,36 @@ function TablePaginationActions (props: { count: number, page: number, rowsPerPa
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <IconButton
         onClick={handleFirstPageButtonClick}
         disabled={page === 0}
         aria-label="first page"
-      >
+        size="large">
         {theme.direction === 'rtl' ? <LastPage /> : <FirstPage />}
       </IconButton>
-      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+        size="large">
         {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
       </IconButton>
       <IconButton
         onClick={handleNextButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="next page"
-      >
+        size="large">
         {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
       </IconButton>
       <IconButton
         onClick={handleLastPageButtonClick}
         disabled={page >= Math.ceil(count / rowsPerPage) - 1}
         aria-label="last page"
-      >
+        size="large">
         {theme.direction === 'rtl' ? <FirstPage /> : <LastPage />}
       </IconButton>
-    </div>
+    </Root>
   )
 }
 

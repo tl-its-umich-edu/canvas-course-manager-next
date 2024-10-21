@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 import cookieParser from 'cookie-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import { urlencoded, json } from 'express'
@@ -10,12 +12,12 @@ import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
-import { AppModule } from './app.module'
+import { AppModule } from './app.module.js'
 
-import { Config, ServerConfig } from './config'
-import baseLogger from './logger'
+import { Config, ServerConfig } from './config.js'
+import baseLogger from './logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 type PartialServerConfig = Omit<ServerConfig, 'isDev' | 'port'>
 
@@ -29,15 +31,12 @@ export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServ
   const payloadSizeLimit = '5mb'
   app.use(json({ limit: payloadSizeLimit }))
   app.use(urlencoded({ extended: true, limit: payloadSizeLimit }))
-
-  // Cookies and Sessions
-  app.use(cookieParser(serverConfig.cookieSecret))
-
+  
   const sequelize = app.get(Sequelize)
   const SequelizeStore = ConnectSessionSequelize(session.Store)
   const sessionStore = new SequelizeStore({ db: sequelize, tableName: 'session' })
   sessionStore.sync({ logging: (sql) => logger.info(sql) })
-
+  
   app.use(
     session({
       store: sessionStore,
@@ -52,7 +51,9 @@ export function doAppCoreSetup (app: INestApplication, serverConfig: PartialServ
         maxAge: serverConfig.maxAgeInSec * 1000
       }
     })
-  )
+    )
+    // Cookies and Sessions
+    app.use(cookieParser(serverConfig.cookieSecret))
 
   // Validation
   app.useGlobalPipes(new ValidationPipe({
@@ -81,12 +82,12 @@ async function bootstrap (): Promise<void> {
       .setTitle('Canvas Course Manager')
       .setDescription('CCM application API description and explorer')
       .addSecurity(
-        'CSRF-Token', {
+        'x-csrf-token', {
           type: 'apiKey',
-          name: 'CSRF-Token',
+          name: 'x-csrf-token',
           in: 'header',
           description: (
-            'POST and PUT requests need to include a CSRF-Token header. ' +
+            'POST and PUT requests need to include a x-csrf-token header. ' +
             'The token can be found in the "csrfToken" URL parameter ' +
             '(use a browser tool to view the URL of the frame).'
           )
@@ -105,8 +106,6 @@ async function bootstrap (): Promise<void> {
   )
 }
 
-if (require.main === module) {
-  bootstrap()
-    .then(() => logger.info('The application started successfully!'))
-    .catch((e) => logger.error('An error occurred while starting the application: ', e))
-}
+bootstrap()
+  .then(() => logger.info('The application started successfully!'))
+  .catch((e) => logger.error('An error occurred while starting the application: ', e))

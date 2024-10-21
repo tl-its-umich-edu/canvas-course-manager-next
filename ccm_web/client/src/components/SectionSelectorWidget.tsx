@@ -1,25 +1,72 @@
 import React, { useEffect, useState } from 'react'
+import { styled } from '@mui/material/styles'
 import { useSnackbar } from 'notistack'
 import {
-  Backdrop, Button, ButtonBase, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid,
-  GridSize, InputLabel, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Select, TextField,
-  Typography, useMediaQuery, useTheme
-} from '@material-ui/core'
-import ClearIcon from '@material-ui/icons/Clear'
-import SortIcon from '@material-ui/icons/Sort'
+  Backdrop,
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  GridSize,
+  InputLabel,
+  List,
+  ListItemButton,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@mui/material'
+import { Clear as ClearIcon } from '@mui/icons-material'
+import { Sort as SortIcon } from '@mui/icons-material'
 import { useDebounce } from '@react-hook/debounce'
 
-import APIErrorMessage from './APIErrorMessage'
-import { unmergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas'
-import { ISectionSearcher } from '../utils/SectionSearcher'
+import APIErrorMessage from './APIErrorMessage.js'
+import { unmergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas.js'
+import { ISectionSearcher } from '../utils/SectionSearcher.js'
+import { CsrfToken } from '../models/models.js'
 
-const useStyles = makeStyles((theme) => ({
-  listContainer: {
+const PREFIX = 'SectionSelectorWidget'
+
+const classes = {
+  listContainer: `${PREFIX}-listContainer`,
+  listItemRoot: `${PREFIX}-listItemRoot`,
+  listButton: `${PREFIX}-listButton`,
+  listButtonFocusVisible: `${PREFIX}-listButtonFocusVisible`,
+  searchContainer: `${PREFIX}-searchContainer`,
+  searchTextField: `${PREFIX}-searchTextField`,
+  title: `${PREFIX}-title`,
+  srOnly: `${PREFIX}-srOnly`,
+  secondaryTypography: `${PREFIX}-secondaryTypography`,
+  overflowEllipsis: `${PREFIX}-overflowEllipsis`,
+  header: `${PREFIX}-header`,
+  searchEndAdnornment: `${PREFIX}-searchEndAdnornment`,
+  sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
+  backdrop: `${PREFIX}-backdrop`,
+  highlighted: `${PREFIX}-highlighted`,
+  button: `${PREFIX}-button`
+}
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.listContainer}`]: {
     overflow: 'auto',
     marginBottom: '5px',
-    '&& .Mui-disabled': {
+    '& .Mui-disabled': {
       opacity: 1,
       '& > .MuiListItemAvatar-root': {
         opacity: theme.palette.action.disabledOpacity
@@ -27,20 +74,22 @@ const useStyles = makeStyles((theme) => ({
       '& > .MuiListItemText-root': {
         '& > :not(.MuiListItemText-secondary)': {
           opacity: theme.palette.action.disabledOpacity
-        },
-        '& .MuiListItemText-secondary': {
-          '& > Button': {
-            pointerEvents: 'auto'
-          }
         }
       }
     }
   },
-  listItemRoot: {
+
+  [`& .${classes.listItemRoot}`]: {
     paddingTop: '0px',
-    paddingBottom: '0px'
+    paddingBottom: '0px',
+    paddingRight: '0px',
+    display: 'block',
+    '& > .MuiListItemSecondaryAction-root': {
+      position: 'relative',
+    },
   },
-  listButton: {
+
+  [`& .${classes.listButton}`]: {
     width: '100%',
     height: '100%',
     textAlign: 'left',
@@ -52,23 +101,28 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.action.hover
     }
   },
-  listButtonFocusVisible: {
+
+  [`& .${classes.listButtonFocusVisible}`]: {
     backgroundColor: theme.palette.action.focus
   },
-  searchContainer: {
+
+  [`& .${classes.searchContainer}`]: {
     textAlign: 'left'
   },
-  searchTextField: {
+
+  [`& .${classes.searchTextField}`]: {
     width: '100%'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     textAlign: 'left',
     display: 'flex',
     justifyContent: 'center',
     alignContent: 'center',
     flexDirection: 'column'
   },
-  srOnly: {
+
+  [`& .${classes.srOnly}`]: {
     position: 'absolute',
     width: '1px',
     height: '1px',
@@ -78,22 +132,27 @@ const useStyles = makeStyles((theme) => ({
     clip: 'rect(0,0,0,0)',
     border: '0'
   },
-  secondaryTypography: {
+
+  [`& .${classes.secondaryTypography}`]: {
     display: 'inline'
   },
-  overflowEllipsis: {
+
+  [`& .${classes.overflowEllipsis}`]: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: 'block'
   },
-  header: {
+
+  [`& .${classes.header}`]: {
     backgroundColor: '#F8F8F8'
   },
-  searchEndAdnornment: {
+
+  [`& .${classes.searchEndAdnornment}`]: {
     width: '200px'
   },
-  sectionSelectionContainer: {
+
+  [`& .${classes.sectionSelectionContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
@@ -102,18 +161,22 @@ const useStyles = makeStyles((theme) => ({
     borderColor: '#EEEEEE',
     minHeight: '100px'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  highlighted: {
+
+  [`& .${classes.highlighted}`]: {
     borderLeftStyle: 'solid',
     borderLeftColor: '#3777C5',
     borderLeftWidth: '16px'
   },
-  button: {
-    margin: theme.spacing(1)
+
+  [`& .${classes.button}`]: {
+    margin: theme.spacing(1),
+    marginLeft: '24px',
   }
 }))
 
@@ -137,10 +200,10 @@ interface ISectionSelectorWidgetProps {
   canUnmerge: boolean
   sectionsRemoved?: (sections: CanvasCourseSectionBase[]) => void
   highlightUnlocked?: boolean
+  csrfToken: CsrfToken
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
-  const classes = useStyles()
   const theme = useTheme()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -160,7 +223,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
 
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async (sections: CanvasCourseSectionWithCourseName[]) => await unmergeSections(sections),
+    async (sections: CanvasCourseSectionWithCourseName[]) => await unmergeSections(sections, props.csrfToken.token),
     (unmergedSections: CanvasCourseSectionBase[]) => {
       const unmergedSectionIds = unmergedSections.map(s => s.id)
       setInternalSections(internalSections.filter(section => !unmergedSectionIds.includes(section.id)))
@@ -256,8 +319,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (searcher?.resetTitle !== undefined) searcher.resetTitle()
   }
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>): void => {
-    const sort = event.target.value as string
+  const handleChange = (event: SelectChangeEvent): void => {
+    const sort = event.target.value
     const newSearcher = (props.search).filter(searcher => { return searcher.name === sort })[0]
     setSearcher(newSearcher)
     setSearchFieldLabel(newSearcher.helperText)
@@ -294,8 +357,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const getSearchTypeAdornment = (): JSX.Element => {
     return (
-      <FormControl className={classes.searchEndAdnornment}>
-      <InputLabel id="demo-simple-select-label">Search By</InputLabel>
+      <FormControl variant="standard" className={classes.searchEndAdnornment}>
+        <InputLabel id="demo-simple-select-label">Search By</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
@@ -329,7 +392,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
         <Button
-          className={classes.button}
+          sx={{ pointerEvents: 'auto', marginTop: '8px'}}
           color='primary'
           variant='contained'
           disabled={isUnmerging}
@@ -359,10 +422,11 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                 </Typography>
               )
             }
-            {unmergeButton(section)}
-            <span style={props.showCourseName === true ? { float: 'right' } : undefined}>
-              {`${section.total_students ?? '?'} students`}
-            </span>
+            
+            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+              <Box component="span">{unmergeButton(section)}</Box>
+              <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
+            </Box>
           </React.Fragment>
         }>
       </ListItemText>
@@ -465,7 +529,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
-    <>
+    <Root>
     <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
       {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
     </span>
@@ -529,36 +593,32 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
           {internalSections.map((section) => {
             const isSelected = isSectionSelected(section.id)
             return (
-              <ListItem
-                key={section.id}
-                divider
-                disableGutters
-                classes={{ root: classes.listItemRoot }}
-                selected={isSelected}
-                className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}
-              >
-                <ButtonBase
-                  className={classes.listButton}
-                  onClick={() => handleListItemClick(section.id)}
-                  disabled={section.locked}
-                  aria-pressed={isSelected}
-                  focusVisibleClassName={classes.listButtonFocusVisible}
-                >
-                  {listItemText(section)}
-                </ButtonBase>
-              </ListItem>
+              <ListItemButton
+              key={section.id}
+              divider
+              disableGutters
+              onClick={() => handleListItemClick(section.id)}
+              selected={isSelected}
+              disabled={section.locked}
+              classes={{
+                root: `${classes.listItemRoot} ${classes.listButton}`,
+                focusVisible: classes.listButtonFocusVisible
+              }}
+              className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}>
+                {listItemText(section)}
+              </ListItemButton>
             )
           })}
-        </List>
-        <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
+      </List> 
+      <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
           <Grid container>
             <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
             <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
           </Grid>
-        </Backdrop>
+        </Backdrop>   
       </Grid>
     </Grid>
-    </>
+    </Root>
   )
 }
 

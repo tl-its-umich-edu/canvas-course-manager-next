@@ -1,40 +1,59 @@
 import React, { useState } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import CanvasSettingsLink from './CanvasSettingsLink'
-import ErrorAlert from './ErrorAlert'
-import InlineErrorAlert from './InlineErrorAlert'
-import RoleSelect from './RoleSelect'
-import SectionSelectorWidget from './SectionSelectorWidget'
-import SuccessCard from './SuccessCard'
-import ValidatedFormField from './ValidatedFormField'
-import * as api from '../api'
-import usePromise from '../hooks/usePromise'
-import { CanvasCourseSectionWithCourseName, CanvasUserCondensed, ClientEnrollmentType } from '../models/canvas'
-import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment'
-import { AddNonUMUsersLeafProps } from '../models/FeatureUIData'
-import { APIErrorWithContext } from '../models/models'
-import { CanvasError, ExternalUserProcessError } from '../utils/handleErrors'
+import APIErrorMessage from './APIErrorMessage.js'
+import CanvasSettingsLink from './CanvasSettingsLink.js'
+import ErrorAlert from './ErrorAlert.js'
+import InlineErrorAlert from './InlineErrorAlert.js'
+import RoleSelect from './RoleSelect.js'
+import SectionSelectorWidget from './SectionSelectorWidget.js'
+import SuccessCard from './SuccessCard.js'
+import ValidatedFormField from './ValidatedFormField.js'
+import * as api from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { CanvasCourseSectionWithCourseName, CanvasUserCondensed, ClientEnrollmentType } from '../models/canvas.js'
+import { AddExternalUserEnrollment, AddNewExternalUserEnrollment } from '../models/enrollment.js'
+import { AddNonUMUsersLeafProps } from '../models/FeatureUIData.js'
+import { APIErrorWithContext, CsrfToken } from '../models/models.js'
+import { CanvasError, ExternalUserProcessError } from '../utils/handleErrors.js'
 import {
   emailInputSchema, firstNameInputSchema, lastNameInputSchema, validateString, ValidationResult
-} from '../utils/validation'
+} from '../utils/validation.js'
 
-const useStyles = makeStyles((theme) => ({
-  spacing: {
+const PREFIX = 'UserEnrollmentForm'
+
+const classes = {
+  spacing: `${PREFIX}-spacing`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  alert: `${PREFIX}-alert`,
+  container: `${PREFIX}-container`,
+  backdrop: `${PREFIX}-backdrop`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  alert: {
+
+  [`& .${classes.alert}`]: {
     padding: theme.spacing(2)
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute',
@@ -47,11 +66,11 @@ interface ExternalEnrollmentSummary {
   enrolled: boolean
 }
 
-interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {}
+interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {
+  csrfToken: CsrfToken
+}
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
-  const classes = useStyles()
-
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
   const [email, setEmail] = useState<string | undefined>(undefined)
@@ -77,7 +96,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
   const [doAddEnrollment, isAddEnrollmentLoading, addEnrollmentError, clearAddEnrollmentError] = usePromise(
     async (sectionId: number, enrollment: AddExternalUserEnrollment) => await api.addSectionEnrollments(
-      sectionId, [{ loginId: enrollment.email, role: enrollment.role }]
+      sectionId, [{ loginId: enrollment.email, role: enrollment.role }], props.csrfToken.token
     ),
     () => setSuccessResult({ createdAndInvited: false, enrolled: true })
   )
@@ -88,11 +107,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   ] = usePromise(
     async (sectionId: number, enrollment: AddNewExternalUserEnrollment): Promise<ExternalEnrollmentSummary> => {
       const { email, firstName, lastName, role } = enrollment
-      const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }])
+      const result = await api.createExternalUsers([{ email, givenName: firstName, surname: lastName }], props.csrfToken.token)
       let createdAndInvited = false
       if (result.length > 0 && result[0].userCreated) {
         createdAndInvited = true
-        await api.addSectionEnrollments(sectionId, [{ loginId: email, role }])
+        await api.addSectionEnrollments(sectionId, [{ loginId: email, role }], props.csrfToken.token)
       }
       return { createdAndInvited, enrolled: true }
     },
@@ -335,6 +354,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             search={[]}
             multiSelect={false}
             sections={props.sections}
+            csrfToken={props.csrfToken}
             selectedSections={selectedSection !== undefined ? [selectedSection] : []}
             selectionUpdated={(sections) => {
               if (sections.length === 0) {
@@ -406,9 +426,9 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   }
 
   return (
-    <div id='single-add-user'>
+    <Root id='single-add-user'>
       <Typography variant='h6' component='h2' gutterBottom>Add Single User Manually</Typography>
       {successResult === undefined ? renderForm() : renderSuccess(successResult)}
-    </div>
+    </Root>
   )
 }

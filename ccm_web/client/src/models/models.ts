@@ -2,7 +2,7 @@
 Interfaces for common objects and entities (e.g. Globals, Course, Section, etc.)
 */
 
-import { hasKeys } from './typeUtils'
+import { hasKeys } from './typeUtils.js'
 
 // Globals
 
@@ -42,6 +42,10 @@ export interface Globals {
   user: User
   course: Course
   baseHelpURL: string
+}
+
+export interface CsrfToken {
+  token: string
 }
 
 // API Errors

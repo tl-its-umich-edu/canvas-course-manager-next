@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
-import { getCourse } from './api'
+import { getCourse } from './api.js'
 import './App.css'
-import APIErrorMessage from './components/APIErrorMessage'
-import AuthorizePrompt from './components/AuthorizePrompt'
-import ErrorAlert from './components/ErrorAlert'
-import Layout from './components/Layout'
-import useGlobals from './hooks/useGlobals'
-import usePromise from './hooks/usePromise'
-import { CanvasCourseBase } from './models/canvas'
-import allFeatures from './models/FeatureUIData'
-import Home from './pages/Home'
-import NotFound from './pages/NotFound'
-import redirect from './utils/redirect'
+import APIErrorMessage from './components/APIErrorMessage.js'
+import AuthorizePrompt from './components/AuthorizePrompt.js'
+import ErrorAlert from './components/ErrorAlert.js'
+import Layout from './components/Layout.js'
+import useGlobals from './hooks/useGlobals.js'
+import usePromise from './hooks/usePromise.js'
+import { CanvasCourseBase } from './models/canvas.js'
+import allFeatures from './models/FeatureUIData.js'
+import Home from './pages/Home.js'
+import NotFound from './pages/NotFound.js'
+import redirect from './utils/redirect.js'
 
 function App (): JSX.Element {
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
 
-  const [globals, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
+  const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
@@ -42,7 +42,7 @@ function App (): JSX.Element {
 
   if (globalsError !== undefined) console.error(globalsError)
   if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
-  if (globals === undefined || !isAuthenticated) {
+  if (globals === undefined || !isAuthenticated || csrfToken === undefined) {
     redirect('/access-denied')
     return (loading)
   }
@@ -71,25 +71,26 @@ function App (): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'}>
-      <Switch>
-        <Route exact={true} path='/'>
-          <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
-        </Route>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} csrfToken={csrfToken}>
+      <Routes>
+        <Route path='/' element={
+          <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+          } />
         {features.map(feature => {
           return (
-            <Route key={feature.data.id} path={feature.route}>
+            <Route key={feature.data.id} path={feature.route} element={
               <feature.component
                 globals={globals}
+                csrfToken={csrfToken}
                 course={course}
                 title={feature.data.title}
                 helpURLEnding={feature.data.helpURLEnding}
               />
-            </Route>
+            }/>
           )
         })}
-        <Route><NotFound /></Route>
-      </Switch>
+        <Route path="/*" element={<NotFound />}/>
+      </Routes>
     </Layout>
   )
 }

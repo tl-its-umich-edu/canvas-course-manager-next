@@ -1,12 +1,19 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
-import { Breadcrumbs as MuiBreadcrumbs, Link, makeStyles, Typography } from '@material-ui/core'
-import NavigateNextIcon from '@material-ui/icons/NavigateNext'
+import { Breadcrumbs as MuiBreadcrumbs, Link, Typography } from '@mui/material'
+import {NavigateNext as NavigateNextIcon} from '@mui/icons-material'
 
-import { FeatureUIProps } from '../models/FeatureUIData'
+import { FeatureUIProps } from '../models/FeatureUIData.js'
 
-const useStyles = makeStyles(() => ({
-  breadcrumbs: {
+const PREFIX = 'Breadcrumbs'
+
+const classes = {
+  breadcrumbs: `${PREFIX}-breadcrumbs`
+}
+
+const StyledMuiBreadcrumbs = styled(MuiBreadcrumbs)(() => ({
+  [`& .${classes.breadcrumbs}`]: {
     fontSize: '1.125rem'
   }
 }))
@@ -37,10 +44,9 @@ export interface BreadcrumbsProps {
 }
 
 function Breadcrumbs (props: BreadcrumbsProps): JSX.Element {
-  const classes = useStyles()
   const { features, pathnames } = props
   return (
-    <MuiBreadcrumbs
+    <StyledMuiBreadcrumbs
       aria-label='breadcrumb'
       separator={<NavigateNextIcon fontSize='small' />}
     >
@@ -62,7 +68,7 @@ function Breadcrumbs (props: BreadcrumbsProps): JSX.Element {
             })
           )
         }
-    </MuiBreadcrumbs>
+    </StyledMuiBreadcrumbs>
   )
 }
 

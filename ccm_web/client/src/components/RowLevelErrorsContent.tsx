@@ -1,10 +1,21 @@
 import React from 'react'
-import { Box, Grid, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Grid, Typography } from '@mui/material'
 
-import ErrorAlert from './ErrorAlert'
+import ErrorAlert from './ErrorAlert.js'
 
-const useStyles = makeStyles((theme) => ({
-  padding: {
+const PREFIX = 'RowLevelErrorsContent'
+
+const classes = {
+  padding: `${PREFIX}-padding`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.padding}`]: {
     padding: theme.spacing(1)
   }
 }))
@@ -17,16 +28,12 @@ interface RowLevelErrorsContentProps {
 }
 
 function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element {
-  const classes = useStyles()
   const defaultMessage = <Typography>Create a new file with corrected versions of these rows.</Typography>
 
   return (
-    <Grid container justifyContent='flex-start'>
-      <Box clone order={{ xs: 2, sm: 1 }}>
-        <Grid item xs={12} sm={8} className={classes.padding}>{props.table}</Grid>
-      </Box>
-      <Box clone order={{ xs: 1, sm: 2 }}>
-        <Grid item xs={12} sm={4}>
+    <StyledGrid container justifyContent='flex-start'>
+        <Grid item xs={12} sm={8} sx={{ order: { xs: 2, sm: 1 } }} className={classes.padding}>{props.table}</Grid>
+        <Grid item xs={12} sm={4} sx={{ order: { xs: 1, sm: 2 } }}>
           <ErrorAlert
             title={props.title}
             messages={[props.message !== undefined ? props.message : defaultMessage]}
@@ -34,8 +41,7 @@ function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element 
             embedded={true}
           />
         </Grid>
-      </Box>
-    </Grid>
+    </StyledGrid>
   )
 }
 

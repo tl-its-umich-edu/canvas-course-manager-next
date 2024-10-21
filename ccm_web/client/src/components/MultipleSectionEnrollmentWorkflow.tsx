@@ -1,64 +1,90 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles'
 import {
-  Backdrop, Button, Box, CircularProgress, Grid, Link, makeStyles, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Typography
-} from '@material-ui/core'
+  Backdrop,
+  Button,
+  CircularProgress,
+  Grid,
+  Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from '@mui/material'
 
-import Accordion from './Accordion'
-import APIErrorMessage from './APIErrorMessage'
-import BulkApiErrorContent from './BulkApiErrorContent'
-import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable'
-import ConfirmDialog from './ConfirmDialog'
-import CSVFileName from './CSVFileName'
-import ErrorAlert from './ErrorAlert'
-import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
-import FileUpload from './FileUpload'
-import RowLevelErrorsContent from './RowLevelErrorsContent'
-import SuccessCard from './SuccessCard'
-import TableCaption from './TableCaption'
-import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable'
-import * as api from '../api'
-import usePromise from '../hooks/usePromise'
-import { ClientEnrollmentType } from '../models/canvas'
+import Accordion from './Accordion.js'
+import APIErrorMessage from './APIErrorMessage.js'
+import BulkApiErrorContent from './BulkApiErrorContent.js'
+import BulkEnrollUMUserToSectionsConfirmationTable from './BulkEnrollUMUserToSectionsConfirmationTable.js'
+import ConfirmDialog from './ConfirmDialog.js'
+import CSVFileName from './CSVFileName.js'
+import ErrorAlert from './ErrorAlert.js'
+import ExampleFileDownloadHeader from './ExampleFileDownloadHeader.js'
+import FileUpload from './FileUpload.js'
+import RowLevelErrorsContent from './RowLevelErrorsContent.js'
+import SuccessCard from './SuccessCard.js'
+import TableCaption from './TableCaption.js'
+import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable.js'
+import * as api from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { ClientEnrollmentType } from '../models/canvas.js'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
   REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
-} from '../models/enrollment'
-import { AddUMUsersLeafProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+} from '../models/enrollment.js'
+import { AddUMUsersLeafProps } from '../models/FeatureUIData.js'
+import { CsrfToken, InvalidationType } from '../models/models.js'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import {
   EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator, SectionIdRowsValidator
-} from '../utils/enrollmentValidators'
-import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
+} from '../utils/enrollmentValidators.js'
+import { getRowNumber, prepDownloadDataString } from '../utils/fileUtils.js'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
 
-enum CSVWorkflowState {
-  Upload,
-  Review,
-  Confirmation
+const PREFIX = 'MultipleSectionEnrollmentWorkflow'
+
+const classes = {
+  spacing: `${PREFIX}-spacing`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  sectionIdTable: `${PREFIX}-sectionIdTable`,
+  confirmationTable: `${PREFIX}-confirmationTable`,
+  container: `${PREFIX}-container`,
+  backdrop: `${PREFIX}-backdrop`
 }
 
-const useStyles = makeStyles((theme) => ({
-  spacing: {
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   },
-  sectionIdTable: {
+
+  [`& .${classes.sectionIdTable}`]: {
     maxHeight: 300
   },
-  confirmationTable: {
+
+  [`& .${classes.confirmationTable}`]: {
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1)
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'relative',
     zIndex: 0
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#FFF',
     position: 'absolute',
@@ -66,13 +92,20 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {}
+enum CSVWorkflowState {
+  Upload,
+  Review,
+  Confirmation
+}
+
+interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
+  csrfToken: CsrfToken
+}
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
 
-  const classes = useStyles()
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
@@ -83,7 +116,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(
-        enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
+        enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId })),
+        props.csrfToken.token
       )
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
@@ -150,14 +184,14 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderRowValidationErrors = (errors: RowValidationError[]): JSX.Element => {
     return (
-      <>
-      {file !== undefined && <CSVFileName file={file} />}
-      <RowLevelErrorsContent
-        table={<ValidationErrorTable invalidations={errors} />}
-        title='Review your CSV file'
-        resetUpload={resetUpload}
-      />
-      </>
+      (<>
+        {file !== undefined && <CSVFileName file={file} />}
+        <RowLevelErrorsContent
+          table={<ValidationErrorTable invalidations={errors} />}
+          title='Review your CSV file'
+          resetUpload={resetUpload}
+        />
+      </>)
     )
   }
 
@@ -236,14 +270,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             <Link href={sectionDataToDownload} download='course_section_ids.csv'>
               Download a CSV with the Canvas Course Section IDs data
             </Link>
-            <Accordion title='Course Section Canvas IDs' id='section-ids'>{sectionIdsTable}</Accordion>
+            <Accordion title='Course Section Canvas IDs' id='section-ids'>
+              <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+                <Grid container>
+                  <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+                  <Grid item xs={12}>Loading section data from Canvas</Grid>
+                </Grid>
+              </Backdrop>
+              {sectionIdsTable}
+          </Accordion>
           </Grid>
-          <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-            <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>Loading section data from Canvas</Grid>
-            </Grid>
-          </Backdrop>
         </Grid>
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
@@ -261,20 +297,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.confirmationTable}>
+            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.confirmationTable}>
               <BulkEnrollUMUserToSectionsConfirmationTable enrollments={enrollments} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
               <ConfirmDialog
                 submit={async () => await doAddEnrollments(enrollmentData)}
                 cancel={resetUpload}
                 disabled={isAddEnrollmentsLoading}
               />
             </Grid>
-          </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
@@ -327,9 +359,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   return (
-    <>
+    <Root>
     <Typography variant='h6' component='h2'>Add Users to Multiple Sections</Typography>
     {renderWorkflowState(workflowState)}
-    </>
+    </Root>
   )
 }

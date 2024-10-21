@@ -1,62 +1,87 @@
 import React, { useEffect, useState } from 'react'
-import { Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Button, CircularProgress, Grid, Typography } from '@mui/material'
 
-import { addCourseSections, getCourseSections } from '../api'
-import APIErrorMessage from '../components/APIErrorMessage'
-import BulkApiErrorContent from '../components/BulkApiErrorContent'
-import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable'
+import { addCourseSections, getCourseSections } from '../api.js'
+import APIErrorMessage from '../components/APIErrorMessage.js'
+import BulkApiErrorContent from '../components/BulkApiErrorContent.js'
+import BulkSectionCreateUploadConfirmationTable, { Section } from '../components/BulkSectionCreateUploadConfirmationTable.js'
 import {
   DuplicateSectionInFileSectionRowsValidator, SectionNameLengthValidator,
   SectionRowsValidator, SectionsRowInvalidation
-} from '../components/BulkSectionCreateValidators'
-import CanvasSettingsLink from '../components/CanvasSettingsLink'
-import ConfirmDialog from '../components/ConfirmDialog'
-import CSVFileName from '../components/CSVFileName'
-import ErrorAlert from '../components/ErrorAlert'
-import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader'
-import FileUpload from '../components/FileUpload'
-import Help from '../components/Help'
-import RowLevelErrorsContent from '../components/RowLevelErrorsContent'
-import SuccessCard from '../components/SuccessCard'
-import ValidationErrorTable from '../components/ValidationErrorTable'
-import usePromise from '../hooks/usePromise'
-import { CanvasCourseSection } from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
-import { InvalidationType } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { getRowNumber } from '../utils/fileUtils'
+} from '../components/BulkSectionCreateValidators.js'
+import CanvasSettingsLink from '../components/CanvasSettingsLink.js'
+import ConfirmDialog from '../components/ConfirmDialog.js'
+import CSVFileName from '../components/CSVFileName.js'
+import ErrorAlert from '../components/ErrorAlert.js'
+import ExampleFileDownloadHeader, { ExampleFileDownloadHeaderProps } from '../components/ExampleFileDownloadHeader.js'
+import FileUpload from '../components/FileUpload.js'
+import Help from '../components/Help.js'
+import RowLevelErrorsContent from '../components/RowLevelErrorsContent.js'
+import SuccessCard from '../components/SuccessCard.js'
+import ValidationErrorTable from '../components/ValidationErrorTable.js'
+import usePromise from '../hooks/usePromise.js'
+import { CanvasCourseSection } from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
+import { InvalidationType } from '../models/models.js'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
+import { getRowNumber } from '../utils/fileUtils.js'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'BulkSectionCreate'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  confirmContainer: `${PREFIX}-confirmContainer`,
+  uploadContainer: `${PREFIX}-uploadContainer`,
+  backdrop: `${PREFIX}-backdrop`,
+  popover: `${PREFIX}-popover`,
+  paper: `${PREFIX}-paper`,
+  table: `${PREFIX}-table`,
+  buttonGroup: `${PREFIX}-buttonGroup`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  confirmContainer: {
+
+  [`& .${classes.confirmContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
-  uploadContainer: {
+
+  [`&.${classes.uploadContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  popover: {
+
+  [`& .${classes.popover}`]: {
     pointerEvents: 'none'
   },
-  paper: {
+
+  [`& .${classes.paper}`]: {
     padding: theme.spacing(1)
   },
-  table: {
+
+  [`& .${classes.table}`]: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   }
 }))
@@ -86,8 +111,6 @@ interface BulkSectionCreatePageStateData {
 }
 
 function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
-  const classes = useStyles()
-
   const [pageState, setPageState] = useState<BulkSectionCreatePageStateData>(
     { state: BulkSectionCreatePageState.UploadPending, schemaInvalidations: [], rowInvalidations: [] }
   )
@@ -104,7 +127,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   )
 
   const [doAddSections, isAddSectionsLoading, addSectionsError] = usePromise(
-    async () => await addCourseSections(props.globals.course.id, sectionNames),
+    async () => await addCourseSections(props.globals.course.id, sectionNames, props.csrfToken.token),
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidations: [], rowInvalidations: [] })
@@ -261,23 +284,25 @@ Section 001`
   }
 
   const renderFileUpload = (): JSX.Element => {
-    return <div className={classes.uploadContainer}>
-      <Grid container>
-        <Grid item xs={12}>
-          <FileUpload onUploadComplete={(file) => setFile(file)} />
-        </Grid>
-      </Grid>
-      <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+    return (
+      <Root className={classes.uploadContainer}>
         <Grid container>
           <Grid item xs={12}>
-            <CircularProgress color="inherit" />
-          </Grid>
-          <Grid item xs={12}>
-          {renderLoadingText()}
+            <FileUpload onUploadComplete={(file) => setFile(file)} />
           </Grid>
         </Grid>
-      </Backdrop>
-    </div>
+        <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item xs={12}>
+            {renderLoadingText()}
+            </Grid>
+          </Grid>
+        </Backdrop>
+      </Root>
+    )
   }
 
   const renderUpload = (): JSX.Element => {
@@ -332,16 +357,12 @@ Section 001`
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.table}>
-              <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
-            </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
-              <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
-            </Grid>
-          </Box>
+          <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
+            <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
+          </Grid>
+          <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
+            <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
+          </Grid>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddSectionsLoading}>
         <Grid container>
@@ -410,11 +431,11 @@ Section 001`
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

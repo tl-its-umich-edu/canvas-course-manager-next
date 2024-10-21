@@ -1,8 +1,8 @@
 import { StringSchema } from 'yup'
 
-import { getRowNumber } from './fileUtils'
-import { validateString, ValidationResult } from './validation'
-import { InvalidationType } from '../models/models'
+import { getRowNumber } from './fileUtils.js'
+import { validateString, ValidationResult } from './validation.js'
+import { InvalidationType } from '../models/models.js'
 
 // For validating row level issues
 export interface RowInvalidation {

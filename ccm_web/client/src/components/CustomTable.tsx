@@ -1,8 +1,8 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@material-ui/core'
+import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from '@mui/material'
 import React from 'react'
-import StyledTableCell from './StyledTableCell'
-import TableCaption from './TableCaption'
-import { TablePaginationActions } from './TablePagination'
+import StyledTableCell from './StyledTableCell.js'
+import TableCaption from './TableCaption.js'
+import { TablePaginationActions } from './TablePagination.js'
 
 interface TableEntity {
   rowNumber: number
@@ -56,10 +56,9 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
             return (
               <TableRow hover key={row.rowNumber}>
                 {columns.map((column) => {
-                  const value = row[column.id]
                   return (
                     <TableCell key={String(column.id)} align={column.align}>
-                      {value}
+                      {String(row[column.id])}
                     </TableCell>
                   )
                 })}
@@ -79,10 +78,6 @@ function CustomTable<T extends TableEntity> (props: TableProps<T>): JSX.Element 
               count={tableRows.length}
               rowsPerPage={rowsPerPage}
               page={page}
-              SelectProps={{
-                inputProps: { 'aria-label': 'rows per page' },
-                native: true
-              }}
               onPageChange={handleChangePage}
               ActionsComponent={TablePaginationActions}
               aria-live='polite'

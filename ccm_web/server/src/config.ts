@@ -1,4 +1,4 @@
-import baseLogger from './logger'
+import baseLogger from './logger.js'
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -10,6 +10,7 @@ export interface ServerConfig {
   logLevel: LogLevel
   cookieSecret: string
   tokenSecret: string
+  csrfSecret: string
   maxAgeInSec: number
 }
 
@@ -61,7 +62,7 @@ export interface Config {
   baseHelpURL: string
 }
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 const isString = (v: unknown): v is string => typeof v === 'string'
 const isNotEmpty = (v: string): boolean => v.length > 0
@@ -145,6 +146,7 @@ export function validateConfig (): Config {
       logLevel: validate<LogLevel>('LOG_LEVEL', env.LOG_LEVEL, isLogLevel, [], 'debug'),
       tokenSecret: validate<string>('TOKEN_SECRET', env.TOKEN_SECRET, isString, [isNotEmpty], 'TOKENSECRET'),
       cookieSecret: validate<string>('COOKIE_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'COOKIESECRET'),
+      csrfSecret: validate<string>('CSRF_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'CSRFSECRET'),
       maxAgeInSec: validate<number>(
         'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
       )

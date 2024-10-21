@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 import {
   Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow
-} from '@material-ui/core'
-import StyledTableCell from './StyledTableCell'
-import TableCaption from './TableCaption'
-import { TablePaginationActions } from './TablePagination'
+} from '@mui/material'
+import StyledTableCell from './StyledTableCell.js'
+import TableCaption from './TableCaption.js'
+import { TablePaginationActions } from './TablePagination.js'
 
 interface RowValidationError {
   rowNumber: number

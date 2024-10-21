@@ -1,8 +1,7 @@
 import CanvasRequestor from '@kth/canvas-api'
-
-import { CourseApiHandler } from './api.course.handler'
-import { TooManyResultsError } from './api.errors'
-import { APIErrorData, isAPIErrorData } from './api.interfaces'
+import { CourseApiHandler } from './api.course.handler.js'
+import { TooManyResultsError } from './api.errors.js'
+import { APIErrorData, isAPIErrorData } from './api.interfaces.js'
 import {
   checkForUniqueIdError,
   createLimitedPromises,
@@ -10,19 +9,19 @@ import {
   HttpMethod,
   makeResponse,
   NS_PER_SEC
-} from './api.utils'
-import { ExternalUserDto } from './dtos/api.external.users.dto'
+} from './api.utils.js'
+import { ExternalUserDto } from './dtos/api.external.users.dto.js'
 import {
   CanvasAccount,
   CanvasCourse,
   CanvasUser,
   CourseWithSections,
   CourseWorkflowState
-} from '../canvas/canvas.interfaces'
+} from '../canvas/canvas.interfaces.js'
 
-import baseLogger from '../logger'
+import baseLogger from '../logger.js'
 
-const logger = baseLogger.child({ filePath: __filename })
+const logger = baseLogger.child({ filePath: import.meta.filename })
 
 interface AccountCoursesQueryParams extends Record<string, unknown> {
   'state': CourseWorkflowState[]
@@ -37,11 +36,11 @@ Handler class for Canvas API calls dealing with an admin's accounts (i.e. those 
 or account-scoped operations that make use of other handler instances for Canvas entities
 */
 export class AdminApiHandler {
-  requestor: CanvasRequestor
+  requestor: CanvasRequestor.default
   userLoginId: string
   maxSearchCourses: number
 
-  constructor (requestor: CanvasRequestor, userLoginId?: string, maxSearchCourses = 400) {
+  constructor (requestor: any, userLoginId?: string, maxSearchCourses = 400) {
     this.requestor = requestor
     this.userLoginId = userLoginId !== undefined ? `"${userLoginId}"` : '(undefined)'
     this.maxSearchCourses = maxSearchCourses

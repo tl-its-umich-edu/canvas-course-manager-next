@@ -1,39 +1,49 @@
 import { useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid, Typography } from '@material-ui/core'
 
-import APIErrorMessage from '../components/APIErrorMessage'
-import FeatureCard from '../components/FeatureCard'
-import Help from '../components/Help'
-import InlineTextEdit from '../components/InlineTextEdit'
-import { setCourseName as apiSetCourseName } from '../api'
-import usePromise from '../hooks/usePromise'
-import { courseRenameRoles } from '../models/feature'
+import { styled } from '@mui/material/styles'
+import { Grid, Typography } from '@mui/material'
+
+import APIErrorMessage from '../components/APIErrorMessage.js'
+import FeatureCard from '../components/FeatureCard.js'
+import Help from '../components/Help.js'
+import InlineTextEdit from '../components/InlineTextEdit.js'
+import { setCourseName as apiSetCourseName } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { courseRenameRoles } from '../models/feature.js'
 import allFeatures, {
   FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles
-} from '../models/FeatureUIData'
-import { Globals } from '../models/models'
-import { CanvasCourseBase } from '../models/canvas'
-import { courseNameInputSchema, validateString } from '../utils/validation'
+} from '../models/FeatureUIData.js'
+import { CsrfToken, Globals } from '../models/models.js'
+import { CanvasCourseBase } from '../models/canvas.js'
+import { courseNameInputSchema, validateString } from '../utils/validation.js'
 
-const useStyles = makeStyles((theme) => ({
-  title: {
-    textAlign: 'left',
-    marginBottom: theme.spacing(1)
-  },
-  courseNameContainer: {
-    marginBottom: theme.spacing(2)
-  },
-  courseName: {
+const PREFIX = 'Home'
+
+const classes = {
+  courseName: `${PREFIX}-courseName`,
+  courseNameContainer: `${PREFIX}-courseNameContainer`,
+  title: `${PREFIX}-title`
+}
+
+const Root = styled('div')(({ theme }) => ({
+  [`& .${classes.courseName}`]: {
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
     textAlign: 'left'
+  },
+  [`& .${classes.courseNameContainer}`]: {
+    marginBottom: theme.spacing(2)
+  },
+  [`& .${classes.title}`]: {
+    textAlign: 'left',
+    marginBottom: theme.spacing(1)
   }
 }))
 
 interface HomeProps {
   globals: Globals
+  csrfToken: CsrfToken
   course: CanvasCourseBase | undefined
   getCourseError: Error | undefined
   setCourse: (course: CanvasCourseBase|undefined) => void
@@ -41,12 +51,11 @@ interface HomeProps {
 
 function Home (props: HomeProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
-  const classes = useStyles()
 
   const setCourseNameAsync = async (
     newCourseName: string
   ): Promise<CanvasCourseBase|undefined> => {
-    return await apiSetCourseName(props.globals.course.id, newCourseName)
+    return await apiSetCourseName(props.globals.course.id, newCourseName, props.csrfToken.token)
   }
 
   const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(
@@ -126,7 +135,7 @@ function Home (props: HomeProps): JSX.Element {
   }
 
   return (
-    <>
+    <Root>
     <Help baseHelpURL={props.globals.baseHelpURL} />
     <div className={classes.courseNameContainer}>
       {renderCourseRename()}
@@ -138,7 +147,7 @@ function Home (props: HomeProps): JSX.Element {
         return (renderFeatureGroup(featureGroup))
       })}
     </Grid>
-    </>
+    </Root>
   )
 }
 

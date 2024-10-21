@@ -1,14 +1,27 @@
 import React from 'react'
-import { Button, makeStyles } from '@material-ui/core'
-import ErrorIcon from '@material-ui/icons/Error'
+import { styled } from '@mui/material/styles'
+import { Button } from '@mui/material'
+import { Error as ErrorIcon } from '@mui/icons-material'
 
-import Alert from './Alert'
+import Alert from './Alert.js'
 
-const useStyles = makeStyles((theme) => ({
-  dialogIcon: {
+const PREFIX = 'WarningAlert'
+
+const classes = {
+  dialogIcon: `${PREFIX}-dialogIcon`,
+  dialogButton: `${PREFIX}-dialogButton`
+}
+
+const StyledAlert = styled(Alert)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.dialogIcon}`]: {
     color: theme.palette.warning.main
   },
-  dialogButton: {
+
+  [`& .${classes.dialogButton}`]: {
     margin: 5
   }
 }))
@@ -24,7 +37,6 @@ interface WarningAlertProps {
 }
 
 export default function ErrorAlert (props: WarningAlertProps): JSX.Element {
-  const classes = useStyles()
   const { messages, cancel, cont, title, icon, embedded } = props
 
   const messageBlock = messages.length === 1
@@ -32,7 +44,7 @@ export default function ErrorAlert (props: WarningAlertProps): JSX.Element {
     : <ol>{messages.map((m, i) => <li key={i}>{m}</li>)}</ol>
 
   return (
-    <Alert
+    <StyledAlert
       title={title !== undefined ? title : 'Some warnings occurred'}
       icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
       embedded={embedded}
@@ -40,6 +52,6 @@ export default function ErrorAlert (props: WarningAlertProps): JSX.Element {
       {messageBlock}
       <Button className={classes.dialogButton} color='primary' variant='outlined' onClick={cancel}>Cancel</Button>
       <Button className={classes.dialogButton} color='primary' variant='contained' onClick={cont}>Continue</Button>
-    </Alert>
+    </StyledAlert>
   )
 }

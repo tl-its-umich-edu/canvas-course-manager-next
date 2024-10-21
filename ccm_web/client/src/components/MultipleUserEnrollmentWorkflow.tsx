@@ -1,40 +1,75 @@
 import React, { useState } from 'react'
-import {
-  Backdrop, Box, Button, CircularProgress, Grid, makeStyles, Typography
-} from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Backdrop, Button, CircularProgress, Grid, Typography } from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import APIErrorsTable from './APIErrorsTable'
-import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable'
-import ConfirmDialog from './ConfirmDialog'
-import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget'
-import CSVFileName from './CSVFileName'
-import ErrorAlert from './ErrorAlert'
-import ExampleFileDownloadHeader from './ExampleFileDownloadHeader'
-import FileUpload from './FileUpload'
-import RowLevelErrorsContent from './RowLevelErrorsContent'
-import SuccessCard from './SuccessCard'
-import ValidationErrorTable from './ValidationErrorTable'
-import WorkflowStepper from './WorkflowStepper'
-import CanvasSettingsLink from './CanvasSettingsLink'
-import * as api from '../api'
-import usePromise from '../hooks/usePromise'
+import APIErrorMessage from './APIErrorMessage.js'
+import APIErrorsTable from './APIErrorsTable.js'
+import BulkEnrollExternalUserConfirmationTable from './BulkEnrollExternalUserConfirmationTable.js'
+import ConfirmDialog from './ConfirmDialog.js'
+import CreateSelectSectionWidget, { CreateSelectSectionWidgetCreateProps } from './CreateSelectSectionWidget.js'
+import CSVFileName from './CSVFileName.js'
+import ErrorAlert from './ErrorAlert.js'
+import ExampleFileDownloadHeader from './ExampleFileDownloadHeader.js'
+import FileUpload from './FileUpload.js'
+import RowLevelErrorsContent from './RowLevelErrorsContent.js'
+import SuccessCard from './SuccessCard.js'
+import ValidationErrorTable from './ValidationErrorTable.js'
+import WorkflowStepper from './WorkflowStepper.js'
+import CanvasSettingsLink from './CanvasSettingsLink.js'
+import * as api from '../api.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName, ClientEnrollmentType, injectCourseName
-} from '../models/canvas'
-import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment'
-import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser'
-import { createSectionRoles } from '../models/feature'
-import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData'
-import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models'
-import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator'
+} from '../models/canvas.js'
+import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment } from '../models/enrollment.js'
+import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser.js'
+import { createSectionRoles } from '../models/feature.js'
+import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData.js'
+import { CSVWorkflowStep, CsrfToken, InvalidationType, RoleEnum } from '../models/models.js'
+import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
   LastNameRowsValidator, RoleRowsValidator
-} from '../utils/enrollmentValidators'
-import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper'
-import { getRowNumber } from '../utils/fileUtils'
-import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors'
+} from '../utils/enrollmentValidators.js'
+import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
+import { getRowNumber } from '../utils/fileUtils.js'
+import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors.js'
+
+const PREFIX = 'MultipleUserEnrollmentWorkflow'
+
+const classes = {
+  backdrop: `${PREFIX}-backdrop`,
+  container: `${PREFIX}-container`,
+  buttonGroup: `${PREFIX}-buttonGroup`,
+  table: `${PREFIX}-table`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.backdrop}`]: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#FFF',
+    position: 'absolute',
+    textAlign: 'center'
+  },
+
+  [`& .${classes.container}`]: {
+    position: 'relative',
+    zIndex: 0
+  },
+
+  [`& .${classes.buttonGroup}`]: {
+    marginTop: theme.spacing(1)
+  },
+
+  [`& .${classes.table}`]: {
+    paddingLeft: 10,
+    paddingRight: 10
+  }
+}))
 
 const EMAIL_HEADER = 'EMAIL'
 const ROLE_HEADER = 'ROLE'
@@ -54,35 +89,14 @@ export const isExternalEnrollmentRecord = (record: CSVRecord): record is Externa
   return REQUIRED_HEADERS.every(h => typeof record[h] === 'string')
 }
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: '#FFF',
-    position: 'absolute',
-    textAlign: 'center'
-  },
-  container: {
-    position: 'relative',
-    zIndex: 0
-  },
-  buttonGroup: {
-    marginTop: theme.spacing(1)
-  },
-  table: {
-    paddingLeft: 10,
-    paddingRight: 10
-  }
-}))
-
 interface MultipleUserEnrollmentWorkflowProps extends AddNonUMUsersLeafProps {
   course: CanvasCourseBase
+  csrfToken: CsrfToken
   onSectionCreated: (newSection: CanvasCourseSection) => void
   userCourseRoles: RoleEnum[]
 }
 
 export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrollmentWorkflowProps): JSX.Element {
-  const classes = useStyles()
-
   const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
 
@@ -103,7 +117,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       const errors: ErrorDescription[] = []
       try {
         successes = await api.createExternalUsers(
-          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName }))
+          enrollments.map(e => ({ email: e.email, givenName: e.firstName, surname: e.lastName })),
+          props.csrfToken.token
         )
       } catch (error: unknown) {
         if (error instanceof ExternalUserProcessError) {
@@ -119,7 +134,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       if (enrollmentsToAdd.length > 0) {
         try {
           await api.addSectionEnrollments(
-            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role }))
+            sectionId, enrollmentsToAdd.map(e => ({ loginId: e.email, role: e.role })), props.csrfToken.token
           )
         } catch (error: unknown) {
           if (error instanceof CanvasError) {
@@ -185,42 +200,41 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
-    return (
-      <>
-      <div className={classes.container}>
-        <CreateSelectSectionWidget
-          sections={props.sections}
-          selectedSection={selectedSection}
-          setSelectedSection={setSelectedSection}
-          {...createProps}
-        />
-        <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Loading section data from Canvas</Grid>
-          </Grid>
-        </Backdrop>
-      </div>
-      <Grid container className={classes.buttonGroup} justifyContent='space-between'>
-        <Button
-          variant='outlined'
-          onClick={props.resetFeature}
-          aria-label='Back to input method select'
-        >
-          Back
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          aria-label='Select section'
-          disabled={selectedSection === undefined || props.isGetSectionsLoading}
-          onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-        >
-          Select
-        </Button>
-      </Grid>
-      </>
-    )
+    return <>
+    <div className={classes.container}>
+      <CreateSelectSectionWidget
+        sections={props.sections}
+        selectedSection={selectedSection}
+        setSelectedSection={setSelectedSection}
+        {...createProps}
+        csrfToken={props.csrfToken}
+      />
+      <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+        <Grid container>
+          <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+          <Grid item xs={12}>Loading section data from Canvas</Grid>
+        </Grid>
+      </Backdrop>
+    </div>
+    <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+      <Button
+        variant='outlined'
+        onClick={props.resetFeature}
+        aria-label='Back to input method select'
+      >
+        Back
+      </Button>
+      <Button
+        variant='contained'
+        color='primary'
+        aria-label='Select section'
+        disabled={selectedSection === undefined || props.isGetSectionsLoading}
+        onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+      >
+        Select
+      </Button>
+    </Grid>
+    </>
   }
 
   const renderUpload = (): JSX.Element => {
@@ -341,13 +355,10 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Box clone order={{ xs: 2, sm: 1 }}>
-            <Grid item xs={12} sm={9} className={classes.table}>
+            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
               <BulkEnrollExternalUserConfirmationTable enrollments={enrollments} />
             </Grid>
-          </Box>
-          <Box clone order={{ xs: 1, sm: 2 }}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
               <ConfirmDialog
                 submit={async () => {
                   await doAddExternalEnrollments(sectionId, enrollments.map(({ rowNumber, ...others }) => others))
@@ -359,7 +370,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
                 disabled={isAddExternalEnrollmentsLoading}
               />
             </Grid>
-          </Box>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddExternalEnrollmentsLoading}>
           <Grid container>
@@ -450,12 +460,12 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   return (
-    <div>
+    <Root>
       <Grid>
         <Typography variant='h6' component='h3'>Add Multiple Users Through CSV</Typography>
         <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
         <div>{renderActiveStep(activeStep)}</div>
       </Grid>
-    </div>
+    </Root>
   )
 }

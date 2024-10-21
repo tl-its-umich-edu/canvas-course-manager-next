@@ -1,42 +1,70 @@
 import { useSnackbar } from 'notistack'
+import { styled } from '@mui/material/styles'
 import React, { useEffect, useState } from 'react'
 import {
-  Backdrop, Button, CircularProgress, Grid, List, ListItem, ListItemText, makeStyles, Typography
-} from '@material-ui/core'
+  Backdrop,
+  Button,
+  CircularProgress,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Typography
+} from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import { getCourseSections, unmergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
+import APIErrorMessage from './APIErrorMessage.js'
+import { getCourseSections, unmergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionBase, injectCourseName, CanvasCourseSectionWithCourseName
-} from '../models/canvas'
-import { CCMComponentProps } from '../models/FeatureUIData'
+} from '../models/canvas.js'
+import { CCMComponentProps } from '../models/FeatureUIData.js'
 
-const useStyles = makeStyles((theme) => ({
-  secondaryTypography: {
+const PREFIX = 'CourseSectionList'
+
+const classes = {
+  secondaryTypography: `${PREFIX}-secondaryTypography`,
+  overflowEllipsis: `${PREFIX}-overflowEllipsis`,
+  header: `${PREFIX}-header`,
+  listItem: `${PREFIX}-listItem`,
+  backdrop: `${PREFIX}-backdrop`,
+  listContainer: `${PREFIX}-listContainer`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.secondaryTypography}`]: {
     display: 'inline'
   },
-  overflowEllipsis: {
+
+  [`& .${classes.overflowEllipsis}`]: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: 'block'
   },
-  header: {
+
+  [`& .${classes.header}`]: {
     backgroundColor: '#F8F8F8'
   },
-  listItem: {
+
+  [`& .${classes.listItem}`]: {
     borderStyle: 'solid',
     borderWidth: '1px',
     borderColor: '#EEEEEE',
     marginBottom: '2px'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  listContainer: {
+
+  [`& .${classes.listContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
@@ -50,7 +78,7 @@ export interface CourseSectionListProps extends CCMComponentProps {
 
 function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
-  const classes = useStyles()
+
   const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[]>([])
   const [loadSections, isLoading, error] = usePromise(
     async () => await getCourseSections(props.course.id),
@@ -61,7 +89,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   const [sectionsToUnmerge, setSectionsToUnmerge] = useState<CanvasCourseSection[]>([])
   const [doUnmerge, isUnmerging, unmergeError] = usePromise(
-    async () => await unmergeSections(sectionsToUnmerge),
+    async () => await unmergeSections(sectionsToUnmerge, props.csrfToken.token),
     (unmergedSections: CanvasCourseSectionBase[]) => {
       setSections(sections.filter(section => { return !unmergedSections.map(s => { return s.id }).includes(section.id) }))
       setSectionsToUnmerge([])
@@ -145,7 +173,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   const sectionList = (): JSX.Element => {
     return (
-      <div>
+      <Root>
         <Typography variant='h6' component='h2'>Course Sections</Typography>
         <div className={classes.listContainer}>
           <List>
@@ -159,7 +187,7 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
           </List>
           {loading()}
         </div>
-      </div>
+      </Root>
     )
   }
 

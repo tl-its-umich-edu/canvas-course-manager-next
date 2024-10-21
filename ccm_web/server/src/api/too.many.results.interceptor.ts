@@ -4,7 +4,7 @@ import {
 import { Observable } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 
-import { TooManyResultsError } from './api.errors'
+import { TooManyResultsError } from './api.errors.js'
 
 @Injectable()
 export class TooManyResultsInterceptor implements NestInterceptor {

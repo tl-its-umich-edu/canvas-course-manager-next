@@ -1,33 +1,50 @@
 import { CODE_NUMPAD_ENTER, CODE_RETURN } from 'keycode-js'
+import { styled } from '@mui/material/styles'
 import { useSnackbar } from 'notistack'
 import React, { ChangeEvent, useState } from 'react'
-import { Button, Grid, makeStyles, TextField } from '@material-ui/core'
+import { Button, Grid, TextField } from '@mui/material'
 
-import APIErrorMessage from './APIErrorMessage'
-import { addCourseSections } from '../api'
-import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas'
-import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator'
+import APIErrorMessage from './APIErrorMessage.js'
+import { addCourseSections } from '../api.js'
+import { CanvasCourseBase, CanvasCourseSection } from '../models/canvas.js'
+import { CanvasCoursesSectionNameValidator, ICanvasSectionNameInvalidError } from '../utils/canvasSectionNameValidator.js'
+import { CsrfToken } from '../models/models.js'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'CreateSectionWidget'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  input: `${PREFIX}-input`,
+  button: `${PREFIX}-button`
+}
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     backgroundColor: '#FAFAFA',
     height: 200
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     width: '100%'
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: '100%'
   }
 }))
 
 export interface CreateSectionWidgetProps {
   course: CanvasCourseBase
+  csrfToken: CsrfToken
   onSectionCreated: (newSection: CanvasCourseSection) => void
 }
 
 function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
-  const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
   const [newSectionName, setNewSectionName] = useState<string>('')
   const [isCreating, setIsCreating] = useState(false)
@@ -51,7 +68,7 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
     setIsCreating(true)
     nameValidator.validateSectionName(newSectionName).then(errors => {
       if (errors.length === 0) {
-        addCourseSections(props.course.id, [newSectionName])
+        addCourseSections(props.course.id, [newSectionName], props.csrfToken.token)
           .then(newSections => {
             props.onSectionCreated(newSections[0])
             setNewSectionName('')
@@ -93,18 +110,18 @@ function CreateSectionWidget (props: CreateSectionWidgetProps): JSX.Element {
   }
 
   return (
-    <>
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={9}>
-        <TextField className={classes.input} size='small' label='input the name of the new section' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
+    (<Root>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={9}>
+          <TextField className={classes.input} size='small' label='input the name of the new section' variant='outlined' id="outlined-basic" onChange={newSectionNameChanged} value={newSectionName} onKeyDown={(e) => keyDown(e.code)}/>
+        </Grid>
+        <Grid item xs={12} sm>
+          <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={isCreateDisabled()}>
+            Create
+          </Button>
+        </Grid>
       </Grid>
-      <Grid item xs={12} sm>
-        <Button className={classes.button} variant="contained" color="primary" onClick={createSection} value={newSectionName} disabled={isCreateDisabled()}>
-          Create
-        </Button>
-      </Grid>
-    </Grid>
-    </>
+    </Root>)
   )
 }
 

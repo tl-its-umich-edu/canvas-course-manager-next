@@ -1,31 +1,51 @@
 import React, { useEffect, useState } from 'react'
 
-import { Button, Grid, LinearProgress, makeStyles, Paper, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+
+import { Button, Grid, LinearProgress, Paper, Typography } from '@mui/material'
 
 import { useSnackbar } from 'notistack'
 
-import { adminRoles } from '../models/feature'
-import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData'
-import APIErrorMessage from '../components/APIErrorMessage'
-import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget'
+import { adminRoles } from '../models/feature.js'
+import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData.js'
+import APIErrorMessage from '../components/APIErrorMessage.js'
+import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget.js'
 import {
   CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount,
   CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort
-} from '../models/canvas'
-import { mergeSections } from '../api'
-import usePromise from '../hooks/usePromise'
-import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher'
-import CourseSectionList from '../components/CourseSectionList'
-import Help from '../components/Help'
+} from '../models/canvas.js'
+import { mergeSections } from '../api.js'
+import usePromise from '../hooks/usePromise.js'
+import { CourseNameSearcher, CourseSectionSearcher, SectionNameSearcher, UniqnameSearcher } from '../utils/SectionSearcher.js'
+import CourseSectionList from '../components/CourseSectionList.js'
+import Help from '../components/Help.js'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'MergeSections'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  spacing: `${PREFIX}-spacing`,
+  sectionSelectionContainer: `${PREFIX}-sectionSelectionContainer`,
+  selectorPaper: `${PREFIX}-selectorPaper`,
+  backdrop: `${PREFIX}-backdrop`,
+  submitButton: `${PREFIX}-submitButton`,
+  buttonGroup: `${PREFIX}-buttonGroup`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'left'
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginBottom: theme.spacing(2)
   },
-  sectionSelectionContainer: {
+
+  [`& .${classes.sectionSelectionContainer}`]: {
     position: 'relative',
     zIndex: 0,
     textAlign: 'center',
@@ -33,19 +53,23 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column'
   },
-  selectorPaper: {
+
+  [`& .${classes.selectorPaper}`]: {
     padding: theme.spacing(2),
     height: '100%'
   },
-  backdrop: {
+
+  [`& .${classes.backdrop}`]: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
     position: 'absolute'
   },
-  submitButton: {
+
+  [`& .${classes.submitButton}`]: {
     float: 'right'
   },
-  buttonGroup: {
+
+  [`& .${classes.buttonGroup}`]: {
     marginTop: theme.spacing(1)
   }
 }))
@@ -57,7 +81,6 @@ enum PageState {
 }
 
 function MergeSections (props: CCMComponentProps): JSX.Element {
-  const classes = useStyles()
   const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
@@ -89,7 +112,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doMerge, isMerging, mergeError] = usePromise(
-    async () => await mergeSections(props.globals.course.id, mergableSections())
+    async () => await mergeSections(props.globals.course.id, mergableSections(), props.csrfToken.token),
   )
 
   useEffect(() => {
@@ -175,6 +198,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         sections={unstagedSections !== undefined ? unstagedSections : []}
         selectedSections={selectedUnstagedSections}
         selectionUpdated={setSelectedUnstagedSections}
+        csrfToken={props.csrfToken}
         canUnmerge={false}></SectionSelectorWidget>
     )
   }
@@ -200,6 +224,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           sectionsRemoved={handleUnmergedSections}
           canUnmerge={isAdmin()}
           highlightUnlocked={true}
+          csrfToken={props.csrfToken}
           ></SectionSelectorWidget>
       </div>
     )
@@ -266,11 +291,11 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       {renderComponent()}
-    </div>
+    </Root>
   )
 }
 

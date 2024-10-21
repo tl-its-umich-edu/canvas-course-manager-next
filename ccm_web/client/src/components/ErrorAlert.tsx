@@ -1,11 +1,22 @@
 import React from 'react'
-import { Button, makeStyles, Typography } from '@material-ui/core'
-import ErrorIcon from '@material-ui/icons/Error'
+import { styled } from '@mui/material/styles'
+import { Button, Typography } from '@mui/material'
+import { Error as ErrorIcon } from '@mui/icons-material'
 
-import Alert from './Alert'
+import Alert from './Alert.js'
 
-const useStyles = makeStyles((theme) => ({
-  dialogIcon: {
+const PREFIX = 'ErrorAlert'
+
+const classes = {
+  dialogIcon: `${PREFIX}-dialogIcon`
+}
+
+const StyledErrorIcon = styled(ErrorIcon)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.dialogIcon}`]: {
     color: theme.palette.error.main
   }
 }))
@@ -20,8 +31,6 @@ interface ErrorAlertProps {
 }
 
 export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
-  const classes = useStyles()
-
   const { messages, tryAgain, title, icon, embedded } = props
 
   const defaultMessage = <Typography>Something went wrong. Please try again later.</Typography>
@@ -35,7 +44,7 @@ export default function ErrorAlert (props: ErrorAlertProps): JSX.Element {
   return (
     <Alert
       title={title !== undefined ? title : 'Some errors occurred'}
-      icon={icon !== undefined ? icon : <ErrorIcon className={classes.dialogIcon} fontSize='large' />}
+      icon={icon !== undefined ? icon : <StyledErrorIcon className={classes.dialogIcon} fontSize='large' />}
       embedded={embedded}
     >
       {Boolean(messages?.length) && preface}

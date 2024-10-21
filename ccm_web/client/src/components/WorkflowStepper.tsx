@@ -1,9 +1,21 @@
 import React from 'react'
-import { makeStyles, Step, Stepper as MUIStepper, StepLabel } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Step, Stepper as MUIStepper, StepLabel } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  stepper: {
+const PREFIX = 'WorkflowStepper'
+
+const classes = {
+  stepper: `${PREFIX}-stepper`
+}
+
+const StyledMUIStepper = styled(MUIStepper)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.stepper}`]: {
     textAlign: 'center',
+    padding: 24,
     paddingTop: theme.spacing(2)
   }
 }))
@@ -14,14 +26,13 @@ interface StepperProps {
 }
 
 export default function WorkflowStepper (props: StepperProps): JSX.Element {
-  const classes = useStyles()
   return (
-    <MUIStepper className={classes.stepper} activeStep={props.activeStep} alternativeLabel>
+    <StyledMUIStepper className={classes.stepper} activeStep={props.activeStep} alternativeLabel>
     {
       Object.entries(props.allSteps)
         .filter(([key]) => isNaN(Number(key)))
         .map(([key, value]) => <Step key={value}><StepLabel>{key}</StepLabel></Step>)
     }
-    </MUIStepper>
+    </StyledMUIStepper>
   )
 }

@@ -1,36 +1,57 @@
 import React, { ChangeEvent, useRef } from 'react'
-import { Button, Card, CardContent, makeStyles, Typography } from '@material-ui/core'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
+import { styled } from '@mui/material/styles'
+import { Button, Card, CardContent, Typography } from '@mui/material'
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { useSnackbar } from 'notistack'
 
-interface FileUploadProps {
-  onUploadComplete: (file: File) => void
+const PREFIX = 'FileUpload'
+
+const classes = {
+  root: `${PREFIX}-root`,
+  cardContent: `${PREFIX}-cardContent`,
+  actionsBar: `${PREFIX}-actionsBar`,
+  actionsBarIcon: `${PREFIX}-actionsBarIcon`,
+  input: `${PREFIX}-input`,
+  uploadIcon: `${PREFIX}-uploadIcon`
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     textAlign: 'center'
   },
-  cardContent: {
+
+  [`& .${classes.cardContent}`]: {
     cursor: 'pointer',
     height: 250,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center'
   },
-  actionsBar: {
+
+  [`& .${classes.actionsBar}`]: {
     backgroundColor: '#EEEEEE'
   },
-  actionsBarIcon: {
+
+  [`& .${classes.actionsBarIcon}`]: {
     verticalAlign: 'middle'
   },
-  input: {
+
+  [`& .${classes.input}`]: {
 
   },
-  uploadIcon: {
+
+  [`& .${classes.uploadIcon}`]: {
     color: theme.palette.info.main
   }
 }))
+
+interface FileUploadProps {
+  onUploadComplete: (file: File) => void
+}
 
 function FileUpload (props: FileUploadProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
@@ -58,7 +79,6 @@ function FileUpload (props: FileUploadProps): JSX.Element {
   }
 
   const fileInput = useRef<HTMLInputElement | null>(null)
-  const classes = useStyles()
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
     if (event.target === null || event.target.files === null) return
@@ -66,7 +86,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Card variant='outlined'>
         <CardContent className={classes.cardContent} onDragOver={dragover} onDrop={dragdrop} onClick={(e) => onFileInputClick(e)}>
           <div>
@@ -87,7 +107,7 @@ function FileUpload (props: FileUploadProps): JSX.Element {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </Root>
   )
 }
 

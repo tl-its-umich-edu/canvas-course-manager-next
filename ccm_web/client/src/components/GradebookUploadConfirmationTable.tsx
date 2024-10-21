@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import CustomTable from './CustomTable'
+import CustomTable from './CustomTable.js'
 
 interface StudentGrade {
   rowNumber: number

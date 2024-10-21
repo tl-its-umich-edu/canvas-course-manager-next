@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   jekyll:
-    image: jekyll/jekyll:latest
-    command: jekyll serve --port 4020 --watch --force_polling --verbose
+    image: jekyll/jekyll:4.2.0
+    command: jekyll serve --trace --port 4020 --watch --force_polling --verbose
     ports:
       - 4020:4020
     volumes:
