@@ -55,7 +55,7 @@
     "ltijs": "5.9.4",
     "ltijs-sequelize": "2.4.4",
     "morgan": "1.10.0",
-    "mysql2": "3.9.4",
+    "mysql2": "3.9.8",
     "notistack": "3.0.1",
     "p-limit": "4.0.0",
     "papaparse": "5.4.1",
