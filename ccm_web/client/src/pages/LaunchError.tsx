@@ -14,6 +14,7 @@ export default function LaunchError (props: LaunchErrorProps): JSX.Element {
   const iOSLink = 'https://www.whatismybrowser.com/guides/how-to-enable-cookies/safari-iphone'
   const firefoxLink = 'https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop?redirectslug=enable-and-disable-cookies-website-preferences'
   const edgeLink = 'https://www.whatismybrowser.com/guides/how-to-enable-cookies/edge'
+  const safariLink = 'https://support.apple.com/guide/safari/prevent-cross-site-tracking-sfri40732/mac'
 
   return (
     <Layout>
@@ -25,10 +26,11 @@ export default function LaunchError (props: LaunchErrorProps): JSX.Element {
         </Typography>
         <Typography>
           To resolve this issue, please update your settings
-          for <Link href={chromeLink}>Chrome</Link>, <Link href={macOSLink}>Safari for MacOS</Link>
-          , <Link href={iOSLink}>Safari for iOS</Link>, <Link href={firefoxLink}>Firefox</Link>
-          , <Link href={edgeLink}>Microsoft Edge</Link>,
+          for <Link href={chromeLink} target='_blank' rel="noopener">Chrome</Link>, <Link href={macOSLink} target='_blank' rel="noopener">Safari for MacOS</Link>
+          , <Link href={iOSLink} target='_blank' rel="noopener">Safari for iOS</Link>, <Link href={firefoxLink} target='_blank' rel="noopener">Firefox</Link>
+          , <Link href={edgeLink} target='_blank' rel="noopener">Microsoft Edge</Link>,
           or another preferred browser to allow third-party cookies.
+          Safari should also <Link href={safariLink} target='_blank' rel="noopener">allow cross-site tracking.</Link>
         </Typography>
         <HelpContact {...props} />
       </InlineErrorAlert>
