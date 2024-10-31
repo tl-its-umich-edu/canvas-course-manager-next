@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { Backdrop, Button, CircularProgress, Grid, Typography } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Typography, Link } from '@mui/material'
 
 import APIErrorMessage from './APIErrorMessage.js'
 import APIErrorsTable from './APIErrorsTable.js'
@@ -246,6 +246,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       'If they do not have an account in Canvas, they will be sent an email ' +
       'invitation to choose a login method and added to Canvas before they are enrolled in the section.'
     )
+    const roleLink = 'https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=192'
     const requirements = (
       <>
       <Typography>
@@ -259,7 +260,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </li>
         <li>
           <Typography>
-            &quot;{ROLE_HEADER.toLowerCase()}&quot; with one of the Canvas roles you are allowed to enroll users with (see documentation);
+            &quot;{ROLE_HEADER.toLowerCase()}&quot; with one of the Canvas roles you are allowed to enroll users with <Link href={roleLink} target='_blank' rel="noopener">(see documentation)</Link>;
           </Typography>
         </li>
         <li>
