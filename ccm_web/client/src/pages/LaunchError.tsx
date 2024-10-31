@@ -10,11 +10,11 @@ interface LaunchErrorProps extends HelpContactProps {}
 
 export default function LaunchError (props: LaunchErrorProps): JSX.Element {
   const chromeLink = 'https://support.google.com/chrome/answer/95647?hl=en'
-  const macOSLink = 'https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/12.0/mac/10.14'
-  const iOSLink = 'https://www.whatismybrowser.com/guides/how-to-enable-cookies/safari-iphone'
+  const safariMacOSLink = 'https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/12.0/mac/10.14'
+  const safariiOSLink = 'https://www.whatismybrowser.com/guides/how-to-enable-cookies/safari-iphone'
   const firefoxLink = 'https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop?redirectslug=enable-and-disable-cookies-website-preferences'
   const edgeLink = 'https://www.whatismybrowser.com/guides/how-to-enable-cookies/edge'
-  const safariLink = 'https://support.apple.com/guide/safari/prevent-cross-site-tracking-sfri40732/mac'
+  const safariCrossSiteTrackingLink = 'https://support.apple.com/guide/safari/prevent-cross-site-tracking-sfri40732/mac'
 
   return (
     <Layout>
@@ -26,11 +26,11 @@ export default function LaunchError (props: LaunchErrorProps): JSX.Element {
         </Typography>
         <Typography>
           To resolve this issue, please update your settings
-          for <Link href={chromeLink} target='_blank' rel="noopener">Chrome</Link>, <Link href={macOSLink} target='_blank' rel="noopener">Safari for MacOS</Link>
-          , <Link href={iOSLink} target='_blank' rel="noopener">Safari for iOS</Link>, <Link href={firefoxLink} target='_blank' rel="noopener">Firefox</Link>
+          for <Link href={chromeLink} target='_blank' rel="noopener">Chrome</Link>, <Link href={safariMacOSLink} target='_blank' rel="noopener">Safari for MacOS</Link>
+          , <Link href={safariiOSLink} target='_blank' rel="noopener">Safari for iOS</Link>, <Link href={firefoxLink} target='_blank' rel="noopener">Firefox</Link>
           , <Link href={edgeLink} target='_blank' rel="noopener">Microsoft Edge</Link>,
           or another preferred browser to allow third-party cookies.
-          Safari should also <Link href={safariLink} target='_blank' rel="noopener">allow cross-site tracking.</Link>
+          Safari should also <Link href={safariCrossSiteTrackingLink} target='_blank' rel="noopener">allow cross-site tracking.</Link>
         </Typography>
         <HelpContact {...props} />
       </InlineErrorAlert>
