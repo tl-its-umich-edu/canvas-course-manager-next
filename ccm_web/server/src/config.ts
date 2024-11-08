@@ -12,6 +12,9 @@ export interface ServerConfig {
   tokenSecret: string
   csrfSecret: string
   maxAgeInSec: number
+  googleAnalyticsId: string
+  oneTrustScriptDomain: string
+  allowedScriptDomains: string[]
 }
 
 interface LTIConfig {
@@ -75,6 +78,8 @@ const isInteger = (v: number): boolean => Number.isInteger(v)
 const isLogLevel = (v: unknown): v is LogLevel => {
   return isString(v) && ['debug', 'info', 'warn', 'error'].includes(v)
 }
+const isStringArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(isString);
+
 const isCustomCanvasRoles = (v: unknown): v is CustomCanvasRoleData => {
   if (typeof v === 'object' && v !== null) {
     for (const [key, value] of Object.entries(v)) {
@@ -149,7 +154,10 @@ export function validateConfig (): Config {
       csrfSecret: validate<string>('CSRF_SECRET', env.COOKIE_SECRET, isString, [isNotEmpty], 'CSRFSECRET'),
       maxAgeInSec: validate<number>(
         'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
-      )
+      ),
+      googleAnalyticsId: validate<string>('GOOGLE_ANALYTICS_ID', env.GOOGLE_ANALYTICS_ID, isString, [isNotEmpty]),
+      oneTrustScriptDomain: validate<string>('ONE_TRUST_DOMAIN', env.ONE_TRUST_DOMAIN, isString, [isNotEmpty]),
+      allowedScriptDomains: JSON.parse(env.ALLOWED_SCRIPT_DOMAINS ?? '')
     }
     lti = {
       encryptionKey: validate<string>('LTI_ENCRYPTION_KEY', env.LTI_ENCRYPTION_KEY, isString, [isNotEmpty], 'LTIKEY'),
