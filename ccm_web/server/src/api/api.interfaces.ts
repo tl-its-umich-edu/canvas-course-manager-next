@@ -15,6 +15,8 @@ export interface Globals {
     roles: string[]
   }
   baseHelpURL: string
+  googleAnalyticsId: string
+  oneTrustScriptDomain: string
 }
 
 export interface APIErrorPayload {
