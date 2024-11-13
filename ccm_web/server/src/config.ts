@@ -63,6 +63,7 @@ export interface Config {
   invitation: InvitationConfig
   db: DatabaseConfig
   baseHelpURL: string
+  privacyURL: string
 }
 
 const logger = baseLogger.child({ filePath: import.meta.filename })
@@ -141,6 +142,7 @@ export function validateConfig (): Config {
   let invitation
   let db
   let baseHelpURL
+  let privacyURL
 
   try {
     server = {
@@ -197,9 +199,10 @@ export function validateConfig (): Config {
       password: validate<string>('DB_PASSWORD', env.DB_PASSWORD, isString, [isNotEmpty])
     }
     baseHelpURL = validate<string>('HELP_URL', env.HELP_URL, isString, [isNotEmpty], 'http://localhost:4020')
+    privacyURL = validate<string>('PRIVACY_URL', env.PRIVACY_URL, isString, [isNotEmpty])
   } catch (error) {
     logger.error(error)
     throw new Error(String(error))
   }
-  return { server, lti, canvas, invitation, db, baseHelpURL }
+  return { server, lti, canvas, invitation, db, baseHelpURL, privacyURL}
 }

@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { Request, Response } from 'express';
 
 import { AppModule } from './app.module.js'
 
@@ -72,10 +73,15 @@ async function bootstrap (): Promise<void> {
 
   const configService = app.get<ConfigService<Config, true>>(ConfigService)
   const serverConfig = configService.get('server', { infer: true })
+  const privacyURL = configService.get('privacyURL', { infer: true })
 
   app.set('trust proxy', 1)
 
   doAppCoreSetup(app, serverConfig)
+
+  app.use('/privacy', (req: Request, res: Response) => {
+    res.redirect(privacyURL);
+  });
 
   if (isDev) {
     const swaggerConfig = new DocumentBuilder()

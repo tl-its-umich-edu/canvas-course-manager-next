@@ -90,6 +90,7 @@ export class AppModule implements NestModule {
           'frame-ancestors': [this.frameDomain],
           'script-src': ["'self'", ...this.allowedScriptDomains],
           'connect-src': ["'self'", ...this.allowedScriptDomains],
+          'img-src': ["'self'", ...this.allowedScriptDomains],
         }
       }
     }))
