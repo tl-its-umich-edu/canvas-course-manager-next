@@ -88,7 +88,7 @@
     "@types/passport-jwt": "4.0.1",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
-    "@types/react-router-dom": "^5.3.3",
+    "@types/react-router-dom": "5.3.3",
     "@types/supertest": "6.0.2",
     "@types/webpack": "5.28.5",
     "@typescript-eslint/eslint-plugin": "6.4.0",
