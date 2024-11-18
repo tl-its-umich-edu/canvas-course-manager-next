@@ -51,7 +51,7 @@ jobs:
     
   release: 
      # Making sure that release only runs for tag pushes
-    if: startsWith(github.ref, 'refs/tags/') && github.repository_owner == 'tl-its-umich-edu'
+    if: startsWith(github.ref, 'refs/tags/') && (github.repository_owner == 'tl-its-umich-edu')
     needs: build # This ensures the build job finishes successfully before starting this job
     runs-on: ubuntu-latest
     steps:
