@@ -4,11 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - PORT=4000
     environment:
-      - PORT=4000
-      - DEBUG=True
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - DEBUG=${DEBUG:-True}
     env_file: ${HOME}/secrets/ccm/.env
     ports:
       - 4000:4000
