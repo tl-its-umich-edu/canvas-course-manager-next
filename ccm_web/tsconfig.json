@@ -2,10 +2,7 @@
   /* Visit https://aka.ms/tsconfig.json to read more about this file */
   "compilerOptions": {
     "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "incremental": true,
-    "target": "ES2022",
     "module": "node16",
     "moduleResolution": "node16",
     "resolveJsonModule": true,
@@ -14,20 +11,20 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "outDir": "./dist"
-  },
-  "ts-node": {
-    // Tell ts-node CLI to install the --loader automatically, explained below
-    "esm": true,
-    "transpileOnly": true
+    "outDir": "./dist",
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "ES2022"
+    ],
+    "jsx": "react-jsx",
+    "sourceMap": true,
   },
   "include": [
-    /* client is compiled separately through webpack. */
-    "server",
-    /* Including webpack and .eslintrc.js to make linter happy. */
+    "src",
     "webpack",
     ".eslintrc.js"
   ]

@@ -1,0 +1,11 @@
+gunicorn==23.0.0
+mysqlclient==2.2.7
+
+#Django
+Django==5.1.4
+django-mysql==4.15.0
+django-webpack-loader==3.1.1  
+
+debugpy==1.8.11
+
+whitenoise==6.8.2 # For serving static files

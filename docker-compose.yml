@@ -2,25 +2,19 @@ services:
 
   web:
     build:
-      context: ./ccm_web/
-      dockerfile: ./Dockerfile
-      args:
-        - PORT=4000
-      target: base
-    working_dir: /base/
+      context: .
+      dockerfile: Dockerfile
     environment:
-      - PORT=4000
-      - NODE_ENV=development
-    env_file: .env
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - DEBUG=${DEBUG:-True}
+    env_file: ${HOME}/secrets/ccm/.env
     ports:
       - 4000:4000
-      - 9229:9229
+      - 4020:4020
     volumes:
-      - ./ccm_web/server:/base/server:z
-      - ./ccm_web/client:/base/client:z
-      # Allows for inspection/deletion of webpack bundles
-      - ./ccm_web/dist:/base/dist:z
-    command: npm run dev
+      - ./ccm_web/client/src:/code/ccm_web/client/src
+      - ./backend:/code/backend
+      - ${HOME}/secrets/ccm:/secrets
     container_name: ccm_web
     depends_on:
       - database
