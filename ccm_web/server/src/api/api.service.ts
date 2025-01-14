@@ -52,7 +52,9 @@ export class APIService {
         id: sessionData.data.course.id,
         roles: sessionData.data.course.roles
       },
-      baseHelpURL: this.configService.get('baseHelpURL', { infer: true })
+      baseHelpURL: this.configService.get('baseHelpURL', { infer: true }),
+      googleAnalyticsId: this.configService.get('server.googleAnalyticsId', { infer: true }),
+      oneTrustScriptDomain: this.configService.get('server.oneTrustScriptDomain', { infer: true })
     }
   }
 

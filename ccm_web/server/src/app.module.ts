@@ -76,15 +76,22 @@ const logger = baseLogger.child({ filePath: import.meta.filename })
 })
 export class AppModule implements NestModule {
   private readonly frameDomain: string
+  private readonly allowedScriptDomains: string[]
 
   constructor (private readonly configService: ConfigService<Config, true>) {
     this.frameDomain = this.configService.get('server.frameDomain', { infer: true })
+    this.allowedScriptDomains = this.configService.get('server.allowedScriptDomains', { infer: true })
   }
 
   configure (consumer: MiddlewareConsumer): void {
     consumer.apply(helmet({
       contentSecurityPolicy: {
-        directives: { 'frame-ancestors': [this.frameDomain] }
+        directives: { 
+          'frame-ancestors': [this.frameDomain],
+          'script-src': ["'self'", ...this.allowedScriptDomains],
+          'connect-src': ["'self'", ...this.allowedScriptDomains],
+          'img-src': ["'self'", ...this.allowedScriptDomains],
+        }
       }
     }))
     // Exclude ltijs routes, which are already protected by helmet
