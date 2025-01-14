@@ -1,14 +1,15 @@
 import path from 'node:path'
 import * as webpack from 'webpack'
-import { CleanWebpackPlugin } from 'clean-webpack-plugin'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
+import BundleTrackerPlugin from 'webpack-bundle-tracker'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
 const __dirname = import.meta.dirname
-const clientPath = path.resolve(__dirname, '..', 'client')
+const frontendPath = path.resolve(__dirname, '..')
 
 const commonConfig: webpack.Configuration = {
   optimization: { usedExports: true },
-  entry: path.resolve(clientPath, 'src', 'index.tsx'),
+  context: frontendPath,
+  entry: path.resolve('client','src', 'index.tsx'),
   module: {
     rules: [
       {
@@ -16,14 +17,14 @@ const commonConfig: webpack.Configuration = {
         use: {
           loader: 'ts-loader',
           options: {
-            configFile: path.resolve(clientPath, 'tsconfig.json')
+            configFile: path.resolve(frontendPath, 'tsconfig.json')
           }
         },
         exclude: /node_modules/
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
+        use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -32,6 +33,7 @@ const commonConfig: webpack.Configuration = {
     ]
   },
   resolve: {
+    modules: ['node_modules'],
     extensions: ['.tsx', '.ts', '.js'],
     extensionAlias: {
       '.js': ['.ts', '.js', '.tsx', '.jsx'],
@@ -39,18 +41,16 @@ const commonConfig: webpack.Configuration = {
     },
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(clientPath, 'public', 'index.html'),
-      inject: 'body',
-      title: 'Canvas Course Manager',
-      favicon: path.resolve(clientPath, 'public', 'favicon.ico')
-    }),
-    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false })
+    new BundleTrackerPlugin({ path: frontendPath, filename: 'webpack-stats.json' }),
+    new MiniCssExtractPlugin({
+      filename: '[name]-[fullhash].css',
+      chunkFilename: '[name]-[chunkhash].css',
+    })
   ],
   output: {
+    path: path.resolve('./bundles/'),
     filename: '[name]-[chunkhash].js',
-    path: path.resolve(__dirname, '..', 'dist', 'client'),
-    publicPath: '/'
+    chunkFilename: '[name]-[chunkhash].js'
   }
 }
 

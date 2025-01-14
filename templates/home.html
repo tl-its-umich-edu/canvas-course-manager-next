@@ -1,0 +1,13 @@
+{% load render_bundle from webpack_loader %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    {% render_bundle 'main' 'css' %}
+    <title>Canvas Course Manager</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    {% render_bundle 'main' 'js' %}
+  </body>
+</html>

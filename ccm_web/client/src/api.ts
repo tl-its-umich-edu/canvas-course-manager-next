@@ -5,8 +5,35 @@ import {
 import { ExternalUserSuccess } from './models/externalUser.js'
 import { Globals, CsrfToken } from './models/models.js'
 import handleErrors, { CanvasError } from './utils/handleErrors.js'
+import { RoleEnum } from './models/models.js'
 
 const jsonMimeType = 'application/json'
+
+//the constants ct, glo, and co will be deleted
+const ct = {
+  "token": "990330bd6766b3f7025c"
+}
+
+const glo= {
+  "environment": "development" as "development",
+  "canvasURL": "https://umich.canvas.com",
+  "user": {
+      "loginId": "janedoe",
+      "hasCanvasToken": true
+  },
+  "userLoginId": "jdoesir",
+  "course": {
+      "id": 403334,
+      "roles": [
+          RoleEnum.Teacher,
+          RoleEnum['Account Admin']
+      ]
+  },
+  "baseHelpURL": "https://ccm.tl-pages.tl.it.umich.edu",
+  "googleAnalyticsId": "ASBEDBD",
+  "oneTrustScriptDomain": "dhdhdhd"
+}
+const co = {"id":403334,"name":"CCM Test Courses","enrollment_term_id":287}
 
 const addStateChangeCallHeaders = (csrfToken: string): RequestInit => {
   const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType], ['x-csrf-token', csrfToken]]
@@ -43,10 +70,11 @@ const getPut = (body: string, csrfToken: string): RequestInit => {
 }
 
 export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => {
-  const request = getGet()
-  const resp = await fetch(`/api/course/${courseId}`, request)
-  await handleErrors(resp)
-  return await resp.json()
+  // const request = getGet()
+  // const resp = await fetch(`/api/course/${courseId}`, request)
+  // await handleErrors(resp)
+  // return await resp.json()
+  return co
 }
 
 export const setCourseName = async (courseId: number, newName: string, csrfToken: string): Promise<CanvasCourseBase> => {
@@ -57,10 +85,11 @@ export const setCourseName = async (courseId: number, newName: string, csrfToken
 }
 
 export const getGlobals = async (): Promise<Globals> => {
-  const request = getGet()
-  const resp = await fetch('/api/globals', request)
-  await handleErrors(resp)
-  return await resp.json()
+//   const request = getGet()
+//   const resp = await fetch('/api/globals', request)
+//   await handleErrors(resp)
+//   return await resp.json()
+     return await glo
 }
 
 export const getCourseSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
@@ -113,10 +142,11 @@ export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSec
 }
 
 export const getCSRFTokenResponse = async (): Promise<CsrfToken> => {
-  const request = getGet()
-  const resp = await fetch('/auth/csrfToken', request)
-  await handleErrors(resp)
-  return await resp.json()
+  // const request = getGet()
+  // const resp = await fetch('/auth/csrfToken', request)
+  // await handleErrors(resp)
+  // return await resp.json()
+  return ct
 }
 
 export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
