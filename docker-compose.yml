@@ -11,6 +11,7 @@ services:
     ports:
       - 4000:4000
       - 4020:4020
+      - 4030:4030
     volumes:
       - ./ccm_web/client/src:/code/ccm_web/client/src
       - ./backend:/code/backend

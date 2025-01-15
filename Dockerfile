@@ -37,6 +37,12 @@ RUN npm install
 
 WORKDIR /code
 
+COPY backend ./backend
+COPY templates ./templates
+COPY manage.py start.sh ./
+
+RUN python manage.py collectstatic --verbosity 0
+
 # Sets the local timezone of the docker image
 ARG TZ
 ENV TZ ${TZ:-America/Detroit}
