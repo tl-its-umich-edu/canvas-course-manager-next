@@ -27,7 +27,10 @@ const StyledGrid = styled(Grid)((
   },
 
   [`& .${classes.spacing}`]: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'  // Ensure items are spaced out
   },
 
   [`& .${classes.devModePaper}`]: {
@@ -71,7 +74,10 @@ export default function Layout (props: LayoutProps): JSX.Element {
     <StyledGrid container className={classes.root}>
       <Grid item sm={12} md={10} lg={9}>
         {devBlock}
-        <div className={classes.spacing}><Breadcrumbs {...props} /></div>
+        <div className={classes.spacing}>
+          <Breadcrumbs {...props} />
+          <Link href="/admin/">Admin</Link> {/* Move admin link farther right */}
+        </div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />
         <footer>

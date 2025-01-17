@@ -4,6 +4,7 @@
   <head>
     <meta charset="UTF-8">
     {% render_bundle 'main' 'css' %}
+    {{ ccm_globals|json_script:"ccm_globals" }}
     <title>Canvas Course Manager</title>
   </head>
   <body>
