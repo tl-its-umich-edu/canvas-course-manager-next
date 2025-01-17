@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+APPEND_SLASH=False
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 
@@ -44,17 +44,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webpack_loader',
+    "lti_tool"
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'lti_tool.middleware.LtiLaunchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -185,3 +188,23 @@ LOGGING = {
     }
 }
 
+# Set CSP_FRAME_SRC to the your Canvas domains
+CSP_FRAME_ANCESTORS = ["'self'",] + os.getenv('CSP_FRAME_ANCESTORS', '').split(',')
+# This is currently unsafe-inline because of PyLTI scripts. This may be fixed in the future.
+CSP_SCRIPT_SRC = ["'self'", "https:", "'unsafe-inline'"]
+CSP_IMG_SRC = ["'self'", "data:"]
+CSP_FONT_SRC = ["'self'"]
+# Allow inline styles. There are a few styles that come up in the report so it seems easier to just allow unsafe-inline here.
+CSP_STYLE_SRC = ["'self'", "https:", "'unsafe-inline'"]
+
+
+# making LTI launch smooth
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", False)
+if CSRF_COOKIE_SECURE:
+    SESSION_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Enables Proxies that set headers
+    USE_X_FORWARDED_HOST = os.getenv('USE_X_FORWARDED_HOST', True)
+
+SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", 'None')
+CSRF_COOKIE_SAMESITE = os.getenv("CSRF_COOKIE_SAMESITE", 'None')
