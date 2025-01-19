@@ -58,12 +58,56 @@ In order to test documentation changes locally, follow the steps below:
     ```
     docker compose -f docker-compose-gh-pages.yml up`
     ```
-3. Navigate to `http://locahost:4020` in your browser.
-Recent changes to files will be automatically deployed; the changes will be displayed after a browser refresh.
     
 GitHub follows Jekyll structure for deploying.
 See [here](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll)
 for more info.
+
+### LTI configuration
+
+
+Explicit steps for setting up CCM in a development environment.
+
+##### Start local ngrok server
+
+1. Start an ngrok/loophole instance for the application, which will run on port 4000.
+   `ngrok http 4000` or `loophole http 4000 --hostname=<your-hostname>
+2. Make note of the hostname of the ngrok instance for use later.  The hostname may be found in the console output or it can be obtained from the ngrok API.  For example, if `jq` is installed, use the command:
+   `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
+   ***Note:*** Get only the hostname, not the `http`/`https` scheme prefix.
+
+##### Create LTI configuration file
+
+3. Create an LTI key JSON file, based on the sample provided.
+   `cp config/lti_dev_key_sample.json lti_dev_key.json`
+4. Edit the new `lti_dev_key.json` file to add or replace settings from the sample.  Replace all occurrences of `{ccm_app_hostname}` with the ngrok/loophole hostname copied in the earlier step.
+5. Also in `lti_dev_key.json` replace `<uuid>` with 1233.
+
+##### Configure Canvas LTI key
+
+6. Go to Canvas "Developer Keys" management page available from the "Admin" page for your account.  Click the button for "+ Developer Key", then "+ LTI Key".
+7. When the "Key Settings" modal appears, select "Paste JSON" from the "Method" menu in the "Configure" section.  Then copy the contents of `config/lti_dev_key.json` and paste it into the "LTI 1.3 Configuration" field.
+8. *Recommended:* Enter a name for the application in the "Key Name" field and an email address in the "Owner Email" field.
+9. Click the "Save" button. This will create a new LTI Registration with client_id. `Copy the client_id`
+10. Go To the `Settings` option from the Admin page --> Apps --> VIew App Configuration --> +App --> Choose Configuration type `By Client_id` --> Paste the client_id from Step 8
+11. Copy the Deployment_id by searching for the LTI tool you just added to the Canvas, Click setting button next it and right `click copy 'Deployment Id'`
+12. Managing LTI registration to Tool: The LTI registration is completely handled from the Django Admin Console, so we need `UUID` from LTI Tool and `Client_id` and `Deployment_id` from the Canvas. So The Commandline option will help you in various usecases to setup LTI registration. 
+    1. Creating new LTI registration. This will generate  UUID now go to your Tool Canvas LTI Registration and copy this UUID in OpenID Connect Initiation Url after /init/ inplace of /1233/
+    ```sh 
+    docker exec -it ccm_web python manage.py manage_lti_key --client_id=<client_id> --deployment_id=<deployment_id> --name=<name-given-in-tool>
+    ```
+       
+    2. Incase of Canvas Prod sync wiped out your LTI tool configuration but you still have existing LTI configuration in you local Database and just simply want to update the client_id and deployment_id follow the steps Step 3-10 get Client_id and Deployment_id and after use the command below to update based the LTI registration id in the table `lti_tool_ltiregistration`
+     ```sh
+     docker exec -it ccm_web python manage.py manage_lti_key --action=update --client_id=17700000000000200 --id=18 --deployment_id=1233:12334
+     ```
+      where id=18 is the Database Id in the table `lti_tool_ltiregistration` where you want to update client_id.
+    3. Simply want to get the UUID based on the client_id 
+    ```sh 
+    docker exec -it ccm_web python manage.py manage_lti_key --action=get --client_id=17700000000000200
+    ```
+    UUID is stored in the Database looks like and alpha numeric number without dashes, but LTI tool expects UUID with dashes. This is slight detail you can't simply copy/paste the UUID from Database.
+13. The CommandLine option might be only once during the Non-prod Deployment but for locally development you might repeate. 
 
 #### Deploying to GitHub Pages
 
