@@ -19,6 +19,7 @@ services:
     container_name: ccm_web
     depends_on:
       - database
+      - redis
 
   database:
     image: mysql:8-oracle
@@ -35,3 +36,16 @@ services:
     volumes:
       - ./.mysql_data:/var/lib/mysql
     container_name: ccm_db
+
+  redis:
+    image: redis:7
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ccm-redis-data:/data:ro
+    command: redis-server --stop-writes-on-bgsave-error no --save ""
+    container_name: ccm_redis
+
+volumes:
+  ccm-redis-data:

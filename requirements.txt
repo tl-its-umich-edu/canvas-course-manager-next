@@ -12,3 +12,4 @@ djangorestframework==3.15.2
 debugpy==1.8.11 # For debugging
 
 whitenoise==6.8.2 # For serving static files
+redis==5.2.1 # For caching

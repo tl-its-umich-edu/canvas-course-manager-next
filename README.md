@@ -108,6 +108,12 @@ Explicit steps for setting up CCM in a development environment.
     ```
     UUID is stored in the Database looks like and alpha numeric number without dashes, but LTI tool expects UUID with dashes. This is slight detail you can't simply copy/paste the UUID from Database.
 13. The CommandLine option might be only once during the Non-prod Deployment but for locally development you might repeate. 
+14. The app has redis caching and `ccm_redis` container should we running with `docker compose up`. To test if redis connection is working
+    ```sh
+        docker exec -it ccm_web /code/manage.py shell
+        #the above command open a command prompt and type below statement and it should return test_value
+        from django.core.cache import cache; cache.set('test_key', 'test_value', timeout=60);cache.get('test_key')
+    ```
 
 #### Deploying to GitHub Pages
 
