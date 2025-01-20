@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Union
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -6,15 +6,15 @@ from django.http import HttpRequest
 from .serializer import GlobalsUserSerializer
 
 
-def ccm_globals(request: HttpRequest) -> Dict[str, Any]:
-    user_data = GlobalsUserSerializer(request.user).data if request.user.is_authenticated else None
+def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], None]]:
+    user_data: Optional[Dict[str, Any]] = GlobalsUserSerializer(request.user).data if request.user.is_authenticated else None
     if user_data:
         user_data['hasCanvasToken'] = True  # Hardcode until Canvas OAuth integration
-        userLoginID = user_data.get('loginId')  # Get the value from user_data['loginId']
+        userLoginID: Optional[str] = user_data.get('loginId')  # Get the value from user_data['loginId']
     else:
         userLoginID = None
     # Access the course data from the session
-    course_data = request.session.get('course', None)
+    course_data: Optional[Dict[str, Any]] = request.session.get('course', None)
 
     return {
       'ccm_globals': {

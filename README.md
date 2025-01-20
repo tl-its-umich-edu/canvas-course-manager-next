@@ -114,6 +114,7 @@ Explicit steps for setting up CCM in a development environment.
         #the above command open a command prompt and type below statement and it should return test_value
         from django.core.cache import cache; cache.set('test_key', 'test_value', timeout=60);cache.get('test_key')
     ```
+15. Grant yourself admin access by updating the `auth_user` table and setting `is_staff` to 1. Optionally, you can also set `is_superuser` to 1. Currently, only enabling the `is_staff` permission will grant access to the Admin console.
 
 #### Deploying to GitHub Pages
 
