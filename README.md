@@ -91,7 +91,8 @@ Explicit steps for setting up CCM in a development environment.
 9. Click the "Save" button. This will create a new LTI Registration with client_id. `Copy the client_id`
 10. Go To the `Settings` option from the Admin page --> Apps --> VIew App Configuration --> +App --> Choose Configuration type `By Client_id` --> Paste the client_id from Step 8
 11. Copy the Deployment_id by searching for the LTI tool you just added to the Canvas, Click setting button next it and right `click copy 'Deployment Id'`
-12. Managing LTI registration to Tool: The LTI registration is completely handled from the Django Admin Console, so we need `UUID` from LTI Tool and `Client_id` and `Deployment_id` from the Canvas. So the Commandline option will help you in various use cases to set up LTI registration.  Please note *Issuer* and *Auth domain names* are different. For example, configuration in Canvas Test takes these values: `issuer=canvas.test.instructure.com` then `Auth URL=sso.test.canvaslms.com`. More [info](https://canvas.instructure.com/doc/api/file.lti_launch_overview.html).
+12. Run this command `docker exec -it ccm_web python manage.py rotate_keys`. This will create the Private and Public key for LTI
+13. Managing LTI registration to Tool: The LTI registration is completely handled from the Django Admin Console, so we need `UUID` from LTI Tool and `Client_id` and `Deployment_id` from the Canvas. So the Commandline option will help you in various use cases to set up LTI registration.  Please note *Issuer* and *Auth domain names* are different. For example, configuration in Canvas Test takes these values: `issuer=canvas.test.instructure.com` then `Auth URL=sso.test.canvaslms.com`. More [info](https://canvas.instructure.com/doc/api/file.lti_launch_overview.html).
     1. Creating new LTI registration. This will generate  UUID now go to your Tool Canvas LTI Registration and copy this UUID in OpenID Connect Initiation Url after /init/ inplace of /1233/
     ```sh 
     docker exec -it ccm_web python manage.py manage_lti_key --action=create --client_id=<client_id> --deployment_id=<deployment_id> --name=<name-given-in-tool>
@@ -107,14 +108,14 @@ Explicit steps for setting up CCM in a development environment.
     docker exec -it ccm_web python manage.py manage_lti_key --action=get --client_id=17700000000000200
     ```
     UUID is stored in the Database looks like and alpha numeric number without dashes, but LTI tool expects UUID with dashes. This is slight detail you can't simply copy/paste the UUID from Database.
-13. The CommandLine option might be only once during the Non-prod Deployment but for locally development you might repeat. 
-14. The app has redis caching and `ccm_redis` container should we running with `docker compose up`. To test if redis connection is working
+14. The CommandLine option might be only once during the Non-prod Deployment but for locally development you might repeat. 
+15. The app has redis caching and `ccm_redis` container should we running with `docker compose up`. To test if redis connection is working
     ```sh
         docker exec -it ccm_web /code/manage.py shell
         #the above command open a command prompt and type below statement and it should return test_value
         from django.core.cache import cache; cache.set('test_key', 'test_value', timeout=60);cache.get('test_key')
     ```
-15. Grant yourself admin access by updating the `auth_user` table and setting `is_staff` to 1. Optionally, you can also set `is_superuser` to 1. Currently, only enabling the `is_staff` permission will grant access to the Admin console.
+16. Grant yourself admin access by updating the `auth_user` table and setting `is_staff` to 1. Optionally, you can also set `is_superuser` to 1. Currently, only enabling the `is_staff` permission will grant access to the Admin console.
 
 #### Deploying to GitHub Pages
 
