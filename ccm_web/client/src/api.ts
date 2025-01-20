@@ -19,7 +19,8 @@ const glo= {
   "canvasURL": "https://umich.canvas.com",
   "user": {
       "loginId": "janedoe",
-      "hasCanvasToken": true
+      "hasCanvasToken": true,
+      "isStaff": true
   },
   "userLoginId": "jdoesir",
   "course": {

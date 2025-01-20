@@ -11,6 +11,7 @@ class GlobalsUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['loginId', 'is_staff']
+        fields = ['loginId', 'isStaff']  # Change is_staff to isStaff
     
     loginId = serializers.CharField(source='username')
+    isStaff = serializers.BooleanField(source='is_staff')  # Add isStaff field

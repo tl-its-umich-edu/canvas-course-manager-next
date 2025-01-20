@@ -45,6 +45,7 @@ const StyledGrid = styled(Grid)((
 
 interface LayoutProps extends BreadcrumbsProps {
   devMode?: boolean
+  isAdmin?: boolean
   children: React.ReactNode
   csrfToken?: CsrfToken
 }
@@ -76,7 +77,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
         {devBlock}
         <div className={classes.spacing}>
           <Breadcrumbs {...props} />
-          <Link href="/admin/">Admin</Link> {/* Move admin link farther right */}
+            {props.isAdmin && <Link href="/admin/">Admin</Link>}{/* Move admin link farther right */}
         </div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />

@@ -15,6 +15,13 @@ const helpContactProps = {
   helpLink: 'https://its.umich.edu/help'
 }
 
+const ccmGlobalId = 'ccm_globals'
+const ccmGlobalEl = document.getElementById(ccmGlobalId)
+if (ccmGlobalEl === null) throw new Error(`'${ccmGlobalId}' was not found`)
+if (ccmGlobalEl.textContent === null) throw new Error(`'${ccmGlobalId}' has no content`)
+const ccmGlobals = Object.freeze(JSON.parse(ccmGlobalEl.textContent))
+
+
 const root = createRoot(document.getElementById('root') as Element)
 root.render(
   <React.StrictMode>
@@ -25,7 +32,7 @@ root.render(
           <Routes>
             <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
             <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
-            <Route path='*' element={<App />}/>
+            <Route path='*' element={<App ccmGlobals={ccmGlobals} />}/>
           </Routes>
         </Router>
       </SnackbarProvider>

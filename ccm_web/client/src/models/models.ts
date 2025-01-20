@@ -29,6 +29,7 @@ export enum RoleEnum {
 export interface User {
   loginId: string
   hasCanvasToken: boolean
+  isStaff: boolean
 }
 
 export interface Course {
