@@ -13,7 +13,8 @@ const classes = {
   root: `${PREFIX}-root`,
   spacing: `${PREFIX}-spacing`,
   devModePaper: `${PREFIX}-devModePaper`,
-  swaggerLink: `${PREFIX}-swaggerLink`
+  swaggerLink: `${PREFIX}-swaggerLink`,
+  breadcrumbsContainer: `${PREFIX}-breadcrumbsContainer`
 }
 
 const StyledGrid = styled(Grid)((
@@ -27,10 +28,7 @@ const StyledGrid = styled(Grid)((
   },
 
   [`& .${classes.spacing}`]: {
-    marginBottom: theme.spacing(2),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'  // Ensure items are spaced out
+    marginBottom: theme.spacing(2)
   },
 
   [`& .${classes.devModePaper}`]: {
@@ -40,6 +38,12 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.swaggerLink}`]: {
     display: 'block',
     clear: 'both'
+  },
+
+  [`& .${classes.breadcrumbsContainer}`]: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 }))
 
@@ -75,9 +79,9 @@ export default function Layout (props: LayoutProps): JSX.Element {
     <StyledGrid container className={classes.root}>
       <Grid item sm={12} md={10} lg={9}>
         {devBlock}
-        <div className={classes.spacing}>
+        <div className={`${classes.spacing} ${classes.breadcrumbsContainer}`}>
           <Breadcrumbs {...props} />
-            {props.isAdmin && <Link href="/admin/">Admin</Link>}{/* Move admin link farther right */}
+          {props.isAdmin && <Link href="/admin/">Admin</Link>}
         </div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />
