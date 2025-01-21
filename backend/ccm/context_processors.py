@@ -25,6 +25,6 @@ def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], No
         'course': course_data,
         'baseHelpURL': settings.HELP_URL,
         'googleAnalyticsId': settings.GOOGLE_ANALYTICS_ID,
-        'oneTrustDomain': settings.ONE_TRUST_DOMAIN,
+        'oneTrustScriptDomain': settings.ONE_TRUST_DOMAIN,
       }
     }
