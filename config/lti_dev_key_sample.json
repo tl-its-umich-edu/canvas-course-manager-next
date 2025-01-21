@@ -10,12 +10,12 @@
           {
             "placement": "course_navigation",
             "message_type": "LtiResourceLinkRequest",
-            "target_link_uri": "https://ad6c-141-213-175-192.ngrok-free.app/ltilaunch",
+            "target_link_uri": "https://{ccm_app_hostname}/ltilaunch",
             "visibility": "admins"
           }
         ]
       },
-      "domain": "ad6c-141-213-175-192.ngrok-free.app",
+      "domain": "{ccm_app_hostname}",
       "privacy_level": "public"
     }
   ],
@@ -27,7 +27,7 @@
     "login_id": "$Canvas.user.loginId",
     "course_id": "$Canvas.course.id"
   },
-  "public_jwk_url": "https://ad6c-141-213-175-192.ngrok-free.app/.well-known/jwks.json",
-  "target_link_uri": "https://ad6c-141-213-175-192.ngrok-free.app/ltilaunch",
-  "oidc_initiation_url": "https://ad6c-141-213-175-192.ngrok-free.app/init/<uuid>/"
+  "public_jwk_url": "https://{ccm_app_hostname}/.well-known/jwks.json",
+  "target_link_uri": "https://{ccm_app_hostname}/ltilaunch",
+  "oidc_initiation_url": "https://{ccm_app_hostname}/init/<uuid>/"
 }
