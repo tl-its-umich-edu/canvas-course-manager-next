@@ -12,8 +12,7 @@ services:
     env_file: ${HOME}/secrets/ccm/.env
     ports:
       - 4000:4000
-      - 4020:4020
-      - 4030:4030
+      - 5678:5678
     volumes:
       - ./ccm_web/client/src:/code/ccm_web/client/src
       - ./backend:/code/backend

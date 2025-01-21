@@ -29,5 +29,5 @@
   },
   "public_jwk_url": "https://{ccm_app_hostname}/.well-known/jwks.json",
   "target_link_uri": "https://{ccm_app_hostname}/ltilaunch",
-  "oidc_initiation_url": "https://{ccm_app_hostname}/init/<uuid>/"
+  "oidc_initiation_url": "https://{ccm_app_hostname}/init/{uuid}/"
 }

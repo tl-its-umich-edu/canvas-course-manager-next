@@ -13,7 +13,7 @@
                 }
             ],
             "connect": {
-              "port": 4030,
+              "port": 5678,
               "host": "localhost",
           },
         "justMyCode": false,
