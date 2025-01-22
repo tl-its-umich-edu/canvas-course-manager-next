@@ -1,93 +1,110 @@
 from uuid import uuid4
 from django.core.management import call_command
-from unittest import TestCase
+from django.test import SimpleTestCase
 from unittest.mock import patch, MagicMock
 
-class ManageLtiKeyCommandTest(TestCase):
+class ManageLtiKeyCommandTest(SimpleTestCase):
+
+    def setUp(self):
+        self.id = 1
+        self.name = "Test Registration"
+        self.issuer = "https://canvas.test.instructure.com"
+        self.client_id = 12345
+        self.auth_url_root = "https://sso.test.canvaslms.com"
+        self.deployment_id = "test-deployment-id"
+        self.uuid = uuid4()
+
+        self.mock_registration = MagicMock()
+        self.mock_registration.id = self.id
+        self.mock_registration.name = self.name
+        self.mock_registration.issuer = self.issuer
+        self.mock_registration.client_id = self.client_id
+        self.mock_registration.auth_url = f"{self.auth_url_root}/api/lti/authorize_redirect"
+        self.mock_registration.token_url = f"{self.auth_url_root}/login/oauth2/token"
+        self.mock_registration.keyset_url = f"{self.auth_url_root}/api/lti/security/jwks"
+        self.mock_registration.uuid = self.uuid
+
+        self.mock_deployment = MagicMock()
+        self.mock_deployment.deployment_id = self.deployment_id
+        self.mock_deployment.is_active = True
+        self.mock_deployment.registration = self.mock_registration
+        return super().setUp()
+    
     @patch('lti_tool.models.LtiRegistration.objects.create')
     @patch('lti_tool.models.LtiDeployment.objects.create')
     def test_add_lti_key(self, mock_lti_deployment_create, mock_lti_registration_create):
-        name = "Test Registration"
-        issuer = "https://canvas.test.instructure.com"
-        client_id = 12345
-        auth_url_root = "https://sso.test.canvaslms.com"
-        deployment_id = "test-deployment-id"
 
         args_create = [
             '--action', 'create',
-            '--name', name,
-            '--issuer', issuer,
-            '--client_id', str(client_id),
-            '--auth_url_root', auth_url_root,
-            '--deployment_id', deployment_id,
+            '--name', self.name,
+            '--client_id', str(self.client_id),
+            '--deployment_id', self.deployment_id,
         ]
 
-        mock_registration = MagicMock()
-        mock_registration.name = name
-        mock_registration.issuer = issuer
-        mock_registration.client_id = client_id
-        mock_registration.auth_url = f"{auth_url_root}/api/lti/authorize_redirect"
-        mock_registration.token_url = f"{auth_url_root}/login/oauth2/token"
-        mock_registration.keyset_url = f"{auth_url_root}/api/lti/security/jwks"
-        mock_registration.uuid = uuid4()
-
-        mock_deployment = MagicMock()
-        mock_deployment.deployment_id = deployment_id
-        mock_deployment.registration = mock_registration
-
-        mock_lti_registration_create.return_value = mock_registration
-        mock_lti_deployment_create.return_value = mock_deployment
+        mock_lti_registration_create.return_value = self.mock_registration
+        mock_lti_deployment_create.return_value = self.mock_deployment
 
         call_command('manage_lti_key', *args_create)
 
         mock_lti_registration_create.assert_called_once_with(
-            name=name,
-            issuer=issuer,
-            client_id=client_id,
-            auth_url=f"{auth_url_root}/api/lti/authorize_redirect",
-            token_url=f"{auth_url_root}/login/oauth2/token",
-            keyset_url=f"{auth_url_root}/api/lti/security/jwks",
+            name=self.name,
+            issuer=self.issuer,
+            client_id=self.client_id,
+            auth_url=f"{self.auth_url_root}/api/lti/authorize_redirect",
+            token_url=f"{self.auth_url_root}/login/oauth2/token",
+            keyset_url=f"{self.auth_url_root}/api/lti/security/jwks",
         )
-        print("create")
         mock_lti_deployment_create.assert_called_once_with(
-            registration=mock_registration,
-            deployment_id=deployment_id,
-            is_active=True,
+            registration=self.mock_registration,
+            deployment_id=self.deployment_id,
+            is_active=True
         )
 
     @patch('lti_tool.models.LtiRegistration.objects.get')
     def test_get_lti_key(self, mock_lti_registration_get):
-        name = "Test Registration"
-        issuer = "https://canvas.test.instructure.com"
-        client_id = 12345
-        auth_url_root = "https://sso.test.canvaslms.com"
-        deployment_id = "test-deployment-id"
 
         args_get = [
             '--action', 'get',
-            '--name', name,
-            '--issuer', issuer,
-            '--client_id', str(client_id),
-            '--auth_url_root', auth_url_root,
-            '--deployment_id', deployment_id,
+            '--client_id', str(self.client_id),
         ]
 
-        created_uuid = uuid4()
-
-        mock_registration = MagicMock()
-        mock_registration.name = name
-        mock_registration.issuer = issuer
-        mock_registration.client_id = client_id
-        mock_registration.auth_url = f"{auth_url_root}/api/lti/authorize_redirect"
-        mock_registration.token_url = f"{auth_url_root}/login/oauth2/token"
-        mock_registration.keyset_url = f"{auth_url_root}/api/lti/security/jwks"
-        mock_registration.uuid = created_uuid
-
-        mock_lti_registration_get.return_value = mock_registration
+        mock_lti_registration_get.return_value = self.mock_registration
 
         call_command('manage_lti_key', *args_get)
         print("get")
         mock_lti_registration_get.assert_called_once_with(
-            client_id=client_id,
+            client_id= self.client_id,
         )
-        self.assertEqual(mock_registration.uuid, created_uuid)
+        self.assertEqual(self.mock_registration.uuid, self.uuid)
+
+    @patch('lti_tool.models.LtiRegistration.objects.get')
+    @patch('lti_tool.models.LtiDeployment.objects.update_or_create')
+    def test_update_lti_key(self, mock_lti_deployment_update_or_create, mock_lti_registration_get):
+        new_client_id = 54321   
+        new_deployment_id = "new-deployment-id"
+
+        args_update = [
+            '--action', 'update',
+            '--id', str(self.id),
+            '--client_id', str(new_client_id),
+            '--deployment_id', new_deployment_id
+        ]
+
+        self.mock_registration.client_id = new_client_id
+        self.mock_deployment.deployment_id = new_deployment_id
+
+        mock_lti_registration_get.return_value = self.mock_registration
+        mock_lti_deployment_update_or_create.return_value = (self.mock_deployment, True)
+
+        call_command('manage_lti_key', *args_update)
+
+        mock_lti_registration_get.assert_called_once_with(id=self.id)
+        self.assertEqual(self.mock_registration.client_id, new_client_id)
+        # self.mock_registration.save.assert_called_once()
+
+        mock_lti_deployment_update_or_create.assert_called_once_with(
+            registration=self.mock_registration,
+            deployment_id=new_deployment_id,
+            defaults={'is_active': True}
+        )
+        self.assertEqual(self.mock_deployment.deployment_id, new_deployment_id)
