@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
+from backend.ccm.utils import parse_csp
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -196,15 +197,13 @@ LOGGING = {
     }
 }
 
-# Set CSP_FRAME_SRC to the your Canvas domains
-CSP_FRAME_ANCESTORS = ["'self'",] + os.getenv('CSP_FRAME_ANCESTORS', '').split(',')
-# This is currently unsafe-inline because of PyLTI scripts. This may be fixed in the future.
-CSP_SCRIPT_SRC = ["'self'","'unsafe-inline'", "'unsafe-eval'"] + os.getenv('CSP_SCRIPT_SRC', " ").split(',')
-CSP_CONNECT_SRC = ["'self'",] + os.getenv('CSP_SCRIPT_SRC', '').split(',')
-CSP_IMG_SRC = ["'self'", "data:"]
-CSP_FONT_SRC = ["'self'"]
-# Allow inline styles. There are a few styles that come up in the report so it seems easier to just allow unsafe-inline here.
-CSP_STYLE_SRC = ["'self'", "https:", "'unsafe-inline'"]
+# Set CSP policies with optional defaults
+CSP_FRAME_ANCESTORS = parse_csp('CSP_FRAME_ANCESTORS')
+CSP_SCRIPT_SRC = parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"])
+CSP_CONNECT_SRC = parse_csp('CSP_SCRIPT_SRC')
+CSP_IMG_SRC = parse_csp('CSP_IMG_SRC',["data:"])
+CSP_FONT_SRC = parse_csp('CSP_FONT_SRC')
+CSP_STYLE_SRC = parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"])
 
 
 # making LTI launch smooth
