@@ -72,7 +72,6 @@ class ManageLtiKeyCommandTest(SimpleTestCase):
         mock_lti_registration_get.return_value = self.mock_registration
 
         call_command('manage_lti_key', *args_get)
-        print("get")
         mock_lti_registration_get.assert_called_once_with(
             client_id= self.client_id,
         )
