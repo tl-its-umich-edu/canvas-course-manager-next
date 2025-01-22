@@ -1,20 +1,21 @@
-from uuid import uuid4
+from uuid import uuid4, UUID
 from django.core.management import call_command
 from django.test import SimpleTestCase
 from unittest.mock import patch, MagicMock
+from typing import Any
 
 class ManageLtiKeyCommandTest(SimpleTestCase):
 
-    def setUp(self):
-        self.id = 1
-        self.name = "Test Registration"
-        self.issuer = "https://canvas.test.instructure.com"
-        self.client_id = 12345
-        self.auth_url_root = "https://sso.test.canvaslms.com"
-        self.deployment_id = "test-deployment-id"
-        self.uuid = uuid4()
+    def setUp(self) -> None:
+        self.id: int = 1
+        self.name: str = "Test Registration"
+        self.issuer: str = "https://canvas.test.instructure.com"
+        self.client_id: int = 12345
+        self.auth_url_root: str = "https://sso.test.canvaslms.com"
+        self.deployment_id: str = "test-deployment-id"
+        self.uuid: UUID = uuid4()
 
-        self.mock_registration = MagicMock()
+        self.mock_registration: MagicMock = MagicMock()
         self.mock_registration.id = self.id
         self.mock_registration.name = self.name
         self.mock_registration.issuer = self.issuer
@@ -24,7 +25,7 @@ class ManageLtiKeyCommandTest(SimpleTestCase):
         self.mock_registration.keyset_url = f"{self.auth_url_root}/api/lti/security/jwks"
         self.mock_registration.uuid = self.uuid
 
-        self.mock_deployment = MagicMock()
+        self.mock_deployment: MagicMock = MagicMock()
         self.mock_deployment.deployment_id = self.deployment_id
         self.mock_deployment.is_active = True
         self.mock_deployment.registration = self.mock_registration
@@ -32,9 +33,9 @@ class ManageLtiKeyCommandTest(SimpleTestCase):
     
     @patch('lti_tool.models.LtiRegistration.objects.create')
     @patch('lti_tool.models.LtiDeployment.objects.create')
-    def test_add_lti_key(self, mock_lti_deployment_create, mock_lti_registration_create):
+    def test_add_lti_key(self, mock_lti_deployment_create: MagicMock, mock_lti_registration_create: MagicMock) -> None:
 
-        args_create = [
+        args_create: list[str] = [
             '--action', 'create',
             '--name', self.name,
             '--client_id', str(self.client_id),
@@ -61,9 +62,9 @@ class ManageLtiKeyCommandTest(SimpleTestCase):
         )
 
     @patch('lti_tool.models.LtiRegistration.objects.get')
-    def test_get_lti_key(self, mock_lti_registration_get):
+    def test_get_lti_key(self, mock_lti_registration_get: MagicMock) -> None:
 
-        args_get = [
+        args_get: list[str] = [
             '--action', 'get',
             '--client_id', str(self.client_id),
         ]
@@ -79,11 +80,11 @@ class ManageLtiKeyCommandTest(SimpleTestCase):
 
     @patch('lti_tool.models.LtiRegistration.objects.get')
     @patch('lti_tool.models.LtiDeployment.objects.update_or_create')
-    def test_update_lti_key(self, mock_lti_deployment_update_or_create, mock_lti_registration_get):
-        new_client_id = 54321   
-        new_deployment_id = "new-deployment-id"
+    def test_update_lti_key(self, mock_lti_deployment_update_or_create: MagicMock, mock_lti_registration_get: MagicMock) -> None:
+        new_client_id: int = 54321   
+        new_deployment_id: str = "new-deployment-id"
 
-        args_update = [
+        args_update: list[str] = [
             '--action', 'update',
             '--id', str(self.id),
             '--client_id', str(new_client_id),
