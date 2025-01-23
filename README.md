@@ -117,11 +117,14 @@ Explicit steps for setting up CCM in a development environment.
     ```
 16. Grant yourself admin access by updating the `auth_user` table and setting `is_staff` to 1. Optionally, you can also set `is_superuser` to 1. Currently, only enabling the `is_staff` permission will grant access to the Admin console.
 
-#### UnitTesting
-All test cases are going in the `tests` folder and run it as below
+#### Unit Testing
+The goal is to implement tests for the project's major components, focusing on critical functionality rather than achieving 100% code coverage. When testing a specific feature or file, create a test_*.py file in the /tests/ directory. Instead of making real-time database calls, use the unittest.mock module, including patch and MagicMock, to simulate calls with mock data.
+
+1. Running all
 `docker exec -it ccm_web python manage.py test`
-Testing usecases from on file
+2. Testing test cases from on a file
 `docker exec -it ccm_web python manage.py test backend.tests.<name-of-file-without-dotpy>`
+   1. for example, `docker exec -it ccm_web python manage.py test backend.tests.test_utils`
 #### Deploying to GitHub Pages
 
 To deploy the latest changes to the GitHub Pages site, follow the steps below:

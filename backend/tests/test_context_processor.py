@@ -37,4 +37,4 @@ class CCMGlobalsTests(SimpleTestCase):
         self.assertEqual(context['ccm_globals']['course']['roles'], ['TeacherEnrollment', 'Account Admin'])
         self.assertEqual(context['ccm_globals']['baseHelpURL'], settings.HELP_URL)
         self.assertEqual(context['ccm_globals']['googleAnalyticsId'], settings.GOOGLE_ANALYTICS_ID)
-        self.assertEqual(context['ccm_globals']['oneTrustDomain'], settings.ONE_TRUST_DOMAIN)
+        self.assertEqual(context['ccm_globals']['oneTrustScriptDomain'], settings.ONE_TRUST_DOMAIN)
