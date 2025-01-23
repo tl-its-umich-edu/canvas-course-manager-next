@@ -8,7 +8,7 @@ import { Globals, CsrfToken } from '../models/models.js'
 Hook for fetching global data, checking whether user is authenticated, and
 requesting that the backend set the CSRF token cookie
 */
-function useGlobals (): [
+function useGlobals (ccmGlobals: Globals): [
   Globals | undefined,
   CsrfToken | undefined,
   boolean | undefined,
@@ -22,7 +22,7 @@ function useGlobals (): [
   const getGlobals = async (): Promise<Globals> => await api.getGlobals()
   const [doGetGlobals, getGlobalsLoading, getGlobalsError] = usePromise(
     getGlobals,
-    (value: Globals) => setGlobals(value)
+    (value: Globals) => setGlobals(ccmGlobals)
   )
   const getCSRFTokenResponse = async (): Promise<CsrfToken> => await api.getCSRFTokenResponse()
   const [doGetCSRFTokenResponse, getCSRFTokenReponseLoading, getCSRFTokenResponseError] = usePromise(

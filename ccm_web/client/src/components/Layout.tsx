@@ -13,7 +13,8 @@ const classes = {
   root: `${PREFIX}-root`,
   spacing: `${PREFIX}-spacing`,
   devModePaper: `${PREFIX}-devModePaper`,
-  swaggerLink: `${PREFIX}-swaggerLink`
+  swaggerLink: `${PREFIX}-swaggerLink`,
+  breadcrumbsContainer: `${PREFIX}-breadcrumbsContainer`
 }
 
 const StyledGrid = styled(Grid)((
@@ -37,11 +38,18 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.swaggerLink}`]: {
     display: 'block',
     clear: 'both'
+  },
+
+  [`& .${classes.breadcrumbsContainer}`]: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 }))
 
 interface LayoutProps extends BreadcrumbsProps {
   devMode?: boolean
+  isAdmin?: boolean
   children: React.ReactNode
   csrfToken?: CsrfToken
 }
@@ -71,7 +79,10 @@ export default function Layout (props: LayoutProps): JSX.Element {
     <StyledGrid container className={classes.root}>
       <Grid item sm={12} md={10} lg={9}>
         {devBlock}
-        <div className={classes.spacing}><Breadcrumbs {...props} /></div>
+        <div className={`${classes.spacing} ${classes.breadcrumbsContainer}`}>
+          <Breadcrumbs {...props} />
+          {props.isAdmin && <Link href="/admin/">Admin</Link>}
+        </div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />
         <footer>

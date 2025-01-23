@@ -15,13 +15,19 @@ import allFeatures from './models/FeatureUIData.js'
 import Home from './pages/Home.js'
 import NotFound from './pages/NotFound.js'
 import redirect from './utils/redirect.js'
+import { Globals } from './models/models.js'
 
-function App (): JSX.Element {
+interface HomeProps {
+  ccmGlobals: Globals
+}
+
+function App (props: HomeProps): JSX.Element {
+  const { ccmGlobals } = props
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
 
-  const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
+  const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals(ccmGlobals)
 
   const googleAnalyticsConfig: UseGoogleAnalyticsParams = {
     googleAnalyticsId: globals?.googleAnalyticsId ?? '',
@@ -79,7 +85,7 @@ function App (): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} csrfToken={csrfToken}>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} isAdmin={globals?.user.isStaff?? false} csrfToken={csrfToken}>
       <Routes>
         <Route path='/' element={
           <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />

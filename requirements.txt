@@ -5,7 +5,11 @@ mysqlclient==2.2.7
 Django==5.1.4
 django-mysql==4.15.0
 django-webpack-loader==3.1.1  
+django-lti==0.7.0
+django-csp==3.8
+djangorestframework==3.15.2
 
-debugpy==1.8.11
+debugpy==1.8.11 # For debugging
 
 whitenoise==6.8.2 # For serving static files
+redis==5.2.1 # For caching

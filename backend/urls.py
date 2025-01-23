@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from lti_tool.views import jwks, OIDCLoginInitView
+from backend.ccm.lti_config import CCMLTILaunchView
 
 from backend import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home_view, name = 'home'),
+    path(".well-known/jwks.json", jwks, name="jwks"),
+    path("init/<uuid:registration_uuid>/", OIDCLoginInitView.as_view(), name="init"),
+    path("ltilaunch", CCMLTILaunchView.as_view(), name="ltilaunch"),
 ]

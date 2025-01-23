@@ -1,17 +1,22 @@
-// https://dev.to/alex_barashkov/how-to-debug-nodejs-in-a-docker-container-bhi
-// https://stackoverflow.com/questions/43898947/docker-node-app-always-crashes-on-file-change-using-nodemon/56832975#56832975
 {
+    "version": "0.2.0",
     "configurations": [
+      
         {
-            "type": "node",
+            "name": "CCM Django",
+            "type": "debugpy",
             "request": "attach",
-            "name": "CCM_Debug",
-            "protocol": "inspector",
-            "address": "localhost",
-            "localRoot": "${workspaceFolder}/ccm_web",
-            "remoteRoot": "/base",
-            "port": 9229,
-            "restart": true,
-        },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/code"
+                }
+            ],
+            "connect": {
+              "port": 5678,
+              "host": "localhost",
+          },
+        "justMyCode": false,
+        }
     ]
-}
+  }
