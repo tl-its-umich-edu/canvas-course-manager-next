@@ -19,7 +19,7 @@ def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], No
     return {
       'ccm_globals': {
         'environment': 'development' if settings.DEBUGPY_ENABLE else 'production',
-        'canvasURL': settings.CANVAS_INSTANCE_URL,
+        'canvasURL': f"https://{settings.CANVAS_OAUTH_CANVAS_DOMAIN}",
         'user': user_data,
         'userLoginID': userLoginID,  # Add userLoginID to the globals
         'course': course_data,
