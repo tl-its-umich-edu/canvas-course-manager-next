@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
 from backend.ccm.utils import parse_csp
+from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webpack_loader',
+    'canvas_oauth.apps.CanvasOAuthConfig',
     "lti_tool"
 ]
 
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'canvas_oauth.middleware.OAuthMiddleware',
     'csp.middleware.CSPMiddleware'
 ]
 
@@ -229,3 +232,13 @@ HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 CANVAS_INSTANCE_URL = os.getenv('CANVAS_INSTANCE_URL', 'https://canvas.instructure.com')
 
 DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
+
+#Canvas OAuth settings
+CANVAS_OAUTH_CLIENT_ID = os.getenv('CANVAS_OAUTH_CLIENT_ID', '12342')
+CANVAS_OAUTH_CLIENT_SECRET = os.getenv('CANVAS_OAUTH_CLIENT_SECRET', 'ccm')
+CANVAS_OAUTH_CANVAS_DOMAIN = os.getenv('CANVAS_OAUTH_CANVAS_DOMAIN', 'canvas.test.instructure.com')
+# Scopes environment variable provides a way to recover if Canvas changes scope identifiers.
+if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
+    CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
+else:
+    CANVAS_OAUTH_SCOPES = DEFAUlT_CANVAS_SCOPES
