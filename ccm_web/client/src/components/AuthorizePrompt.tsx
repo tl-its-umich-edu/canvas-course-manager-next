@@ -46,7 +46,7 @@ export default function AuthorizePrompt (props: AuthorizePromptProps): JSX.Eleme
         className={classes.button}
         color='primary'
         variant='contained'
-        href='/canvas/redirectOAuth'
+        href='/redirectOAuth'
         aria-label='Go to authorize page'
       >
         GO TO AUTHORIZE PAGE
