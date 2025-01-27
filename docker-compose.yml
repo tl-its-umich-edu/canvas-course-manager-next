@@ -36,6 +36,7 @@ services:
       - 5400:3306
     volumes:
       - ./.mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     container_name: ccm_db
 
   redis:

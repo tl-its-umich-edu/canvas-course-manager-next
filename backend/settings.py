@@ -99,10 +99,11 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {
+            'NAME': 'test_ccm',
             'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci'
+            'COLLATION': 'utf8mb4_unicode_ci',
         }
-    }
+    },
 }
 
 CACHES = {
@@ -204,7 +205,7 @@ LOGGING = {
 CSP_FRAME_ANCESTORS = parse_csp('CSP_FRAME_ANCESTORS')
 CSP_SCRIPT_SRC = parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"])
 CSP_CONNECT_SRC = parse_csp('CSP_SCRIPT_SRC')
-CSP_IMG_SRC = parse_csp('CSP_IMG_SRC',["data:"])
+CSP_IMG_SRC = parse_csp('CSP_SCRIPT_SRC')
 CSP_FONT_SRC = parse_csp('CSP_FONT_SRC')
 CSP_STYLE_SRC = parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"])
 
