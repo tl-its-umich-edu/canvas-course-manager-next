@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from lti_tool.views import jwks, OIDCLoginInitView
 from backend.ccm.lti_config import CCMLTILaunchView
 
@@ -28,4 +28,5 @@ urlpatterns = [
     path("init/<uuid:registration_uuid>/", OIDCLoginInitView.as_view(), name="init"),
     path("ltilaunch", CCMLTILaunchView.as_view(), name="ltilaunch"),
     path('privacy/', views.privacy_view, name="privacy"),
+    path('watchman/', include('watchman.urls')),
 ]

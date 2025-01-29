@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webpack_loader',
-    "lti_tool"
+    "lti_tool",
+    'watchman',
 ]
 
 MIDDLEWARE = [
@@ -193,6 +194,10 @@ LOGGING = {
         'canvas_oauth': {
             'handlers': ['console'],
             'level': 'WARN'
+        },
+        'watchman': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
         }
     }
 }
@@ -229,3 +234,8 @@ HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 CANVAS_INSTANCE_URL = os.getenv('CANVAS_INSTANCE_URL', 'https://canvas.instructure.com')
 
 DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
+
+# Watchman settings (https://github.com/mwarkentin/django-watchman)
+WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
+WATCHMAN_TOKEN_NAME = os.getenv('DJANGO_WATCHMAN_TOKEN_NAME', 'ccm-watchman-token')
+WATCHMAN_CHECKS = ('watchman.checks.caches', 'watchman.checks.databases')
