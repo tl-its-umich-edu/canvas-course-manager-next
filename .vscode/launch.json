@@ -16,7 +16,23 @@
               "port": 5678,
               "host": "localhost",
           },
-        "justMyCode": false,
+        "justMyCode": false
+        },
+        {
+            "name": "CCM Django Tests",
+            "type": "debugpy",
+            "request": "attach",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/code"
+                }
+            ],
+            "connect": {
+              "port": 5679,
+              "host": "localhost",
+          },
+        "justMyCode": false
         }
     ]
   }

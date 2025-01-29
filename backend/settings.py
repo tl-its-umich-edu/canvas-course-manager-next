@@ -15,6 +15,10 @@ import os
 from django.core.management.utils import get_random_secret_key
 from backend.ccm.utils import parse_csp
 
+config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
+
+TEST_RUNNER = 'backend.tests.test_setup.CustomTestRunner'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -228,4 +232,7 @@ HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 # Canvas URL
 CANVAS_INSTANCE_URL = os.getenv('CANVAS_INSTANCE_URL', 'https://canvas.instructure.com')
 
-DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
+DEBUGPY_ENABLE = config_to_bool(os.getenv('DEBUGPY_ENABLE', False))
+DEBUGPY_ADDRESS = os.getenv('DEBUGPY_ADDRESS', '0.0.0.0')
+DEBUGPY_PORT = os.getenv('DEBUGPY_PORT', 5678)
+DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER', False))
