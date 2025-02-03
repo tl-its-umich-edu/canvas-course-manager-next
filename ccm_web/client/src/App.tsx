@@ -60,9 +60,6 @@ function App (props: HomeProps): JSX.Element {
     redirect('/access-denied')
     return (loading)
   }
-
-  console.log(`User_loginID: ${globals.user.loginId}`)
-  console.log(`User_has_Canvas_Token: ${globals.user.hasCanvasToken}`)
   
   if (!globals.user.hasCanvasToken) {
     return (
