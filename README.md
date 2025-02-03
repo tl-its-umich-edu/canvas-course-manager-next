@@ -117,6 +117,24 @@ Explicit steps for setting up CCM in a development environment.
     ```
 16. Grant yourself admin access by updating the `auth_user` table and setting `is_staff` to 1. Optionally, you can also set `is_superuser` to 1. Currently, only enabling the `is_staff` permission will grant access to the Admin console.
 
+##### Configure Canvas API key
+
+12. Go to Canvas "Developer Keys" management available from the "Admin" page for your account. Click the button for "+ Developer Key", then "+ API Key".
+13. Enter a name in the "Key Name" field.  
+    > 💡 The name of this key is used as the title and in the body of
+    > the authorization dialog box shown to the user.  Be sure to pick
+    > a meaningful name for this key.  For example, name it "Canvas
+    > Course Manager", **_NOT_** "CCM API key".
+14. In the "Redirect URIs" field, enter:
+     `https://{ccm_app_hostname}/oauth/oauth-callback`
+     Where `{ccm_app_hostname}` is the ngrok hostname copied earlier (in step 2).
+     ***Note:*** Do ***NOT*** use the "Redirect URI (Legacy)" field.
+15. Enable the "Enforce Scopes" option, "Allow Include Parameters", then add all scopes needed by the application (i.e., those listed in `backend/ccm/canvas_scopes.py`).
+16. Click the "Save" button.
+17. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like "`17700000000000nnn`".
+18. Click the "Show Key" button underneath the ID located in step 16, and copy the secret that appears in the dialog.
+19. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+
 #### Unit Testing
 The goal is to implement tests for the project's major components, focusing on critical functionality rather than achieving 100% code coverage. When testing a specific feature or file, create a test_*.py file in the /tests/ directory. Instead of making real-time database calls, use the unittest.mock module, including patch and MagicMock, to simulate calls with mock data.
 

@@ -17,7 +17,7 @@ def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], No
     # Access the course data from the session
     course_data: Optional[Dict[str, Any]] = request.session.get('course', None)
 
-    ccm_globals_value = {
+    return {
       'ccm_globals': {
       'environment': 'development' if settings.DEBUGPY_ENABLE else 'production',
       'canvasURL': f"https://{settings.CANVAS_OAUTH_CANVAS_DOMAIN}",
@@ -29,4 +29,3 @@ def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], No
       'oneTrustScriptDomain': settings.ONE_TRUST_DOMAIN,
       }
     }
-    return ccm_globals_value
