@@ -7,7 +7,7 @@ from backend import settings
 
 from canvas_oauth.oauth import get_oauth_token, handle_missing_token
 from canvas_oauth.models import CanvasOAuth2Token
-from canvas_oauth.exceptions import InvalidOAuthReturnError, MissingTokenError
+from canvas_oauth.exceptions import InvalidOAuthReturnError
 from django.urls import reverse
 
 

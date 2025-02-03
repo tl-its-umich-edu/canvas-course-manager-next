@@ -29,5 +29,4 @@ def ccm_globals(request: HttpRequest) -> Dict[str, Union[str, Dict[str, Any], No
       'oneTrustScriptDomain': settings.ONE_TRUST_DOMAIN,
       }
     }
-    print("ccm_globals:", ccm_globals_value)
     return ccm_globals_value
