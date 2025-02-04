@@ -64,7 +64,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
             <BuildIcon fontSize='small' /> Development Mode:&nbsp;
           </Typography>
           <Typography component='span'>
-            <Link href={`/swagger?csrfToken=${String(props.csrfToken.token)}`} target='_blank'>Swagger UI</Link>
+            <Link href='/api/schema/swagger-ui' target='_blank'>Swagger UI</Link>
           </Typography>
         </Paper>
       </div>

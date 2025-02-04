@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from lti_tool.views import jwks, OIDCLoginInitView
@@ -33,4 +34,13 @@ urlpatterns = [
     path('watchman/bare_status/', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
     path('redirectOAuth', views.redirect_oauth_view, name='redirect_oauth_view'),
+    path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
+
+if settings.DEBUG:
+    from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+    urlpatterns += [
+        path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+        path('api/schema/swagger-ui', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui')
+    ] 
