@@ -14,6 +14,7 @@ djangorestframework==3.15.2
 django-filter==24.3
 drf-spectacular==0.28.0
 markdown==3.7
+drf-api-tracking==1.8.4
 
 debugpy==1.8.11 # For debugging
 
@@ -21,6 +22,7 @@ whitenoise==6.8.2 # For serving static files
 redis==5.2.1 # For caching
 
 django-watchman==1.3 # For status monitoring
+canvasapi==3.3.0 # For Canvas API
 
 # Not in pypi https://github.com/Harvard-University-iCommons/django-canvas-oauth
 https://github.com/Harvard-University-iCommons/django-canvas-oauth/archive/v1.1.1.tar.gz

@@ -34,7 +34,6 @@ const glo= {
   "googleAnalyticsId": "ASBEDBD",
   "oneTrustScriptDomain": "dhdhdhd"
 }
-const co = {"id":403334,"name":"CCM Test Courses","enrollment_term_id":287}
 
 const addStateChangeCallHeaders = (csrfToken: string): RequestInit => {
   const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType], ['x-csrf-token', csrfToken]]
@@ -71,11 +70,10 @@ const getPut = (body: string, csrfToken: string): RequestInit => {
 }
 
 export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => {
-  // const request = getGet()
-  // const resp = await fetch(`/api/course/${courseId}`, request)
-  // await handleErrors(resp)
-  // return await resp.json()
-  return co
+  const request = getGet()
+  const resp = await fetch(`/api/course/${courseId}/`, request)
+  await handleErrors(resp)
+  return await resp.json()
 }
 
 export const setCourseName = async (courseId: number, newName: string, csrfToken: string): Promise<CanvasCourseBase> => {

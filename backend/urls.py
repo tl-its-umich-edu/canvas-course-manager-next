@@ -18,6 +18,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from lti_tool.views import jwks, OIDCLoginInitView
+from backend.ccm.canvas_api.course_api_handler import CanvasCourseAPIHandler
 from backend.ccm.lti_config import CCMLTILaunchView
 import watchman.views
 
@@ -34,7 +35,7 @@ urlpatterns = [
     path('watchman/bare_status/', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
     path('redirectOAuth', views.redirect_oauth_view, name='redirect_oauth_view'),
-    path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/course/<int:course_id>/', CanvasCourseAPIHandler.as_view() , name='course'),
 ]
 
 if settings.DEBUG:
