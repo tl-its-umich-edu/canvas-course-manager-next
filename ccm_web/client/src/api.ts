@@ -19,33 +19,6 @@ const initCSRFRequest = (headers: Array<[string, string]>): RequestInit => {
   return request
 }
 
-
-//the constants ct, glo, and co will be deleted
-const ct = {
-  "token": "990330bd6766b3f7025c"
-}
-
-const glo= {
-  "environment": "development" as "development",
-  "canvasURL": "https://umich.canvas.com",
-  "user": {
-      "loginId": "janedoe",
-      "hasCanvasToken": true,
-      "isStaff": true
-  },
-  "userLoginId": "jdoesir",
-  "course": {
-      "id": 403334,
-      "roles": [
-          RoleEnum.Teacher,
-          RoleEnum['Account Admin']
-      ]
-  },
-  "baseHelpURL": "https://ccm.tl-pages.tl.it.umich.edu",
-  "googleAnalyticsId": "ASBEDBD",
-  "oneTrustScriptDomain": "dhdhdhd"
-}
-
 const addStateChangeCallHeaders = (csrfToken: string): RequestInit => {
   const headers: Array<[string, string]> = [['Content-Type', jsonMimeType], ['Accept', jsonMimeType], ['x-csrf-token', csrfToken]]
   const request: RequestInit = { headers }
@@ -96,14 +69,6 @@ export const setCourseName = async (courseId: number, newName: string, csrfToken
   return await resp.json()
 }
 
-export const getGlobals = async (): Promise<Globals> => {
-//   const request = getGet()
-//   const resp = await fetch('/api/globals', request)
-//   await handleErrors(resp)
-//   return await resp.json()
-     return await glo
-}
-
 export const getCourseSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
   const request = getGet()
   const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
@@ -151,14 +116,6 @@ export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSec
   const resp = await fetch('/api/sections/enroll', request)
   await handleErrors(resp)
   return await resp.json()
-}
-
-export const getCSRFTokenResponse = async (): Promise<CsrfToken> => {
-  // const request = getGet()
-  // const resp = await fetch('/auth/csrfToken', request)
-  // await handleErrors(resp)
-  // return await resp.json()
-  return ct
 }
 
 export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {

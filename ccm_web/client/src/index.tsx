@@ -33,7 +33,7 @@ root.render(
           <Routes>
             <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
             <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
-            <Route path='*' element={<App ccmGlobals={ccmGlobals} />}/>
+            <Route path='*' element={<App globals={ccmGlobals} />}/>
           </Routes>
         </Router>
       </SnackbarProvider>
