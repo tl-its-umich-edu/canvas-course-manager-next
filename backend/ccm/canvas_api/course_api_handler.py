@@ -11,7 +11,7 @@ from canvasapi.course import Course
 from backend.ccm.canvas_api.canvasapi_serializer import CourseSerializer
 from .exceptions import CanvasHTTPError
 
-from backend.ccm.canvas_api.get_user_canvas_token import CanvasCredentialHolder
+from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
 from drf_spectacular.utils import extend_schema
 
@@ -19,7 +19,7 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 logger = logging.getLogger(__name__)
 
-CANVAS_CREDENTIALS = CanvasCredentialHolder()
+CANVAS_CREDENTIALS = CanvasCredentialManager()
 
 class CanvasCourseAPIHandler(LoggingMixin, APIView):
 
@@ -52,13 +52,13 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
             return Response(formatted_course, status=HTTPStatus.OK)
         except CanvasException as e:
             logger.error(f"Canvas API error: {e}")
-            err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, course_id)
+            err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, course_id)
             return Response(err_response.to_dict(), status=err_response.status_code)
       
     @extend_schema(
         operation_id="update_course",
-        summary="Update Course",
-        description="Update the details of a specific course.",
+        summary="Change Course name and code",
+        description="Update the details of a specific course. Only Name and Course Code can be updated with same name.",
         request=CourseSerializer,
     )
     def put(self, request: Request, course_id: int) -> Response:
@@ -76,7 +76,7 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
                 return Response(formatted_course, status=HTTPStatus.OK)
             except CanvasException as e:
                 logger.error(f"Canvas API error: {e}")
-                err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, course_id)
+                err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, course_id)
                 return Response(err_response.to_dict(), status=err_response.status_code)
         else:
             # If validation fails, return the error details.

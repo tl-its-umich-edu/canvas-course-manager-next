@@ -64,7 +64,7 @@ export const isCanvasAPIErrorPayload = (v: unknown): v is CanvasAPIErrorPayload 
     hasKeys(v, ['canvasStatusCode', 'message', 'failedInput']) &&
     typeof v.canvasStatusCode === 'number' &&
     typeof v.message === 'string' &&
-    (v.failedInput === null || typeof v.failedInput === 'string')
+    (v.failedInput === null || typeof v.failedInput === 'string' || typeof v.failedInput === 'number')
   )
 }
 

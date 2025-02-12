@@ -1,6 +1,9 @@
+import logging
 from http import HTTPStatus
 from django.conf import settings
 from canvas_oauth.oauth import get_oauth_token
+from rest_framework.request import Request
+from canvas_oauth.models import CanvasOAuth2Token
 
 from canvasapi import Canvas
 from canvasapi.exceptions import (
@@ -9,7 +12,9 @@ from canvasapi.exceptions import (
 )
 from .exceptions import CanvasHTTPError 
 
-class CanvasCredentialHolder:
+logger = logging.getLogger(__name__)
+
+class CanvasCredentialManager:
 
   EXCEPTION_STATUS_MAP = {
     BadRequest: HTTPStatus.BAD_REQUEST.value,
@@ -30,8 +35,12 @@ class CanvasCredentialHolder:
     access_token = get_oauth_token(request)
     return Canvas(self.canvasURL, access_token)
   
-  def handle_canvas_api_exception(self, canvasAPIException: CanvasException, input: str = None) -> str:
+  def handle_canvas_api_exception(self, canvasAPIException: CanvasException, request: Request,input: str = None) -> CanvasHTTPError:
+    if isinstance(canvasAPIException, InvalidAccessToken):
+        CanvasOAuth2Token.objects.filter(user=request.user).delete()
+        logger.error(f"Deleted the Canvas OAuth2 token for user: {request.user} since they might have revoked access.")
+    
     for class_key in self.EXCEPTION_STATUS_MAP:
-            if isinstance(canvasAPIException, class_key):
-                return CanvasHTTPError(canvasAPIException.message, self.EXCEPTION_STATUS_MAP[class_key], input)
+        if isinstance(canvasAPIException, class_key):
+            return CanvasHTTPError(canvasAPIException.message, self.EXCEPTION_STATUS_MAP[class_key], input)
     return CanvasHTTPError(canvasAPIException.message, HTTPStatus.INTERNAL_SERVER_ERROR.value, input)
