@@ -13,13 +13,17 @@ from .exceptions import CanvasHTTPError
 
 from backend.ccm.canvas_api.get_user_canvas_token import CanvasCredentialHolder
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema
+
+from rest_framework_tracking.mixins import LoggingMixin
 
 logger = logging.getLogger(__name__)
 
 CANVAS_CREDENTIALS = CanvasCredentialHolder()
 
-class CanvasCourseAPIHandler(APIView):
+class CanvasCourseAPIHandler(LoggingMixin, APIView):
+
+    logging_methods = ['GET', 'PUT']
     """
     API handler for Canvas course data.
     """
