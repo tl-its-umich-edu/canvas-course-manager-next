@@ -37,7 +37,7 @@ import {
   REQUIRED_ENROLLMENT_WITH_SECTION_ID_HEADERS, SECTION_ID_TEXT, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment.js'
 import { AddUMUsersLeafProps } from '../models/FeatureUIData.js'
-import { CsrfToken, InvalidationType } from '../models/models.js'
+import { InvalidationType } from '../models/models.js'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import {
   EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator, SectionIdRowsValidator
@@ -99,7 +99,6 @@ enum CSVWorkflowState {
 }
 
 interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
-  csrfToken: CsrfToken
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
@@ -116,8 +115,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
       await api.addEnrollmentsToSections(
-        enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId })),
-        props.csrfToken.token
+        enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)

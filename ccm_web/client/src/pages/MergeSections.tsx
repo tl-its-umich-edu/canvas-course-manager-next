@@ -112,7 +112,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   }
 
   const [doMerge, isMerging, mergeError] = usePromise(
-    async () => await mergeSections(props.globals.course.id, mergableSections(), props.csrfToken.token),
+    async () => await mergeSections(props.globals.course.id, mergableSections()),
   )
 
   useEffect(() => {
@@ -198,7 +198,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         sections={unstagedSections !== undefined ? unstagedSections : []}
         selectedSections={selectedUnstagedSections}
         selectionUpdated={setSelectedUnstagedSections}
-        csrfToken={props.csrfToken}
         canUnmerge={false}></SectionSelectorWidget>
     )
   }
@@ -224,7 +223,6 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           sectionsRemoved={handleUnmergedSections}
           canUnmerge={isAdmin()}
           highlightUnlocked={true}
-          csrfToken={props.csrfToken}
           ></SectionSelectorWidget>
       </div>
     )

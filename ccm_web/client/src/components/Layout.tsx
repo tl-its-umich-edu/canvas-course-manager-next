@@ -5,7 +5,6 @@ import { Build as BuildIcon } from '@mui/icons-material'
 
 import Breadcrumbs, { BreadcrumbsProps } from './Breadcrumbs.js'
 import ResponsiveHelper from './ResponsiveHelper.js'
-import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'Layout'
 
@@ -51,11 +50,10 @@ interface LayoutProps extends BreadcrumbsProps {
   devMode?: boolean
   isAdmin?: boolean
   children: React.ReactNode
-  csrfToken?: CsrfToken
 }
 
 export default function Layout (props: LayoutProps): JSX.Element {
-  const devBlock = props.devMode === true && props.csrfToken ? 
+  const devBlock = props.devMode === true ? 
     (
       <>
       <div className={`${classes.swaggerLink} ${classes.spacing}`}>

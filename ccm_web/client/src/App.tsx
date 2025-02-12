@@ -22,7 +22,6 @@ interface HomeProps {
 
 function App (props: HomeProps): JSX.Element {
   const { globals } = props
-  const csrfToken = {'token': 'sdfsdfsdfdfsdf'} // TODO: get from useGlobals
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
@@ -79,17 +78,16 @@ function App (props: HomeProps): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} isAdmin={globals?.user.isStaff?? false} csrfToken={csrfToken}>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} isAdmin={globals?.user.isStaff?? false} >
       <Routes>
         <Route path='/' element={
-          <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+          <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
           } />
         {features.map(feature => {
           return (
             <Route key={feature.data.id} path={feature.route} element={
               <feature.component
                 globals={globals}
-                csrfToken={csrfToken}
                 course={course}
                 title={feature.data.title}
                 helpURLEnding={feature.data.helpURLEnding}

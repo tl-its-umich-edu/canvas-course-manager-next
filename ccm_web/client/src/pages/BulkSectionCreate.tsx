@@ -127,7 +127,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
   )
 
   const [doAddSections, isAddSectionsLoading, addSectionsError] = usePromise(
-    async () => await addCourseSections(props.globals.course.id, sectionNames, props.csrfToken.token),
+    async () => await addCourseSections(props.globals.course.id, sectionNames),
     (newSections: CanvasCourseSection[]) => {
       const originalSectionNames: string[] = (existingSectionNames != null) ? existingSectionNames : []
       setPageState({ state: BulkSectionCreatePageState.CreateSectionsSuccess, schemaInvalidations: [], rowInvalidations: [] })
