@@ -35,7 +35,7 @@ urlpatterns = [
     path('watchman/bare_status/', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
     path('redirectOAuth', views.redirect_oauth_view, name='redirect_oauth_view'),
-    path('api/course/<int:course_id>/', CanvasCourseAPIHandler.as_view() , name='course'),
+    path('api/', include('backend.ccm.canvas_api.urls'))
 ]
 
 if settings.DEBUG:
