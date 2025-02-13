@@ -132,8 +132,9 @@ Explicit steps for setting up CCM in a development environment.
 15. Enable the "Enforce Scopes" option, "Allow Include Parameters", then add all scopes needed by the application (i.e., those listed in `backend/ccm/canvas_scopes.py`).
 16. Click the "Save" button.
 17. Copy the ID number of the API key created in Canvas. The ID is the long number shown in the "Details" column of the "Developer Keys" page. It usually looks like "`17700000000000nnn`".
-18. Click the "Show Key" button underneath the ID located in step 16, and copy the secret that appears in the dialog.
-19. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+18. Click the "Show Key" button underneath the ID located in step 16, and copy the secret that appears in the dialog. 
+19. Go to `.env` file, Add the API client Id to CANVAS_OAUTH_CLIENT_ID and Secret from step 18 to CANVAS_OAUTH_CLIENT_SECRET and CANVAS_OAUTH_CANVAS_DOMAIN with canvas instance without https://
+20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
 
 #### Unit Testing
 The goal is to implement tests for the project's major components, focusing on critical functionality rather than achieving 100% code coverage. When testing a specific feature or file, create a test_*.py file in the /tests/ directory. Instead of making real-time database calls, use the unittest.mock module, including patch and MagicMock, to simulate calls with mock data.
