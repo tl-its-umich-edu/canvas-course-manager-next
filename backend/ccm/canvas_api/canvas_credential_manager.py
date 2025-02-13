@@ -35,7 +35,7 @@ class CanvasCredentialManager:
     access_token = get_oauth_token(request)
     return Canvas(self.canvasURL, access_token)
   
-  def handle_canvas_api_exception(self, canvasAPIException: CanvasException, request: Request,input: str = None) -> CanvasHTTPError:
+  def handle_canvas_api_exception(self, canvasAPIException: CanvasException, request: Request, input: str = None) -> CanvasHTTPError:
     if isinstance(canvasAPIException, InvalidAccessToken):
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
         logger.error(f"Deleted the Canvas OAuth2 token for user: {request.user} since they might have revoked access.")

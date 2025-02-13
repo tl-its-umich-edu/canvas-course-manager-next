@@ -7,6 +7,7 @@ from rest_framework.request import Request
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.course import Course
+from canvasapi import Canvas
 
 from backend.ccm.canvas_api.canvasapi_serializer import CourseSerializer
 from .exceptions import CanvasHTTPError
@@ -35,7 +36,7 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
         Get course data from Canvas.
         """
         try:
-            canvas_api = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
+            canvas_api: Canvas = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
             logger.info(f"Getting course data for course_id: {course_id}")
             
             # Call the Canvas API package to get course details.
@@ -52,7 +53,7 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
             return Response(formatted_course, status=HTTPStatus.OK)
         except CanvasException as e:
             logger.error(f"Canvas API error: {e}")
-            err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, course_id)
+            err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, str(course_id))
             return Response(err_response.to_dict(), status=err_response.status_code)
       
     @extend_schema(
@@ -67,7 +68,7 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
         if serializer.is_valid():
             update_data = serializer.validated_data
             try:
-                canvas_api = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
+                canvas_api: Canvas = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
                 # Get the course instance
                 course: Course = canvas_api.get_course(course_id)
                 # Call the update method on the course instance
@@ -76,8 +77,10 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
                 return Response(formatted_course, status=HTTPStatus.OK)
             except CanvasException as e:
                 logger.error(f"Canvas API error: {e}")
-                err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, course_id)
+                err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, str(request.data))
                 return Response(err_response.to_dict(), status=err_response.status_code)
         else:
             # If validation fails, return the error details.
-            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
+            logger.error(f"Serializer error: {serializer.errors}")
+            err_response: CanvasHTTPError = CanvasHTTPError(serializer.errors, HTTPStatus.INTERNAL_SERVER_ERROR.value, str(request.data))
+            return Response(err_response.to_dict(), status=err_response.status_code)
