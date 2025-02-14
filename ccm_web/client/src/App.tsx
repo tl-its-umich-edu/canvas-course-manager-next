@@ -60,7 +60,7 @@ function App (props: HomeProps): JSX.Element {
     redirect('/access-denied')
     return (loading)
   }
-
+  
   if (!globals.user.hasCanvasToken) {
     return (
       <Layout>

@@ -13,3 +13,6 @@ debugpy==1.8.11 # For debugging
 
 whitenoise==6.8.2 # For serving static files
 redis==5.2.1 # For caching
+
+# Not in pypi https://github.com/Harvard-University-iCommons/django-canvas-oauth
+https://github.com/Harvard-University-iCommons/django-canvas-oauth/archive/v1.1.1.tar.gz
