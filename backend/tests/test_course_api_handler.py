@@ -28,12 +28,70 @@ class CanvasCourseAPIHandlerTests(APITestCase):
         self.assertEqual(response.data['name'], 'Test Course')
         self.assertEqual(response.data['enrollment_term_id'], 1)
 
-    # @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
-    # def test_get_course_not_found(self, mock_get_canvasapi_instance):
-    #     mock_canvas = mock_get_canvasapi_instance.return_value
-    #     mock_canvas.get_course.side_effect = CanvasException('Course not found')
+    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    def test_get_course_not_found(self, mock_get_canvasapi_instance):
+        mock_canvas = mock_get_canvasapi_instance.return_value
+        mock_canvas.get_course.side_effect = CanvasException('Course not found')
 
-    #     response = self.client.get(self.url)
+        expected_dict = {
+            "statusCode": 500,
+            "errors": [
+            {
+                "canvasStatusCode": 500,
+                "message": "Course not found",
+                "failedInput": "1"
+            }
+            ]
+        }
 
-    #     self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-    #     self.assertIn('Course not found', response.message)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(expected_dict, response.data)
+
+    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    def test_put_course_success(self, mock_get_canvasapi_instance):
+        mock_canvas = mock_get_canvasapi_instance.return_value
+        mock_course = Course(mock_canvas._Canvas__requester, {'id': self.course_id, 'name': 'Old Course Name', 'enrollment_term_id': 1, 'course_code': 'Old Course Name'})
+        mock_canvas.get_course.return_value = mock_course
+        mock_course.update = lambda course: 'New Course Name'
+
+        data = {'newName': 'New Course Name'}
+        response = self.client.put(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], self.course_id)
+        self.assertEqual(response.data['name'], 'New Course Name')
+        self.assertEqual(response.data['enrollment_term_id'], 1)
+
+    def test_put_course_serializer_validatation(self):
+        # FE actually validates that the field is not blank, so this test case is just testing serializer validation
+        data = {'newName': ''}
+        response = self.client.put(self.url, data, format='json')
+
+        expected_dict = [{'canvasStatusCode': 500, 'message': 'Non-standard data shape found: "{"newName": ["This field may not be blank."]}"', 'failedInput': "{'newName': ''}"}]
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(expected_dict, response.data['errors'])
+
+    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    def test_put_course_canvas_exception(self, mock_get_canvasapi_instance):
+        mock_canvas = mock_get_canvasapi_instance.return_value
+        mock_canvas.get_course.side_effect = CanvasException('Course update failed')
+
+        data = {'newName': 'New Course Name'}
+        response = self.client.put(self.url, data, format='json')
+
+        expected_dict = {
+            "statusCode": 500,
+            "errors": [
+            {
+                "canvasStatusCode": 500,
+                "message": "Course update failed",
+                "failedInput": "{'newName': 'New Course Name'}"
+            }
+            ]
+        }
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(expected_dict, response.data)
