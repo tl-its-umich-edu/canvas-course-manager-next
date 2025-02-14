@@ -22,7 +22,6 @@ class LTILaunchTests(SimpleTestCase):
     @patch('random.sample', return_value=list('1234455'))
     def test_login_user_from_lti_user_does_not_exist(self, mock_random_sample, mock_user):
         view = CCMLTILaunchView()
-        print(mock_random_sample)
 
         # Mock the User object and its methods
         mock_user.DoesNotExist = User.DoesNotExist
