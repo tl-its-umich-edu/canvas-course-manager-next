@@ -4,8 +4,11 @@ from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.models import User
 from unittest.mock import patch
 from canvasapi.course import Course
+from http import HTTPStatus
+from django.utils import timezone
 
 from canvasapi.exceptions import CanvasException
+from canvas_oauth.models import CanvasOAuth2Token
 
 class CanvasCourseAPIHandlerTests(APITestCase):
     def setUp(self):
@@ -95,3 +98,26 @@ class CanvasCourseAPIHandlerTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(expected_dict, response.data)
+
+    def test_handle_canvas_api_exception_invalid_access_token(self):
+        from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+        from canvasapi.exceptions import InvalidAccessToken
+
+        # Create a token for the user
+        expires = timezone.make_aware(timezone.datetime(2023, 12, 31, 23, 59, 59))
+        CanvasOAuth2Token.objects.create(
+            user=self.user, access_token='access-token', expires=expires, refresh_token='refresh-token'
+        )
+        
+        manager = CanvasCredentialManager()
+        exception = InvalidAccessToken("Invalid token")
+        request = self.client.get(self.url).wsgi_request
+
+        # Assert token exists before handling exception
+        self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+
+        manager.handle_canvas_api_exception(exception, request)
+
+        # Assert token is deleted after handling exception
+        self.assertFalse(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+
