@@ -1,0 +1,67 @@
+{
+  "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
+  "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
+  "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
+    "id": "3edc0",
+    "description": null,
+    "title": "CCM Test Courses"
+  },
+  "aud": "89900000000000487",
+  "azp": "89900000000000487",
+  "https://purl.imsglobal.org/spec/lti/claim/deployment_id": "74757:1h2h3hhs93inu29llsb93tossii383i93jsbw829",
+  "exp": 1737565416,
+  "iat": 1737561816,
+  "iss": "https://canvas.test.instructure.com",
+  "nonce": "40aa9f331f4341e397c8b649ec0241487200b394d8da11efa19c0242ac130004",
+  "sub": "969bce03-d1e6-467a-9fff-e09dda5280eb",
+  "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": "https://ad6c-141-213-175-192.ngrok-free.app/ltilaunch",
+  "picture": "https://canvas.instructure.com/images/messages/avatar-50.png",
+  "email": "jdoe@umich.edu",
+  "name": "Jane Doe",
+  "given_name": "Jane",
+  "family_name": "Doe",
+  "https://purl.imsglobal.org/spec/lti/claim/lis": {
+    "person_sourcedid": "12345",
+    "course_offering_sourcedid": "ccmC1626457811556-24"
+  },
+  "https://purl.imsglobal.org/spec/lti/claim/context": {
+    "id": "3edc0",
+    "label": "CCM Test Courses",
+    "title": "CCM Test Courses",
+    "type": [
+      "http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"
+    ]
+  },
+  "https://purl.imsglobal.org/spec/lti/claim/tool_platform": {
+    "guid": "1h2h3hhs93inu29llsb93tossii383i93jsbw829.umich.instructure.com",
+    "name": "University of Michigan - Ann Arbor",
+    "version": "cloud",
+    "product_family_code": "canvas"
+  },
+  "https://purl.imsglobal.org/spec/lti/claim/launch_presentation": {
+    "document_target": "iframe",
+    "return_url": "https://canvas-test.it.umich.edu/courses/40001/external_content/success/external_tool_redirect",
+    "locale": "en",
+    "height": 400,
+    "width": 800
+  },
+  "locale": "en",
+  "https://purl.imsglobal.org/spec/lti/claim/roles": [
+    "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator",
+    "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor",
+    "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student",
+    "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor",
+    "http://purl.imsglobal.org/vocab/lis/v2/system/person#User"
+  ],
+  "https://purl.imsglobal.org/spec/lti/claim/custom": {
+    "roles": "TeacherEnrollment,Account Admin",
+    "login_id": "jdoe",
+    "course_id": "40001",
+    "is_root_account_admin": true
+  },
+  "https://purl.imsglobal.org/spec/lti/claim/lti11_legacy_user_id": "c6c45cd386e9ea86",
+  "https://purl.imsglobal.org/spec/lti/claim/lti1p1": {
+    "user_id": "c6c45cd386e9ea86"
+  },
+  "https://www.instructure.com/placement": "course_navigation"
+}

@@ -5,8 +5,9 @@ from django.conf import settings
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
-from lti_tool.views import LtiLaunchBaseView
+from lti_tool.views import LtiLaunchBaseView, LtiLaunch
 from pylti1p3.exception import LtiException
+from pylti1p3.message_launch import TLaunchData
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 
@@ -24,7 +25,7 @@ class CCMLTILaunchView(LtiLaunchBaseView):
     LTI_CUSTOM_PARAMS: List[str] = ['roles', 'is_root_account_admin', 'login_id', 'course_id']
     LTI_CUSTOM_PARAMS_URL: str = 'https://purl.imsglobal.org/spec/lti/claim/custom'
     
-    def validate_custom_lti_launch_data(self, lti_launch: Dict[str, Any]) -> None:
+    def validate_custom_lti_launch_data(self, lti_launch: TLaunchData) -> None:
         if self.LTI_CUSTOM_PARAMS_URL not in lti_launch:
             raise LTILaunchError(
                 'You need to have custom parameters configured on your LTI Launch. ' +
@@ -36,12 +37,8 @@ class CCMLTILaunchView(LtiLaunchBaseView):
         if missing_keys:
             raise LTILaunchError(f"LTI custom variables `{', '.join(missing_keys)}` are missing in the `{self.LTI_CUSTOM_PARAMS_URL}` ")
     
-    def login_user_from_lti(self, request: HttpRequest, launch_data: Dict[str, Any]) -> None:
-        course_id: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('course_id')
+    def login_user_from_lti(self, launch_data: TLaunchData) -> User:
         login_id: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('login_id')
-        roles: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('roles')
-        roles_list: List[str] = roles.split(',') if roles else []
-
         email: str = launch_data.get('email')
         first_name: str = launch_data.get('given_name')
         last_name: str = launch_data.get('family_name')
@@ -56,7 +53,14 @@ class CCMLTILaunchView(LtiLaunchBaseView):
                                                 last_name=last_name)
         except Exception as e:
             raise LTILaunchError(f'Error occured while getting the user info from LTI launch data due to {e}')
+        return user_obj
             
+        
+
+    def login_user_store_session(self, request, launch_data, user_obj):
+        course_id: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('course_id')
+        roles: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('roles')
+        roles_list: List[str] = roles.split(',') if roles else []
         try: 
             ccm_user_login(request, user_obj)
         except (ValueError, TypeError, Exception) as e:
@@ -75,11 +79,12 @@ class CCMLTILaunchView(LtiLaunchBaseView):
         else:
             raise LTILaunchError(f'Course ID from LTI launch cannot be null.')
     
-    def handle_resource_launch(self, request: HttpRequest, lti_launch: Any) -> HttpResponseRedirect:
+    def handle_resource_launch(self, request: HttpRequest, lti_launch: LtiLaunch) -> HttpResponseRedirect:
         try:
-            launch_data: Dict[str, Any] = lti_launch.get_launch_data()
+            launch_data: TLaunchData = lti_launch.get_launch_data()
             self.validate_custom_lti_launch_data(launch_data)
-            self.login_user_from_lti(request, launch_data)
+            user_obj = self.login_user_from_lti(launch_data)
+            self.login_user_store_session(request, launch_data, user_obj)
         except (LtiException, LTILaunchError, Exception) as e:
             logger.error(e)
             response: HttpResponse = HttpResponse(e)

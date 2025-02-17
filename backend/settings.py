@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
 from backend.ccm.utils import parse_csp
+from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,8 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webpack_loader',
-    "lti_tool",
     'watchman',
+    'canvas_oauth.apps.CanvasOAuthConfig',
+    "lti_tool"
 ]
 
 MIDDLEWARE = [
@@ -59,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'canvas_oauth.middleware.OAuthMiddleware',
     'csp.middleware.CSPMiddleware'
 ]
 
@@ -97,10 +100,11 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {
+            'NAME': 'test_ccm',
             'CHARSET': 'utf8mb4',
-            'COLLATION': 'utf8mb4_unicode_ci'
+            'COLLATION': 'utf8mb4_unicode_ci',
         }
-    }
+    },
 }
 
 CACHES = {
@@ -206,7 +210,7 @@ LOGGING = {
 CSP_FRAME_ANCESTORS = parse_csp('CSP_FRAME_ANCESTORS')
 CSP_SCRIPT_SRC = parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"])
 CSP_CONNECT_SRC = parse_csp('CSP_SCRIPT_SRC')
-CSP_IMG_SRC = parse_csp('CSP_IMG_SRC',["data:"])
+CSP_IMG_SRC = parse_csp('CSP_SCRIPT_SRC')
 CSP_FONT_SRC = parse_csp('CSP_FONT_SRC')
 CSP_STYLE_SRC = parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"])
 
@@ -230,8 +234,6 @@ PRIVACY_URL = os.getenv('PRIVACY_URL', None)
 
 HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 
-# Canvas URL
-CANVAS_INSTANCE_URL = os.getenv('CANVAS_INSTANCE_URL', 'https://canvas.instructure.com')
 
 DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
 
@@ -239,3 +241,13 @@ DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
 WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
 WATCHMAN_TOKEN_NAME = os.getenv('DJANGO_WATCHMAN_TOKEN_NAME', 'ccm-watchman-token')
 WATCHMAN_CHECKS = ('watchman.checks.caches', 'watchman.checks.databases')
+
+# Canvas OAuth settings
+CANVAS_OAUTH_CLIENT_ID = os.getenv('CANVAS_OAUTH_CLIENT_ID', '12342')
+CANVAS_OAUTH_CLIENT_SECRET = os.getenv('CANVAS_OAUTH_CLIENT_SECRET', 'ccm')
+CANVAS_OAUTH_CANVAS_DOMAIN = os.getenv('CANVAS_OAUTH_CANVAS_DOMAIN', 'canvas.test.instructure.com')
+# Scopes environment variable provides a way to recover if Canvas changes scope identifiers.
+if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
+    CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
+else:
+    CANVAS_OAUTH_SCOPES = DEFAUlT_CANVAS_SCOPES
