@@ -25,9 +25,6 @@ def redirect_oauth_view(request: HttpRequest) -> HttpResponse:
         logger.error(f"InvalidOAuthReturnError for user: {request.user}. Remove invalid refresh_token and prompt for reauthentication.")
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
         return handle_missing_token(request)
-    except (MissingTokenError, Exception) as e:
-        logger.error(f"Error occurred while fetching token for user: {request.user} due to {e}, the error may occur due to token deletion")
-        return handle_missing_token(request)
     return redirect(reverse('home'))
 
 # For /privacy/ requested by U-M OneTrust Privacy Banner
