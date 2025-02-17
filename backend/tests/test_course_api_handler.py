@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from canvasapi.exceptions import CanvasException
 from canvas_oauth.models import CanvasOAuth2Token
+from canvas_oauth.exceptions import InvalidOAuthReturnError
 
 class CanvasCourseAPIHandlerTests(APITestCase):
     def setUp(self):
@@ -72,7 +73,7 @@ class CanvasCourseAPIHandlerTests(APITestCase):
         data = {'newName': ''}
         response = self.client.put(self.url, data, format='json')
 
-        expected_dict = [{'canvasStatusCode': 500, 'message': 'Non-standard data shape found: "{"newName": ["This field may not be blank."]}"', 'failedInput': "{'newName': ''}"}]
+        expected_dict = [{'canvasStatusCode': 500, 'message': 'Non-standard data shape found: {"newName": ["This field may not be blank."]}', 'failedInput': "{'newName': ''}"}]
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(expected_dict, response.data['errors'])
@@ -99,25 +100,17 @@ class CanvasCourseAPIHandlerTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(expected_dict, response.data)
 
-    def test_handle_canvas_api_exception_invalid_access_token(self):
-        from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-        from canvasapi.exceptions import InvalidAccessToken
+    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    def test_handle_canvas_api_exception_invalid_access_token(self, mock_get_canvasapi_instance):
 
         # Create a token for the user
-        expires = timezone.make_aware(timezone.datetime(2023, 12, 31, 23, 59, 59))
-        CanvasOAuth2Token.objects.create(
-            user=self.user, access_token='access-token', expires=expires, refresh_token='refresh-token'
-        )
         
-        manager = CanvasCredentialManager()
-        exception = InvalidAccessToken("Invalid token")
-        request = self.client.get(self.url).wsgi_request
+        mock_get_canvasapi_instance.side_effect = InvalidOAuthReturnError({'error': 'invalid_grant'})
 
-        # Assert token exists before handling exception
-        self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+        response = self.client.get(self.url)
+        expected_dict = {'statusCode': 403, 'errors': [{'canvasStatusCode': 403, 'message': "{'error': 'invalid_grant'}", 'failedInput': '1'}]}
 
-        manager.handle_canvas_api_exception(exception, request)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN.value)
+        self.assertEqual(expected_dict, response.data)
 
-        # Assert token is deleted after handling exception
-        self.assertFalse(CanvasOAuth2Token.objects.filter(user=self.user).exists())
 

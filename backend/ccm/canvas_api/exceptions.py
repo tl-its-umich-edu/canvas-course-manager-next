@@ -45,7 +45,7 @@ class CanvasHTTPError(Exception):
         else:
             self.errors.append({
                 "canvasStatusCode": status_code,
-                "message": f'Non-standard data shape found: "{json.dumps(error_data)}"',
+                "message": f'Non-standard data shape found: {json.dumps(error_data)}',
                 "failedInput": failed_input
             })
 

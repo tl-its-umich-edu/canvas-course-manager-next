@@ -11,6 +11,7 @@ from canvasapi import Canvas
 
 from backend.ccm.canvas_api.canvasapi_serializer import CourseSerializer
 from .exceptions import CanvasHTTPError
+from canvas_oauth.exceptions import InvalidOAuthReturnError
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
@@ -55,6 +56,9 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
             logger.error(f"Canvas API error: {e}")
             err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, str(course_id))
             return Response(err_response.to_dict(), status=err_response.status_code)
+        except InvalidOAuthReturnError as e:
+            err_response: CanvasHTTPError = CanvasHTTPError(str(e), HTTPStatus.FORBIDDEN.value, str(course_id))
+            return Response(err_response.to_dict(), status=err_response.status_code)
       
     @extend_schema(
         operation_id="update_course",
@@ -78,6 +82,9 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
             except CanvasException as e:
                 logger.error(f"Canvas API error: {e}")
                 err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, str(request.data))
+                return Response(err_response.to_dict(), status=err_response.status_code)
+            except InvalidOAuthReturnError as e:
+                err_response: CanvasHTTPError = CanvasHTTPError(str(e), HTTPStatus.FORBIDDEN.value, str(course_id))
                 return Response(err_response.to_dict(), status=err_response.status_code)
         else:
             # If validation fails, return the error details.
