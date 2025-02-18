@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webpack_loader',
+    'watchman',
     'canvas_oauth.apps.CanvasOAuthConfig',
     "lti_tool"
 ]
@@ -197,6 +198,10 @@ LOGGING = {
         'canvas_oauth': {
             'handlers': ['console'],
             'level': 'WARN'
+        },
+        'watchman': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         }
     }
 }
@@ -231,6 +236,11 @@ HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 
 
 DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
+
+# Watchman settings (https://github.com/mwarkentin/django-watchman)
+WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
+WATCHMAN_TOKEN_NAME = os.getenv('DJANGO_WATCHMAN_TOKEN_NAME', 'ccm-watchman-token')
+WATCHMAN_CHECKS = ('watchman.checks.caches', 'watchman.checks.databases')
 
 # Canvas OAuth settings
 CANVAS_OAUTH_CLIENT_ID = os.getenv('CANVAS_OAUTH_CLIENT_ID', '12342')

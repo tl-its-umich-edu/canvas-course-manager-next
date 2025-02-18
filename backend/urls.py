@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from lti_tool.views import jwks, OIDCLoginInitView
 from backend.ccm.lti_config import CCMLTILaunchView
+import watchman.views
 
 from backend import views
 
@@ -28,6 +29,8 @@ urlpatterns = [
     path("init/<uuid:registration_uuid>/", OIDCLoginInitView.as_view(), name="init"),
     path("ltilaunch", CCMLTILaunchView.as_view(), name="ltilaunch"),
     path('privacy/', views.privacy_view, name="privacy"),
+    path('watchman/', include('watchman.urls')),
+    path('watchman/bare_status/', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
     path('redirectOAuth', views.redirect_oauth_view, name='redirect_oauth_view'),
 ]
