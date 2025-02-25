@@ -235,8 +235,8 @@ HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 
 # debugpy settings
 DEBUGPY_ENABLE = config_to_bool(os.getenv('DEBUGPY_ENABLE', False))
-DEBUGPY_ADDRESS = os.getenv('DEBUGPY_ADDRESS', '0.0.0.0')
-DEBUGPY_PORT = os.getenv('DEBUGPY_PORT', 5678)
+DEBUGPY_REMOTE_ADDRESS = os.getenv('DEBUGPY_REMOTE_ADDRESS', '0.0.0.0')
+DEBUGPY_REMOTE_PORT = os.getenv('DEBUGPY_REMOTE_PORT', 5678)
 DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER', False))
 
 # Canvas OAuth settings
