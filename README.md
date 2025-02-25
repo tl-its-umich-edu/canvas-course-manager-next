@@ -47,7 +47,7 @@ There are launch settings in this project for debugging both tests and the backe
 
 After you start up the application 1 port is opened by default in 5678 to debug the backend. You can go into the debugger panel and launch CCM Django to connect to this.
 
-To debug tests, it's easiest to just change the DEBUG_REMOTE_PORT on the command line to a different address and connect to that. ose is 5679. So for example you would run.
+To debug tests, it's easiest to just change the DEBUG_REMOTE_PORT on the command line to a different address and connect to that with port 5679. So for example you would run.
 
 `docker exec -it ccm_web /bin/bash -c  "DEBUGPY_WAIT_FOR_ATTACH=True DEBUGPY_ENABLE=TRUE DEBUGPY_REMOTE_PORT=5679 ./manage.py test"`
 
