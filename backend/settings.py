@@ -263,7 +263,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Canavs Course Manager API',
+    'TITLE': 'Canvas Course Manager API',
     'DESCRIPTION': 'Canvas Course Admin features for U-M',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
