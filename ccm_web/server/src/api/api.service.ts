@@ -54,7 +54,6 @@ export class APIService {
       },
       baseHelpURL: this.configService.get('baseHelpURL', { infer: true }),
       googleAnalyticsId: this.configService.get('server.googleAnalyticsId', { infer: true }),
-      oneTrustScriptDomain: this.configService.get('server.oneTrustScriptDomain', { infer: true })
     }
   }
 

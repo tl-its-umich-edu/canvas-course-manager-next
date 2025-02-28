@@ -16,7 +16,6 @@ export interface Globals {
   }
   baseHelpURL: string
   googleAnalyticsId: string
-  oneTrustScriptDomain: string
 }
 
 export interface APIErrorPayload {

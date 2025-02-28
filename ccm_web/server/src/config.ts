@@ -13,7 +13,6 @@ export interface ServerConfig {
   csrfSecret: string
   maxAgeInSec: number
   googleAnalyticsId: string
-  oneTrustScriptDomain: string
   allowedScriptDomains: string[]
 }
 
@@ -158,7 +157,6 @@ export function validateConfig (): Config {
         'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
       ),
       googleAnalyticsId: validate<string>('GOOGLE_ANALYTICS_ID', env.GOOGLE_ANALYTICS_ID, isString, [isNotEmpty]),
-      oneTrustScriptDomain: validate<string>('ONE_TRUST_DOMAIN', env.ONE_TRUST_DOMAIN, isString, [isNotEmpty]),
       allowedScriptDomains: JSON.parse(env.ALLOWED_SCRIPT_DOMAINS ?? '')
     }
     lti = {
