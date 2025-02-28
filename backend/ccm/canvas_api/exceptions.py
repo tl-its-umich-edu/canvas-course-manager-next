@@ -15,7 +15,7 @@ class CanvasHTTPError(Exception):
     Custom exception for HTTP errors originating from Canvas API interactions
     """
 
-    canvas_error_prefix = 'An error occurred while communciating with Canvas. '
+    canvas_error_prefix = 'An error occurred while communicating with Canvas. '
 
     message: str
     status_code: int
