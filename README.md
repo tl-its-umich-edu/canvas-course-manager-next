@@ -42,6 +42,16 @@ you can use the following steps to build and run the application using Docker.
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
 
+### Debugging using VS Code
+There are launch settings in this project for debugging both tests and the backend in VS Code. The ports 5678 and 5679 are opened by docker-compose for debugging. 
+
+After you start up the application 1 port is opened by default in 5678 to debug the backend. You can go into the debugger panel and launch CCM Django to connect to this.
+
+To debug tests, it's easiest to just change the DEBUG_REMOTE_PORT on the command line to a different address and connect to that with port 5679. So for example you would run.
+
+`docker exec -it ccm_web /bin/bash -c  "DEBUGPY_WAIT_FOR_ATTACH=True DEBUGPY_ENABLE=TRUE DEBUGPY_REMOTE_PORT=5679 ./manage.py test"`
+
+It will wait for the debugger to attach for tests to run, and once you attach it will startup. 
 
 ### CCM Documentation
 GitHub Pages is used for hosting the CCM feature documentation,

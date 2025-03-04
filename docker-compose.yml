@@ -13,6 +13,7 @@ services:
     ports:
       - 4000:4000
       - 5678:5678
+      - 5679:5679
     volumes:
       - ./ccm_web/client/src:/code/ccm_web/client/src
       - ./backend:/code/backend

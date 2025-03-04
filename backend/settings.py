@@ -16,6 +16,10 @@ from django.core.management.utils import get_random_secret_key
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
+config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
+
+TEST_RUNNER = 'backend.tests.test_setup.CustomTestRunner'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -234,8 +238,11 @@ PRIVACY_URL = os.getenv('PRIVACY_URL', None)
 
 HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 
-
-DEBUGPY_ENABLE = os.getenv('DEBUGPY_ENABLE', False)
+# debugpy settings
+DEBUGPY_ENABLE = config_to_bool(os.getenv('DEBUGPY_ENABLE', False))
+DEBUGPY_REMOTE_ADDRESS = os.getenv('DEBUGPY_REMOTE_ADDRESS', '0.0.0.0')
+DEBUGPY_REMOTE_PORT = os.getenv('DEBUGPY_REMOTE_PORT', 5678)
+DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER', False))
 
 # Watchman settings (https://github.com/mwarkentin/django-watchman)
 WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
