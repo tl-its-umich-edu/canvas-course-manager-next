@@ -7,7 +7,6 @@ import APIErrorMessage from './components/APIErrorMessage.js'
 import AuthorizePrompt from './components/AuthorizePrompt.js'
 import ErrorAlert from './components/ErrorAlert.js'
 import Layout from './components/Layout.js'
-import useGlobals from './hooks/useGlobals.js'
 import usePromise from './hooks/usePromise.js'
 import { useGoogleAnalytics, UseGoogleAnalyticsParams } from '@tl-its-umich-edu/react-ga-onetrust-consent'
 import { CanvasCourseBase } from './models/canvas.js'
@@ -18,16 +17,14 @@ import redirect from './utils/redirect.js'
 import { Globals } from './models/models.js'
 
 interface HomeProps {
-  ccmGlobals: Globals
+  globals: Globals
 }
 
 function App (props: HomeProps): JSX.Element {
-  const { ccmGlobals } = props
+  const { globals } = props
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
-
-  const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals(ccmGlobals)
 
   const googleAnalyticsConfig: UseGoogleAnalyticsParams = {
     googleAnalyticsId: globals?.googleAnalyticsId ?? '',
@@ -52,11 +49,7 @@ function App (props: HomeProps): JSX.Element {
 
   const loading = <div className='App'><p>Loading...</p></div>
 
-  if (isAuthenticated === undefined || isLoading) return loading
-
-  if (globalsError !== undefined) console.error(globalsError)
-  if (csrfTokenCookieError !== undefined) console.error(csrfTokenCookieError)
-  if (globals === undefined || !isAuthenticated || csrfToken === undefined) {
+  if (globals === undefined) {
     redirect('/access-denied')
     return (loading)
   }
@@ -85,17 +78,16 @@ function App (props: HomeProps): JSX.Element {
     : undefined
 
   return (
-    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} isAdmin={globals?.user.isStaff?? false} csrfToken={csrfToken}>
+    <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} isAdmin={globals?.user.isStaff?? false} >
       <Routes>
         <Route path='/' element={
-          <Home globals={globals} csrfToken={csrfToken} course={course} setCourse={setCourse} getCourseError={getCourseError} />
+          <Home globals={globals} course={course} setCourse={setCourse} getCourseError={getCourseError} />
           } />
         {features.map(feature => {
           return (
             <Route key={feature.data.id} path={feature.route} element={
               <feature.component
                 globals={globals}
-                csrfToken={csrfToken}
                 course={course}
                 title={feature.data.title}
                 helpURLEnding={feature.data.helpURLEnding}

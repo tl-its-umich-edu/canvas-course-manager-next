@@ -6,7 +6,6 @@ import { HelpOutline } from '@mui/icons-material'
 import CreateSectionWidget from './CreateSectionWidget.js'
 import SectionSelectorWidget from './SectionSelectorWidget.js'
 import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName } from '../models/canvas.js'
-import { CsrfToken } from '../models/models.js'
 
 const PREFIX = 'CreateSelectSectionWidget'
 
@@ -69,7 +68,6 @@ interface CreateSelectSectionWidgetBaseProps {
   sections: CanvasCourseSectionWithCourseName[]
   selectedSection?: CanvasCourseSectionWithCourseName
   setSelectedSection: (section: CanvasCourseSectionWithCourseName) => void
-  csrfToken: CsrfToken
 }
 
 type CreateSelectSectionWidgetProps = CreateSelectSectionWidgetBaseProps & CreateSelectSectionWidgetCreateProps
@@ -101,7 +99,6 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
           search={[]}
           multiSelect={false}
           sections={props.sections}
-          csrfToken={props.csrfToken} 
           selectedSections={props.selectedSection !== undefined ? [props.selectedSection] : []}
           selectionUpdated={(sections) => props.setSelectedSection(sections[0])}
           canUnmerge={false}

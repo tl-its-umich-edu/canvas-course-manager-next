@@ -26,7 +26,7 @@ import {
   REQUIRED_ENROLLMENT_HEADERS, RowNumberedAddEnrollment, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment.js'
 import { AddUMUsersLeafProps } from '../models/FeatureUIData.js'
-import { CSVWorkflowStep, CsrfToken, InvalidationType } from '../models/models.js'
+import { CSVWorkflowStep, InvalidationType } from '../models/models.js'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators.js'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
@@ -82,7 +82,6 @@ const Root = styled('div')((
 
 interface SingleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
   course: CanvasCourseBase
-  csrfToken: CsrfToken
   onSectionCreated: (newSection: CanvasCourseSection) => void
 }
 
@@ -97,7 +96,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
-      await api.addSectionEnrollments(section.id, apiEnrollments, props.csrfToken.token)
+      await api.addSectionEnrollments(section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
@@ -175,7 +174,6 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
             // Only admins have access to the Add UM Users feature, and they can create sections.
             canCreate={true}
             course={props.course}
-            csrfToken={props.csrfToken}
             onSectionCreated={(s) => {
               setSelectedSection(injectCourseName([s], props.course.name)[0])
               props.onSectionCreated(s)

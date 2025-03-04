@@ -96,7 +96,6 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
 
   const commonProps = {
     course: props.course,
-    csrfToken: props.csrfToken,
     sections: sections ?? [],
     doGetSections: async () => {
       clearGetSectionsError()

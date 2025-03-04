@@ -16,12 +16,11 @@ import BulkSectionCreate from '../pages/BulkSectionCreate.js'
 import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas.js'
 import MergeSections from '../pages/MergeSections.js'
-import { CsrfToken, Globals, RoleEnum } from './models.js'
+import { Globals, RoleEnum } from './models.js'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas.js'
 
 export interface CCMComponentProps {
   globals: Globals
-  csrfToken: CsrfToken
   course: CanvasCourseBase
   title: string
   helpURLEnding: string

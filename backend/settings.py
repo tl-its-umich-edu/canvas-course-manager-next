@@ -52,7 +52,10 @@ INSTALLED_APPS = [
     'webpack_loader',
     'watchman',
     'canvas_oauth.apps.CanvasOAuthConfig',
-    "lti_tool"
+    'lti_tool',
+    'rest_framework',
+    'drf_spectacular',
+    'rest_framework_tracking'
 ]
 
 MIDDLEWARE = [
@@ -258,3 +261,19 @@ if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
     CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
 else:
     CANVAS_OAUTH_SCOPES = DEFAUlT_CANVAS_SCOPES
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Canvas Course Manager API',
+    'DESCRIPTION': 'Canvas Course Admin features for U-M',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+DRF_TRACKING_ADMIN_LOG_READONLY = True

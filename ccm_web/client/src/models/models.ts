@@ -47,10 +47,6 @@ export interface Globals {
   oneTrustScriptDomain: string;
 }
 
-export interface CsrfToken {
-  token: string
-}
-
 // API Errors
 
 export interface CanvasAPIErrorPayload {

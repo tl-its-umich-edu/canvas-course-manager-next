@@ -14,7 +14,7 @@ import { courseRenameRoles } from '../models/feature.js'
 import allFeatures, {
   FeatureUIGroup, FeatureUIProps, isAuthorizedForAnyFeature, isAuthorizedForFeature, isAuthorizedForRoles
 } from '../models/FeatureUIData.js'
-import { CsrfToken, Globals } from '../models/models.js'
+import { Globals } from '../models/models.js'
 import { CanvasCourseBase } from '../models/canvas.js'
 import { courseNameInputSchema, validateString } from '../utils/validation.js'
 
@@ -43,7 +43,6 @@ const Root = styled('div')(({ theme }) => ({
 
 interface HomeProps {
   globals: Globals
-  csrfToken: CsrfToken
   course: CanvasCourseBase | undefined
   getCourseError: Error | undefined
   setCourse: (course: CanvasCourseBase|undefined) => void
@@ -55,7 +54,7 @@ function Home (props: HomeProps): JSX.Element {
   const setCourseNameAsync = async (
     newCourseName: string
   ): Promise<CanvasCourseBase|undefined> => {
-    return await apiSetCourseName(props.globals.course.id, newCourseName, props.csrfToken.token)
+    return await apiSetCourseName(props.globals.course.id, newCourseName)
   }
 
   const [doSetCourseName, setCourseNameLoading, setCourseNameError] = usePromise<CanvasCourseBase|undefined, typeof setCourseNameAsync>(
