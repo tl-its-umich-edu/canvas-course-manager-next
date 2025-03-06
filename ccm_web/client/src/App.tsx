@@ -9,7 +9,7 @@ import ErrorAlert from './components/ErrorAlert.js'
 import Layout from './components/Layout.js'
 import useGlobals from './hooks/useGlobals.js'
 import usePromise from './hooks/usePromise.js'
-import { useGoogleAnalytics, UseGoogleAnalyticsParams } from '@tl-its-umich-edu/react-ga-onetrust-consent'
+import { InitializeConsentManagerParams, useGoogleAnalytics, UseGoogleAnalyticsParams, useUmConsent } from '@tl-its-umich-edu/react-ga-onetrust-consent'
 import { CanvasCourseBase } from './models/canvas.js'
 import allFeatures from './models/FeatureUIData.js'
 import Home from './pages/Home.js'
@@ -25,10 +25,24 @@ function App (): JSX.Element {
 
   const googleAnalyticsConfig: UseGoogleAnalyticsParams = {
     googleAnalyticsId: globals?.googleAnalyticsId ?? '',
-    oneTrustScriptDomain: globals?.oneTrustScriptDomain ?? '',
     debug: false
   }
-  useGoogleAnalytics(googleAnalyticsConfig);
+  const { gaInitialized, gaHandlers } = useGoogleAnalytics(googleAnalyticsConfig);
+  const { umConsentInitialize, umConsentInitialized } = useUmConsent();    
+    if ( 
+      !umConsentInitialized &&
+      gaInitialized &&
+      gaHandlers.onConsentApprove &&
+      gaHandlers.onConsentReject
+      ) {
+        const consentParams: InitializeConsentManagerParams = {
+            developmentMode: false,
+            alwaysShow: false,
+            onConsentApprove: gaHandlers.onConsentApprove,
+            onConsentReject: gaHandlers.onConsentReject,
+        }
+        umConsentInitialize(consentParams);
+    }
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
