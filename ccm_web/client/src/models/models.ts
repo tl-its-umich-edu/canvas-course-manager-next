@@ -43,7 +43,6 @@ export interface Globals {
   course: Course
   baseHelpURL: string
   googleAnalyticsId: string;
-  oneTrustScriptDomain: string;
 }
 
 export interface CsrfToken {
