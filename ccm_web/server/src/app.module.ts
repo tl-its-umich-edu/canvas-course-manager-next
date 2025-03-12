@@ -88,9 +88,9 @@ export class AppModule implements NestModule {
       contentSecurityPolicy: {
         directives: { 
           'frame-ancestors': [this.frameDomain],
-          'script-src': ["'self'", ...this.allowedScriptDomains],
-          'connect-src': ["'self'", ...this.allowedScriptDomains],
-          'img-src': ["'self'", ...this.allowedScriptDomains],
+          'script-src': ["'self'", "'unsafe-inline'", ...this.allowedScriptDomains],
+          'connect-src': ["'self'", "'unsafe-inline'", ...this.allowedScriptDomains],
+          'img-src': ["'self'", "'unsafe-inline'", ...this.allowedScriptDomains],
         }
       }
     }))
