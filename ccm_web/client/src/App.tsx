@@ -14,7 +14,7 @@ import allFeatures from './models/FeatureUIData.js'
 import Home from './pages/Home.js'
 import NotFound from './pages/NotFound.js'
 import redirect from './utils/redirect.js'
-import {Helmet} from 'react-helmet'
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 function App (): JSX.Element {
   const features = allFeatures.map(f => f.features).flat()
@@ -94,29 +94,51 @@ function App (): JSX.Element {
         <Route path="/*" element={<NotFound />}/>
       </Routes>
     </Layout>
+    <HelmetProvider>
+      {/* {globals?.googleAnalyticsId && (
+        <Helmet>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${globals?.googleAnalyticsId}`}/>
+          <script type="text/javascript">
+            {`window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag("consent", "default", {
+                  "functional_storage"     : "denied",
+                  "analytics_storage"      : "denied",
+                  "ad_storage"             : "denied",
+                  "ad_user_data"           : "denied",
+                  "ad_personalization"     : "denied",
+                  "personalization_storage": "denied"
+              });
+              gtag('config', '${globals?.googleAnalyticsId}');
+            `}
+          </script>
+        </Helmet>
+      )} */}
     <Helmet>
-    <script type="text/javascript">
-      {`window.umConsentManager = {
-          mode: 'prod', // values: 'prod', 'dev'
-          customManager: {
-              enabled   : false,
-              alwaysShow: false,
-              rootDomain: false,
-              preferencePanel: {
-                  beforeCategories: false, // HTML
-                  afterCategories: false   // HTML
-              }
-          },
-          privacyUrl: '/privacy/',
-          googleAnalyticsID: ${globals?.googleAnalyticsId ?`'${globals?.googleAnalyticsId}'`: false}, // e.g. G-XXXXXXXXXX
-          cookies: {
-              necessary: [], // {name: '', domain: '', regex: ''}
-              analytics: []
-          }
-       }`}  
+      <script type="text/javascript">
+        {`window.umConsentManager = {
+            mode: 'prod', // values: 'prod', 'dev'
+            customManager: {
+                enabled   : false,
+                alwaysShow: false,
+                rootDomain: 'jkrooss-ccm.loophole.site',
+                preferencePanel: {
+                    beforeCategories: false, // HTML
+                    afterCategories: false   // HTML
+                }
+            },
+            privacyUrl: '/privacy/',
+            googleAnalyticsID: ${globals?.googleAnalyticsId ?`'${globals?.googleAnalyticsId}'`: false}, // e.g. G-XXXXXXXXXX
+            cookies: {
+                necessary: [], // {name: '', domain: '', regex: ''}
+                analytics: []
+            }
+        }`}  
       </script>
       <script async src="https://umich.edu/apis/umconsentmanager/consentmanager.js"/>
     </Helmet>
+    </HelmetProvider>
     </>
   )
 }
