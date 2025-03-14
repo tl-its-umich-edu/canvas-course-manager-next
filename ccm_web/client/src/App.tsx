@@ -104,7 +104,8 @@ function App (): JSX.Element {
                       cookie_flags: "SameSite=None; Secure"
                   }
               },
-              externalLinkBlank: true
+              externalLinkBlank: true,
+              privacyUrl: false
             }
         `}  
         </script>
