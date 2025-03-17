@@ -9,12 +9,12 @@ import ErrorAlert from './components/ErrorAlert.js'
 import Layout from './components/Layout.js'
 import useGlobals from './hooks/useGlobals.js'
 import usePromise from './hooks/usePromise.js'
-import { InitializeConsentManagerParams, useGoogleAnalytics, UseGoogleAnalyticsParams, useUmConsent } from '@tl-its-umich-edu/react-ga-onetrust-consent'
 import { CanvasCourseBase } from './models/canvas.js'
 import allFeatures from './models/FeatureUIData.js'
 import Home from './pages/Home.js'
 import NotFound from './pages/NotFound.js'
 import redirect from './utils/redirect.js'
+import { Helmet, HelmetProvider } from 'react-helmet-async'
 
 function App (): JSX.Element {
   const features = allFeatures.map(f => f.features).flat()
@@ -22,27 +22,6 @@ function App (): JSX.Element {
   const location = useLocation()
 
   const [globals, csrfToken, isAuthenticated, isLoading, globalsError, csrfTokenCookieError] = useGlobals()
-
-  const googleAnalyticsConfig: UseGoogleAnalyticsParams = {
-    googleAnalyticsId: globals?.googleAnalyticsId ?? '',
-    debug: false
-  }
-  const { gaInitialized, gaHandlers } = useGoogleAnalytics(googleAnalyticsConfig);
-  const { umConsentInitialize, umConsentInitialized } = useUmConsent();    
-    if ( 
-      !umConsentInitialized &&
-      gaInitialized &&
-      gaHandlers.onConsentApprove &&
-      gaHandlers.onConsentReject
-      ) {
-        const consentParams: InitializeConsentManagerParams = {
-            developmentMode: false,
-            alwaysShow: false,
-            onConsentApprove: gaHandlers.onConsentApprove,
-            onConsentReject: gaHandlers.onConsentReject,
-        }
-        umConsentInitialize(consentParams);
-    }
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(
@@ -93,6 +72,7 @@ function App (): JSX.Element {
     : undefined
 
   return (
+  <>
     <Layout {...{ features, pathnames }} devMode={globals?.environment === 'development'} csrfToken={csrfToken}>
       <Routes>
         <Route path='/' element={
@@ -114,6 +94,25 @@ function App (): JSX.Element {
         <Route path="/*" element={<NotFound />}/>
       </Routes>
     </Layout>
+    <HelmetProvider>
+      <Helmet>
+        <script type="text/javascript">
+          {`window.umConsentManager = {
+              googleAnalyticsID: ${globals?.googleAnalyticsId ?`'${globals?.googleAnalyticsId}'`: false},
+              googleAnalyticsCustom: {
+                  streamConfig: {
+                      cookie_flags: "SameSite=None; Secure"
+                  }
+              },
+              externalLinkBlank: true,
+              privacyUrl: false
+            }
+        `}  
+        </script>
+        <script async src="https://umich.edu/apis/umconsentmanager/consentmanager.js"/>
+      </Helmet>
+    </HelmetProvider>
+    </>
   )
 }
 
