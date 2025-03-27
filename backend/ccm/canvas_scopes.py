@@ -4,5 +4,4 @@ DEFAUlT_CANVAS_SCOPES = [
     'url:PUT|/api/v1/courses/:id',
     # Sections
     'url:GET|/api/v1/courses/:course_id/sections',
-    'url:POST|/api/v1/courses/:course_id/sections'
 ]
