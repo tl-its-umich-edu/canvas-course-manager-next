@@ -7,6 +7,8 @@ class TestCanvasScope(SimpleTestCase):
         expected_scopes = [
             'url:GET|/api/v1/courses/:id',
             'url:PUT|/api/v1/courses/:id',
+            'url:GET|/api/v1/courses/:course_id/sections',
+            'url:POST|/api/v1/courses/:course_id/sections'
         ]
         self.assertEqual(DEFAUlT_CANVAS_SCOPES, expected_scopes, "Canvas scopes do not match the expected values")
 
