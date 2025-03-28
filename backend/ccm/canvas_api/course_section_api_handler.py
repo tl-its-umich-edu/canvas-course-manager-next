@@ -10,7 +10,6 @@ from canvasapi.exceptions import CanvasException
 from canvasapi.course import Course
 from canvasapi import Canvas
 
-from backend.ccm.canvas_api.canvasapi_serializer import SectionSerializer
 from .exceptions import CanvasHTTPError
 from canvas_oauth.exceptions import InvalidOAuthReturnError
 
@@ -29,14 +28,13 @@ class Section:
     course_id: int
     total_students: int
     nonxlist_course_id: int
-class CanvasSectionAPIHandler(LoggingMixin, APIView):
+class CourseSectionAPIHandler(LoggingMixin, APIView):
     logging_methods = ['GET']
     """"
     "API handler for Canvas section data."
     """
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = SectionSerializer  # Ensures Swagger UI recognizes it
 
     def get(self, request: Request, course_id: int) -> Response:
         """
@@ -44,29 +42,22 @@ class CanvasSectionAPIHandler(LoggingMixin, APIView):
         """
         try:
             canvas_api: Canvas = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
-            logger.info(f"Retrieving course for section data with course_id: {course_id}")
-            course: Course = canvas_api.get_course(course_id)
-            logger.info(f"Course data retrieved: {course}")
             
             # Call the Canvas API package to get section details.
-            logger.info(f"Getting section data for course")
+            logger.info(f"Retrieving course for section data with course_id: {course_id}")
             # Get list of sections, including total_students info
-            sections = course.get_sections(include=['total_students'], per_page=100)
-            logger.info(f"Section data retrieved: {sections}")
+            sections = canvas_api.get_course(course_id).get_sections(include=['total_students'], per_page=100)
             
             # Format the section data to return specific section info
             formatted_sections = []
             for section in sections: 
-                section_data = Section(
-                    id=section.id,
-                    name=section.name,
-                    course_id=section.course_id,
-                    total_students=section.total_students,
-                    nonxlist_course_id=section.nonxlist_course_id
-                )
-                #serialize the section data
-                serializer = SectionSerializer(section_data)
-                formatted_sections.append(serializer.data)
+                formatted_sections.append({
+                    "id": section.id,
+                    "name": section.name,
+                    "course_id": section.course_id,
+                    "total_students": section.total_students,
+                    "nonxlist_course_id": section.nonxlist_course_id
+                })
             logger.info(f"Formatted section data: {formatted_sections}")
             return Response(formatted_sections, status=HTTPStatus.OK)
         except (CanvasException, InvalidOAuthReturnError, Exception) as e:

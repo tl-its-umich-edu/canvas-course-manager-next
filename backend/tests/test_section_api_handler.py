@@ -6,7 +6,7 @@ from canvasapi.course import Course
 from canvasapi.section import Section
 
 
-class CanvasSectionAPIHandlerTests(APITestCase):
+class CourseSectionAPIHandlerTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpass')
