@@ -5,5 +5,5 @@ from backend.ccm.canvas_api.course_section_api_handler import CourseSectionAPIHa
 
 urlpatterns = [
   path('course/<int:course_id>/', CanvasCourseAPIHandler.as_view() , name='course'),
-  path('course/<int:course_id>/sections/', CourseSectionAPIHandler.as_view() , name='section')
+  path('course/<int:course_id>/sections/', CourseSectionAPIHandler.as_view() , name='courseSection')
 ]
