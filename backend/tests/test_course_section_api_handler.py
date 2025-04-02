@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth.models import User
 from canvasapi.course import Course
 from canvasapi.section import Section
+from canvasapi.paginated_list import PaginatedList
 from unittest.mock import MagicMock, patch
 from canvasapi.exceptions import CanvasException
 
@@ -40,7 +41,9 @@ class CourseSectionAPIHandlerTests(APITestCase):
             'nonxlist_course_id': None
         }
         )
-        mock_course.get_sections.return_value = [mock_section_1, mock_section_2]
+        paginated_mock = MagicMock(spec=PaginatedList)
+        paginated_mock.__iter__.return_value = iter([mock_section_1, mock_section_2])
+        mock_course.get_sections.return_value = paginated_mock
 
         response = self.client.get(self.url)
         # Assert the response
@@ -60,7 +63,9 @@ class CourseSectionAPIHandlerTests(APITestCase):
         mock_course = MagicMock(spec=Course)
         mock_canvas.get_course.return_value = mock_course
 
-        mock_course.get_sections.return_value = []
+        paginated_mock = MagicMock(spec=PaginatedList)
+        paginated_mock.__iter__.return_value = iter([])
+        mock_course.get_sections.return_value = paginated_mock
 
         response = self.client.get(self.url)
         # Assert the response
@@ -69,7 +74,7 @@ class CourseSectionAPIHandlerTests(APITestCase):
 
     @patch('backend.ccm.canvas_api.course_section_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
     def test_get_course_sections_exception(self, mock_get_canvasapi_instance):
-        # Mock the Canvas API instance to raise a CanvasException
+        # Mock the Canvas API instance to raise a CanvasException when calling get_sections
         mock_canvas = mock_get_canvasapi_instance.return_value
         mock_course = MagicMock(spec=Course)
         mock_canvas.get_course.return_value = mock_course
