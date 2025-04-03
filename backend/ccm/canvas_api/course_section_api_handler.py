@@ -20,21 +20,24 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 logger = logging.getLogger(__name__)
 
-CANVAS_CREDENTIALS = CanvasCredentialManager()
 class CourseSectionAPIHandler(LoggingMixin, APIView):
-    logging_methods = ['GET']
     """
     "API handler for Canvas section data."
     """
+    logging_methods = ['GET']
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+
+    def __init__(self, credential_manager=None):
+        self.credential_manager = credential_manager or CanvasCredentialManager()
+        super().__init__()
 
     def get(self, request: Request, course_id: int, per_page: int = 100) -> Response:
         """
         Get section data from Canvas.
         """
         try:
-            canvas_api: Canvas = CANVAS_CREDENTIALS.get_canvasapi_instance(request)
+            canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
             
             # Call the Canvas API package to get section details.
             logger.info(f"Retrieving course for section data with course_id: {course_id}")
@@ -45,5 +48,5 @@ class CourseSectionAPIHandler(LoggingMixin, APIView):
 
             return Response(serializer.data, status=HTTPStatus.OK)
         except (CanvasException, InvalidOAuthReturnError, Exception) as e:
-            err_response: CanvasHTTPError = CANVAS_CREDENTIALS.handle_canvas_api_exception(e, request, str(course_id))
+            err_response: CanvasHTTPError = self.credential_manager.handle_canvas_api_exception(e, request, str(course_id))
             return Response(err_response.to_dict(), status=err_response.status_code)

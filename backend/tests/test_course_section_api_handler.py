@@ -1,6 +1,10 @@
+from django.test import RequestFactory
 from django.urls import reverse
+from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+from backend.ccm.canvas_api.course_section_api_handler import CourseSectionAPIHandler
+from backend.ccm.canvas_api.exceptions import CanvasHTTPError
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from canvasapi.course import Course
 from canvasapi.section import Section
@@ -12,40 +16,50 @@ from canvasapi.exceptions import CanvasException
 
 class CourseSectionAPIHandlerTests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.force_authenticate(user=self.user)
         self.course_id = 1
         self.url = reverse('courseSection', kwargs={'course_id': self.course_id})
+        self.request_factory = RequestFactory()
 
-    @patch('backend.ccm.canvas_api.course_section_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
-    def test_get_course_sections_success(self, mock_get_canvasapi_instance):
-        # Mock the Canvas API instance AND canvas course
-        mock_canvas = mock_get_canvasapi_instance.return_value
+    # Mock Course Section API handler view for testing
+    def get_mocked_view(self, section_data=None, exception=None):
+        mock_canvas = MagicMock()
         mock_course = MagicMock(spec=Course)
-        mock_canvas.get_course.return_value = mock_course
+        mock_manager = MagicMock(spec=CanvasCredentialManager)
 
-        mock_section_1 = Section(mock_canvas._Canvas__requester,{
+        if exception:
+            error_obj = CanvasHTTPError(exception.message, status.HTTP_500_INTERNAL_SERVER_ERROR, failed_input=str(self.course_id))
+            mock_course.get_sections.side_effect = exception
+            mock_manager.handle_canvas_api_exception.return_value = error_obj
+        else:
+            sections = [Section(mock_canvas._Canvas__requester, data) for data in (section_data or [])]
+            mock_paginated = MagicMock(spec=PaginatedList)
+            mock_paginated.__iter__.return_value = iter(sections)
+            mock_course.get_sections.return_value = mock_paginated
+        mock_manager.get_canvasapi_instance.return_value = mock_canvas
+        mock_canvas.get_course.return_value = mock_course
+        return CourseSectionAPIHandler(credential_manager=mock_manager)
+
+    def test_get_course_sections_success(self):
+        request = self.request_factory.get(self.url)
+        request.user = self.user
+
+        mock_section_1 = {
             'id': 1,
             'name': 'Section 1',
             'course_id': self.course_id,
             'total_students': 10,
             'nonxlist_course_id': None
         }
-        )
-        mock_section_2 = Section(mock_canvas._Canvas__requester,{
+        mock_section_2 = {
             'id': 2,
             'name': 'Section 2',
             'course_id': self.course_id,
             'total_students': 20,
             'nonxlist_course_id': None
         }
-        )
-        paginated_mock = MagicMock(spec=PaginatedList)
-        paginated_mock.__iter__.return_value = iter([mock_section_1, mock_section_2])
-        mock_course.get_sections.return_value = paginated_mock
-
-        response = self.client.get(self.url)
+        view = self.get_mocked_view(section_data=[mock_section_1, mock_section_2])
+        response = view.get(request, course_id=self.course_id)
         # Assert the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -56,32 +70,24 @@ class CourseSectionAPIHandlerTests(APITestCase):
         self.assertEqual(response.data[1]['name'], "Section 2")
         self.assertEqual(response.data[1]['total_students'], 20)
 
-    @patch('backend.ccm.canvas_api.course_section_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
-    def test_get_course_sections_empty(self, mock_get_canvasapi_instance):
-        # Mock the Canvas API instance AND canvas course
-        mock_canvas = mock_get_canvasapi_instance.return_value
-        mock_course = MagicMock(spec=Course)
-        mock_canvas.get_course.return_value = mock_course
+    def test_get_course_sections_empty(self):
+        request = self.request_factory.get(self.url)
+        request.user = self.user
 
-        paginated_mock = MagicMock(spec=PaginatedList)
-        paginated_mock.__iter__.return_value = iter([])
-        mock_course.get_sections.return_value = paginated_mock
+        view = self.get_mocked_view(section_data=[])
+        response = view.get(request, course_id=self.course_id)
 
-        response = self.client.get(self.url)
         # Assert the response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
 
-    @patch('backend.ccm.canvas_api.course_section_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
-    def test_get_course_sections_exception(self, mock_get_canvasapi_instance):
-        # Mock the Canvas API instance to raise a CanvasException when calling get_sections
-        mock_canvas = mock_get_canvasapi_instance.return_value
-        mock_course = MagicMock(spec=Course)
-        mock_canvas.get_course.return_value = mock_course
+    def test_get_course_sections_exception(self):
+        request = self.request_factory.get(self.url)
+        request.user = self.user
 
-        mock_course.get_sections.side_effect = CanvasException('Error retrieving sections')
+        view = self.get_mocked_view(exception=CanvasException('Error retrieving sections'))
 
-        response = self.client.get(self.url)
+        response = view.get(request, course_id=self.course_id)
         # Assert the response
         expected_dict = {
             "statusCode": 500,
