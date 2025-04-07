@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import logging
 from http import HTTPStatus
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectReadonlySerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
@@ -43,7 +43,8 @@ class CourseSectionAPIHandler(LoggingMixin, APIView):
             logger.info(f"Retrieving course for section data with course_id: {course_id}")
             # Get list of sections, including total_students info
             sections = canvas_api.get_course(course_id).get_sections(include=['total_students'], per_page=per_page)
-            serializer = CanvasObjectReadonlySerializer(sections, many=True)
+            allowed_fields = {"course_id", "id", "name", "nonxlist_course_id", "total_students"}
+            serializer = CanvasObjectROSerializer(sections, allowed_fields=allowed_fields, many=True)
             logger.info(f"Section data retrieved: {serializer.data}")
 
             return Response(serializer.data, status=HTTPStatus.OK)

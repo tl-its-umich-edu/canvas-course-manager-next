@@ -3,7 +3,7 @@ from unittest.mock import patch
 from canvasapi.canvas_object import CanvasObject
 from django.test import SimpleTestCase
 
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectReadonlySerializer, CourseSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, CourseSerializer
 
 class CanvasAPISerializerTests(SimpleTestCase):
     # --- CourseSerializer Tests ---
@@ -25,7 +25,7 @@ class CanvasAPISerializerTests(SimpleTestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("newName", serializer.errors)
 
-    # --- CanvasObjectReadonlySerializer Tests ---
+    # --- CanvasObjectROSerializer Tests ---
 
     @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
     def test_canvas_object_readonly_serializes_basic_fields(self, mock_get_canvasapi_instance):
@@ -41,7 +41,7 @@ class CanvasAPISerializerTests(SimpleTestCase):
                 "tags": ["alpha", "beta"]
             }
         )
-        serializer = CanvasObjectReadonlySerializer(canvas_obj)
+        serializer = CanvasObjectROSerializer(canvas_obj)
         data = serializer.data
         
         self.assertEqual(data["id"], 42)
@@ -68,7 +68,7 @@ class CanvasAPISerializerTests(SimpleTestCase):
                 "__call__": lambda: "This should not be serialized"
             }
         )
-        serializer = CanvasObjectReadonlySerializer(canvas_obj)
+        serializer = CanvasObjectROSerializer(canvas_obj)
         data = serializer.data
         
         self.assertNotIn("__call__", data)
