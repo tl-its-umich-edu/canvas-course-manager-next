@@ -45,7 +45,8 @@ class CourseSectionAPIHandler(LoggingMixin, APIView):
             sections = canvas_api.get_course(course_id).get_sections(include=['total_students'], per_page=per_page)
             allowed_fields = {"course_id", "id", "name", "nonxlist_course_id", "total_students"}
             serializer = CanvasObjectROSerializer(sections, allowed_fields=allowed_fields, many=True)
-            logger.info(f"Section data retrieved: {serializer.data}")
+            logger.info(f"Section data retrieved with filtered fields: {allowed_fields}")
+            logger.debug(f"Section data in response: {serializer.data}")
 
             return Response(serializer.data, status=HTTPStatus.OK)
         except (CanvasException, InvalidOAuthReturnError, Exception) as e:
