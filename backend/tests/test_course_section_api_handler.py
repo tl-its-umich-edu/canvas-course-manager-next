@@ -1,7 +1,7 @@
 from django.test import RequestFactory
 from django.urls import reverse
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.course_section_api_handler import CourseSectionAPIHandler
+from backend.ccm.canvas_api.course_section_api_handler import CanvasCourseSectionAPIHandler
 from backend.ccm.canvas_api.exceptions import CanvasHTTPError
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,7 +14,7 @@ from canvasapi.exceptions import CanvasException
 
 
 
-class CourseSectionAPIHandlerTests(APITestCase):
+class CanvasCourseSectionAPIHandlerTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='testpass')
         self.course_id = 1
@@ -38,7 +38,7 @@ class CourseSectionAPIHandlerTests(APITestCase):
             mock_course.get_sections.return_value = mock_paginated
         mock_manager.get_canvasapi_instance.return_value = mock_canvas
         mock_canvas.get_course.return_value = mock_course
-        return CourseSectionAPIHandler(credential_manager=mock_manager)
+        return CanvasCourseSectionAPIHandler(credential_manager=mock_manager)
 
     def test_get_course_sections_success(self):
         request = self.request_factory.get(self.url)
