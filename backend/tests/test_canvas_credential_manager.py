@@ -6,6 +6,8 @@ from canvas_oauth.models import CanvasOAuth2Token
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from django.utils import timezone
 
+from backend.ccm.canvas_api.exceptions import CanvasAccessTokenException
+
 
 class TestCanvasCredentialManager(TestCase):
     def setUp(self):
@@ -51,5 +53,5 @@ class TestCanvasCredentialManager(TestCase):
         self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
 
         # Execute and Assert
-        with self.assertRaises(InvalidOAuthReturnError):
+        with self.assertRaises(CanvasAccessTokenException):  # Removed parentheses
             self.credential_manager.get_canvasapi_instance(self.request)

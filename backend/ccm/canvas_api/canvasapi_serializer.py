@@ -1,9 +1,18 @@
 from rest_framework import serializers
-from canvasapi.section import Section
 
 class CourseSerializer(serializers.Serializer):
     # Define the fields you want to update. Adjust fields according to the Canvas API.
     newName = serializers.CharField(max_length=255, required=True)
+
+class CourseSectionSerializer(serializers.Serializer):
+    sections = serializers.ListField(
+        child=serializers.CharField(max_length=255, required=True)
+    )
+
+    def validate_sections(self, value):
+        if len(value) > 60:
+            raise serializers.ValidationError("The list cannot be more than 60 items.")
+        return value
 
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """
@@ -11,9 +20,10 @@ class CanvasObjectROSerializer(serializers.BaseSerializer):
     Adapted from the Django REST Framework documentation:
     https://www.django-rest-framework.org/api-guide/serializers/#creating-new-base-classes
     """
-    def __init__(self, *args, allowed_fields=None, **kwargs):
-      super().__init__(*args, **kwargs)
-      self.allowed_fields = allowed_fields
+    def __init__(self, *args, allowed_fields=None, append_fields=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.allowed_fields = allowed_fields
+        self.append_fields = append_fields
     
     def retrieve_primitive(self, value):
         """
@@ -52,4 +62,11 @@ class CanvasObjectROSerializer(serializers.BaseSerializer):
         # Filter out fields not in allowed_fields
         if self.allowed_fields:
             data = {key: value for key, value in data.items() if key in self.allowed_fields}
+        
+        # Append fields from append_fields if provided
+        if self.append_fields:
+            for key, value in self.append_fields.items():
+                if key not in data:
+                    data[key] = value
+        
         return data

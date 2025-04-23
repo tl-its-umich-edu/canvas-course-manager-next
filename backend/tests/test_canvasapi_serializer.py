@@ -4,6 +4,7 @@ from canvasapi.canvas_object import CanvasObject
 from django.test import SimpleTestCase
 
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, CourseSerializer
+from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
 class CanvasAPISerializerTests(SimpleTestCase):
     # --- CourseSerializer Tests ---
@@ -27,7 +28,7 @@ class CanvasAPISerializerTests(SimpleTestCase):
 
     # --- CanvasObjectROSerializer Tests ---
 
-    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_canvas_object_readonly_serializes_basic_fields(self, mock_get_canvasapi_instance):
         mock_canvas = mock_get_canvasapi_instance.return_value
         canvas_obj = CanvasObject(
@@ -53,7 +54,7 @@ class CanvasAPISerializerTests(SimpleTestCase):
         self.assertIn("start_at_date", data)
         self.assertNotIn("_requester", data)
 
-    @patch('backend.ccm.canvas_api.course_api_handler.CANVAS_CREDENTIALS.get_canvasapi_instance')
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_canvas_object_readonly_ignores_callables(self, mock_get_canvasapi_instance):
         mock_canvas = mock_get_canvasapi_instance.return_value
         canvas_obj = CanvasObject(

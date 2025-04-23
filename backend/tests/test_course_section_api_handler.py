@@ -2,7 +2,7 @@ from django.test import RequestFactory
 from django.urls import reverse
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from backend.ccm.canvas_api.course_section_api_handler import CanvasCourseSectionAPIHandler
-from backend.ccm.canvas_api.exceptions import CanvasHTTPError
+from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
@@ -26,11 +26,15 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
         mock_canvas = MagicMock()
         mock_course = MagicMock(spec=Course)
         mock_manager = MagicMock(spec=CanvasCredentialManager)
+        mock_canvas_error_handler = MagicMock(spec=CanvasErrorHandler)
 
         if exception:
-            error_obj = CanvasHTTPError(exception.message, status.HTTP_500_INTERNAL_SERVER_ERROR, failed_input=str(self.course_id))
+            # Create an HTTPAPIError first, then pass it to CanvasHTTPError
+            http_api_error = HTTPAPIError(str(self.course_id), exception)
+            error_obj = CanvasErrorHandler()
+            error_obj.handle_canvas_api_exceptions([http_api_error])
             mock_course.get_sections.side_effect = exception
-            mock_manager.handle_canvas_api_exception.return_value = error_obj
+            mock_canvas_error_handler.handle_canvas_api_exceptions.return_value = error_obj
         else:
             sections = [Section(mock_canvas._Canvas__requester, data) for data in (section_data or [])]
             mock_paginated = MagicMock(spec=PaginatedList)

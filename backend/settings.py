@@ -263,6 +263,7 @@ else:
     CANVAS_OAUTH_SCOPES = DEFAUlT_CANVAS_SCOPES
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'backend.ccm.canvas_api.drf_custom_exception_handler.custom_exception_handler',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
