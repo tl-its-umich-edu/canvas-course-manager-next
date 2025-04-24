@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from canvasapi.exceptions import CanvasException
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.exceptions import CanvasHTTPError
+from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.section_enrollment_api_handler import CanvasSectionEnrollmentAPIHandler
 
 class CanvasSectionEnrollmentAPIHandlerTests(APITestCase):
@@ -25,11 +25,14 @@ class CanvasSectionEnrollmentAPIHandlerTests(APITestCase):
         mock_canvas = MagicMock()
         mock_section = MagicMock(spec=Section)
         mock_manager = MagicMock(spec=CanvasCredentialManager)
+        mock_canvas_error_handler = MagicMock(spec=CanvasErrorHandler)
 
         if canvasException:
-            error_obj = CanvasHTTPError(canvasException.message, status.HTTP_500_INTERNAL_SERVER_ERROR, failed_input=str(self.section_id))
+            http_api_error = HTTPAPIError(str(self.section_id), canvasException)
+            error_obj = CanvasErrorHandler()
+            error_obj.handle_canvas_api_exceptions([http_api_error])
             mock_section.get_enrollments.side_effect = canvasException
-            mock_manager.handle_canvas_api_exception.return_value = error_obj
+            mock_canvas_error_handler.handle_canvas_api_exceptions.return_value = error_obj
         else:
             enrollments = [Enrollment(mock_canvas._Canvas__requester, data) for data in (enrollment_data or [])]
             mock_paginated = MagicMock(spec=PaginatedList)

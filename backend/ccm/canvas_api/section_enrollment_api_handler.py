@@ -10,7 +10,7 @@ from canvasapi import Canvas
 
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
 
-from .exceptions import CanvasHTTPError
+from .exceptions import CanvasErrorHandler, HTTPAPIError
 from canvas_oauth.exceptions import InvalidOAuthReturnError
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
@@ -31,6 +31,7 @@ class CanvasSectionEnrollmentAPIHandler(LoggingMixin, APIView):
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
+        self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
     def get(self, request: Request, section_id: int) -> Response:
@@ -52,6 +53,6 @@ class CanvasSectionEnrollmentAPIHandler(LoggingMixin, APIView):
             logger.info(f"Filtered enrollment data: {login_ids}")
             return Response(login_ids, status=HTTPStatus.OK)
         except (CanvasException, InvalidOAuthReturnError, Exception) as e:
-            err_response: CanvasHTTPError = self.credential_manager.handle_canvas_api_exception(e, request, str(section_id))
-            return Response(err_response.to_dict(), status=err_response.status_code)
+            self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(section_id), e))
+            return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
 

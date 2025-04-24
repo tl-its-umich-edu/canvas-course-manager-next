@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 from rest_framework.test import APIRequestFactory
 
-from backend.ccm.canvas_api.course_section_api_handler import CourseSectionAPIHandler
+from backend.ccm.canvas_api.course_section_api_handler import CanvasCourseSectionAPIHandler
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from canvasapi.exceptions import CanvasException
@@ -16,7 +16,7 @@ class TestCourseSectionAPIHandler(unittest.TestCase):
         self.factory = APIRequestFactory()
         self.credential_manager = MagicMock(spec=CanvasCredentialManager)
         self.mock_canvas_error_handler = MagicMock(spec=CanvasErrorHandler)
-        self.api_handler = CourseSectionAPIHandler(credential_manager=self.credential_manager)
+        self.api_handler = CanvasCourseSectionAPIHandler(credential_manager=self.credential_manager)
         self.api_handler.canvas_error = self.mock_canvas_error_handler
         
         # Mock Canvas API instance
