@@ -75,14 +75,16 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
             
             try:
                 enrollments = section.get_enrollments(include=['user'], per_page=100)
+                allowed_fields = {"user"}
+                serializer = CanvasObjectROSerializer(enrollments,allowed_fields=allowed_fields, many=True)
             except (CanvasException, InvalidOAuthReturnError, Exception) as e:
                 api_errors.append(HTTPAPIError(str(section_id), e))
                 logger.error(f"Error retrieving enrollments for section_id {section_id}: {e}")
                 continue
 
             # Add login IDs to the set
-            for enrollment in enrollments:
-                unique_login_ids.add(enrollment.user['login_id'])
+            for enrollment in serializer.data:
+                unique_login_ids.add(enrollment['user']['login_id'])
             logger.debug(f"Retrieved section and enrollments with section_id: {section_id}")
         
         time_end = time.perf_counter()
