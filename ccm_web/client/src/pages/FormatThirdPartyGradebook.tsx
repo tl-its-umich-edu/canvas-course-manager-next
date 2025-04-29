@@ -114,13 +114,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   )
 
   const [doGetStudents, isGetStudentsLoading, getStudentsError, clearGetStudentsError] = usePromise(
-    async (sectionIds: number[]) => {
-      const loginIds: string[] = []
-      for (const sectionId of sectionIds) {
-        loginIds.push(...(await api.getStudentsEnrolledInSection(sectionId)))
-      }
-      return [...(new Set(loginIds))] // Dropping duplicates
-    },
+    async (sectionIds: number[]) => await api.getStudentsEnrolledInSections(sectionIds),
     (studentLoginIds: string[]) => setStudentLoginIds(studentLoginIds)
   )
 

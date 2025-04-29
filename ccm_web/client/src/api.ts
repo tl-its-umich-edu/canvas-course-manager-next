@@ -86,9 +86,10 @@ interface AddEnrollmentWithSectionId extends AddSectionEnrollment {
   sectionId: number
 }
 
-export const getStudentsEnrolledInSection = async (sectionId: number): Promise<string[]> => {
+export const getStudentsEnrolledInSections = async (sectionIds: number[]): Promise<string[]> => {
   const request = getGet()
-  const resp = await fetch(`/api/sections/${sectionId}/students/`, request)
+  const queryParam = sectionIds.join(',')
+  const resp = await fetch(`/api/sections/students/?section_ids=${queryParam}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
