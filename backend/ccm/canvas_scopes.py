@@ -5,8 +5,6 @@ DEFAUlT_CANVAS_SCOPES = [
     # Sections
     'url:GET|/api/v1/courses/:course_id/sections',
     'url:POST|/api/v1/courses/:course_id/sections',
-    'url:GET|/api/v1/sections/:id',
-    'url:GET|/api/v1/courses/:course_id/sections/:id',
     # Enrollments
     'url:GET|/api/v1/sections/:section_id/enrollments'
 ]

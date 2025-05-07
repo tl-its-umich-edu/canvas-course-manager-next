@@ -8,6 +8,8 @@ from rest_framework.request import Request
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
+from canvasapi.section import Section
+from canvasapi.user import User
 
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
 
@@ -66,26 +68,19 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
         unique_login_ids = set()  # Use a set to store unique login IDs
         api_errors = []
         for section_id in section_ids:
-            try: 
-                # Get section details
-                section = canvas_api.get_section(section_id)
-            except (CanvasException, InvalidOAuthReturnError, Exception) as e:
-                self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(section_ids), e))
-                return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
-            
             try:
-                enrollments = section.get_enrollments(include=['user'], per_page=100)
+                requested_section = Section(canvas_api._Canvas__requester, {'id': section_id})
+                enrollments = requested_section.get_enrollments(include=['user'], per_page=100)
                 allowed_fields = {"user"}
                 serializer = CanvasObjectROSerializer(enrollments,allowed_fields=allowed_fields, many=True)
-            except (CanvasException, InvalidOAuthReturnError, Exception) as e:
+                # Add login IDs to the set
+                for enrollment in serializer.data:
+                    unique_login_ids.add(enrollment['user']['login_id'])
+                logger.debug(f"Retrieved section and enrollments with section_id: {section_id}")
+            except (CanvasException, Exception) as e:
                 api_errors.append(HTTPAPIError(str(section_id), e))
                 logger.error(f"Error retrieving enrollments for section_id {section_id}: {e}")
                 continue
-
-            # Add login IDs to the set
-            for enrollment in serializer.data:
-                unique_login_ids.add(enrollment['user']['login_id'])
-            logger.debug(f"Retrieved section and enrollments with section_id: {section_id}")
         
         time_end = time.perf_counter()
         logger.info(f"Time taken to get enrollments: {time_end - time_start:.2f} seconds")
