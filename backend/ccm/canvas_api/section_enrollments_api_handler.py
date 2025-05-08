@@ -84,10 +84,12 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
         
         time_end = time.perf_counter()
         logger.info(f"Time taken to get enrollments: {time_end - time_start:.2f} seconds")
+        
         if api_errors:
             self.canvas_error.handle_canvas_api_exceptions(api_errors)
-            return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
-        else:
-            return Response(list(unique_login_ids), status=HTTPStatus.OK)
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+    
+        return Response(list(unique_login_ids), status=HTTPStatus.OK)
         
 
