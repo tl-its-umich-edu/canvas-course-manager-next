@@ -45,6 +45,23 @@ services:
       - ./.mysql_data:/var/lib/mysql
       - ./mysql:/docker-entrypoint-initdb.d:ro
     container_name: ccm_db
+  
+  qworker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: > 
+      sh -c "while ! nc -z ccm_db 3306; do
+        echo 'Waiting for MySQL...';
+        sleep 1;
+      done;
+      watchfiles --filter python 'python manage.py qcluster' /code/backend"
+    depends_on:
+      - database
+    env_file: ${HOME}/secrets/ccm/.env
+    volumes:
+      - ./backend:/code/backend
+    container_name: ccm_qworker
 
   redis:
     image: redis:7
@@ -55,6 +72,7 @@ services:
       - ccm-redis-data:/data:ro
     command: redis-server --stop-writes-on-bgsave-error no --save ""
     container_name: ccm_redis
+  
 
 volumes:
   ccm-redis-data:
