@@ -17,7 +17,6 @@ from .exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
 from rest_framework_tracking.mixins import LoggingMixin
-from django_q.tasks import async_task
 
 logger = logging.getLogger(__name__)
 
