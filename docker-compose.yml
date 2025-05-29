@@ -45,6 +45,7 @@ services:
       - ./.mysql_data:/var/lib/mysql
       - ./mysql:/docker-entrypoint-initdb.d:ro
     container_name: ccm_db
+
   redis:
     image: redis:7
     read_only: true
@@ -54,7 +55,6 @@ services:
       - ccm-redis-data:/data:ro
     command: redis-server --stop-writes-on-bgsave-error no --save ""
     container_name: ccm_redis
-  
 
 volumes:
   ccm-redis-data:
