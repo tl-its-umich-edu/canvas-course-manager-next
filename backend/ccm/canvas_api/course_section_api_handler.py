@@ -85,10 +85,6 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         results = self.create_sections(course, sections)
         end_time: float = time.perf_counter()
         logger.info(f"Time taken to create {len(sections)} sections: {end_time - start_time:.2f} seconds")
-        task_data = {'a': 5, 'b': 8}
-
-        logger.info("Running the call as sync task")
-        async_task('backend.ccm.background_tasks.math.add', task=task_data)
 
         # Filter success and error responses
         success_res = [result for result in results if isinstance(result, dict)]
