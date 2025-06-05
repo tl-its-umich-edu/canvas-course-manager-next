@@ -64,6 +64,11 @@ jobs:
         run: |
           mysql -h 127.0.0.1 -u root -pccm_root_pw -e "GRANT ALL PRIVILEGES ON test_ccm.* TO 'admin'@'%'; FLUSH PRIVILEGES;"
 
+      - name: Create dummy webpack-stats.json
+        run: |
+          mkdir -p ccm_web
+          echo '{}' > ccm_web/webpack-stats.json
+
       - name: Run migrations
         run: |
           python manage.py migrate
