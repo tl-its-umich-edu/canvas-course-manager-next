@@ -37,7 +37,6 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         instructor_name = request.query_params.get('instructor_name', None)
         course_name = request.query_params.get('course_name', None)
 
-
         if not term_id:
             return Response({"error": "Term ID is required as a parameter"}, status=HTTPStatus.BAD_REQUEST)
         
@@ -48,21 +47,22 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
         try:
             # Get accounts accessible to the admin user
+            accounts_by_account_id = {}
             logger.info(f"Retrieving admin sections data for term_id: {term_id}")
             accounts = canvas_api.get_accounts()
-            accounts_serializer = CanvasObjectROSerializer(accounts, allowed_fields={'id','parent_account_id'})
-            accounts_data = accounts_serializer.data
-            ## ^ STUCK HERE: EMPTY DATA RETURNED "[]", need to set admin access?
+            for account in accounts:
+                logger.info(f"Account ID: {account.id}, Name: {account.name}, Parent Account ID: {account.parent_account_id}")
+                accounts_by_account_id[account.id] = account
 
-            account_id_set = { account.get('id') for account in accounts_data }
             filtered_account_ids = [
-                account.get('id') for account in accounts_data if 
-                    account.get('parent_account_id') is None # account is the root account
-                    or not(account.get('parent_account_id') in account_id_set) # subaccount of a separate account
+                account.id for account in accounts_by_account_id.values() if
+                    # account is the root account OR the subaccount of an unlisted account
+                    account.parent_account_id is None 
+                    or not(account.parent_account_id in accounts_by_account_id.keys())
             ]
-            logger.info(f"Found {len(filtered_account_ids)} of {len(accounts_data)} accounts accessible to the admin user.")
+            logger.info(f"Found {len(filtered_account_ids)} of {len(accounts_by_account_id)} accounts accessible to the admin user.")
 
-            # build term and search parameters for course search
+            # Build term and search parameters for course search
             queryParams = {
                 'state': ['created', 'claimed', 'available'],
                 'enrollment_term_id': term_id,
@@ -75,29 +75,34 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
                 queryParams['search_term'] = course_name
                 logger.info(f"Searching for courses with name: {course_name}")
 
-            # Get courses for filtered accounts
-            filtered_accounts_courses = []
+            # Get sections from all courses for filtered accounts
+            filtered_accounts_course_sections = []
             for account_id in filtered_account_ids:
+                # First retrieve courses for the account
                 logger.info(f"Retrieving courses for account_id: {account_id}")
-                courses = canvas_api.get_account(account_id).get_courses(**queryParams)
+                account = accounts_by_account_id[account_id]
+                courses = account.get_courses(**queryParams)
                 courses_serializer = CanvasObjectROSerializer(courses, allowed_fields=self.courses_allowed_fields, many=True)
                 courses_data = courses_serializer.data
-                filtered_accounts_courses.extend(courses_data)
+                
+                # Get sections for each course
+                logger.info(f"Getting sections for {len(courses_data)} courses from account_id: {account_id}")
+                for course in courses_data:
+                    logger.info(f"Getting sections for course with id: {course.get('id')}")
+                    course_id = course.get('id')
+                    if course_id:
+                        # Get section data to append to course data in response
+                        sections = CanvasCourseSectionAPIHandler.retrieve_sections_from_course_id(
+                            canvas_api,
+                            course_id,
+                            course_section_allowed_fields=CanvasCourseSectionAPIHandler.course_section_allowed_fields,
+                            include=['total_students']
+                        )
+                        course['sections'] = sections
+                        logger.info(f"Found {len(sections)} courses across all filtered accounts.")
+                        filtered_accounts_course_sections.append(course)
 
-            #TODO: nest these requests under the account_id loop
-            for course in filtered_accounts_courses:
-                logger.info(f"Getting sections for course with id: {course.get('id')}")
-                course_id = course.get('id')
-                if course_id:
-                    # Retrieve sections for each course
-                    sections = CanvasCourseSectionAPIHandler.retrieve_sections_from_course_id(
-                        canvas_api,
-                        course_id,
-                        course_section_allowed_fields=CanvasCourseSectionAPIHandler.course_section_allowed_fields,
-                        include=['total_students']
-                    )
-                    course['sections'] = sections
-            return Response(filtered_accounts_courses, status=HTTPStatus.OK)
+            return Response(filtered_accounts_course_sections, status=HTTPStatus.OK)
         except (CanvasException, Exception) as e:
             self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(request.data), e))
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
