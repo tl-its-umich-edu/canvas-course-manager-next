@@ -23,7 +23,7 @@ jobs:
   build:
     # to test a feature, change the repo name to your github id
     if: github.repository_owner == 'tl-its-umich-edu' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.repository_owner == 'tl-its-umich-edu' && 'shared-linux-x64' || 'ubuntu-latest' }}
     steps:
   
       - name: Checkout code 
@@ -62,5 +62,4 @@ jobs:
           draft: true
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
-      
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
