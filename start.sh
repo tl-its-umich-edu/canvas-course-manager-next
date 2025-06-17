@@ -10,7 +10,7 @@ if [ -z "${GUNICORN_WORKERS}" ]; then
 fi
 
 if [ -z "${GUNICORN_PORT}" ]; then
-    GUNICORN_PORT=4000
+    GUNICORN_PORT=4001
 fi
 
 if [ -z "${GUNICORN_TIMEOUT}" ]; then

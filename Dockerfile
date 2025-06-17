@@ -61,8 +61,8 @@ ARG TZ
 ENV TZ=${TZ:-America/Detroit}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# EXPOSE port 4000 to allow communication to/from server
-EXPOSE 4000
+# EXPOSE port 4001 to allow communication to/from server
+EXPOSE 4001
 
 # NOTE: project files likely to change between dev builds
 COPY . .

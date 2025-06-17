@@ -1,4 +1,4 @@
-name: Run Django Tests on PR
+name: Run Django Tests
 
 on:
   pull_request:

@@ -38,7 +38,7 @@ you can use the following steps to build and run the application using Docker.
     ```
 
 3. Access the client by launching the tool from a Canvas course in your browser of choice.
-4. Then the app in development should be accessible on http://localhost:4000/
+4. Then the app in development should be accessible on http://localhost:4001/
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
 
@@ -80,8 +80,8 @@ Explicit steps for setting up CCM in a development environment.
 
 ##### Start local ngrok server
 
-1. Start an ngrok/loophole instance for the application, which will run on port 4000.
-   `ngrok http 4000` or `loophole http 4000 --hostname=<your-hostname>
+1. Start an ngrok/loophole instance for the application, which will run on port 4001.
+   `ngrok http 4001` or `loophole http 4001 --hostname=<your-hostname>
 2. Make note of the hostname of the ngrok instance for use later.  The hostname may be found in the console output or it can be obtained from the ngrok API.  For example, if `jq` is installed, use the command:
    `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
    ***Note:*** Get only the hostname, not the `http`/`https` scheme prefix.
