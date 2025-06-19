@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ github.repository_owner == 'tl-its-umich-edu' && 'shared-linux-x64' || 'ubuntu-latest' }}
+    runs-on:  'ubuntu-latest' 
     services:
       mysql:
         image: mysql:8-oracle
