@@ -86,6 +86,7 @@ interface GradebookCanvasPageStateData {
 }
 
 enum GradebookCanvasPageState {
+  ReplacementNotice,
   Upload,
   InvalidUpload,
   Confirm,
@@ -98,7 +99,7 @@ const convertEmptyCellToUndefined = (cell: string | undefined): string | undefin
 }
 
 function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
-  const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.Upload })
+  const [pageState, setPageState] = useState<GradebookCanvasPageStateData>({ state: GradebookCanvasPageState.ReplacementNotice })
   const [file, setFile] = useState<File|undefined>(undefined)
   const [downloadData, setDownloadData] = useState<DownloadData | undefined>(undefined)
 
@@ -331,8 +332,54 @@ function ConvertCanvasGradebook (props: CCMComponentProps): JSX.Element {
     })
   }
 
+  const renderReplacementNotice = (): JSX.Element => {
+    return (
+      <div>
+        <Typography variant='h6' component='h2' sx={{ color: 'warning.main', mb: 2 }}>
+          This feature has been replaced by Canvas Letter Grades Import
+        </Typography>
+        <Typography paragraph>
+          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the Faculty Center's Grade Roster.
+        </Typography>
+        <Typography paragraph>
+          <strong>You must format final grades in Canvas as letter grades (via the grading scheme) to use</strong> Canvas Letter Grades Import.
+        </Typography>
+        <Typography variant='h6' component='h3' sx={{ mt: 3, mb: 1 }}>
+          Get Started
+        </Typography>
+        <ol>
+          <li>
+            <Typography>
+              <Link href='https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=7257' target='_blank' rel="noopener">
+                Prep your Canvas Gradebook
+              </Link>
+            </Typography>
+          </li>
+          <li>
+            <Typography>
+              <Link href='https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=11669' target='_blank' rel="noopener">
+                Import grades using Canvas Letter Grades Import in Grade Roster
+              </Link>
+            </Typography>
+          </li>
+        </ol>
+        <Grid container className={classes.buttonGroup} justifyContent='flex-start' sx={{ mt: 3 }}>
+          <Button 
+            variant='outlined' 
+            onClick={() => setPageState({ state: GradebookCanvasPageState.Upload })}
+            sx={{ mr: 2 }}
+          >
+            Use Legacy Tool Instead
+          </Button>
+        </Grid>
+      </div>
+    )
+  }
+
   const renderComponent = (): JSX.Element => {
     switch (pageState.state) {
+      case GradebookCanvasPageState.ReplacementNotice:
+        return renderReplacementNotice()
       case GradebookCanvasPageState.Upload:
         return renderUpload()
       case GradebookCanvasPageState.InvalidUpload:
