@@ -15,6 +15,7 @@ import AddUMUsers from '../pages/AddUMUsers.js'
 import BulkSectionCreate from '../pages/BulkSectionCreate.js'
 import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
 import ConvertCanvasGradebook from '../pages/GradebookCanvas.js'
+import GBCanvasReplacementNotice from '../pages/GBCanvasReplacementNotice.js'
 import MergeSections from '../pages/MergeSections.js'
 import { Globals, RoleEnum } from './models.js'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas.js'
@@ -66,7 +67,7 @@ const mergeSectionCardProps: FeatureUIProps = {
 const formatCanvasGradebookCardProps: FeatureUIProps = {
   data: formatCanvasGradebookProps,
   icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-  component: ConvertCanvasGradebook,
+  component: GBCanvasReplacementNotice,
   route: '/gradebook-canvas'
 }
 
