@@ -26,25 +26,17 @@ from rest_framework_tracking.mixins import LoggingMixin
 logger = logging.getLogger(__name__)
 
 class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
-    logging_methods = ['GET', 'POST']
+    logging_methods = ['GET']
     """
     API handler for Canvas section enrollment data.
     """
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def __init__(self, credential_manager=None, *args, **kwargs):
+    def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
-        super().__init__(*args, **kwargs)
-    
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            if self.kwargs.get('section_id') is not None:
-                return SingleSectionEnrollRequestSerializer
-            else:
-                return MultiSectionEnrollRequestSerializer
-        return None
+        super().__init__()
 
     # Schema needed for swagger UI
     @extend_schema( 
@@ -99,12 +91,16 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
             return Response(error_response, status=error_response.get('statusCode'))
     
         return Response(list(unique_login_ids), status=HTTPStatus.OK)
+    
+        
 
 class SingleSectionEnrollmentView(LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SingleSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
 
     @extend_schema(
+        operation_id="single_section_enrollment",
         summary="Enroll users in a single section",
         description="Enroll one or more users in a specific Canvas section by section ID.",
         request=SingleSectionEnrollRequestSerializer,
@@ -130,8 +126,10 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
 class MultiSectionEnrollmentView(LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MultiSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
 
     @extend_schema(
+        operation_id="multiple_sections_enrollment",
         summary="Enroll users in multiple sections",
         request=MultiSectionEnrollRequestSerializer,
         description="Enroll users in multiple Canvas sections by providing a list of enrollments, each with a section ID.",
