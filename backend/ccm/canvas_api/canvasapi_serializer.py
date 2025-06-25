@@ -24,11 +24,12 @@ class RoleValidationMixin:
 
     def validate_roles(self, items, item_type='user'):
         errors = []
-        for idx, item in enumerate(items):
+        for item in items:
             role = item.get('role')
+            login_id = item.get('loginId')
             if not role or role.lower() not in self.ALLOWED_ROLES:
                 errors.append({
-                    'index': idx,
+                    'loginId': login_id,
                     'role': role,
                     'error': f"Role '{role}' is not allowed. Allowed roles: {', '.join(sorted(self.ALLOWED_ROLES))}."
                 })

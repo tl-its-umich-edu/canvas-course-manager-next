@@ -116,7 +116,7 @@ class EnrollRequestSerializerTests(SimpleTestCase):
         # Normalize ErrorDetail objects to plain types for comparison
         normalized = [
             {
-                'index': int(e['index']),
+                'loginId': str(e['loginId']),
                 'role': str(e['role']),
                 'error': str(e['error'])
             }
@@ -124,12 +124,12 @@ class EnrollRequestSerializerTests(SimpleTestCase):
         ]
         expected = [
             {
-                'index': 0,
+                'loginId': 'user1',
                 'role': 'invalidRole1',
                 'error': "Role 'invalidRole1' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
             },
             {
-                'index': 2,
+                'loginId': 'user3',
                 'role': 'invalidRole2',
                 'error': "Role 'invalidRole2' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
             }
