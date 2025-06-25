@@ -15,19 +15,44 @@ class CourseSectionSerializer(serializers.Serializer):
         return value
 
 class SectionUsersSerializer(serializers.Serializer):
-    loginId = serializers.CharField()
-    role = serializers.CharField()
+    loginId = serializers.CharField(required=True)
+    role = serializers.CharField(required=True)
 
-class SingleSectionEnrollRequestSerializer(serializers.Serializer):
+class RoleValidationMixin:
+    # Accept all roles from ClientEnrollmentType (case-insensitive)
+    ALLOWED_ROLES = {"student", "teacher", "ta", "observer", "designer", "assistant", "librarian"}
+
+    def validate_roles(self, items, item_type='user'):
+        errors = []
+        for idx, item in enumerate(items):
+            role = item.get('role')
+            if not role or role.lower() not in self.ALLOWED_ROLES:
+                errors.append({
+                    'index': idx,
+                    'role': role,
+                    'error': f"Role '{role}' is not allowed. Allowed roles: {', '.join(sorted(self.ALLOWED_ROLES))}."
+                })
+        if errors:
+            raise serializers.ValidationError(errors)
+
+class SingleSectionEnrollRequestSerializer(serializers.Serializer, RoleValidationMixin):
     users = SectionUsersSerializer(many=True)
 
-class MultiSectionEnrollSerializer(serializers.Serializer):
-    sectionId = serializers.IntegerField()
-    loginId = serializers.CharField()
-    role = serializers.CharField()
+    def validate(self, data):
+        self.validate_roles(data.get('users', []), item_type='user')
+        return data
 
-class MultiSectionEnrollRequestSerializer(serializers.Serializer):
+class MultiSectionEnrollSerializer(serializers.Serializer):
+    sectionId = serializers.IntegerField(required=True)
+    loginId = serializers.CharField(required=True)
+    role = serializers.CharField(required=True)
+
+class MultiSectionEnrollRequestSerializer(serializers.Serializer, RoleValidationMixin):
     enrollments = MultiSectionEnrollSerializer(many=True)
+
+    def validate(self, data):
+        self.validate_roles(data.get('enrollments', []), item_type='enrollment')
+        return data
 
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """

@@ -1,9 +1,11 @@
-
 from unittest.mock import patch
 from canvasapi.canvas_object import CanvasObject
 from django.test import SimpleTestCase
 
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, CourseSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import (
+    CanvasObjectROSerializer, CourseSerializer,
+    SingleSectionEnrollRequestSerializer, MultiSectionEnrollRequestSerializer
+)
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
 class CanvasAPISerializerTests(SimpleTestCase):
@@ -73,6 +75,91 @@ class CanvasAPISerializerTests(SimpleTestCase):
         data = serializer.data
         
         self.assertNotIn("__call__", data)
+
+class EnrollRequestSerializerTests(SimpleTestCase):
+    def test_single_section_enroll_valid(self):
+        payload = {"users": [{"loginId": "user1", "role": "Student"}]}
+        serializer = SingleSectionEnrollRequestSerializer(data=payload)
+        self.assertTrue(serializer.is_valid())
+
+    def test_single_section_enroll_missing_loginId(self):
+        payload = {"users": [{"role": "Student"}]}
+        serializer = SingleSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("users", serializer.errors)
+        self.assertIn("loginId", serializer.errors["users"][0])
+
+    def test_single_section_enroll_missing_role(self):
+        payload = {"users": [{"loginId": "user1"}]}
+        serializer = SingleSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("users", serializer.errors)
+        self.assertIn("role", serializer.errors["users"][0])
+
+    def test_single_section_enroll_invalid_role(self):
+        payload = {"users": [{"loginId": "user1", "role": "InvalidRole"}]}
+        serializer = SingleSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
+
+    def test_single_section_enroll_multiple_invalid_roles(self):
+        payload = {
+            "users": [
+                {"loginId": "user1", "role": "invalidRole1"},
+                {"loginId": "user2", "role": "student"},
+                {"loginId": "user3", "role": "invalidRole2"},
+            ]
+        }
+        serializer = SingleSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        errors = serializer.errors["non_field_errors"]
+        # Normalize ErrorDetail objects to plain types for comparison
+        normalized = [
+            {
+                'index': int(e['index']),
+                'role': str(e['role']),
+                'error': str(e['error'])
+            }
+            for e in errors
+        ]
+        expected = [
+            {
+                'index': 0,
+                'role': 'invalidRole1',
+                'error': "Role 'invalidRole1' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
+            },
+            {
+                'index': 2,
+                'role': 'invalidRole2',
+                'error': "Role 'invalidRole2' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
+            }
+        ]
+        self.assertEqual(normalized, expected)
+
+    def test_multi_section_enroll_valid(self):
+        payload = {"enrollments": [{"sectionId": 1, "loginId": "user1", "role": "Teacher"}]}
+        serializer = MultiSectionEnrollRequestSerializer(data=payload)
+        self.assertTrue(serializer.is_valid())
+
+    def test_multi_section_enroll_missing_loginId(self):
+        payload = {"enrollments": [{"sectionId": 1, "role": "Teacher"}]}
+        serializer = MultiSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("enrollments", serializer.errors)
+        self.assertIn("loginId", serializer.errors["enrollments"][0])
+
+    def test_multi_section_enroll_missing_role(self):
+        payload = {"enrollments": [{"sectionId": 1, "loginId": "user1"}]}
+        serializer = MultiSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("enrollments", serializer.errors)
+        self.assertIn("role", serializer.errors["enrollments"][0])
+
+    def test_multi_section_enroll_invalid_role(self):
+        payload = {"enrollments": [{"sectionId": 1, "loginId": "user1", "role": "InvalidRole"}]}
+        serializer = MultiSectionEnrollRequestSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
 
 
 

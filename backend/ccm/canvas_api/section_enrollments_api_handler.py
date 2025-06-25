@@ -99,6 +99,11 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = SingleSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
 
+    def __init__(self, credential_manager=None):
+        self.credential_manager = credential_manager or CanvasCredentialManager()
+        self.canvas_error = CanvasErrorHandler()
+        super().__init__()
+
     @extend_schema(
         operation_id="single_section_enrollment",
         summary="Enroll users in a single section",
@@ -118,6 +123,13 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         import json
         logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
         logger.info(f"Received data: {json.dumps(request.data)}")
+        serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+        
         return Response({
             "endpoint": f"/api/sections/{section_id}/enroll/",
             "received": request.data
@@ -127,6 +139,11 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MultiSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
+
+    def __init__(self, credential_manager=None):
+        self.credential_manager = credential_manager or CanvasCredentialManager()
+        self.canvas_error = CanvasErrorHandler()
+        super().__init__()
 
     @extend_schema(
         operation_id="multiple_sections_enrollment",
@@ -138,6 +155,13 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
         import json
         logger.info("POST /api/sections/enroll/ called.")
         logger.info(f"Received data: {json.dumps(request.data)}")
+        serializer: MultiSectionEnrollRequestSerializer = MultiSectionEnrollRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+        
         return Response({
             "endpoint": "/api/sections/enroll/",
             "received": request.data
