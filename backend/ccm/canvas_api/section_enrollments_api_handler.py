@@ -11,7 +11,7 @@ from canvasapi import Canvas
 from canvasapi.section import Section
 from canvasapi.user import User
 
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, MultiSectionEnrollSerializer, SectionUsersSerializer, SingleSectionEnrollRequestSerializer
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
 from canvas_oauth.exceptions import InvalidOAuthReturnError
@@ -26,17 +26,25 @@ from rest_framework_tracking.mixins import LoggingMixin
 logger = logging.getLogger(__name__)
 
 class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
-    logging_methods = ['GET']
+    logging_methods = ['GET', 'POST']
     """
     API handler for Canvas section enrollment data.
     """
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def __init__(self, credential_manager=None):
+    def __init__(self, credential_manager=None, *args, **kwargs):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
-        super().__init__()
+        super().__init__(*args, **kwargs)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            if self.kwargs.get('section_id') is not None:
+                return SingleSectionEnrollRequestSerializer
+            else:
+                return MultiSectionEnrollRequestSerializer
+        return None
 
     # Schema needed for swagger UI
     @extend_schema( 
@@ -91,5 +99,50 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
             return Response(error_response, status=error_response.get('statusCode'))
     
         return Response(list(unique_login_ids), status=HTTPStatus.OK)
-        
+
+class SingleSectionEnrollmentView(LoggingMixin, APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Enroll users in a single section",
+        description="Enroll one or more users in a specific Canvas section by section ID.",
+        request=SingleSectionEnrollRequestSerializer,
+        parameters=[
+            OpenApiParameter(
+                name="section_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Section ID to enroll users into."
+            )
+        ],
+    )
+    def post(self, request: Request, section_id=None) -> Response:
+        import json
+        logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
+        logger.info(f"Received data: {json.dumps(request.data)}")
+        return Response({
+            "endpoint": f"/api/sections/{section_id}/enroll/",
+            "received": request.data
+        }, status=HTTPStatus.OK)
+
+class MultiSectionEnrollmentView(LoggingMixin, APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Enroll users in multiple sections",
+        request=MultiSectionEnrollRequestSerializer,
+        description="Enroll users in multiple Canvas sections by providing a list of enrollments, each with a section ID.",
+    )
+    def post(self, request: Request) -> Response:
+        import json
+        logger.info("POST /api/sections/enroll/ called.")
+        logger.info(f"Received data: {json.dumps(request.data)}")
+        return Response({
+            "endpoint": "/api/sections/enroll/",
+            "received": request.data
+        }, status=HTTPStatus.OK)
+
 

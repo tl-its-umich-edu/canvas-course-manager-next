@@ -14,6 +14,21 @@ class CourseSectionSerializer(serializers.Serializer):
             raise serializers.ValidationError("The list cannot be more than 60 items.")
         return value
 
+class SectionUsersSerializer(serializers.Serializer):
+    loginId = serializers.CharField()
+    role = serializers.CharField()
+
+class SingleSectionEnrollRequestSerializer(serializers.Serializer):
+    users = SectionUsersSerializer(many=True)
+
+class MultiSectionEnrollSerializer(serializers.Serializer):
+    sectionId = serializers.IntegerField()
+    loginId = serializers.CharField()
+    role = serializers.CharField()
+
+class MultiSectionEnrollRequestSerializer(serializers.Serializer):
+    enrollments = MultiSectionEnrollSerializer(many=True)
+
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """
     Serializer for generic Canvas objects from the Canvas API
