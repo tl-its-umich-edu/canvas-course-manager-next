@@ -30,11 +30,11 @@ function GBCanvasReplacementNotice (props: CCMComponentProps): JSX.Element {
     <Root className={classes.root}>
       <Typography variant='h5' component='h1'>{props.title}</Typography>
       <div>
-        <Typography variant='h6' component='h2' sx={{ color: 'warning.main', mb: 2 }}>
-          This feature has been replaced by Canvas Letter Grades Import
+        <Typography variant='h6' component='h2' sx={{ mb: 2 }}>
+          <b>This feature has been replaced by Canvas Letter Grades Import</b>
         </Typography>
         <Typography paragraph>
-          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the Faculty Center's Grade Roster.
+          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the <Link href="https://wolverineaccess.umich.edu/">Faculty Center's Grade Roster.</Link>
         </Typography>
         <Typography paragraph>
           You must format final grades in Canvas as letter grades (via the grading scheme) to use Canvas Letter Grades Import.
