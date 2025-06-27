@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import { Button, Grid, Link, Typography } from '@mui/material'
+import { Link, Typography } from '@mui/material'
 
 import { CCMComponentProps } from '../models/FeatureUIData.js'
 
@@ -34,7 +34,7 @@ function GBCanvasReplacementNotice (props: CCMComponentProps): JSX.Element {
           <b>This feature has been replaced by Canvas Letter Grades Import</b>
         </Typography>
         <Typography paragraph>
-          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the <Link href="https://wolverineaccess.umich.edu/">Faculty Center's Grade Roster.</Link>
+          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the <Link href="https://wolverineaccess.umich.edu/" target='_blank' rel="noopener">Faculty Center's Grade Roster.</Link>
         </Typography>
         <Typography paragraph>
           You must format final grades in Canvas as letter grades (via the grading scheme) to use Canvas Letter Grades Import.
