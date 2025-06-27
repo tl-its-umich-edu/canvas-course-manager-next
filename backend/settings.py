@@ -16,6 +16,7 @@ from django.core.management.utils import get_random_secret_key
 from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+import json
 
 config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
 
@@ -295,3 +296,9 @@ Q_CLUSTER = {
     'bulk': int(os.getenv('Q_CLUSTER_BULK', 5)),
     'orm': 'default'
 }
+
+# Custom Canvas Roles
+try:
+    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"Assistant": 34, "Librarian": 21}'))
+except Exception:
+    CUSTOM_CANVAS_ROLES = {'Assistant': 34, 'Librarian': 21}

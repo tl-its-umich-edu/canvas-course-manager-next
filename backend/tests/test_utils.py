@@ -79,3 +79,34 @@ class TestQClusterSettings(SimpleTestCase):
         self.assertEqual(q['timeout'], 99)
         self.assertEqual(q['retry'], 1234)
         self.assertEqual(q['bulk'], 42)
+
+class TestCustomCanvasRoles(SimpleTestCase):
+    def setUp(self):
+        self.settings_path = 'backend.settings'
+        self.env_key = 'CUSTOM_CANVAS_ROLES'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_custom_canvas_roles_default(self):
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 34, 'Librarian': 21})
+
+    def test_custom_canvas_roles_env_override(self):
+        os.environ[self.env_key] = '{"Assistant": 99, "Librarian": 88}'
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 99, 'Librarian': 88})
+
+    def test_custom_canvas_roles_env_invalid(self):
+        os.environ[self.env_key] = 'not a json string'
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 34, 'Librarian': 21})

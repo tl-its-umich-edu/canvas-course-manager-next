@@ -130,10 +130,24 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
         
-        return Response({
-            "endpoint": f"/api/sections/{section_id}/enroll/",
-            "received": request.data
-        }, status=HTTPStatus.OK)
+        # --- Custom enrollment logic using SIS login id ---
+        try:
+            canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
+            section = Section(canvas_api._Canvas__requester, {'id': section_id})
+            # Accept enrollment params as a flat dict, e.g. {"enrollment[user_id]": ..., "notify": ...}
+            enrollment_params = serializer.validated_data.get('enrollment', {})
+            response = section._requester.request(
+                "POST",
+                f"sections/{section_id}/enrollments",
+                _kwargs=list(enrollment_params.items())
+            )
+            return Response(response.json(), status=HTTPStatus.OK)
+        except Exception as e:
+            logger.error(f"Error enrolling user: {e}")
+            self.canvas_error.handle_canvas_api_exceptions([HTTPAPIError(str(section_id), e)])
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+        # --- End custom logic ---
 
 class MultiSectionEnrollmentView(LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
