@@ -8,7 +8,7 @@
   },
   "scripts": {
     "watch": "node --loader ts-node/esm node_modules/.bin/webpack --config webpack/webpack.dev.ts --watch",
-    "build:ccm_web": "webpack --config webpack/webpack.prod.ts"
+    "build:ccm_web": "node --loader ts-node/esm node_modules/.bin/webpack  --config webpack/webpack.prod.ts"
   },
   "author": "",
   "license": "ISC",

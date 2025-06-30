@@ -1,0 +1,82 @@
+name: Run Django Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    runs-on:  'ubuntu-latest' 
+    services:
+      mysql:
+        image: mysql:8-oracle
+        env:
+          MYSQL_ROOT_PASSWORD: ccm_root_pw
+          MYSQL_DATABASE: ccm
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: admin
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: ccm
+      DB_USER: admin
+      DB_PASSWORD: admin
+      REDIS_LOCATION: redis://127.0.0.1:6379
+      DEBUG: 'True'
+      ALLOWED_HOSTS: '*'
+      DJANGO_SECRET_KEY: test_secret_key
+      CANVAS_OAUTH_CLIENT_ID: '12342'
+      CANVAS_OAUTH_CLIENT_SECRET: 'ccm'
+      CANVAS_OAUTH_CANVAS_DOMAIN: 'canvas.test.lms.com'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysql -h 127.0.0.1 -uadmin -padmin -e 'SELECT 1;' ccm && break
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Grant privileges to test DB user
+        run: |
+          mysql -h 127.0.0.1 -u root -pccm_root_pw -e "GRANT ALL PRIVILEGES ON test_ccm.* TO 'admin'@'%'; FLUSH PRIVILEGES;"
+
+      - name: Run migrations
+        run: |
+          python manage.py migrate
+
+      - name: Run tests with coverage
+        run: |
+          pip install coverage
+          coverage run --source=backend manage.py test | tee django-coverage.txt
+          coverage report
+          coverage xml -o cov.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: cov.xml
