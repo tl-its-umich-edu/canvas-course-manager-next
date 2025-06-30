@@ -10,8 +10,9 @@ from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
 from canvasapi.user import User
+from backend.ccm.canvas_api.enroll_users import enroll_user
 
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, MultiSectionEnrollSerializer, SectionUsersSerializer, SingleSectionEnrollRequestSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
 from canvas_oauth.exceptions import InvalidOAuthReturnError
@@ -133,17 +134,17 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         # --- Custom enrollment logic using SIS login id ---
         try:
             canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
-            section = Section(canvas_api._Canvas__requester, {'id': section_id})
-            # Accept enrollment params as a flat dict, e.g. {"enrollment[user_id]": ..., "notify": ...}
-            enrollment_params = serializer.validated_data.get('enrollment', {})
-            response = section._requester.request(
-                "POST",
-                f"sections/{section_id}/enrollments",
-                _kwargs=list(enrollment_params.items())
-            )
-            return Response(response.json(), status=HTTPStatus.OK)
+            enrollment_params = serializer.validated_data.get('users', {})
+            logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
+            for user in enrollment_params:
+                login_id = user.get('loginId')
+                role = user.get('role')
+                enrollment = enroll_user(canvas_api, section_id, login_id, role)
+                logger.info(f"Enrollment response for {login_id}: {enrollment}")
+            
+            return Response({}, status=HTTPStatus.OK)
         except Exception as e:
-            logger.error(f"Error enrolling user: {e}")
+            logger.error(f"Error enrolling user {login_id}: {e}")
             self.canvas_error.handle_canvas_api_exceptions([HTTPAPIError(str(section_id), e)])
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
