@@ -138,7 +138,7 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
             for user in enrollment_params:
                 login_id = user.get('loginId')
-                role = user.get('role')
+                role = user.get('role').lower()
                 enrollment = enroll_user(canvas_api, section_id, login_id, role)
                 logger.info(f"Enrollment response for {login_id}: {enrollment}")
             

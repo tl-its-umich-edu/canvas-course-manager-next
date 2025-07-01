@@ -299,6 +299,6 @@ Q_CLUSTER = {
 
 # Custom Canvas Roles
 try:
-    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"Assistant": 34, "Librarian": 21}'))
+    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"assistant": 34, "librarian": 21}'))
 except Exception:
-    CUSTOM_CANVAS_ROLES = {'Assistant': 34, 'Librarian': 21}
+    CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .constants import ALLOWED_ROLES
 
 class CourseSerializer(serializers.Serializer):
     # Define the fields you want to update. Adjust fields according to the Canvas API.
@@ -20,7 +21,7 @@ class SectionUsersSerializer(serializers.Serializer):
 
 class RoleValidationMixin:
     # Accept all roles from ClientEnrollmentType (case-insensitive)
-    ALLOWED_ROLES = {"student", "teacher", "ta", "observer", "designer", "assistant", "librarian"}
+    ALLOWED_ROLES = set(ALLOWED_ROLES)
 
     def validate_roles(self, items, item_type='user'):
         errors = []

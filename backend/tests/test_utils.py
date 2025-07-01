@@ -97,16 +97,16 @@ class TestCustomCanvasRoles(SimpleTestCase):
     def test_custom_canvas_roles_default(self):
         import backend.settings as settings
         importlib.reload(settings)
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 34, 'Librarian': 21})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
 
     def test_custom_canvas_roles_env_override(self):
-        os.environ[self.env_key] = '{"Assistant": 99, "Librarian": 88}'
+        os.environ[self.env_key] = '{"assistant": 99, "librarian": 88}'
         import backend.settings as settings
         importlib.reload(settings)
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 99, 'Librarian': 88})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 99, 'librarian': 88})
 
     def test_custom_canvas_roles_env_invalid(self):
         os.environ[self.env_key] = 'not a json string'
         import backend.settings as settings
         importlib.reload(settings)
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'Assistant': 34, 'Librarian': 21})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
