@@ -57,7 +57,7 @@ export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => 
 
 export const setCourseName = async (courseId: number, newName: string): Promise<CanvasCourseBase> => {
   const request = getPut(JSON.stringify({ newName: newName }))
-  const resp = await fetch(`/api/course/${courseId}/name`, request)
+  const resp = await fetch(`/api/course/${courseId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
