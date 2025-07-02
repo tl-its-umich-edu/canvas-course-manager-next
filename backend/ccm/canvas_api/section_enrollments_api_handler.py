@@ -1,6 +1,8 @@
 import logging
 from http import HTTPStatus
 import time
+import asyncio
+import json
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
@@ -96,6 +98,7 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
         
 
 class SingleSectionEnrollmentView(LoggingMixin, APIView):
+
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = SingleSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
@@ -104,6 +107,17 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
+
+    async def enroll_user_async(self, canvas_api, section_id, login_id, role):
+        # Wrap the sync function in a coroutine for compatibility
+        return enroll_user(canvas_api, section_id, login_id, role)
+
+    async def gather_enrollments(self, users, canvas_api, section_id):
+        tasks = [
+            self.enroll_user_async(canvas_api, section_id, user.get('loginId'), user.get('role').lower())
+            for user in users
+        ]
+        return await asyncio.gather(*tasks, return_exceptions=True)
 
     @extend_schema(
         operation_id="single_section_enrollment",
@@ -121,7 +135,6 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         ],
     )
     def post(self, request: Request, section_id=None) -> Response:
-        import json
         logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
         logger.info(f"Received data: {json.dumps(request.data)}")
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
@@ -136,15 +149,28 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
             enrollment_params = serializer.validated_data.get('users', {})
             logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
-            for user in enrollment_params:
+
+            loop_start_time = time.perf_counter()
+            results = asyncio.run(self.gather_enrollments(enrollment_params, canvas_api, section_id))
+            for user, enrollment in zip(enrollment_params, results):
                 login_id = user.get('loginId')
-                role = user.get('role').lower()
-                enrollment = enroll_user(canvas_api, section_id, login_id, role)
-                logger.info(f"Enrollment response for {login_id}: {enrollment}")
-            
+                if isinstance(enrollment, Exception):
+                    logger.error(f"Enrollment failed for {login_id}: {enrollment}")
+                else:
+                    logger.info(f"Enrollment response for {login_id}: {enrollment}")
+
+            loop_elapsed = time.perf_counter() - loop_start_time
+
+            if loop_elapsed >= 60:
+                minutes = loop_elapsed // 60
+                seconds = loop_elapsed % 60
+                logger.info(f"Total time taken to enroll all users: {int(minutes)} min {seconds:.1f} sec")
+            else:
+                logger.info(f"Total time taken to enroll all users: {loop_elapsed:.3f} seconds")
+
             return Response({}, status=HTTPStatus.OK)
         except Exception as e:
-            logger.error(f"Error enrolling user {login_id}: {e}")
+            logger.error(f"Error enrolling users in section {section_id}: {e}")
             self.canvas_error.handle_canvas_api_exceptions([HTTPAPIError(str(section_id), e)])
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
