@@ -28,5 +28,7 @@ canvasapi==3.3.0 # For Canvas API
 django-q2==1.8.0
 watchfiles==1.0.5 # For file watching
 
+coverage==7.8.2
+
 # Not in pypi https://github.com/Harvard-University-iCommons/django-canvas-oauth
 https://github.com/Harvard-University-iCommons/django-canvas-oauth/archive/v1.1.1.tar.gz

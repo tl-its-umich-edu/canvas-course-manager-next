@@ -5,6 +5,7 @@ from django.urls import reverse
 from canvas_oauth.models import CanvasOAuth2Token
 from django.utils import timezone
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from unittest import mock
 
 
 class TestViews(TestCase):
@@ -18,7 +19,8 @@ class TestViews(TestCase):
         CanvasOAuth2Token.objects.all().delete()
         super().tearDown()
 
-    def test_home_view(self):
+    @mock.patch('webpack_loader.loader.WebpackLoader.get_bundle', return_value={})
+    def test_home_view(self, mock_get_bundle):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home.html')
@@ -39,8 +41,9 @@ class TestViews(TestCase):
         scopes_encoded = '+'.join([scope.replace('|', '%7C').replace('/', '%2F').replace(':', '%3A') for scope in DEFAUlT_CANVAS_SCOPES])
         self.assertIn(f'scope={scopes_encoded}', url_redirect)
 
+    @mock.patch('webpack_loader.loader.WebpackLoader.get_bundle', return_value={})
     @patch('canvas_oauth.oauth.refresh_oauth_token')
-    def test_canvas_token_exists_refreshed_if_called(self, mock_refresh_oauth_token):
+    def test_canvas_token_exists_refreshed_if_called(self, mock_refresh_oauth_token, mock_get_bundle):
         expires = timezone.make_aware(timezone.datetime(2023, 12, 31, 23, 59, 59))
         CanvasOAuth2Token.objects.create(
             user=self.user, access_token='access-token', expires=expires, refresh_token='refresh-token'
