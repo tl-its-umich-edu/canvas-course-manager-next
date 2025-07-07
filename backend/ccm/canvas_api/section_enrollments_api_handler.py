@@ -3,15 +3,17 @@ from http import HTTPStatus
 import time
 import asyncio
 import json
+from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
+from django_q.tasks import async_task
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
-from canvasapi.user import User
+
 from backend.ccm.canvas_api.enroll_users import enroll_user
 
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
@@ -108,16 +110,16 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
-    async def enroll_user_async(self, canvas_api, section_id, login_id, role):
-        # Wrap the sync function in a coroutine for compatibility
-        return enroll_user(canvas_api, section_id, login_id, role)
+    # async def enroll_user_async(self, canvas_api, section_id, login_id, role):
+    #     # Wrap the sync function in a coroutine for compatibility
+    #     return enroll_user(canvas_api, section_id, login_id, role)
 
-    async def gather_enrollments(self, users, canvas_api, section_id):
-        tasks = [
-            self.enroll_user_async(canvas_api, section_id, user.get('loginId'), user.get('role').lower())
-            for user in users
-        ]
-        return await asyncio.gather(*tasks, return_exceptions=True)
+    # async def gather_enrollments(self, users, canvas_api, section_id):
+    #     tasks = [
+    #         self.enroll_user_async(canvas_api, section_id, user.get('loginId'), user.get('role').lower())
+    #         for user in users
+    #     ]
+    #     return await asyncio.gather(*tasks, return_exceptions=True)
 
     @extend_schema(
         operation_id="single_section_enrollment",
@@ -146,27 +148,34 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         
         # --- Custom enrollment logic using SIS login id ---
         try:
-            canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
+            # canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
             enrollment_params = serializer.validated_data.get('users', {})
             logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
+            task_payload = {
+                'enrollment_params': enrollment_params,
+                'section_id': section_id,
+                'user_id': request.user.id,
+                'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
+            }
+            async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
 
-            loop_start_time = time.perf_counter()
-            results = asyncio.run(self.gather_enrollments(enrollment_params, canvas_api, section_id))
-            for user, enrollment in zip(enrollment_params, results):
-                login_id = user.get('loginId')
-                if isinstance(enrollment, Exception):
-                    logger.error(f"Enrollment failed for {login_id}: {enrollment}")
-                else:
-                    logger.info(f"Enrollment response for {login_id}: {enrollment}")
+            # loop_start_time = time.perf_counter()
+            # results = asyncio.run(self.gather_enrollments(enrollment_params, canvas_api, section_id))
+            # for user, enrollment in zip(enrollment_params, results):
+            #     login_id = user.get('loginId')
+            #     if isinstance(enrollment, Exception):
+            #         logger.error(f"Enrollment failed for {login_id}: {enrollment}")
+            #     else:
+            #         logger.info(f"Enrollment response for {login_id}: {enrollment}")
 
-            loop_elapsed = time.perf_counter() - loop_start_time
+            # loop_elapsed = time.perf_counter() - loop_start_time
 
-            if loop_elapsed >= 60:
-                minutes = loop_elapsed // 60
-                seconds = loop_elapsed % 60
-                logger.info(f"Total time taken to enroll all users: {int(minutes)} min {seconds:.1f} sec")
-            else:
-                logger.info(f"Total time taken to enroll all users: {loop_elapsed:.3f} seconds")
+            # if loop_elapsed >= 60:
+            #     minutes = loop_elapsed // 60
+            #     seconds = loop_elapsed % 60
+            #     logger.info(f"Total time taken to enroll all users: {int(minutes)} min {seconds:.1f} sec")
+            # else:
+            #     logger.info(f"Total time taken to enroll all users: {loop_elapsed:.3f} seconds")
 
             return Response({}, status=HTTPStatus.OK)
         except Exception as e:
