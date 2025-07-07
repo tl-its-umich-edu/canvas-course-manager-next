@@ -36,7 +36,7 @@ export const USER_ROLE_TEXT = 'role'
 export const USER_ID_TEXT = 'login ID'
 export const SECTION_ID_TEXT = 'section ID'
 
-export const MAX_ENROLLMENT_RECORDS = 400
+export const MAX_ENROLLMENT_RECORDS = 2000
 export const MAX_ENROLLMENT_MESSAGE = `The maximum number of user enrollments allowed is ${MAX_ENROLLMENT_RECORDS}.`
 
 export const REQUIRED_ENROLLMENT_HEADERS = ['LOGIN_ID', 'ROLE']

@@ -161,6 +161,21 @@ class EnrollRequestSerializerTests(SimpleTestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("non_field_errors", serializer.errors)
 
+    def test_single_section_enroll_too_many_users(self):
+        # Patch MAX_ALLOWED_ENROLLMENTS to a small value for testing
+        from backend.ccm.canvas_api import canvasapi_serializer
+        original_max = canvasapi_serializer.MAX_ALLOWED_ENROLLMENTS
+        canvasapi_serializer.MAX_ALLOWED_ENROLLMENTS = 3
+        try:
+            users = [{"loginId": f"user{i}", "role": "student"} for i in range(4)]
+            payload = {"users": users}
+            serializer = SingleSectionEnrollRequestSerializer(data=payload)
+            self.assertFalse(serializer.is_valid())
+            self.assertIn("users", serializer.errors)
+            self.assertIn("3", str(serializer.errors["users"]))
+        finally:
+            canvasapi_serializer.MAX_ALLOWED_ENROLLMENTS = original_max
+
 
 
 

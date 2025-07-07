@@ -36,9 +36,8 @@ def enroll_um_users(task):
   section_id: str = task.get('section_id')
   user: int = task.get('user_id')
   canvas_callback_url: str = task.get('canvas_callback_url')
-
-  User = get_user_model()
-  user = User.objects.get(pk=user)
+  # Get the user model and retrieve the user instance and Canvas Token
+  user = get_user_model().objects.get(pk=user)
   
   # Create a request factory and build the request since this is a background task request won't have a user session
   factory = RequestFactory()

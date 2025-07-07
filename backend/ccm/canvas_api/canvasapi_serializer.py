@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .constants import ALLOWED_ROLES
+from .constants import ALLOWED_ROLES, MAX_ALLOWED_ENROLLMENTS
 
 class CourseSerializer(serializers.Serializer):
     # Define the fields you want to update. Adjust fields according to the Canvas API.
@@ -41,7 +41,12 @@ class SingleSectionEnrollRequestSerializer(serializers.Serializer, RoleValidatio
     users = SectionUsersSerializer(many=True)
 
     def validate(self, data):
-        self.validate_roles(data.get('users', []), item_type='user')
+        users = data.get('users', [])
+        if len(users) > MAX_ALLOWED_ENROLLMENTS:
+            raise serializers.ValidationError({
+                'users': f'Cannot enroll more than {MAX_ALLOWED_ENROLLMENTS} users in a single request.'
+            })
+        self.validate_roles(users, item_type='user')
         return data
 
 class MultiSectionEnrollSerializer(serializers.Serializer):

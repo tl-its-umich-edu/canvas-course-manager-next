@@ -110,23 +110,19 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
-    # async def enroll_user_async(self, canvas_api, section_id, login_id, role):
-    #     # Wrap the sync function in a coroutine for compatibility
-    #     return enroll_user(canvas_api, section_id, login_id, role)
-
-    # async def gather_enrollments(self, users, canvas_api, section_id):
-    #     tasks = [
-    #         self.enroll_user_async(canvas_api, section_id, user.get('loginId'), user.get('role').lower())
-    #         for user in users
-    #     ]
-    #     return await asyncio.gather(*tasks, return_exceptions=True)
-
     @extend_schema(
         operation_id="single_section_enrollment",
         summary="Enroll users in a single section",
         description="Enroll one or more users in a specific Canvas section by section ID.",
         request=SingleSectionEnrollRequestSerializer,
         parameters=[
+            OpenApiParameter(
+                name="course_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Course ID for the section."
+            ),
             OpenApiParameter(
                 name="section_id",
                 type=OpenApiTypes.INT,
@@ -136,7 +132,7 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             )
         ],
     )
-    def post(self, request: Request, section_id=None) -> Response:
+    def post(self, request: Request, course_id, section_id) -> Response:
         logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
         logger.info(f"Received data: {json.dumps(request.data)}")
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
@@ -146,36 +142,17 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
         
-        # --- Custom enrollment logic using SIS login id ---
         try:
-            # canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
             enrollment_params = serializer.validated_data.get('users', {})
             logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
             task_payload = {
                 'enrollment_params': enrollment_params,
                 'section_id': section_id,
+                'course_id': course_id,
                 'user_id': request.user.id,
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
             }
             async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
-
-            # loop_start_time = time.perf_counter()
-            # results = asyncio.run(self.gather_enrollments(enrollment_params, canvas_api, section_id))
-            # for user, enrollment in zip(enrollment_params, results):
-            #     login_id = user.get('loginId')
-            #     if isinstance(enrollment, Exception):
-            #         logger.error(f"Enrollment failed for {login_id}: {enrollment}")
-            #     else:
-            #         logger.info(f"Enrollment response for {login_id}: {enrollment}")
-
-            # loop_elapsed = time.perf_counter() - loop_start_time
-
-            # if loop_elapsed >= 60:
-            #     minutes = loop_elapsed // 60
-            #     seconds = loop_elapsed % 60
-            #     logger.info(f"Total time taken to enroll all users: {int(minutes)} min {seconds:.1f} sec")
-            # else:
-            #     logger.info(f"Total time taken to enroll all users: {loop_elapsed:.3f} seconds")
 
             return Response({}, status=HTTPStatus.OK)
         except Exception as e:

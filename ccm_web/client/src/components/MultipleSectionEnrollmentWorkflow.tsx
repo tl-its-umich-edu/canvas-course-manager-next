@@ -114,6 +114,10 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
+      // Log only course ids for the enrollments' sections
+      const sectionIdToCourseId = new Map(props.sections.map(s => [s.id, s.course_id]));
+      const courseIds = enrollments.map(e => sectionIdToCourseId.get(e.sectionId)).filter(id => id !== undefined);
+      console.log('course_ids:', courseIds);
       await api.addEnrollmentsToSections(
         enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
