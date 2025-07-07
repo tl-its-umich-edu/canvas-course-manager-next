@@ -16,10 +16,7 @@ from django.core.management.utils import get_random_secret_key
 from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
-<<<<<<< HEAD
 from datetime import timedelta
-=======
->>>>>>> 1126249 (Some tests around canvas custom roles)
 import json
 
 config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
