@@ -13,6 +13,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
+
+# Try to import CSP constants for django-csp 4.0+, fallback if not available
+try:
+    from csp.constants import SELF, UNSAFE_INLINE, UNSAFE_EVAL
+    CSP_CONSTANTS_AVAILABLE = True
+except ImportError:
+    CSP_CONSTANTS_AVAILABLE = False
+    # Fallback definitions for older versions
+    SELF = "'self'"
+    UNSAFE_INLINE = "'unsafe-inline'"
+    UNSAFE_EVAL = "'unsafe-eval'"
+
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
@@ -214,14 +226,16 @@ LOGGING = {
     }
 }
 
-# Set CSP policies with optional defaults
-CSP_FRAME_ANCESTORS = parse_csp('CSP_FRAME_ANCESTORS')
-CSP_SCRIPT_SRC = parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"])
-CSP_CONNECT_SRC = parse_csp('CSP_SCRIPT_SRC')
-CSP_IMG_SRC = parse_csp('CSP_SCRIPT_SRC')
-CSP_FONT_SRC = parse_csp('CSP_FONT_SRC')
-CSP_STYLE_SRC = parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"])
-
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "frame-ancestors": parse_csp('CSP_FRAME_ANCESTORS'),
+        "script-src": parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"]),
+        "connect-src": parse_csp('CSP_SCRIPT_SRC'),
+        "img-src": parse_csp('CSP_SCRIPT_SRC'),
+        "font-src": parse_csp('CSP_FONT_SRC'),
+        "style-src": parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"]),
+    }
+}
 
 # making LTI launch smooth
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", False)
