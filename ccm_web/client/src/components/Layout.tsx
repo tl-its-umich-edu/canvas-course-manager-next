@@ -79,7 +79,7 @@ export default function Layout (props: LayoutProps): JSX.Element {
         {devBlock}
         <div className={`${classes.spacing} ${classes.breadcrumbsContainer}`}>
           <Breadcrumbs {...props} />
-          {props.isAdmin && <Link href="/admin/">Admin</Link>}
+          {props.isAdmin && <Link href="/admin">Admin</Link>}
         </div>
         <div className={classes.spacing}>{props.children}</div>
         <Divider className={classes.spacing} />
