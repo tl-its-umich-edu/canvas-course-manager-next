@@ -25,14 +25,14 @@ import watchman.views
 from backend import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
     path('', views.home_view, name='home'),
     path(".well-known/jwks.json", jwks, name="jwks"),
-    path("init/<uuid:registration_uuid>/", OIDCLoginInitView.as_view(), name="init"),
+    path("init/<uuid:registration_uuid>", OIDCLoginInitView.as_view(), name="init"),
     path("ltilaunch", CCMLTILaunchView.as_view(), name="ltilaunch"),
     path('privacy/', views.privacy_view, name="privacy"),
-    path('watchman/', include('watchman.urls')),
-    path('watchman/bare_status/', watchman.views.bare_status),
+    path('watchman', include('watchman.urls')),
+    path('watchman/bare_status', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
     path('redirectOAuth', views.redirect_oauth_view, name='redirect_oauth_view'),
     path('api/', include('backend.ccm.canvas_api.urls'))
