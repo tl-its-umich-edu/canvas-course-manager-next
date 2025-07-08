@@ -13,18 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
-
-# Try to import CSP constants for django-csp 4.0+, fallback if not available
-try:
-    from csp.constants import SELF, UNSAFE_INLINE, UNSAFE_EVAL
-    CSP_CONSTANTS_AVAILABLE = True
-except ImportError:
-    CSP_CONSTANTS_AVAILABLE = False
-    # Fallback definitions for older versions
-    SELF = "'self'"
-    UNSAFE_INLINE = "'unsafe-inline'"
-    UNSAFE_EVAL = "'unsafe-eval'"
-
+from csp.constants import SELF, UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
