@@ -1,5 +1,6 @@
 import os
 from typing import List, Optional
+from csp.constants import SELF
 
 def parse_csp(csp_key: str, extra_csp_sources: Optional[List[str]] = None) -> List[str]:
     """
@@ -7,7 +8,7 @@ def parse_csp(csp_key: str, extra_csp_sources: Optional[List[str]] = None) -> Li
     - If the variable is set, split its value by commas.
     """
     csp_value = os.getenv(csp_key, '').split(',')
-    DEFAULT_CSP_VALUE = ["'self'"]
+    DEFAULT_CSP_VALUE = [SELF]
     
     if not any(csp_value):
         if extra_csp_sources is not None:
