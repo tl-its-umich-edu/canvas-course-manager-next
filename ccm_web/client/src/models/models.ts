@@ -44,7 +44,7 @@ export interface Globals {
   course: Course
   baseHelpURL: string
   googleAnalyticsId: string;
-  oneTrustScriptDomain: string;
+  umConsentManagerScriptUrl: string;
 }
 
 // API Errors
