@@ -9,6 +9,7 @@ from canvasapi import Canvas
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from backend.ccm.canvas_api.enroll_users import enroll_user
 from django.contrib.auth.models import User
+from rest_framework.request import Request
 
 logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
@@ -37,11 +38,11 @@ def enroll_um_users(task):
   user: int = task.get('user_id')
   canvas_callback_url: str = task.get('canvas_callback_url')
   # Get the user model and retrieve the user instance and Canvas Token
-  user = get_user_model().objects.get(pk=user)
+  user: User = get_user_model().objects.get(pk=user)
   
   # Create a request factory and build the request since this is a background task request won't have a user session
   factory = RequestFactory()
-  request = factory.get('/oauth/oauth-callback')
+  request: Request = factory.get('/oauth/oauth-callback')
   request.user = user
   request.build_absolute_uri = lambda path: canvas_callback_url
   canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
