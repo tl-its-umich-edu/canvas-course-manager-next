@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
-from csp.constants import SELF, UNSAFE_INLINE, UNSAFE_EVAL
+from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 
@@ -218,11 +218,11 @@ LOGGING = {
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "frame-ancestors": parse_csp('CSP_FRAME_ANCESTORS'),
-        "script-src": parse_csp('CSP_SCRIPT_SRC', ["'unsafe-inline'", "'unsafe-eval'"]),
+        "script-src": parse_csp('CSP_SCRIPT_SRC', [UNSAFE_INLINE, UNSAFE_EVAL]),
         "connect-src": parse_csp('CSP_SCRIPT_SRC'),
         "img-src": parse_csp('CSP_SCRIPT_SRC'),
         "font-src": parse_csp('CSP_FONT_SRC'),
-        "style-src": parse_csp('CSP_STYLE_SRC', ["https:", "'unsafe-inline'"]),
+        "style-src": parse_csp('CSP_STYLE_SRC', ["https:", UNSAFE_INLINE]),
     }
 }
 
