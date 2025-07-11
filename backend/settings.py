@@ -239,7 +239,6 @@ RANDOM_PASSWORD_DEFAULT_LENGTH = os.getenv('RANDOM_PASSWORD_DEFAULT_LENGTH', 32)
 # Google Analytics
 GOOGLE_ANALYTICS_ID = os.getenv('GOOGLE_ANALYTICS_ID', None)
 UM_CONSENT_MANAGER_SCRIPT_URL = os.getenv('UM_CONSENT_MANAGER_SCRIPT_URL', None)
-PRIVACY_URL = os.getenv('PRIVACY_URL', None)
 
 HELP_URL = os.getenv('HELP_URL', 'https://ccm.tl-pages.tl.it.umich.edu')
 
