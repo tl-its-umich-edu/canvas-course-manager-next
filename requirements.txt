@@ -1,4 +1,7 @@
+# server and workers
 gunicorn==23.0.0
+uvicorn-worker==0.3.0
+
 mysqlclient==2.2.7
 
 #Django
