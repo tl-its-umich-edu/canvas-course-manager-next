@@ -16,7 +16,7 @@ export function useGoogleAnalytics<Params extends object>(
         try {
           (ReactGA as any).default.event({
             action: name,
-            category: 'tool_interaction',
+            category: 'ccm_activity',
             ...params,
             course_id: analyticsConsentContext.courseIdForEvents
           });
