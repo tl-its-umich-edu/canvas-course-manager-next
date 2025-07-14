@@ -43,6 +43,8 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
             # Call the Canvas API package to get section details.
         try:
             logger.info(f"Retrieving sections for course_id: {course_id}")
+            # Create a course object with just the ID to avoid unnecessary API call
+            # Skips the get_course() call and directly uses get_sections()
             course = Course(canvas_api._Canvas__requester, {'id': course_id})
             # Get list of sections, including total_students info
             sections = course.get_sections(include=['total_students'], per_page=per_page)
@@ -72,6 +74,8 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         logger.info(f"Creating {sections} sections for course_id: {course_id}")
         canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
         
+        # Create a Course object with just the ID to avoid unnecessary API call
+        # If the course doesn't exist, the section creation will fail with proper error
         course = Course(canvas_api._Canvas__requester, {'id': course_id})
            
         start_time: float = time.perf_counter()
