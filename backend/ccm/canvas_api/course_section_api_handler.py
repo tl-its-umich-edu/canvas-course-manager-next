@@ -43,9 +43,9 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
             # Call the Canvas API package to get section details.
         try:
             logger.info(f"Retrieving sections for course_id: {course_id}")
-            mock_course = Course(canvas_api._Canvas__requester, {'id': course_id})
+            course = Course(canvas_api._Canvas__requester, {'id': course_id})
             # Get list of sections, including total_students info
-            sections = mock_course.get_sections(include=['total_students'], per_page=per_page)
+            sections = course.get_sections(include=['total_students'], per_page=per_page)
             
             serializer = CanvasObjectROSerializer(sections, allowed_fields=self.course_section_allowed_fields, many=True)
             logger.info(f"Section data retrieved with filtered fields: {self.course_section_allowed_fields}")
@@ -72,10 +72,10 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         logger.info(f"Creating {sections} sections for course_id: {course_id}")
         canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
         
-        mock_course = Course(canvas_api._Canvas__requester, {'id': course_id})
+        course = Course(canvas_api._Canvas__requester, {'id': course_id})
            
         start_time: float = time.perf_counter()
-        results = asyncio.run(self.create_sections(mock_course, sections))
+        results = asyncio.run(self.create_sections(course, sections))
         end_time: float = time.perf_counter()
         logger.info(f"Time taken to create {len(sections)} sections: {end_time - start_time:.2f} seconds")
 
