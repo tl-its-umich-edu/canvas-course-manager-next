@@ -74,8 +74,9 @@ class CanvasCourseAPIHandler(LoggingMixin, APIView):
         
         canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
         try:
-            # Get the course instance
-            course: Course = canvas_api.get_course(course_id)
+            # Create a Course object with just the ID to avoid unnecessary API call
+            # If the course doesn't exist, the section creation will fail with proper error
+            course: Course = Course(canvas_api._Canvas__requester, {'id': course_id})
             # Call the update method on the course instance
             course_name_update_res: str= course.update(course={'name': update_data.get("newName"), 'course_code': update_data.get("newName")})
             append_fields = {"name": course_name_update_res}
