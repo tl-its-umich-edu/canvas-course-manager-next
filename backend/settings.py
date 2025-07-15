@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_tracking',
     'django_q',
+    'csp',
 ]
 
 MIDDLEWARE = [
