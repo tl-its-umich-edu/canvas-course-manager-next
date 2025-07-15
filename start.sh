@@ -68,8 +68,9 @@ fi
 # Signal backend is ready for qworker
 ( echo "Backend finished starting up." && touch /tmp/backend_ready ) &
 
-exec gunicorn backend.wsgi:application \
+exec gunicorn backend.asgi:application \
     --bind 0.0.0.0:${GUNICORN_PORT} \
     --workers="${GUNICORN_WORKERS}" \
+    -k uvicorn_worker.UvicornWorker \
     --timeout="${GUNICORN_TIMEOUT}" \
     ${GUNICORN_RELOAD}
