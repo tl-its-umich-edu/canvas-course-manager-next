@@ -11,6 +11,10 @@ import os
 
 from django.core.asgi import get_asgi_application
 
+from backend.debugpy import check_and_enable_debugpy
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+
+check_and_enable_debugpy()
 
 application = get_asgi_application()
