@@ -56,11 +56,12 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_tracking',
     'django_q',
+    'csp',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'servestatic.middleware.ServeStaticMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'lti_tool.middleware.LtiLaunchMiddleware',
     'django.middleware.common.CommonMiddleware',
