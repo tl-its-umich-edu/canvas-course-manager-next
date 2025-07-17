@@ -10,6 +10,7 @@ from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialMan
 from backend.ccm.canvas_api.enroll_users import enroll_user
 from django.contrib.auth.models import User
 from rest_framework.request import Request
+from asgiref.sync import async_to_sync
 
 logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
@@ -48,7 +49,8 @@ def enroll_um_users(task):
   canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
 
   loop_start_time = time.perf_counter()
-  results = asyncio.run(gather_enrollments(enrollment_params, canvas_api, section_id))
+  logger.info(f"Starting enrollment for {len(enrollment_params)} users in section {section_id}")
+  results = async_to_sync(gather_enrollments)(enrollment_params, canvas_api, section_id)
   for user, enrollment in zip(enrollment_params, results):
       login_id = user.loginId
       if isinstance(enrollment, Exception):
