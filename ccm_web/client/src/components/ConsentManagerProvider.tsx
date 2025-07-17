@@ -29,6 +29,7 @@ interface UmConsentManagerConfig {
     };
   }
   privacyUrl: string | false;
+  externalLinkBlank: boolean;
   googleAnalyticsID: string | false;
   cookies: {
     necessary: Array<{ name: string; domain: string; regex: string }>;
@@ -49,6 +50,7 @@ interface ConsentManagerProviderProps {
   rootDomain?: string;
   mode?: 'prod' | 'dev';
   privacyUrl?: string | false;
+  externalLinkBlank?: boolean; // open privacy link in a new tab
 }
 
 export function ConsentManagerProvider({
@@ -57,7 +59,8 @@ export function ConsentManagerProvider({
   alwaysShow = false,
   rootDomain = '',
   mode = 'prod',
-  privacyUrl = false
+  privacyUrl = false,
+  externalLinkBlank = true
 }: ConsentManagerProviderProps) {
   const { 
     umConsentManagerScriptUrl, 
@@ -103,6 +106,7 @@ export function ConsentManagerProvider({
         streamConfig: { cookie_flags: 'SameSite=None; Secure' }
       },
       privacyUrl: privacyUrl,
+      externalLinkBlank: externalLinkBlank,
       googleAnalyticsID: googleAnalyticsId,
       cookies: {
         necessary: [],
@@ -129,7 +133,7 @@ export function ConsentManagerProvider({
       }
     };
 
-  }, [handleConsentChange, googleAnalyticsId, umConsentManagerScriptUrl, alwaysShow, rootDomain, mode, privacyUrl]);
+  }, [handleConsentChange, googleAnalyticsId, umConsentManagerScriptUrl, alwaysShow, rootDomain, mode, privacyUrl, externalLinkBlank]);
 
   const contextValue: AnalyticsConsentContextType = {
     analyticsConsentGiven: analyticsConsentGiven,
