@@ -34,12 +34,6 @@ if [ -z "${DJANGO_SECRET_KEY}" ]; then
     echo "DJANGO_SECRET_KEY not set, using random value"
 fi
 
-if [ "${GUNICORN_RELOAD}" ]; then
-    GUNICORN_RELOAD="--reload"
-else
-    GUNICORN_RELOAD=
-fi
-
 # To have a more static default secret key, this should still be defined
 if [ -z "${DJANGO_SECRET_KEY}" ]; then
     export DJANGO_SECRET_KEY=`python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`
@@ -55,22 +49,16 @@ echo Running python migrations
 python manage.py migrate
 
 echo "Setting domain of default site record"
+echo "DEBUGPY_ENABLE: $DEBUGPY_ENABLE"
 
 if [ "${DEBUGPY_ENABLE:-"false"}" == "false" ]; then
-    echo "Starting Gunicorn for production"
+    echo "Starting Gunicorn with uvicorn worker for production"
+    CMD="gunicorn backend.asgi:application --bind 0.0.0.0:${GUNICORN_PORT} --workers=\"${GUNICORN_WORKERS}\" -k uvicorn_worker.UvicornWorker --timeout=\"${GUNICORN_TIMEOUT}\" "
 else
-    echo "Starting Gunicorn for DEBUGPY debugging"
-    # Workers need to be set to 1 for DEBUGPY
-    GUNICORN_WORKERS=1
-    GUNICORN_RELOAD="--reload"
-    GUNICORN_TIMEOUT=0
+    echo "Starting uvicorn for Development"
+    CMD="uvicorn backend.asgi:application --host=0.0.0.0 --port=${GUNICORN_PORT} --reload"
 fi
 # Signal backend is ready for qworker
 ( echo "Backend finished starting up." && touch /tmp/backend_ready ) &
 
-exec gunicorn backend.asgi:application \
-    --bind 0.0.0.0:${GUNICORN_PORT} \
-    --workers="${GUNICORN_WORKERS}" \
-    -k uvicorn_worker.UvicornWorker \
-    --timeout="${GUNICORN_TIMEOUT}" \
-    ${GUNICORN_RELOAD}
+eval exec $CMD
