@@ -48,8 +48,6 @@ done
 echo Running python migrations
 python manage.py migrate
 
-echo "Setting domain of default site record"
-echo "DEBUGPY_ENABLE: $DEBUGPY_ENABLE"
 
 if [ "${DEBUGPY_ENABLE:-"false"}" == "false" ]; then
     echo "Starting Gunicorn with uvicorn worker for production"
