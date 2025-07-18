@@ -34,5 +34,5 @@ def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
             _kwargs=list(enrollment_params.items())
         )
         return Enrollment(section._requester, response.json())
-    except CanvasException as e:
-        raise RuntimeError(f"Failed to enroll user {login_id} in section {section_id}: {str(e)}")
+    except (CanvasException, Exception) as e:
+        raise e

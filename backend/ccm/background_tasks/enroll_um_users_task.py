@@ -11,6 +11,7 @@ from backend.ccm.canvas_api.enroll_users import enroll_user
 from django.contrib.auth.models import User
 from rest_framework.request import Request
 from asgiref.sync import async_to_sync
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
@@ -59,10 +60,6 @@ def enroll_um_users(task):
           logger.info(f"Enrollment response for {login_id}: {enrollment}")
 
   loop_elapsed = time.perf_counter() - loop_start_time
-
-  if loop_elapsed >= 60:
-      minutes = loop_elapsed // 60
-      seconds = loop_elapsed % 60
-      logger.info(f"Total time taken to enroll all users: {int(minutes)} min {seconds:.1f} sec")
-  else:
-      logger.info(f"Total time taken to enroll all users: {loop_elapsed:.3f} seconds")
+ 
+  elapsed = timedelta(seconds=loop_elapsed)
+  logger.info(f"Total time taken to enroll all users: {elapsed}")
