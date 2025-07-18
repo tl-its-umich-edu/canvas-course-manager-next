@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import * as ReactGA from 'react-ga4';
 import { AnalyticsConsentContext, AnalyticsConsentContextType } from '../context/AnalyticsConsentContext.js';
 import { Globals } from '../models/models.js';
 
@@ -73,10 +72,6 @@ export function ConsentManagerProvider({
   const handleConsentChange = useCallback(({cookie}: ConsentChangeEvent) => {
     if (cookie && cookie.categories.includes('analytics')) {
       setAnalyticsConsentGiven(true);
-      // Initialize ReactGA when consent is given
-      if (googleAnalyticsId) {
-        (ReactGA as any).default.initialize(googleAnalyticsId);
-      }
     } else {
       setAnalyticsConsentGiven(false);
     }
