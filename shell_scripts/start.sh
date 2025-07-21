@@ -34,29 +34,24 @@ if [ -z "${DJANGO_SECRET_KEY}" ]; then
     echo "DJANGO_SECRET_KEY not set, using random value"
 fi
 
-# To have a more static default secret key, this should still be defined
-if [ -z "${DJANGO_SECRET_KEY}" ]; then
-    export DJANGO_SECRET_KEY=`python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`
-    echo "DJANGO_SECRET_KEY not set, using random value"
-fi
-
-echo "Waiting for DB ${DB_HOST}:${DB_PORT}"
-while ! nc -z "${DB_HOST}" "${DB_PORT}"; do   
-  sleep 1 # wait 1 second before check again
+echo "backend: Waiting for DB ${DB_HOST} at ${DB_PORT}"
+while ! nc -z "${DB_HOST}" "${DB_PORT}"; do
+  sleep 2 # wait 2 seconds before check again
 done
 
-echo Running python migrations
+echo "backend: Running python migrations"
 python manage.py migrate
-
+echo "backend:Django migrations completed."
 
 if [ "${DEBUGPY_ENABLE:-"false"}" == "false" ]; then
-    echo "Starting Gunicorn with uvicorn worker for production"
+    echo "backend: Starting Gunicorn with uvicorn worker for production"
     CMD="gunicorn backend.asgi:application --bind 0.0.0.0:${GUNICORN_PORT} --workers=\"${GUNICORN_WORKERS}\" -k uvicorn_worker.UvicornWorker --timeout=\"${GUNICORN_TIMEOUT}\" "
 else
-    echo "Starting uvicorn for Development"
+    echo "backend: Starting uvicorn for Development"
     CMD="uvicorn backend.asgi:application --host=0.0.0.0 --port=${GUNICORN_PORT} --reload"
 fi
 # Signal backend is ready for qworker
-( echo "Backend finished starting up." && touch /tmp/backend_ready ) &
-
-eval exec $CMD
+touch /tmp/backend_ready
+exec $CMD
+echo "Backend finished starting up."
+# End of backend startup script
