@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
+from asgiref.sync import sync_to_async
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
@@ -79,7 +80,8 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         course = Course(canvas_api._Canvas__requester, {'id': course_id})
            
         start_time: float = time.perf_counter()
-        results = asyncio.run(self.create_sections(course, sections))
+        from asgiref.sync import async_to_sync
+        results = async_to_sync(self.create_sections)(course, sections)
         end_time: float = time.perf_counter()
         logger.info(f"Time taken to create {len(sections)} sections: {end_time - start_time:.2f} seconds")
 
