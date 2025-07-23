@@ -23,13 +23,16 @@ class SectionUser:
 
 async def enroll_user_async(canvas_api, section_id, login_id, role):
       # Wrap the sync function in a coroutine for compatibility
-      return enroll_user(canvas_api, section_id, login_id, role)
+      return await asyncio.to_thread(enroll_user, canvas_api, section_id, login_id, role)
+
+async def sem_task(semaphore, canvas_api, section_id, user):
+    async with semaphore:
+        return await enroll_user_async(canvas_api, section_id, user.loginId, user.role.lower())
 
 async def gather_enrollments(users, canvas_api, section_id):
-    tasks = [
-        enroll_user_async(canvas_api, section_id, user.loginId, user.role.lower())
-        for user in users
-    ]
+    max_concurrent = 10  # Set your desired concurrency limit here
+    semaphore = asyncio.Semaphore(max_concurrent)
+    tasks = [sem_task(semaphore, canvas_api, section_id, user) for user in users]
     return await asyncio.gather(*tasks, return_exceptions=True)
 
 def enroll_um_users(task):

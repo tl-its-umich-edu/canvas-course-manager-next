@@ -152,8 +152,8 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
                 'user_id': request.user.id,
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
             }
-            async_task('backend.ccm.background_tasks.enroll_um_users_sync.enroll_users_sync', task_params=task_payload)
-            # async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
+            # async_task('backend.ccm.background_tasks.enroll_um_users_sync.enroll_users_sync', task_params=task_payload)
+            async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
 
             return Response({}, status=HTTPStatus.OK)
         except Exception as e:
