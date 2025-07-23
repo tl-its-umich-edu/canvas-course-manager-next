@@ -409,23 +409,25 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     const isSelected = isSectionSelected(section.id)
     return (
       <ListItemText
-        primary={section.name}
-        style={isSelected ? { color: theme.palette.info.main } : undefined}
-        secondary={
+        primary={
           <React.Fragment>
+            <Typography component='span' variant='body1' style={{ fontWeight: 'bold', color: isSelected ? theme.palette.info.main : theme.palette.text.primary }}>
+              {section.name}
+            </Typography>
             {
               props.showCourseName === true && (
-                <Typography component='span' variant='body2' className={classes.secondaryTypography}>
+                <Typography component='span' variant='body2' className={classes.secondaryTypography} color="textSecondary">
                   <span className={classes.overflowEllipsis}>{section.course_name}</span>
                 </Typography>
               )
             }
-            
-            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
-              <Box component="span">{unmergeButton(section)}</Box>
-              <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
-            </Box>
           </React.Fragment>
+        }
+        secondary={
+          <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+            <Box component="span">{unmergeButton(section)}</Box>
+            <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
+          </Box>
         }>
       </ListItemText>
     )
