@@ -1,0 +1,33 @@
+{
+  "title": "jkrooss CCM demo",
+  "scopes": [],
+  "extensions": [
+    {
+      "platform": "canvas.instructure.com",
+      "settings": {
+        "platform": "canvas.instructure.com",
+        "placements": [
+          {
+            "placement": "course_navigation",
+            "message_type": "LtiResourceLinkRequest",
+            "target_link_uri": "https://seahorse-lucky-dolphin.ngrok-free.app/ltilaunch",
+            "visibility": "admins"
+          }
+        ]
+      },
+      "domain": "seahorse-lucky-dolphin.ngrok-free.app",
+      "privacy_level": "public"
+    }
+  ],
+  "public_jwk": {},
+  "description": "Sample LTI Developer Key for CCM",
+  "custom_fields": {
+    "roles": "$Canvas.membership.roles",
+    "is_root_account_admin": "$Canvas.user.isRootAccountAdmin",
+    "login_id": "$Canvas.user.loginId",
+    "course_id": "$Canvas.course.id"
+  },
+  "public_jwk_url": "https://seahorse-lucky-dolphin.ngrok-free.app/.well-known/jwks.json",
+  "target_link_uri": "https://seahorse-lucky-dolphin.ngrok-free.app/ltilaunch",
+  "oidc_initiation_url": "https://seahorse-lucky-dolphin.ngrok-free.app/init/184c6832-9c64-42ba-a9d8-a0ffd2896f36"
+}
