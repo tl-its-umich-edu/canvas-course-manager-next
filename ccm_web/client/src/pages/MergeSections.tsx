@@ -198,7 +198,8 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
         sections={unstagedSections !== undefined ? unstagedSections : []}
         selectedSections={selectedUnstagedSections}
         selectionUpdated={setSelectedUnstagedSections}
-        canUnmerge={false}></SectionSelectorWidget>
+        canUnmerge={false}
+        isMergeContext={true}></SectionSelectorWidget>
     )
   }
 
@@ -223,6 +224,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           sectionsRemoved={handleUnmergedSections}
           canUnmerge={isAdmin()}
           highlightUnlocked={true}
+          isMergeContext={true}
           ></SectionSelectorWidget>
       </div>
     )
