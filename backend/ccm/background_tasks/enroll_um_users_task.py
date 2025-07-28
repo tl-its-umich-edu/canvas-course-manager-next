@@ -59,12 +59,22 @@ def enroll_um_users(task):
   logger.info(f"Starting enrollment for {len(enrollment_params)} users in section {section_id}")
 
   results = gather_enrollments(enrollment_params, canvas_api, section_id)
+  failed_enrollments = []
   for enroll_user, enrollment in zip(enrollment_params, results):
       login_id = enroll_user.loginId
       if isinstance(enrollment, Exception):
-          logger.error(f"Enrollment failed for {login_id}: {enrollment}")
-      else:
-          logger.info(f"Enrollment response for {login_id}: {enrollment}")
+          failed_enrollments.append({
+              'loginId': login_id,
+              'role': enroll_user.role,
+              'error': str(enrollment)
+          })
+
+  if failed_enrollments:
+      logger.error("Failed enrollments:")
+      for fail in failed_enrollments:
+          logger.error(f"User: {fail['loginId']}, Role: {fail['role']}, Error: {fail['error']}")
+  else:
+      logger.info("All enrollments succeeded.")
  
   loop_elapsed = time.perf_counter() - loop_start_time
  
