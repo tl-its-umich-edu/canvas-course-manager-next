@@ -9,7 +9,7 @@ ALLOWED_ROLES = (
 )
 
 # Maximum number of enrollments allowed in a single section enrollment request
-MAX_ALLOWED_ENROLLMENTS = 2000
+MAX_ALLOWED_ENROLLMENTS = 5000
 
 ROLE_TO_ENROLLMENT_TYPE = {
     role: f"{role.capitalize()}Enrollment"
