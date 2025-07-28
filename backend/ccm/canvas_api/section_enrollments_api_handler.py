@@ -134,7 +134,7 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
     )
     def post(self, request: Request, course_id, section_id) -> Response:
         logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
-        logger.info(f"Received data: {json.dumps(request.data)}")
+        logger.debug(f"Received data: {json.dumps(request.data)}")
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
         
         if not serializer.is_valid():
