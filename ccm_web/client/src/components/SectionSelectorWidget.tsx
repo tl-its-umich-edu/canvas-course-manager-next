@@ -199,6 +199,7 @@ interface ISectionSelectorWidgetProps {
   canUnmerge: boolean
   sectionsRemoved?: (sections: CanvasCourseSectionBase[]) => void
   highlightUnlocked?: boolean
+  isMergeContext?: boolean // prop to control styling
 }
 
 function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
@@ -407,30 +408,55 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
     const isSelected = isSectionSelected(section.id)
-    return (
-      <ListItemText
-        primary={
-          <React.Fragment>
-            <Typography component='span' variant='body1' style={{ fontWeight: 'bold', color: isSelected ? theme.palette.info.main : theme.palette.text.primary }}>
-              {section.name}
-            </Typography>
-            {
-              props.showCourseName === true && (
-                <Typography component='span' variant='body2' className={classes.secondaryTypography} color="textSecondary">
+    
+    // use new styling if in merge context, otherwise use original styling
+    if (props.isMergeContext === true) {
+      return (
+        <ListItemText
+          primary={
+            <React.Fragment>
+              <Typography component='span' variant='body1' style={{ fontWeight: 'bold', color: isSelected ? theme.palette.info.main : theme.palette.text.primary }}>
+                {section.name}
+              </Typography>
+              {
+                props.showCourseName === true && (
+                  <Typography component='span' variant='body2' className={classes.secondaryTypography} color="textSecondary">
+                    <span className={classes.overflowEllipsis}>{section.course_name}</span>
+                  </Typography>
+                )
+              }
+            </React.Fragment>
+          }
+          secondary={
+            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+              <Box component="span">{unmergeButton(section)}</Box>
+              <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
+            </Box>
+          }>
+        </ListItemText>
+      )
+    } else {
+      // original simple styling
+      return (
+        <ListItemText
+          primary={section.name}
+          style={isSelected ? { color: theme.palette.info.main } : undefined}
+          secondary={
+            <React.Fragment>
+              {props.showCourseName === true && (
+                <Typography component='span' variant='body2' className={classes.secondaryTypography}>
                   <span className={classes.overflowEllipsis}>{section.course_name}</span>
                 </Typography>
-              )
-            }
-          </React.Fragment>
-        }
-        secondary={
-          <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
-            <Box component="span">{unmergeButton(section)}</Box>
-            <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
-          </Box>
-        }>
-      </ListItemText>
-    )
+              )}
+              <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+                <Box component="span">{unmergeButton(section)}</Box>
+                <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
+              </Box>
+            </React.Fragment>
+          }>
+        </ListItemText>
+      )
+    }
   }
 
   const actionButton = (): JSX.Element | undefined => {
