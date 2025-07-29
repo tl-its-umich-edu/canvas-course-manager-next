@@ -121,7 +121,6 @@ export function ConsentManagerProvider({
     document.head.appendChild(script);
 
     return () => {
-      console.log('Cleaning up ConsentManagerProvider');
       const existingScript = document.getElementById('um-consent-manager-script');
       if (existingScript && existingScript.parentNode) {
         existingScript.parentNode.removeChild(existingScript);
