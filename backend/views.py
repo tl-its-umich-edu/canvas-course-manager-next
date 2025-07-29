@@ -26,7 +26,3 @@ def redirect_oauth_view(request: HttpRequest) -> HttpResponse:
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
         return handle_missing_token(request)
     return redirect(reverse('home'))
-
-# For /privacy/ requested by U-M OneTrust Privacy Banner
-def privacy_view(request: HttpRequest) -> HttpResponse:
-    return redirect(settings.PRIVACY_URL)
