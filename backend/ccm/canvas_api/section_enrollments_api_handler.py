@@ -144,10 +144,12 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         
         try:
             enrollment_params = serializer.validated_data.get('users', {})
+            # Add sectionId to each enrollment param for consistency with multi-section API
+            for param in enrollment_params:
+                param['sectionId'] = section_id
             logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
             task_payload = {
                 'enrollment_params': enrollment_params,
-                'section_id': section_id,
                 'course_id': course_id,
                 'user_id': request.user.id,
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
@@ -179,9 +181,7 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
         request=MultiSectionEnrollRequestSerializer,
         description="Enroll users in multiple Canvas sections by providing a list of enrollments, each with a section ID.",
     )
-    def post(self, request: Request) -> Response:
-        import json
-        logger.info("POST /api/sections/enroll/ called.")
+    def post(self, request: Request, course_id: int) -> Response:
         logger.info(f"Received data: {json.dumps(request.data)}")
         serializer: MultiSectionEnrollRequestSerializer = MultiSectionEnrollRequestSerializer(data=request.data)
         
@@ -190,9 +190,16 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
         
-        return Response({
-            "endpoint": "/api/sections/enroll/",
-            "received": request.data
-        }, status=HTTPStatus.OK)
+        enrollment_params = serializer.validated_data.get('enrollments', {})
+        
+        task_payload = {
+                'enrollment_params': enrollment_params,
+                'course_id': course_id,
+                'user_id': request.user.id,
+                'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
+            }
+        async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
+        
+        return Response({}, status=HTTPStatus.OK)
 
 

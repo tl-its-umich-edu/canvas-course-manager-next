@@ -116,9 +116,12 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     async (enrollments: AddEnrollmentWithSectionId[]) => {
       // Log only course ids for the enrollments' sections
       const sectionIdToCourseId = new Map(props.sections.map(s => [s.id, s.course_id]));
-      const courseIds = enrollments.map(e => sectionIdToCourseId.get(e.sectionId)).filter(id => id !== undefined);
+      const courseIds = enrollments.map(e => sectionIdToCourseId.get(e.sectionId)).filter((id): id is number => id !== undefined);
+      if (courseIds.length === 0) {
+        throw new Error('No valid courseId found for enrollments');
+      }
       console.log('course_ids:', courseIds);
-      await api.addEnrollmentsToSections(
+      await api.addEnrollmentsToSections(courseIds[0],
         enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
     },

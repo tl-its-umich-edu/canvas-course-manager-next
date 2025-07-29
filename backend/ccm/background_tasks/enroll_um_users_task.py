@@ -18,30 +18,30 @@ logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
 
 @dataclass
-class SectionUser:
+class EnrollmentUser:
     loginId: str
     role: str
+    sectionId: int
 
 async def enroll_user_async(canvas_api, section_id, login_id, role):
       # Wrap the sync function in a coroutine for compatibility
       return await asyncio.to_thread(enroll_user, canvas_api, section_id, login_id, role)
 
-async def sem_task(semaphore, canvas_api, section_id, user):
+async def sem_task(semaphore, canvas_api, enrollment_user: EnrollmentUser):
     async with semaphore:
-        return await enroll_user_async(canvas_api, section_id, user.loginId, user.role.lower())
-    
+        return await enroll_user_async(canvas_api, enrollment_user.sectionId, enrollment_user.loginId.lower(), enrollment_user.role.lower())
+
 @async_to_sync()
-async def gather_enrollments(users, canvas_api, section_id):
+async def gather_enrollments(enrollment_users, canvas_api):
     max_concurrent = 10  # Set your desired concurrency limit here
     semaphore = asyncio.Semaphore(max_concurrent)
-    tasks = [sem_task(semaphore, canvas_api, section_id, user) for user in users]
+    tasks = [sem_task(semaphore, canvas_api, user) for user in enrollment_users]
     return await asyncio.gather(*tasks, return_exceptions=True)
 
 def enroll_um_users(task):
   logger.info(f"Enrolling users in section with task data: {task}")
 
-  enrollment_params: List[SectionUser] = [SectionUser(**item) for item in task.get('enrollment_params', [])]
-  section_id: str = task.get('section_id')
+  enrollment_params: List[EnrollmentUser] = [EnrollmentUser(**item) for item in task.get('enrollment_params', [])]
   req_user_id: int = task.get('user_id')
   canvas_callback_url: str = task.get('canvas_callback_url')
   # Get the user model and retrieve the user instance and Canvas Token
@@ -56,9 +56,9 @@ def enroll_um_users(task):
   logger.info(f"Using Canvas API instance for user: {canvas_api}")
 
   loop_start_time = time.perf_counter()
-  logger.info(f"Starting enrollment for {len(enrollment_params)} users in section {section_id}")
+  logger.info(f"Starting enrollment for {len(enrollment_params)} users")
 
-  results = gather_enrollments(enrollment_params, canvas_api, section_id)
+  results = gather_enrollments(enrollment_params, canvas_api)
   failed_enrollments = []
   for enroll_user, enrollment in zip(enrollment_params, results):
       login_id = enroll_user.loginId
