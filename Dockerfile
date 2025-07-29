@@ -39,7 +39,7 @@ WORKDIR /code
 
 COPY backend ./backend
 COPY templates ./templates
-COPY manage.py start.sh ./
+COPY manage.py  ./
 
 COPY --from=node-build /build/bundles ./ccm_web/bundles 
 COPY --from=node-build /build/webpack-stats.json ./ccm_web/
