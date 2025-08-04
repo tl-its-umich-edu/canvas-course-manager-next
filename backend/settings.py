@@ -224,7 +224,6 @@ CONTENT_SECURITY_POLICY = {
         "style-src": parse_csp('CSP_STYLE_SRC', ["https:", UNSAFE_INLINE]),
     }
 }
-print("Content Security Policy:", CONTENT_SECURITY_POLICY)
 
 # making LTI launch smooth
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", False)
