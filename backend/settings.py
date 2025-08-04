@@ -218,12 +218,13 @@ CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "frame-ancestors": parse_csp('CSP_FRAME_ANCESTORS'),
         "script-src": parse_csp('CSP_SCRIPT_SRC', [UNSAFE_INLINE, UNSAFE_EVAL]),
-        "connect-src": parse_csp('CSP_SCRIPT_SRC'),
-        "img-src": parse_csp('CSP_SCRIPT_SRC'),
+        "connect-src": parse_csp('CSP_CONNECT_SRC'),
+        "img-src": parse_csp('CSP_IMG_SRC'),
         "font-src": parse_csp('CSP_FONT_SRC'),
         "style-src": parse_csp('CSP_STYLE_SRC', ["https:", UNSAFE_INLINE]),
     }
 }
+print("Content Security Policy:", CONTENT_SECURITY_POLICY)
 
 # making LTI launch smooth
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", False)
