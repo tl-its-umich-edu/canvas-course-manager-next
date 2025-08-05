@@ -1,8 +1,7 @@
 import logging
 from http import HTTPStatus
 import time
-import asyncio
-import json
+from datetime import datetime
 from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
@@ -131,8 +130,6 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
         ],
     )
     def post(self, request: Request, course_id, section_id) -> Response:
-        logger.info(f"POST /api/sections/{section_id}/enroll/ called.")
-        logger.debug(f"Received data: {json.dumps(request.data)}")
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -152,8 +149,10 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
                 'user_id': request.user.id,
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
             }
-            # async_task('backend.ccm.background_tasks.enroll_um_users_sync.enroll_users_sync', task_params=task_payload)
-            async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
+
+            timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
+            task_name = f'course-{course_id}-section-{section_id}-{timestamp}'
+            async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
 
             return Response({}, status=HTTPStatus.OK)
         except Exception as e:
@@ -180,7 +179,6 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
         description="Enroll users in multiple Canvas sections by providing a list of enrollments, each with a section ID.",
     )
     def post(self, request: Request, course_id: int) -> Response:
-        logger.info(f"Received data: {json.dumps(request.data)}")
         serializer: MultiSectionEnrollRequestSerializer = MultiSectionEnrollRequestSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -196,8 +194,10 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
                 'user_id': request.user.id,
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
             }
-        async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload)
-        
+        timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
+        task_name = f'course-{course_id}-multi-section-{timestamp}'
+        async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
+
         return Response({}, status=HTTPStatus.OK)
 
 
