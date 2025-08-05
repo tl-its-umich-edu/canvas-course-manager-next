@@ -6,8 +6,11 @@ from django.test import RequestFactory
 from django.contrib.auth import get_user_model
 from typing import List
 from canvasapi import Canvas
+from canvasapi.exceptions import Unauthorized
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+
 from backend.ccm.canvas_api.enroll_users import enroll_user
+from backend.ccm.canvas_api.constants import INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN
 from django.contrib.auth.models import User
 from rest_framework.request import Request
 from asgiref.sync import async_to_sync
@@ -33,7 +36,7 @@ async def sem_task(semaphore, canvas_api, enrollment_user: EnrollmentUser):
 
 @async_to_sync()
 async def gather_enrollments(enrollment_users, canvas_api):
-    max_concurrent = 10  # Set your desired concurrency limit here
+    max_concurrent = 10
     semaphore = asyncio.Semaphore(max_concurrent)
     tasks = [sem_task(semaphore, canvas_api, user) for user in enrollment_users]
     return await asyncio.gather(*tasks, return_exceptions=True)
@@ -60,7 +63,9 @@ def enroll_um_users(task):
   logger.info(f"Starting enrollment for {len(enrollment_params)} users")
 
   results = gather_enrollments(enrollment_params, canvas_api)
+
   failed_enrollments = []
+  unauthorized_scope_found = False
   # asyncio gather preserves the order of enrollment_params, so we can match them with results
   for enroll_user, enrollment in zip(enrollment_params, results):
       if isinstance(enrollment, Exception):
@@ -70,27 +75,25 @@ def enroll_um_users(task):
               'role': enroll_user.role,
               'error': str(enrollment)
           })
+          # Check for Unauthorized with insufficient scopes
+          if (
+              isinstance(enrollment, Unauthorized) and
+              INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
+          ):
+              unauthorized_scope_found = True
+
+  if unauthorized_scope_found:
+      # This might happen when new scopes are added after the token was issued, but not going to be an issue with Prod release 
+      logger.warning(f"Deleting CanvasOAuth2Token for user {request.user.username} due to insufficient scopes on access token.")
+      CanvasOAuth2Token.objects.filter(user=request.user).delete()
 
   if failed_enrollments:
       for fail in failed_enrollments:
+          # Remove logging here, when email step when implemented
           logger.error(f"Failed to enroll User: {fail['loginId']} with Role: {fail['role']} due to {fail['error']}")
   else:
       logger.info(f"All enrollments requested by user {req_user_email} for course {course_id} is successful with {len(enrollment_params)} enrolled")
 
   loop_elapsed = time.perf_counter() - loop_start_time
- 
-  elapsed = timedelta(seconds=loop_elapsed)
 
-  # Log last 4 digits of Canvas access token for the user (after elapsed calculation)
-  try:
-      token_obj = CanvasOAuth2Token.objects.filter(user=request.user).first()
-      print(f"CanvasOAuth2Token object for user {request.user.username}:", token_obj)
-      if token_obj and hasattr(token_obj, 'access_token'):
-          token_tail = token_obj.access_token[-4:]
-          logger.info(f"Canvas access token last 4 digits for user {request.user.username}: {token_tail}")
-      else:
-          logger.warning(f"No CanvasOAuth2Token found for user {request.user.username}")
-  except Exception as e:
-      logger.error(f"Error logging Canvas access token tail: {e}")
-
-  logger.info(f"{req_user.username} run processs took Total time taken to enroll all users {len(enrollment_params)}: {elapsed} | Canvas token last 4 digits: {token_tail if 'token_tail' in locals() else 'N/A'}")
+  logger.info(f"for adding users to course {course_id} to enroll {len(enrollment_params)} users took {timedelta(seconds=loop_elapsed)}")

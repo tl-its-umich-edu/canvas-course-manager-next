@@ -1,3 +1,5 @@
+# Constant for insufficient scopes error message, one place to change if canvas changes it
+INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN = 'insufficient scopes on access token'
 ALLOWED_ROLES = (
     "student",
     "teacher",

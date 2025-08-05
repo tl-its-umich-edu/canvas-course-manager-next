@@ -6,8 +6,10 @@ from canvasapi.exceptions import (
     BadRequest, Conflict, Forbidden, InvalidAccessToken, RateLimitExceeded,
     ResourceDoesNotExist, Unauthorized, UnprocessableEntity
 )
+
 from canvas_oauth.exceptions import InvalidOAuthReturnError
 from rest_framework.exceptions import APIException
+from backend.ccm.canvas_api.constants import INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class CanvasErrorHandler():
         InvalidOAuthReturnError: HTTPStatus.FORBIDDEN.value
     }
 
-    INSUFFICIENT_SCOPES_TEXT = 'insufficient scopes on access token'
+
 
     def __init__(self) -> None:
         self.errors = []
@@ -64,7 +66,7 @@ class CanvasErrorHandler():
             if isinstance(exc.original_exception, InvalidAccessToken):
                 raise CanvasAccessTokenException()
 
-            if isinstance(exc.original_exception, Unauthorized) and self.INSUFFICIENT_SCOPES_TEXT in str(exc.original_exception).lower():
+            if isinstance(exc.original_exception, Unauthorized) and INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(exc.original_exception).lower():
                 raise CanvasAccessTokenException()
         
         if all(isinstance(error, HTTPAPIError) for error in exceptions):

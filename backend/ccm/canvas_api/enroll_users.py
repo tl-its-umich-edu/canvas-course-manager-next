@@ -1,3 +1,4 @@
+import logging
 from canvasapi.section import Section
 from canvasapi.enrollment import Enrollment
 from canvasapi import Canvas
@@ -5,6 +6,7 @@ from canvasapi.exceptions import CanvasException
 
 from django.conf import settings
 from .constants import ROLE_TO_ENROLLMENT_TYPE
+logger = logging.getLogger(__name__)
 
 def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
     """
@@ -35,4 +37,4 @@ def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
         )
         return Enrollment(section._requester, response.json())
     except (CanvasException, Exception) as e:
-        raise e
+        raise
