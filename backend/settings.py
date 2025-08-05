@@ -16,6 +16,7 @@ from django.core.management.utils import get_random_secret_key
 from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from datetime import timedelta
 import json
 
 config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
@@ -264,6 +265,14 @@ WATCHMAN_CHECKS = ('watchman.checks.caches', 'watchman.checks.databases')
 CANVAS_OAUTH_CLIENT_ID = os.getenv('CANVAS_OAUTH_CLIENT_ID', '12342')
 CANVAS_OAUTH_CLIENT_SECRET = os.getenv('CANVAS_OAUTH_CLIENT_SECRET', 'ccm')
 CANVAS_OAUTH_CANVAS_DOMAIN = os.getenv('CANVAS_OAUTH_CANVAS_DOMAIN', 'canvas.test.instructure.com')
+# Canvas OAuth token expiration buffer: refresh token 15 minutes before expiry by default
+try:
+    CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER = timedelta(minutes=int(os.getenv('CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER', 15)))
+except Exception:
+    CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER = timedelta(minutes=15)
+
+print(f"Canvas OAuth token expiration buffer set to {CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER}")
+
 # Scopes environment variable provides a way to recover if Canvas changes scope identifiers.
 if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
     CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')

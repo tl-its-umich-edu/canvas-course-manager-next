@@ -328,7 +328,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderConfirm = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>New users have been added to the section(s)!</Typography>
+    const message = <Typography>Adding new users is in process, please check your Email!</Typography>
     const nextAction = (
       <span>
         See the users in the course&apos;s sections on the {settingsLink} for your course.

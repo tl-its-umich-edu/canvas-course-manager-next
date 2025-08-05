@@ -14,8 +14,6 @@ from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
 
-from backend.ccm.canvas_api.enroll_users import enroll_user
-
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError

@@ -43,9 +43,11 @@ def enroll_um_users(task):
 
   enrollment_params: List[EnrollmentUser] = [EnrollmentUser(**item) for item in task.get('enrollment_params', [])]
   req_user_id: int = task.get('user_id')
+  course_id: int = task.get('course_id')
   canvas_callback_url: str = task.get('canvas_callback_url')
   # Get the user model and retrieve the user instance and Canvas Token
   req_user: User = get_user_model().objects.get(pk=req_user_id)
+  req_user_email = req_user.email.lower()  # Ensure email is lowercase for consistency
 
   # Create a request factory and build the request since this is a background task request won't have a user session
   factory = RequestFactory()
@@ -53,29 +55,28 @@ def enroll_um_users(task):
   request.user = req_user
   request.build_absolute_uri = lambda path: canvas_callback_url
   canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
-  logger.info(f"Using Canvas API instance for user: {canvas_api}")
 
   loop_start_time = time.perf_counter()
   logger.info(f"Starting enrollment for {len(enrollment_params)} users")
 
   results = gather_enrollments(enrollment_params, canvas_api)
   failed_enrollments = []
+  # asyncio gather preserves the order of enrollment_params, so we can match them with results
   for enroll_user, enrollment in zip(enrollment_params, results):
-      login_id = enroll_user.loginId
       if isinstance(enrollment, Exception):
           failed_enrollments.append({
-              'loginId': login_id,
+              'sectionId': enroll_user.sectionId,
+              'loginId': enroll_user.loginId,
               'role': enroll_user.role,
               'error': str(enrollment)
           })
 
   if failed_enrollments:
-      logger.error("Failed enrollments:")
       for fail in failed_enrollments:
-          logger.error(f"User: {fail['loginId']}, Role: {fail['role']}, Error: {fail['error']}")
+          logger.error(f"Failed to enroll User: {fail['loginId']} with Role: {fail['role']} due to {fail['error']}")
   else:
-      logger.info("All enrollments succeeded.")
- 
+      logger.info(f"All enrollments requested by user {req_user_email} for course {course_id} is successful with {len(enrollment_params)} enrolled")
+
   loop_elapsed = time.perf_counter() - loop_start_time
  
   elapsed = timedelta(seconds=loop_elapsed)

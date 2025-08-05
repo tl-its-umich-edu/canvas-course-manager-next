@@ -1,7 +1,31 @@
 import os
 import importlib
 from django.test import SimpleTestCase
+import backend.settings as settings
+from datetime import timedelta
 from backend.ccm.utils import parse_csp
+class TestCanvasOAuthTokenExpirationBuffer(SimpleTestCase):
+    def setUp(self):
+        self.settings_path = 'backend.settings'
+        self.env_key = 'CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_token_expiration_buffer_default(self):
+        importlib.reload(settings)
+        self.assertEqual(settings.CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER, timedelta(minutes=15))
+
+    def test_token_expiration_buffer_env_override(self):
+        os.environ[self.env_key] = '42'
+        importlib.reload(settings)
+        self.assertEqual(settings.CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER, timedelta(minutes=42))
 
 class TestParseCSP(SimpleTestCase):
 
