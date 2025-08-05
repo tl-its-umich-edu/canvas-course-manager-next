@@ -271,8 +271,6 @@ try:
 except Exception:
     CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER = timedelta(minutes=15)
 
-print(f"Canvas OAuth token expiration buffer set to {CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER}")
-
 # Scopes environment variable provides a way to recover if Canvas changes scope identifiers.
 if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
     CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
