@@ -301,6 +301,7 @@ Q_CLUSTER = {
     'timeout': int(os.getenv('Q_CLUSTER_TIMEOUT', 1800)), # 30 minutes
     'retry': int(os.getenv('Q_CLUSTER_RETRY', 3600)), # 1hr
     'bulk': int(os.getenv('Q_CLUSTER_BULK', 5)),
+    'max_attempts': 1,
     'orm': 'default'
 }
 

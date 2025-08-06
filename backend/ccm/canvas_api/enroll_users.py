@@ -1,4 +1,5 @@
 import logging
+import re
 from canvasapi.section import Section
 from canvasapi.enrollment import Enrollment
 from canvasapi import Canvas
@@ -7,6 +8,22 @@ from canvasapi.exceptions import CanvasException
 from django.conf import settings
 from .constants import ROLE_TO_ENROLLMENT_TYPE
 logger = logging.getLogger(__name__)
+
+def process_login_id(login_id: str) -> str:
+    """
+    Process the login ID to strip the domain and handle special cases. Handles both UMich and Non-UMich email doimains along
+    with simple login IDs.
+    """
+    stripped_login_id = re.sub(r'@([^@.]+\.)*umich\.edu$', '', login_id, flags=re.IGNORECASE)
+
+    # Check if the regex replacement did anything. If the string is unchanged, it wasn't a umich.edu address.
+    if login_id == stripped_login_id:
+        # It wasn't a umich.edu address, so perform the second step if there's an '@'.
+        # The '1' ensures we only replace the first occurrence, just like the JS version.
+        return login_id.replace('@', '+', 1)
+    else:
+        # It was a umich.edu address and the domain was stripped. Return the result.
+        return stripped_login_id
 
 def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
     """
@@ -21,7 +38,7 @@ def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
     try:
         section = Section(canvasapi._Canvas__requester, {'id': section_id})
         enrollment_params = {
-            "enrollment[user_id]": f"sis_login_id:{login_id}",
+            "enrollment[user_id]": f"sis_login_id:{process_login_id(login_id)}",
             "enrollment[enrollment_state]": "active",
             "notify": False
         }
