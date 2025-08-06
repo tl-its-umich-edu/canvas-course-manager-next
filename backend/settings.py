@@ -59,6 +59,11 @@ INSTALLED_APPS = [
     'csp',
 ]
 
+MIGRATION_MODULES = {
+    'canvas_oauth': 'backend.canvas_oauth.migrations',
+    'rest_framework_tracking': 'backend.rest_framework_tracking.migrations',
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'servestatic.middleware.ServeStaticMiddleware',
