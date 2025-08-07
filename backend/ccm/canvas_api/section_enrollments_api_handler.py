@@ -142,7 +142,6 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             # Add sectionId to each enrollment param for consistency with multi-section API
             for param in enrollment_params:
                 param['sectionId'] = section_id
-            logger.info(f"Enrolling users in section {section_id} with params: {enrollment_params}")
             task_payload = {
                 'enrollment_params': enrollment_params,
                 'course_id': course_id,
@@ -151,7 +150,7 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             }
 
             timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
-            task_name = f'course-{course_id}-section-{section_id}-{timestamp}'
+            task_name = f'c{course_id}-s{section_id}-{len(enrollment_params)}-{timestamp}'
             async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
 
             return Response({}, status=HTTPStatus.OK)
@@ -195,7 +194,7 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
                 'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
             }
         timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
-        task_name = f'course-{course_id}-multi-section-{timestamp}'
+        task_name = f'c{course_id}-multisections-{len(enrollment_params)}-{timestamp}'
         async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
 
         return Response({}, status=HTTPStatus.OK)

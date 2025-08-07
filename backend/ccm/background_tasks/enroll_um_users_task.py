@@ -42,7 +42,7 @@ async def gather_enrollments(enrollment_users, canvas_api):
     return await asyncio.gather(*tasks, return_exceptions=True)
 
 def enroll_um_users(task):
-  logger.info(f"Enrolling users in section with task data: {task}")
+  logger.debug(f"Enrolling users in section with task data: {task}")
 
   enrollment_params: List[EnrollmentUser] = [EnrollmentUser(**item) for item in task.get('enrollment_params', [])]
   req_user_id: int = task.get('user_id')
@@ -50,7 +50,8 @@ def enroll_um_users(task):
   canvas_callback_url: str = task.get('canvas_callback_url')
   # Get the user model and retrieve the user instance and Canvas Token
   req_user: User = get_user_model().objects.get(pk=req_user_id)
-  req_user_email = req_user.email.lower()  # Ensure email is lowercase for consistency
+  req_user_email: str = req_user.email.lower()  # Ensure email is lowercase for consistency
+  uniqname: str = req_user.username
 
   # Create a request factory and build the request since this is a background task request won't have a user session
   factory = RequestFactory()
