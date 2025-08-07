@@ -299,7 +299,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const getSuccessContent = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>Adding new users is in process, please check your Email!</Typography>
+    const message = <Typography>Adding new users is currently in progress. Please check your email for confirmation of success or notification of any issues.</Typography>
     const nextAction = (
       <span>
         See the users in the course&apos;s sections on the {settingsLink} for your course.
