@@ -45,7 +45,7 @@ echo "backend:Django migrations completed."
 
 if [ "${DEBUGPY_ENABLE:-"false"}" == "false" ]; then
     echo "backend: Starting Gunicorn with uvicorn worker for production"
-    CMD="gunicorn backend.asgi:application --bind 0.0.0.0:${GUNICORN_PORT} --workers=${GUNICORN_WORKERS} -k uvicorn_worker.UvicornWorker --timeout=${GUNICORN_TIMEOUT} "
+    CMD="gunicorn backend.asgi:application --bind 0.0.0.0:${GUNICORN_PORT} --workers=${GUNICORN_WORKERS} -k uvicorn_worker.UvicornWorker --timeout=${GUNICORN_TIMEOUT}"
 else
     echo "backend: Starting uvicorn for Development"
     CMD="uvicorn backend.asgi:application --host=0.0.0.0 --port=${GUNICORN_PORT} --reload"
