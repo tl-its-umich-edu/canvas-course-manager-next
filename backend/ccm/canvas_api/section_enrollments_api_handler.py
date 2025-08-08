@@ -16,7 +16,6 @@ from canvasapi.section import Section
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
-from canvas_oauth.exceptions import InvalidOAuthReturnError
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
@@ -93,10 +92,34 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
             return Response(error_response, status=error_response.get('statusCode'))
     
         return Response(list(unique_login_ids), status=HTTPStatus.OK)
-    
-        
 
-class SingleSectionEnrollmentView(LoggingMixin, APIView):
+# Mixin for shared enrollment task logic
+class EnrollmentTaskMixin:
+    def create_enrollment_task(self, request, course_id, enrollment_params, section_id=None, multi_section=False):
+        """
+        Helper to create async enrollment task and handle errors.
+        Returns a Response object.
+        """
+        timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
+        if multi_section:
+            task_name = f'c{course_id}-multisections-{len(enrollment_params)}-{timestamp}'
+        else:
+            task_name = f'c{course_id}-s{section_id}-{len(enrollment_params)}-{timestamp}'
+        task_payload = {
+            'enrollment_params': enrollment_params,
+            'course_id': course_id,
+            'user_id': request.user.id,
+            'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
+        }
+        try:
+            task_id = async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
+            return Response({"task_id": task_id}, status=HTTPStatus.OK)
+        except Exception as e:
+            self.canvas_error.django_q_task_error(e, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+
+class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
 
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -137,31 +160,13 @@ class SingleSectionEnrollmentView(LoggingMixin, APIView):
             error_response = self.canvas_error.to_dict()
             return Response(error_response, status=error_response.get('statusCode'))
         
-        try:
-            enrollment_params = serializer.validated_data.get('users', {})
-            # Add sectionId to each enrollment param for consistency with multi-section API
-            for param in enrollment_params:
-                param['sectionId'] = section_id
-            task_payload = {
-                'enrollment_params': enrollment_params,
-                'course_id': course_id,
-                'user_id': request.user.id,
-                'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
-            }
+        enrollment_params = serializer.validated_data.get('users', {})
+        # Add sectionId to each enrollment param for consistency with multi-section API
+        for param in enrollment_params:
+            param['sectionId'] = section_id
+        return self.create_enrollment_task(request, course_id, enrollment_params, section_id=section_id, multi_section=False)
 
-            timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
-            task_name = f'c{course_id}-s{section_id}-{len(enrollment_params)}-{timestamp}'
-            async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
-
-            return Response({}, status=HTTPStatus.OK)
-        except Exception as e:
-            logger.error(f"Error enrolling users in section {section_id}: {e}")
-            self.canvas_error.handle_canvas_api_exceptions([HTTPAPIError(str(section_id), e)])
-            error_response = self.canvas_error.to_dict()
-            return Response(error_response, status=error_response.get('statusCode'))
-        # --- End custom logic ---
-
-class MultiSectionEnrollmentView(LoggingMixin, APIView):
+class MultiSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MultiSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
@@ -186,17 +191,4 @@ class MultiSectionEnrollmentView(LoggingMixin, APIView):
             return Response(error_response, status=error_response.get('statusCode'))
         
         enrollment_params = serializer.validated_data.get('enrollments', {})
-        
-        task_payload = {
-                'enrollment_params': enrollment_params,
-                'course_id': course_id,
-                'user_id': request.user.id,
-                'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
-            }
-        timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
-        task_name = f'c{course_id}-multisections-{len(enrollment_params)}-{timestamp}'
-        async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
-
-        return Response({}, status=HTTPStatus.OK)
-
-
+        return self.create_enrollment_task(request, course_id, enrollment_params, multi_section=True)

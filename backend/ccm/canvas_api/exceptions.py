@@ -1,5 +1,4 @@
 import logging
-from dataclasses import dataclass
 from http import HTTPStatus
 from typing import List, Union
 from canvasapi.exceptions import (
@@ -55,6 +54,16 @@ class CanvasErrorHandler():
                 "message": str(serializer_errors),
                 "failedInput": input
             })
+    def django_q_task_error(self, error: Exception, input: str):
+        """
+        Handle errors that occur during Django Q task execution.
+        """
+        logger.error(f"Error in Django Q task '{input}': {error}")
+        self.errors.append({
+            "canvasStatusCode": HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            "message": str(error),
+            "failedInput": input
+        })
     
     def handle_canvas_api_exceptions(self, exceptions: Union[HTTPAPIError, List[HTTPAPIError]]):
         logger.error(f"API error occurred: {exceptions}")

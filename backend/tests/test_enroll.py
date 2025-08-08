@@ -60,6 +60,25 @@ class TestEnrollUser(unittest.TestCase):
         self.assertIn('user_id', result)
 
     @patch('backend.ccm.canvas_api.enroll_users.Section')
+    def test_enroll_user_canvas_exception(self, mock_section):
+        """Test enroll_user raises CanvasException and propagates it (unhappy path)."""
+        from canvasapi.exceptions import CanvasException
+        mock_canvas = MagicMock(spec=Canvas)
+        section_id = 999
+        login_id = 'fail@umich.edu'
+        role = 'student'
+        mock_requester = MagicMock()
+        mock_canvas._Canvas__requester = mock_requester
+        mock_section_instance = MagicMock(spec=Section)
+        mock_section.return_value = mock_section_instance
+        mock_section_instance._requester = mock_requester
+        # Simulate CanvasException on request
+        mock_requester.request.side_effect = CanvasException('API error')
+        with self.assertRaises(CanvasException) as ctx:
+            enroll_user(mock_canvas, section_id, login_id, role)
+        self.assertIn('API error', str(ctx.exception))
+
+    @patch('backend.ccm.canvas_api.enroll_users.Section')
     @patch('backend.ccm.canvas_api.enroll_users.settings')
     def test_enroll_user_custom_role_success(self, mock_settings, mock_section):
         # Setup
