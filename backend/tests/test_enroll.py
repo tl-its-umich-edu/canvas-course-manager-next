@@ -1,13 +1,160 @@
-from django.test import SimpleTestCase
-from backend.ccm.canvas_api.enroll_users import process_login_id
-
-import unittest
 from unittest.mock import patch, MagicMock
-from backend.ccm.canvas_api.enroll_users import enroll_user
+import unittest
+from rest_framework.test import APITestCase, APIRequestFactory
+from django.urls import reverse
+from django.test import SimpleTestCase
+from backend.ccm.canvas_api.section_enrollments_api_handler import SingleSectionEnrollmentView
+from backend.ccm.canvas_api.enroll_users import process_login_id, enroll_user
 from canvasapi.section import Section
-from canvasapi.enrollment import Enrollment
 from canvasapi import Canvas
+class MultiSectionEnrollmentViewTests(APITestCase):
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
+    def test_post_enroll_users_validation_error(self, mock_reverse, mock_async_task):
+        """Test validation error when using 'login_id' instead of 'loginId' in enrollments data."""
+        mock_async_task.return_value = 'mock-task-id'
+        mock_reverse.return_value = '/mock-callback-url/'
+        # Use 'login_id' instead of 'loginId' to trigger validation error
+        req_data = {
+            "enrollments": [
+                {"login_id": "student1", "role": "student", "sectionId": 456},
+                {"login_id": "student2", "role": "student", "sectionId": 789}
+            ]
+        }
+        django_request = self.factory.post(
+            self.url,
+            data=req_data,
+            format='json'
+        )
+        django_request.user = self.user
+        django_request.data = req_data
+        from backend.ccm.canvas_api.section_enrollments_api_handler import MultiSectionEnrollmentView
+        view = MultiSectionEnrollmentView()
+        response = view.post(django_request, self.course_id)
+        self.assertEqual(response.status_code, 500)
+        self.assertIn('errors', response.data)
+        error_message = response.data['errors'][0]['message']
+        self.assertIn("'loginId': [ErrorDetail(string='This field is required.'", error_message)
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.factory = APIRequestFactory()
+        self.course_id = 123
+        self.url = reverse('multipleSectionEnrollments', kwargs={'course_id': self.course_id})
 
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
+    def test_post_enroll_users_success(self, mock_reverse, mock_async_task):
+        # Arrange
+        mock_async_task.return_value = 'mock-task-id'
+        mock_reverse.return_value = '/mock-callback-url/'
+        req_data = {
+            "enrollments": [
+                {"loginId": "student1", "role": "student", "sectionId": 456},
+                {"loginId": "student2", "role": "student", "sectionId": 789}
+            ]
+        }
+        django_request = self.factory.post(
+            self.url,
+            data=req_data,
+            format='json'
+        )
+        django_request.user = self.user
+        django_request.data = req_data
+        from backend.ccm.canvas_api.section_enrollments_api_handler import MultiSectionEnrollmentView
+        view = MultiSectionEnrollmentView()
+        response = view.post(django_request, self.course_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('task_id', response.data)
+        self.assertEqual(response.data['task_id'], 'mock-task-id')
+        mock_async_task.assert_called_once()
+        mock_reverse.assert_called_once()
+class SingleSectionEnrollmentViewTests(APITestCase):
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
+    def test_post_enroll_users_async_task_exception(self, mock_reverse, mock_async_task):
+        """Test error response when async_task raises an exception."""
+        mock_async_task.side_effect = Exception('Async task error!')
+        mock_reverse.return_value = '/mock-callback-url/'
+        req_data = {
+            "users": [
+                {"loginId": "student1", "role": "student"},
+                {"loginId": "student2", "role": "student"}
+            ]
+        }
+        django_request = self.factory.post(
+            self.url,
+            data=req_data,
+            format='json'
+        )
+        django_request.user = self.user
+        django_request.data = req_data
+        view = SingleSectionEnrollmentView()
+        response = view.post(django_request, self.course_id, self.section_id)
+        self.assertEqual(response.status_code, 500)
+        self.assertIn('errors', response.data)
+        self.assertIn('Async task error!', str(response.data))
+
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
+    def test_post_enroll_users_validation_error(self, mock_reverse, mock_async_task):
+        """Test validation error when using 'login_id' instead of 'loginId' in request data."""
+        mock_async_task.return_value = 'mock-task-id'
+        mock_reverse.return_value = '/mock-callback-url/'
+        # Use 'login_id' instead of 'loginId' to trigger validation error
+        req_data = {
+            "users": [
+                {"login_id": "student1", "role": "student"},
+                {"login_id": "student2", "role": "student"}
+            ]
+        }
+        django_request = self.factory.post(
+            self.url,
+            data=req_data,
+            format='json'
+        )
+        django_request.user = self.user
+        django_request.data = req_data
+        view = SingleSectionEnrollmentView()
+        response = view.post(django_request, self.course_id, self.section_id)
+        self.assertEqual(response.status_code, 500)
+        self.assertIn('errors', response.data)
+        error_message = response.data['errors'][0]['message']
+        self.assertIn("'loginId': [ErrorDetail(string='This field is required.'", error_message)
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.factory = APIRequestFactory()
+        self.course_id = 123
+        self.section_id = 456
+        self.url = reverse('singleSectionEnrollments', kwargs={'course_id': self.course_id, 'section_id': self.section_id})
+
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
+    @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
+    def test_post_enroll_users_success(self, mock_reverse, mock_async_task):
+        # Arrange
+        mock_async_task.return_value = 'mock-task-id'
+        mock_reverse.return_value = '/mock-callback-url/'
+        req_data = {
+            "users": [
+                {"loginId": "student1", "role": "student"},
+                {"loginId": "student2", "role": "student"}
+            ]
+        }
+        django_request = self.factory.post(
+            self.url,
+            data=req_data,
+            format='json'
+        )
+        django_request.user = self.user
+        django_request.data = req_data
+        view = SingleSectionEnrollmentView()
+        response = view.post(django_request, self.course_id, self.section_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('task_id', response.data)
+        self.assertEqual(response.data['task_id'], 'mock-task-id')
+        mock_async_task.assert_called_once()
+        mock_reverse.assert_called_once()
 class TestProcessLoginId(SimpleTestCase):
     def test_umich_edu(self):
         self.assertEqual(process_login_id("student@umich.edu"), "student")
