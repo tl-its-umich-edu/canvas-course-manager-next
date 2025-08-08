@@ -58,43 +58,71 @@ def enroll_um_users(task):
   request: Request = factory.get('/oauth/oauth-callback')
   request.user = req_user
   request.build_absolute_uri = lambda path: canvas_callback_url
-  canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
+  try:
+      # Get the Canvas API instance using the credential manager
+      canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
+  except Exception as e:
+      logger.error(f"Failed to get Canvas API instance for user {uniqname}: {e}")
+      handle_enrollment_results(enrollment_params,[],request, uniqname, req_user_email, course_id)
+      return
 
   loop_start_time = time.perf_counter()
   logger.info(f"Starting enrollment for {len(enrollment_params)} users")
-
   results = gather_enrollments(enrollment_params, canvas_api)
-
-  failed_enrollments = []
-  unauthorized_scope_found = False
-  # asyncio gather preserves the order of enrollment_params, so we can match them with results
-  for enroll_user, enrollment in zip(enrollment_params, results):
-      if isinstance(enrollment, Exception):
-          failed_enrollments.append({
-              'sectionId': enroll_user.sectionId,
-              'loginId': enroll_user.loginId,
-              'role': enroll_user.role,
-              'error': str(enrollment)
-          })
-          # Check for Unauthorized with insufficient scopes
-          if (
-              isinstance(enrollment, Unauthorized) and
-              INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
-          ):
-              unauthorized_scope_found = True
-
-  if unauthorized_scope_found:
-      # This might happen when new scopes are added after the token was issued, but not going to be an issue with Prod release 
-      logger.warning(f"Deleting CanvasOAuth2Token for user {request.user.username} due to insufficient scopes on access token.")
-      CanvasOAuth2Token.objects.filter(user=request.user).delete()
-
-  if failed_enrollments:
-      for fail in failed_enrollments:
-          # Remove logging here, when email step when implemented
-          logger.error(f"Failed to enroll User: {fail['loginId']} with Role: {fail['role']} due to {fail['error']}")
-  else:
-      logger.info(f"All enrollments requested by user {req_user_email} for course {course_id} is successful with {len(enrollment_params)} enrolled")
-
   loop_elapsed = time.perf_counter() - loop_start_time
 
+  handle_enrollment_results(enrollment_params,results,request,uniqname,req_user_email,course_id)
   logger.info(f"for adding users to course {course_id} to enroll {len(enrollment_params)} users took {timedelta(seconds=loop_elapsed)}")
+
+def handle_enrollment_results(enrollment_params, results, request, uniqname, req_user_email, course_id):
+    failed_enrollments = []
+    unauthorized_scope_found = False
+    total = len(enrollment_params)
+    # If results is empty, treat all as failed
+    if not results:
+        failed_enrollments = [
+            {
+                'sectionId': user.sectionId,
+                'loginId': user.loginId,
+                'role': user.role,
+                'error': 'Enrollment attempted failure due Canvas Token error, try again the process.'
+            }
+            for user in enrollment_params
+        ]
+        failed = total
+        succeeded = 0
+    else:
+        # asyncio gather preserves the order of enrollment_params, so we can match them with results
+        for enroll_user, enrollment in zip(enrollment_params, results):
+            if isinstance(enrollment, Exception):
+                failed_enrollments.append({
+                    'sectionId': enroll_user.sectionId,
+                    'loginId': enroll_user.loginId,
+                    'role': enroll_user.role,
+                    'error': str(enrollment)
+                })
+                # Check for Unauthorized with insufficient scopes
+                if (
+                    isinstance(enrollment, Unauthorized) and
+                    INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
+                ):
+                    unauthorized_scope_found = True
+        failed = len(failed_enrollments)
+        succeeded = total - failed
+
+    subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
+
+    # Prepare failed list for future user notification (e.g., email)
+    if failed_enrollments:
+        failed_list = [
+            f"{fail['loginId']} (role: {fail['role']}, section: {fail['sectionId']}) - {fail['error']}"
+            for fail in failed_enrollments
+        ]
+        logger.error("Failed enrollments: " + "; ".join(failed_list))
+
+    if unauthorized_scope_found:
+        # This might happen when new scopes are added after the token was issued, but not going to be an issue with Prod release 
+        logger.warning(f"Deleting CanvasOAuth2Token for user {uniqname} due to insufficient scopes on access token.")
+        CanvasOAuth2Token.objects.filter(user=request.user).delete()
+
+    logger.info(subject)

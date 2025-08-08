@@ -1,12 +1,16 @@
 from unittest.mock import patch, MagicMock
 import unittest
+from django.utils import timezone
 from rest_framework.test import APITestCase, APIRequestFactory
 from django.urls import reverse
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
+from django.contrib.auth.models import User
+from canvas_oauth.models import CanvasOAuth2Token
 from backend.ccm.canvas_api.section_enrollments_api_handler import SingleSectionEnrollmentView
 from backend.ccm.canvas_api.enroll_users import process_login_id, enroll_user
 from canvasapi.section import Section
 from canvasapi import Canvas
+from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 class MultiSectionEnrollmentViewTests(APITestCase):
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
@@ -155,6 +159,59 @@ class SingleSectionEnrollmentViewTests(APITestCase):
         self.assertEqual(response.data['task_id'], 'mock-task-id')
         mock_async_task.assert_called_once()
         mock_reverse.assert_called_once()
+class TestEnrollUmUsersTask(TestCase):
+
+    def setUp(self):
+        self.credential_manager = CanvasCredentialManager()
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.request = MagicMock()
+        self.request.user = self.user
+        
+        # Create a test token
+        self.token = CanvasOAuth2Token.objects.create(
+            user=self.user,
+            access_token='test_access_token',
+            refresh_token='test_refresh_token',
+            expires=timezone.now() + timezone.timedelta(days=1)
+        )
+
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
+    def test_enroll_um_users_happy_path(self, mock_gather_enrollments):
+        from backend.ccm.background_tasks.enroll_um_users_task import enroll_um_users, course_manager
+        # Arrange
+        mock_canvas_api = MagicMock()
+        # Swap the global course_manager instance to use self.credential_manager
+        original_course_manager = course_manager
+        try:
+            # Patch the get_canvasapi_instance method of self.credential_manager
+            self.credential_manager.get_canvasapi_instance = MagicMock(return_value=mock_canvas_api)
+            # Patch the global course_manager to our test instance
+            import backend.ccm.background_tasks.enroll_um_users_task as enroll_task_mod
+            enroll_task_mod.course_manager = self.credential_manager
+            mock_gather_enrollments.return_value = [
+                {'enrollment_state': 'active', 'role': 'student', 'user_id': '1'},
+                {'enrollment_state': 'active', 'role': 'teacher', 'user_id': '2'}
+            ]
+            task = {
+                'enrollment_params': [
+                    {'loginId': 'student1', 'role': 'student', 'sectionId': 123},
+                    {'loginId': 'teacher1', 'role': 'teacher', 'sectionId': 123}
+                ],
+                'user_id': self.user.id,
+                'course_id': 99,
+                'canvas_callback_url': 'http://callback/'
+            }
+            # Act
+            enroll_um_users(task)
+            # Assert
+            self.credential_manager.get_canvasapi_instance.assert_called_once()
+            mock_gather_enrollments.assert_called_once()
+            # Token should not be deleted if all succeed
+            self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+        finally:
+            # Restore the original course_manager
+            enroll_task_mod.course_manager = original_course_manager
+
 class TestProcessLoginId(SimpleTestCase):
     def test_umich_edu(self):
         self.assertEqual(process_login_id("student@umich.edu"), "student")
