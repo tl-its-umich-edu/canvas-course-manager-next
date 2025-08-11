@@ -63,7 +63,9 @@ def enroll_um_users(task):
       canvas_api: Canvas = course_manager.get_canvasapi_instance(request)
   except Exception as e:
       logger.error(f"Failed to get Canvas API instance for user {uniqname}: {e}")
-      handle_enrollment_results(enrollment_params,[],request, uniqname, req_user_email, course_id)
+      # Create a results list with the same exception for each enrollment param
+      results = [e for _ in enrollment_params]
+      handle_enrollment_results(enrollment_params, results, request, uniqname, req_user_email, course_id)
       return
 
   loop_start_time = time.perf_counter()
@@ -78,39 +80,25 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
     failed_enrollments = []
     unauthorized_scope_found = False
     total = len(enrollment_params)
-    # If results is empty, treat all as failed
-    if not results:
-        failed_enrollments = [
-            {
-                'sectionId': user.sectionId,
-                'loginId': user.loginId,
-                'role': user.role,
-                'error': 'Enrollment attempted failure due Canvas Token error, try again the process.'
-            }
-            for user in enrollment_params
-        ]
-        failed = total
-        succeeded = 0
-    else:
         # asyncio gather preserves the order of enrollment_params, so we can match them with results
-        for enroll_user, enrollment in zip(enrollment_params, results):
-            if isinstance(enrollment, Exception):
-                failed_enrollments.append({
-                    'sectionId': enroll_user.sectionId,
-                    'loginId': enroll_user.loginId,
-                    'role': enroll_user.role,
-                    'error': str(enrollment)
-                })
-                # Check for Unauthorized with insufficient scopes
-                if (
-                    isinstance(enrollment, Unauthorized) and
-                    INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
-                ):
-                    unauthorized_scope_found = True
-        failed = len(failed_enrollments)
-        succeeded = total - failed
+    for enroll_user, enrollment in zip(enrollment_params, results):
+        if isinstance(enrollment, Exception):
+            failed_enrollments.append({
+                'sectionId': enroll_user.sectionId,
+                'loginId': enroll_user.loginId,
+                'role': enroll_user.role,
+                'error': str(enrollment)
+            })
+            # Check for Unauthorized with insufficient scopes
+            if (
+                isinstance(enrollment, Unauthorized) and
+                INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
+            ):
+                unauthorized_scope_found = True
+    failed = len(failed_enrollments)
+    succeeded = total - failed
 
-    subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
+    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
 
     # Prepare failed list for future user notification (e.g., email)
     if failed_enrollments:
@@ -125,4 +113,4 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
         logger.warning(f"Deleting CanvasOAuth2Token for user {uniqname} due to insufficient scopes on access token.")
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
 
-    logger.info(subject)
+    logger.info(email_subject)
