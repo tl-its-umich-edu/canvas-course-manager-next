@@ -80,7 +80,7 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         course = Course(canvas_api._Canvas__requester, {'id': course_id})
            
         start_time: float = time.perf_counter()
-        results = async_to_sync(self.create_sections)(course, sections)
+        results = self.create_sections(course, sections)
         end_time: float = time.perf_counter()
         logger.info(f"Time taken to create {len(sections)} sections: {end_time - start_time:.2f} seconds")
 
@@ -97,11 +97,12 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         # Handle errors
         self.canvas_error.handle_canvas_api_exceptions(err_res)
         return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
-        
+
     async def sem_task(self, semaphore, course, name):
         async with semaphore:
             return await self.create_section(course, name)
 
+    @async_to_sync
     async def create_sections(self, course: Course, section_names: list):
         """Creates multiple sections concurrently, guarded by a semaphore."""
         max_concurrent = 10  # Set your desired concurrency limit here
