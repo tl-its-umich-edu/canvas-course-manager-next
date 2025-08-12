@@ -1,5 +1,4 @@
 from unittest.mock import patch, MagicMock
-import unittest
 from django.utils import timezone
 from rest_framework.test import APITestCase, APIRequestFactory
 from django.urls import reverse
@@ -11,6 +10,112 @@ from backend.ccm.canvas_api.enroll_users import process_login_id, enroll_user
 from canvasapi.section import Section
 from canvasapi import Canvas
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+
+class TestEnrollUmUsersBackgroundTask(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='happyuser', password='testpass', email='happyuser@umich.edu')
+        self.token = CanvasOAuth2Token.objects.create(
+            user=self.user,
+            access_token='happy_access_token',
+            refresh_token='happy_refresh_token',
+            expires=timezone.now() + timezone.timedelta(days=1)
+        )
+
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
+    def test_enroll_um_users_canvasapi_exception(self, mock_course_manager, mock_gather_enrollments):
+        from backend.ccm.background_tasks.enroll_um_users_task import enroll_um_users
+        # Arrange
+        mock_course_manager.get_canvasapi_instance.side_effect = Exception('API instance error')
+        # gather_enrollments should not be called
+        mock_gather_enrollments.return_value = []
+        task = {
+            'enrollment_params': [
+                {'loginId': 'student1', 'role': 'student', 'sectionId': 123},
+                {'loginId': 'student2', 'role': 'student', 'sectionId': 123}
+            ],
+            'user_id': self.user.id,
+            'course_id': 99,
+            'canvas_callback_url': 'http://callback/'
+        }
+        expected_email_subject = "For course 99, 0/2 enrollments finished successfully (2 failed)"
+        with patch('backend.ccm.background_tasks.enroll_um_users_task.logger.info') as mock_logger_info:
+            enroll_um_users(task)
+            mock_course_manager.get_canvasapi_instance.assert_called_once()
+            mock_gather_enrollments.assert_not_called()
+            self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+            found = False
+            for call in mock_logger_info.call_args_list:
+                if expected_email_subject in str(call):
+                    found = True
+            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
+    def test_enroll_um_users_happy_path(self, mock_course_manager, mock_gather_enrollments):
+        from backend.ccm.background_tasks.enroll_um_users_task import enroll_um_users
+        # Arrange
+        mock_canvas_api = MagicMock()
+        mock_course_manager.get_canvasapi_instance.return_value = mock_canvas_api
+        mock_gather_enrollments.return_value = [
+            {'enrollment_state': 'active', 'role': 'student', 'user_id': '1'},
+            {'enrollment_state': 'active', 'role': 'teacher', 'user_id': '2'}
+        ]
+        task = {
+            'enrollment_params': [
+                {'loginId': 'student1', 'role': 'student', 'sectionId': 123},
+                {'loginId': 'teacher1', 'role': 'teacher', 'sectionId': 123}
+            ],
+            'user_id': self.user.id,
+            'course_id': 99,
+            'canvas_callback_url': 'http://callback/'
+        }
+        expected_email_subject = "For course 99, 2/2 enrollments finished successfully"
+        with patch('backend.ccm.background_tasks.enroll_um_users_task.logger.info') as mock_logger_info:
+            enroll_um_users(task)
+            # Assert
+            mock_course_manager.get_canvasapi_instance.assert_called_once()
+            mock_gather_enrollments.assert_called_once()
+            self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+            found = False
+            for call in mock_logger_info.call_args_list:
+                if expected_email_subject in str(call):
+                    found = True
+            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
+    def test_enroll_um_users_partial_success(self, mock_course_manager, mock_gather_enrollments):
+        from backend.ccm.background_tasks.enroll_um_users_task import enroll_um_users
+        from canvasapi.exceptions import CanvasException
+        # Arrange
+        mock_canvas_api = MagicMock()
+        mock_course_manager.get_canvasapi_instance.return_value = mock_canvas_api
+        # One success, one failure
+        mock_gather_enrollments.return_value = [
+            {'enrollment_state': 'active', 'role': 'student', 'user_id': '1'},
+            CanvasException('API error')
+        ]
+        task = {
+            'enrollment_params': [
+                {'loginId': 'student1', 'role': 'student', 'sectionId': 123},
+                {'loginId': 'student2', 'role': 'student', 'sectionId': 123}
+            ],
+            'user_id': self.user.id,
+            'course_id': 99,
+            'canvas_callback_url': 'http://callback/'
+        }
+        expected_email_subject = "For course 99, 1/2 enrollments finished successfully (1 failed)"
+        with patch('backend.ccm.background_tasks.enroll_um_users_task.logger.info') as mock_logger_info:
+            enroll_um_users(task)
+            mock_course_manager.get_canvasapi_instance.assert_called_once()
+            mock_gather_enrollments.assert_called_once()
+            self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
+            found = False
+            for call in mock_logger_info.call_args_list:
+                if expected_email_subject in str(call):
+                    found = True
+            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
 class MultiSectionEnrollmentViewTests(APITestCase):
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
@@ -229,7 +334,7 @@ class TestProcessLoginId(SimpleTestCase):
         self.assertEqual(process_login_id("student"), "student")
 
 
-class TestEnrollUser(unittest.TestCase):
+class TestEnrollUser(SimpleTestCase):
     @patch('backend.ccm.canvas_api.enroll_users.Section')
     def test_enroll_user_success(self, mock_section):
         # Setup
