@@ -30,6 +30,7 @@ canvasapi==3.3.0 # For Canvas API
 #django-q
 django-q2==1.8.0
 watchfiles==1.0.5 # For file watching
+blessed==1.21.0
 
 coverage==7.8.2
 

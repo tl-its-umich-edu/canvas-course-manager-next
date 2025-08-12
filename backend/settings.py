@@ -298,10 +298,10 @@ DRF_TRACKING_ADMIN_LOG_READONLY = True
 Q_CLUSTER = {
     'name': 'CCM_Cluster',
     'workers': int(os.getenv('Q_CLUSTER_WORKERS', 4)),
-    'timeout': int(os.getenv('Q_CLUSTER_TIMEOUT', 1800)), # 30 minutes
-    'retry': int(os.getenv('Q_CLUSTER_RETRY', 3600)), # 1hr
+    'timeout': int(os.getenv('Q_CLUSTER_TIMEOUT', 15 * 60)),  # 15 minutes in seconds
+    'retry': int(os.getenv('Q_CLUSTER_RETRY', 30 * 60)),      # 30 minutes in seconds
     'bulk': int(os.getenv('Q_CLUSTER_BULK', 5)),
-    'max_attempts': 1,
+    'max_attempts': int(os.getenv('Q_CLUSTER_MAX_ATTEMPTS', 1)),
     'orm': 'default'
 }
 

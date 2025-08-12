@@ -147,6 +147,22 @@ LTI registration with Canvas Dev: If you're using a Canvas dev instance (http://
 19. Go to `.env` file, Add the API client Id to CANVAS_OAUTH_CLIENT_ID and Secret from step 18 to CANVAS_OAUTH_CLIENT_SECRET and CANVAS_OAUTH_CANVAS_DOMAIN with canvas instance without https://
 20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
 
+### Django Queue
+1. The Add U-M user feature is run as a background task, and we are supporting up to 5000 Enrollments
+2. We are using [Django ORM](https://django-q2.readthedocs.io/en/master/brokers.html#django-orm) is set a default message Broker.
+3. Django admin can be used for tracking Successful, Failed, Queued, Scheduled Tasks
+    1. Apart from Django admin, CLI can be used for [tracking](https://django-q2.readthedocs.io/en/master/monitor.html) as well:
+        ```
+        python manage.py qinfo
+        ```
+4. The following environment variables can be set to configure Django Q background task processing
+    1. `Q_CLUSTER_WORKERS` - Number of worker processes (default: 4)
+    2. `Q_CLUSTER_TIMEOUT` - Task execution timeout in seconds (default: 900, i.e., 15 minutes)
+    3. `Q_CLUSTER_RETRY` - Retry interval in seconds for failed tasks (default: 1800, i.e., 30 minutes)
+    4. `Q_CLUSTER_BULK` - Sets the number of messages each cluster tries to get from the broker per call.
+    5. `Q_CLUSTER_MAX_ATTEMPTS` - Maximum number of retry attempts for a task after failure (default: 1)
+  
+
 #### Unit Testing
 The goal is to implement tests for the project's major components, focusing on critical functionality rather than achieving 100% code coverage. When testing a specific feature or file, create a test_*.py file in the /tests/ directory. Instead of making real-time database calls, use the unittest.mock module, including patch and MagicMock, to simulate calls with mock data. See above debugging section for how to debug test cases
 
