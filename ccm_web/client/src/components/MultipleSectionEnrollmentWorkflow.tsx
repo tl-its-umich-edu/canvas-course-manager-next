@@ -30,7 +30,7 @@ import TableCaption from './TableCaption.js'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable.js'
 import * as api from '../api.js'
 import usePromise from '../hooks/usePromise.js'
-import { ClientEnrollmentType } from '../models/canvas.js'
+import { CanvasCourseBase, ClientEnrollmentType } from '../models/canvas.js'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
@@ -99,12 +99,14 @@ enum CSVWorkflowState {
 }
 
 interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
+  course: CanvasCourseBase
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
-
+  const courseId = props.course.id
+  
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
@@ -114,13 +116,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
-      // Log only course ids for the enrollments' sections
-      const sectionIdToCourseId = new Map(props.sections.map(s => [s.id, s.course_id]));
-      const courseIds = enrollments.map(e => sectionIdToCourseId.get(e.sectionId)).filter((id): id is number => id !== undefined);
-      if (courseIds.length === 0) {
-        throw new Error('No valid courseId found for enrollments');
-      }
-      await api.addEnrollmentsToSections(courseIds[0],
+      await api.addEnrollmentsToSections(courseId,
         enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
     },
