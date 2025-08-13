@@ -120,7 +120,6 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       if (courseIds.length === 0) {
         throw new Error('No valid courseId found for enrollments');
       }
-      console.log('course_ids:', courseIds);
       await api.addEnrollmentsToSections(courseIds[0],
         enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
