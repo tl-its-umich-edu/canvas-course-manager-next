@@ -9,6 +9,7 @@ from canvasapi import Canvas
 from canvasapi.exceptions import Unauthorized
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
+from backend.ccm.canvas_api.email_users import EmailUsers
 from backend.ccm.canvas_api.enroll_users import enroll_user
 from backend.ccm.canvas_api.constants import INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN
 from django.contrib.auth.models import User
@@ -97,6 +98,7 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
             ):
                 unauthorized_scope_found = True
     failed = len(failed_enrollments)
+    logger.error(failed)
     succeeded = total - failed
 
     email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
@@ -113,5 +115,14 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
         # This might happen when new scopes are added after the token was issued, but not going to be an issue with Prod release 
         logger.warning(f"Deleting CanvasOAuth2Token for user {uniqname} due to insufficient scopes on access token.")
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
+
+    email_service = EmailUsers()
+    email_service.send_email(
+        to_email=req_user_email,
+        subject=email_subject,
+        course=course_id,
+        failure_list=failed_enrollments if failed_enrollments else None,
+        all_success=succeeded == total
+    )
 
     logger.info(email_subject)

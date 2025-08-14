@@ -310,3 +310,11 @@ try:
     CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"assistant": 34, "librarian": 21}'))
 except Exception:
     CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}
+
+# Email settings
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = True
+EMAIL_FROM = os.getenv('EMAIL_FROM', '4HELP@UMICH.EDU')
+EMAIL_SUPPORT = os.getenv('EMAIL_SUPPORT', 'CCM.ADMIN@UMICH.EDU')
