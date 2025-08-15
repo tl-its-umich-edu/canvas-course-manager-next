@@ -1,3 +1,4 @@
+
 import os
 import importlib
 from django.test import SimpleTestCase
@@ -138,6 +139,23 @@ class TestCustomCanvasRoles(SimpleTestCase):
 
     # Tests for EMAIL_FROM and EMAIL_SUPPORT settings
     class TestEmailSettings(SimpleTestCase):
+        def test_email_host_user_password_defaults(self):
+            # Ensure EMAIL_HOST_USER and EMAIL_HOST_PASSWORD default to '' when not set
+            env_keys = ['EMAIL_HOST_USER', 'EMAIL_HOST_PASSWORD']
+            old_env = {k: os.environ.get(k) for k in env_keys}
+            for k in env_keys:
+                if k in os.environ:
+                    del os.environ[k]
+            import importlib
+            importlib.reload(settings)
+            self.assertEqual(settings.EMAIL_HOST_USER, '')
+            self.assertEqual(settings.EMAIL_HOST_PASSWORD, '')
+            # Restore environment
+            for k, v in old_env.items():
+                if v is not None:
+                    os.environ[k] = v
+                elif k in os.environ:
+                    del os.environ[k]
         def test_email_backend_default(self):
             importlib.reload(settings)
             self.assertEqual(settings.EMAIL_BACKEND, 'django.core.mail.backends.console.EmailBackend')
@@ -154,7 +172,7 @@ class TestCustomCanvasRoles(SimpleTestCase):
                 'EMAIL_PORT',
                 'EMAIL_USE_TLS',
                 'EMAIL_FROM',
-                'EMAIL_SUPPORT',
+                'EMAIL_TO_REPLY',
             ]
             self.old_env = {k: os.environ.get(k) for k in self.env_keys}
             for k in self.env_keys:
@@ -174,25 +192,24 @@ class TestCustomCanvasRoles(SimpleTestCase):
             self.assertEqual(settings.EMAIL_HOST, 'localhost')
             self.assertEqual(settings.EMAIL_PORT, 587)
             self.assertTrue(settings.EMAIL_USE_TLS)
-            self.assertEqual(settings.EMAIL_FROM, '4HELP@UMICH.EDU')
-            self.assertEqual(settings.EMAIL_SUPPORT, 'CCM.ADMIN@UMICH.EDU')
+            self.assertEqual(settings.EMAIL_FROM, 'CANVAS-CCM-SYSTEM@UMICH.EDU')
+            self.assertEqual(settings.EMAIL_TO_REPLY, '4HELP@UMICH.EDU')
 
             os.environ['EMAIL_BACKEND'] = 'django.core.mail.backends.smtp.EmailBackend'
             os.environ['EMAIL_HOST'] = 'smtp.umich.edu'
             os.environ['EMAIL_PORT'] = '465'
             os.environ['EMAIL_FROM'] = 'custom-from@umich.edu'
-            os.environ['EMAIL_SUPPORT'] = 'custom-support@umich.edu'
+            os.environ['EMAIL_TO_REPLY'] = 'custom-support@umich.edu'
             importlib.reload(settings)
             self.assertEqual(settings.EMAIL_BACKEND, 'django.core.mail.backends.smtp.EmailBackend')
             self.assertEqual(settings.EMAIL_HOST, 'smtp.umich.edu')
             self.assertEqual(settings.EMAIL_PORT, 465)
             self.assertTrue(settings.EMAIL_USE_TLS)
             self.assertEqual(settings.EMAIL_FROM, 'custom-from@umich.edu')
-            self.assertEqual(settings.EMAIL_SUPPORT, 'custom-support@umich.edu')
+            self.assertEqual(settings.EMAIL_TO_REPLY, 'custom-support@umich.edu')
             importlib.reload(settings)
             self.assertEqual(settings.EMAIL_FROM, 'custom-from@umich.edu')
 
         def test_email_support_env_override(self):
-            os.environ[self.env_support] = 'custom-support@umich.edu'
             importlib.reload(settings)
-            self.assertEqual(settings.EMAIL_SUPPORT, 'custom-support@umich.edu')
+            self.assertEqual(settings.EMAIL_TO_REPLY, 'custom-support@umich.edu')

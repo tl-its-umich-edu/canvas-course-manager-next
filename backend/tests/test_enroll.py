@@ -45,11 +45,9 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_not_called()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            # Check logger.info called with expected subject
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertIn(expected_email_subject, subjects)
     @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
     @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
     def test_enroll_um_users_happy_path(self, mock_course_manager, mock_gather_enrollments):
@@ -77,11 +75,8 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_called_once()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertIn(expected_email_subject, subjects)
 
     @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
     @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
@@ -111,11 +106,8 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_called_once()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertIn(expected_email_subject, subjects)
 class MultiSectionEnrollmentViewTests(APITestCase):
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')

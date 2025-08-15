@@ -1,6 +1,8 @@
 import logging
 import time
 import asyncio
+import csv
+import io
 from dataclasses import dataclass
 from django.test import RequestFactory
 from django.contrib.auth import get_user_model
@@ -9,7 +11,7 @@ from canvasapi import Canvas
 from canvasapi.exceptions import Unauthorized
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
-from backend.ccm.canvas_api.email_users import EmailUsers
+from backend.ccm.canvas_api.email_users import send_email
 from backend.ccm.canvas_api.enroll_users import enroll_user
 from backend.ccm.canvas_api.constants import INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN
 from django.contrib.auth.models import User
@@ -18,6 +20,7 @@ from asgiref.sync import async_to_sync
 from datetime import timedelta
 from canvas_oauth.models import CanvasOAuth2Token
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
+
 
 logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
@@ -81,7 +84,6 @@ def enroll_um_users(task):
 def handle_enrollment_results(enrollment_params, results, request, uniqname, req_user_email, course_id):
     failed_enrollments = []
     unauthorized_scope_found = False
-    total = len(enrollment_params)
         # asyncio gather preserves the order of enrollment_params, so we can match them with results
     for enroll_user, enrollment in zip(enrollment_params, results):
         if isinstance(enrollment, Exception):
@@ -97,11 +99,6 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
                 INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(enrollment).lower()
             ):
                 unauthorized_scope_found = True
-    failed = len(failed_enrollments)
-    logger.error(failed)
-    succeeded = total - failed
-
-    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
 
     # Prepare failed list for future user notification (e.g., email)
     if failed_enrollments:
@@ -115,14 +112,60 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
         # This might happen when new scopes are added after the token was issued, but not going to be an issue with Prod release 
         logger.warning(f"Deleting CanvasOAuth2Token for user {uniqname} due to insufficient scopes on access token.")
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
-
-    email_service = EmailUsers()
-    email_service.send_email(
-        to_email=req_user_email,
-        subject=email_subject,
-        course=course_id,
-        failure_list=failed_enrollments if failed_enrollments else None,
-        all_success=succeeded == total
+    
+    # Compose email subject for logging (needed for tests)
+    total = len(enrollment_params)
+    failed = len(failed_enrollments)
+    succeeded = total - failed
+    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
+    logger.info(email_subject)
+    email_enrollment_summary(
+        req_user_email=req_user_email,
+        course_id=course_id,
+        failed_enrollments=failed_enrollments,
+        enrollment_count=total
     )
 
-    logger.info(email_subject)
+def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enrollment_count):
+    """
+    Compose and send enrollment result email, with CSV attachment if there are failures.
+    """
+    total = enrollment_count
+    failed = len(failed_enrollments)
+    succeeded = total - failed
+
+    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
+
+    success_body = f"For Course {course_id} enrolling all users is success"
+    failure_body = f"For Course {course_id} enrolling users encountered failures. See attachment for error list."
+    body = success_body if succeeded == total else failure_body
+
+    attachment = None
+    if failed_enrollments:
+        try:
+            output = io.StringIO()
+            fieldnames = ['sectionId', 'LoginId', 'role', 'ReasonForFailure']
+            writer = csv.DictWriter(output, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in failed_enrollments:
+                row = {
+                    'sectionId': item.get('sectionId', ''),
+                    'LoginId': item.get('loginId', ''),
+                    'role': item.get('role', ''),
+                    'ReasonForFailure': item.get('error', '')
+                }
+                writer.writerow(row)
+            csv_content: str = output.getvalue()
+            filename: str = f'course_{course_id}_failures.csv'
+            mime_type: str = 'text/csv'
+            attachment: tuple = (filename, csv_content, mime_type)
+        except (ValueError, Exception) as e:
+            logger.error(f"Failed to create CSV attachment for course {course_id}: {e}")
+
+    send_email(
+        to_email=req_user_email,
+        subject=email_subject,
+        body=body,
+        attachment=attachment,
+    )
+    

@@ -315,6 +315,9 @@ except Exception:
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = True
-EMAIL_FROM = os.getenv('EMAIL_FROM', '4HELP@UMICH.EDU')
-EMAIL_SUPPORT = os.getenv('EMAIL_SUPPORT', 'CCM.ADMIN@UMICH.EDU')
+
+EMAIL_FROM = os.getenv('EMAIL_FROM', 'canvas-ccm-system@umich.edu')
+EMAIL_TO_REPLY = os.getenv('EMAIL_TO_REPLY', '4help@umich.edu')
