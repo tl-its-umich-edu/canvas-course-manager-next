@@ -10,6 +10,7 @@ from backend.ccm.canvas_api.enroll_users import process_login_id, enroll_user
 from canvasapi.section import Section
 from canvasapi import Canvas
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+from backend.ccm.background_tasks import enroll_um_users_task
 
 class TestEnrollUmUsersBackgroundTask(TestCase):
 
@@ -420,3 +421,33 @@ class TestEnrollUser(SimpleTestCase):
         # Ensure the custom role id was used
         called_kwargs = dict(mock_requester.request.call_args.kwargs['_kwargs'])
         self.assertEqual(called_kwargs['enrollment[role_id]'], 21)
+
+
+class TestEmailEnrollmentSummary(TestCase):
+
+    def get_sample_failed_enrollments(self):
+        return [
+            {'sectionId': 1, 'loginId': 'user1', 'role': 'student', 'error': 'Some error'},
+            {'sectionId': 2, 'loginId': 'user2', 'role': 'teacher', 'error': 'Another error'}
+        ]
+
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.send_email')
+    def test_email_enrollment_summary_calls_send_email(self, mock_send_email):
+        req_user_email = 'testuser@example.com'
+        course_id = 123
+        failed_enrollments = self.get_sample_failed_enrollments()
+        enrollment_count = 5
+
+        enroll_um_users_task.email_enrollment_summary(
+            req_user_email=req_user_email,
+            course_id=course_id,
+            failed_enrollments=failed_enrollments,
+            enrollment_count=enrollment_count
+        )
+
+        self.assertTrue(mock_send_email.called)
+        args, kwargs = mock_send_email.call_args
+        self.assertEqual(kwargs['to_email'], req_user_email)
+        self.assertIn(str(course_id), kwargs['subject'])
+        self.assertIn('failures', kwargs['body'])
+        self.assertIsNotNone(kwargs['attachment'])
