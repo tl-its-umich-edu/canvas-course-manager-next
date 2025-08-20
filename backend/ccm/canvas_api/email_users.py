@@ -17,11 +17,16 @@ def send_email(
     Send an email to the user. If attachment is provided, add it to the email.
     - subject: Email subject
     - attachment: tuple (filename, content, mime_type) or None
-    - connection: Django email backend connection (for SMTP reuse)
+    - connection: Django email backend connection for SMTP reuse. If not provided, the default connection is used.
+                  For sending bulk emails, it is recommended to pass a single connection explicitly to improve efficiency.
     """
     try:
+        # Prefix subject if DEBUGPY_ENABLE is True
+        email_subject = subject
+        if getattr(settings, 'DEBUGPY_ENABLE', False):
+            email_subject = f"Test Email- {subject}"
         email = EmailMessage(
-            subject=subject,
+            subject=email_subject,
             body=body,
             from_email=settings.EMAIL_FROM,
             to=[to_email],
