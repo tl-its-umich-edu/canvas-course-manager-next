@@ -9,6 +9,7 @@ import './index.css'
 import ccmTheme from './theme.js'
 import AccessDenied from './pages/AccessDenied.js'
 import LaunchError from './pages/LaunchError.js'
+import { ConsentManagerProvider } from './components/ConsentManagerProvider.js'
 
 const helpContactProps = {
   email: '4help@umich.edu',
@@ -29,13 +30,19 @@ root.render(
    <StyledEngineProvider injectFirst>
      <ThemeProvider theme={ccmTheme}>
       <SnackbarProvider maxSnack={3}>
-        <Router>
-          <Routes>
-            <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
-            <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
-            <Route path='*' element={<App globals={ccmGlobals} />}/>
-          </Routes>
-        </Router>
+        <ConsentManagerProvider 
+          globals={ccmGlobals}
+          alwaysShow={ccmGlobals.environment === 'development'}
+          mode={ccmGlobals.environment === 'development' ? 'dev' : 'prod'}
+        >
+          <Router>
+            <Routes>
+              <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
+              <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
+              <Route path='*' element={<App globals={ccmGlobals} />}/>
+            </Routes>
+          </Router>
+        </ConsentManagerProvider>
       </SnackbarProvider>
      </ThemeProvider>
    </StyledEngineProvider>

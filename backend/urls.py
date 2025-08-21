@@ -30,7 +30,6 @@ urlpatterns = [
     path(".well-known/jwks.json", jwks, name="jwks"),
     path("init/<uuid:registration_uuid>", OIDCLoginInitView.as_view(), name="init"),
     path("ltilaunch", CCMLTILaunchView.as_view(), name="ltilaunch"),
-    path('privacy/', views.privacy_view, name="privacy"),
     path('watchman', include('watchman.urls')),
     path('watchman/bare_status', watchman.views.bare_status),
     path('oauth/', include('canvas_oauth.urls')),
