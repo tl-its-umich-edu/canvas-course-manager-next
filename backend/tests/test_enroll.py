@@ -424,6 +424,37 @@ class TestEnrollUser(SimpleTestCase):
 
 
 class TestEmailEnrollmentSummary(TestCase):
+    def setUp(self):
+        self.req_user_email = 'testuser@example.com'
+        self.course_id = 123
+        self.failed_enrollments = [
+            {'sectionId': 1, 'loginId': 'user1', 'role': 'student', 'error': 'Some error'},
+            {'sectionId': 2, 'loginId': 'user2', 'role': 'teacher', 'error': 'Another error'}
+        ]
+        self.enrollment_count = 5
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.send_email')
+    def test_email_subject_and_body(self, mock_send_email):
+        enroll_um_users_task.email_enrollment_summary(
+            req_user_email=self.req_user_email,
+            course_id=self.course_id,
+            failed_enrollments=self.failed_enrollments,
+            enrollment_count=self.enrollment_count
+        )
+        self.assertTrue(mock_send_email.called)
+        args, kwargs = mock_send_email.call_args
+        subject = kwargs['subject']
+        body = kwargs['body']
+        expected_subject = f"For course {self.course_id}, 3/5 enrollments finished successfully (2 failed)"
+        expected_body = (
+            f"For Course <a href='https://{{domain}}/courses/{self.course_id}'>{self.course_id}</a> enrolling users encountered failures. See attachment for error list."
+        )
+        # Get domain from the actual body
+        import re
+        match = re.search(r"<a href='https://([^/]+)/courses/", body)
+        domain = match.group(1) if match else ""
+        expected_body = expected_body.replace("{domain}", domain)
+        self.assertEqual(subject, expected_subject)
+        self.assertEqual(body, expected_body)
 
     def get_sample_failed_enrollments(self):
         return [

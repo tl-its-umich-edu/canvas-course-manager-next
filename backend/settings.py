@@ -321,3 +321,4 @@ EMAIL_USE_TLS = True
 
 EMAIL_FROM = os.getenv('EMAIL_FROM', 'canvas-ccm-system@umich.edu')
 EMAIL_TO_REPLY = os.getenv('EMAIL_TO_REPLY', '4help@umich.edu')
+EMAIL_DEBUG = os.getenv('EMAIL_DEBUG', False)

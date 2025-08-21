@@ -6,6 +6,7 @@ import io
 from dataclasses import dataclass
 from django.test import RequestFactory
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from typing import List
 from canvasapi import Canvas
 from canvasapi.exceptions import Unauthorized
@@ -113,17 +114,11 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
         logger.warning(f"Deleting CanvasOAuth2Token for user {uniqname} due to insufficient scopes on access token.")
         CanvasOAuth2Token.objects.filter(user=request.user).delete()
     
-    # Compose email subject for logging (needed for tests)
-    total = len(enrollment_params)
-    failed = len(failed_enrollments)
-    succeeded = total - failed
-    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
-    logger.info(email_subject)
     email_enrollment_summary(
         req_user_email=req_user_email,
         course_id=course_id,
         failed_enrollments=failed_enrollments,
-        enrollment_count=total
+        enrollment_count=len(enrollment_params)
     )
 
 def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enrollment_count):
@@ -133,11 +128,17 @@ def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enro
     total = enrollment_count
     failed = len(failed_enrollments)
     succeeded = total - failed
+    course_canvas_link = f'https://{settings.CANVAS_OAUTH_CANVAS_DOMAIN}/courses/{course_id}'
 
     email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
 
-    success_body = f"For Course {course_id} enrolling all users is success"
-    failure_body = f"For Course {course_id} enrolling users encountered failures. See attachment for error list."
+    # Use HTML for the body, with course_canvas_link as a hyperlink
+    success_body = (
+        f"For Course <a href='{course_canvas_link}'>{course_id}</a> enrolling all users is success"
+    )
+    failure_body = (
+        f"For Course <a href='{course_canvas_link}'>{course_id}</a> enrolling users encountered failures. See attachment for error list."
+    )
     body = success_body if succeeded == total else failure_body
 
     attachment = None
@@ -162,6 +163,7 @@ def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enro
         except (ValueError, Exception) as e:
             logger.error(f"Failed to create CSV attachment for course {course_id}: {e}")
 
+    logger.info(email_subject)
     send_email(
         to_email=req_user_email,
         subject=email_subject,

@@ -23,8 +23,8 @@ def send_email(
     try:
         # Prefix subject if DEBUGPY_ENABLE is True
         email_subject = subject
-        if getattr(settings, 'DEBUGPY_ENABLE', False):
-            email_subject = f"Test Email- {subject}"
+        if getattr(settings, 'EMAIL_DEBUG', False):
+            email_subject = f"Test Email - {subject}"
         email = EmailMessage(
             subject=email_subject,
             body=body,
@@ -33,6 +33,7 @@ def send_email(
             reply_to=[settings.EMAIL_TO_REPLY],
             connection=connection
         )
+        email.content_subtype = "html"
         if attachment:
             filename, content, mime_type = attachment
             email.attach(filename, content, mime_type)

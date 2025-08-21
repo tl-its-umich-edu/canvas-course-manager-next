@@ -3,20 +3,21 @@ from unittest.mock import patch, MagicMock
 from backend.ccm.canvas_api import email_users
 
 class SendEmailTests(TestCase):
-    @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com', DEBUGPY_ENABLE=True)
+    @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com', EMAIL_DEBUG=True)
     @patch('backend.ccm.canvas_api.email_users.EmailMessage')
     def test_send_email_subject_prefixed_when_debugpy_enable_true(self, mock_email_message):
         mock_instance = MagicMock()
         mock_email_message.return_value = mock_instance
         email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
         mock_email_message.assert_called_once_with(
-            subject='Test Email- Test Subject',
+            subject='Test Email - Test Subject',
             body='Test Body',
             from_email='from@example.com',
             to=['to@example.com'],
             reply_to=['reply@example.com'],
             connection=None
         )
+        self.assertEqual(mock_instance.content_subtype, "html")
         mock_instance.send.assert_called_once()
         
     @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com', DEBUGPY_ENABLE=False)
@@ -33,6 +34,7 @@ class SendEmailTests(TestCase):
             reply_to=['reply@example.com'],
             connection=None
         )
+        self.assertEqual(mock_instance.content_subtype, "html")
         mock_instance.send.assert_called_once()
 
     @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com')
@@ -43,6 +45,7 @@ class SendEmailTests(TestCase):
         attachment = ('file.txt', b'content', 'text/plain')
         email_users.send_email('to@example.com', 'Test Subject', 'Test Body', attachment=attachment)
         mock_instance.attach.assert_called_once_with('file.txt', b'content', 'text/plain')
+        self.assertEqual(mock_instance.content_subtype, "html")
         mock_instance.send.assert_called_once()
 
     @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com')
@@ -53,4 +56,5 @@ class SendEmailTests(TestCase):
         mock_instance.send.side_effect = Exception('SMTP error')
         mock_email_message.return_value = mock_instance
         email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
+        self.assertEqual(mock_instance.content_subtype, "html")
         mock_logger.error.assert_called_once()
