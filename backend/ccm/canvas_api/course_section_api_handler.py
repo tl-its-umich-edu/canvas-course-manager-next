@@ -10,6 +10,7 @@ from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.course import Course
 from drf_spectacular.utils import extend_schema
+from asgiref.sync import async_to_sync
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
 
@@ -79,7 +80,7 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         course = Course(canvas_api._Canvas__requester, {'id': course_id})
            
         start_time: float = time.perf_counter()
-        results = asyncio.run(self.create_sections(course, sections))
+        results = self.create_sections(course, sections)
         end_time: float = time.perf_counter()
         logger.info(f"Time taken to create {len(sections)} sections: {end_time - start_time:.2f} seconds")
 
@@ -96,10 +97,17 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
         # Handle errors
         self.canvas_error.handle_canvas_api_exceptions(err_res)
         return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
-        
+
+    async def sem_task(self, semaphore, course, name):
+        async with semaphore:
+            return await self.create_section(course, name)
+
+    @async_to_sync
     async def create_sections(self, course: Course, section_names: list):
-        """Creates multiple sections concurrently."""
-        tasks = [self.create_section(course, name) for name in section_names]
+        """Creates multiple sections concurrently, guarded by a semaphore."""
+        max_concurrent = 10  # Set your desired concurrency limit here
+        semaphore = asyncio.Semaphore(max_concurrent)
+        tasks = [self.sem_task(semaphore, course, name) for name in section_names]
         return await asyncio.gather(*tasks, return_exceptions=True)
 
     def create_section_sync(self, course: Course, section_name: str):
