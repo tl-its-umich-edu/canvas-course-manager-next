@@ -26,6 +26,7 @@ RUN apt-get update && \
 
 # Install MariaDB from the mariadb repository rather than using Debians 
 # https://mariadb.com/kb/en/mariadb-package-repository-setup-and-usage/
+RUN curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
 RUN curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash && \
 apt install -y --no-install-recommends libmariadb-dev
 
@@ -33,7 +34,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /code/ccm_web
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt install -y nodejs
+    apt install -y nodejs npm
 
 WORKDIR /code
 
