@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /code/ccm_web
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt install -y nodejs
+    apt install -y nodejs npm
 
 WORKDIR /code
 
