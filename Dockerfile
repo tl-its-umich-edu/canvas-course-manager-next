@@ -1,4 +1,4 @@
-FROM node:20-slim AS node-build
+FROM node:20-bookworm-slim AS node-build
 WORKDIR /build/
 
 COPY ccm_web .
@@ -6,7 +6,7 @@ RUN npm install
 
 RUN npm run build:ccm_web
 
-FROM python:3.13-slim
+FROM python:3.13-slim-bookworm
 
 COPY requirements.txt .
 RUN apt-get update && \
