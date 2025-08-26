@@ -18,3 +18,5 @@ ROLE_TO_ENROLLMENT_TYPE = {
     for role in ALLOWED_ROLES
     if role not in ("assistant", "librarian")
 }
+
+MAX_CONCURRENCY = 10

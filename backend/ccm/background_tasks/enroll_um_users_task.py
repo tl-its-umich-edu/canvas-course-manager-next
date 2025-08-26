@@ -16,6 +16,7 @@ from rest_framework.request import Request
 from asgiref.sync import async_to_sync
 from datetime import timedelta
 from canvas_oauth.models import CanvasOAuth2Token
+from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
 
 logger = logging.getLogger(__name__)
 course_manager = CanvasCredentialManager()
@@ -36,7 +37,7 @@ async def sem_task(semaphore, canvas_api, enrollment_user: EnrollmentUser):
 
 @async_to_sync()
 async def gather_enrollments(enrollment_users, canvas_api):
-    max_concurrent = 10
+    max_concurrent = MAX_CONCURRENCY
     semaphore = asyncio.Semaphore(max_concurrent)
     tasks = [sem_task(semaphore, canvas_api, user) for user in enrollment_users]
     return await asyncio.gather(*tasks, return_exceptions=True)
