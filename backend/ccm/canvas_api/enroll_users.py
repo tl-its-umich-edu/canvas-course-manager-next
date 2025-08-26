@@ -14,16 +14,15 @@ def process_login_id(login_id: str) -> str:
     Process the login ID to strip the domain and handle special cases. Handles both UMich and Non-UMich email doimains along
     with simple login IDs.
     """
-    stripped_login_id = re.sub(r'@([^@.]+\.)*umich\.edu$', '', login_id, flags=re.IGNORECASE)
-
-    # Check if the regex replacement did anything. If the string is unchanged, it wasn't a umich.edu address.
-    if login_id == stripped_login_id:
-        # It wasn't a umich.edu address, so perform the second step if there's an '@'.
-        # The '1' ensures we only replace the first occurrence, just like the JS version.
-        return login_id.replace('@', '+', 1)
+    if '@' in login_id:
+        username, domain = login_id.split('@', 1) # Split only on the first '@'
+        # Check if the domain ends exactly with '.umich.edu' or is 'umich.edu' (case-insensitive)
+        if domain.lower() == 'umich.edu' or domain.lower().endswith('.umich.edu'):
+            return username
+        else:
+            return f"{username}+{domain}" # Use f-string for concatenation
     else:
-        # It was a umich.edu address and the domain was stripped. Return the result.
-        return stripped_login_id
+        return login_id
 
 def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
     """

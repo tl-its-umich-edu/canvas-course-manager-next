@@ -332,6 +332,9 @@ class TestProcessLoginId(SimpleTestCase):
 
     def test_simple(self):
         self.assertEqual(process_login_id("student"), "student")
+    
+    def test_complex_loginId(self):
+        self.assertEqual(process_login_id("student.jane@complex.domain.com"), "student.jane+complex.domain.com")
 
 
 class TestEnrollUser(SimpleTestCase):
