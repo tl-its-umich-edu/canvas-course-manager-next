@@ -1,4 +1,4 @@
-FROM node:20-bookworm-trixie AS node-build
+FROM node:20-trixie-slim AS node-build
 WORKDIR /build/
 
 COPY ccm_web .
