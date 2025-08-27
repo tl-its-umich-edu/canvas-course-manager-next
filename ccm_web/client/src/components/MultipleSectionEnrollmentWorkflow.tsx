@@ -30,7 +30,7 @@ import TableCaption from './TableCaption.js'
 import ValidationErrorTable, { RowValidationError } from './ValidationErrorTable.js'
 import * as api from '../api.js'
 import usePromise from '../hooks/usePromise.js'
-import { ClientEnrollmentType } from '../models/canvas.js'
+import { CanvasCourseBase, ClientEnrollmentType } from '../models/canvas.js'
 import {
   AddEnrollmentWithSectionId, EnrollmentWithSectionIdRecord, isEnrollmentWithSectionIdRecord,
   MAX_ENROLLMENT_RECORDS, MAX_ENROLLMENT_MESSAGE, RowNumberedAddEnrollmentWithSectionId,
@@ -99,12 +99,14 @@ enum CSVWorkflowState {
 }
 
 interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
+  course: CanvasCourseBase
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
-
+  const courseId = props.course.id
+  
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
@@ -114,7 +116,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (enrollments: AddEnrollmentWithSectionId[]) => {
-      await api.addEnrollmentsToSections(
+      await api.addEnrollmentsToSections(courseId,
         enrollments.map(e => ({ loginId: e.loginId, role: e.role, sectionId: e.sectionId }))
       )
     },
@@ -321,7 +323,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const renderConfirm = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>New users have been added to the section(s)!</Typography>
+    const message = <Typography>Adding new users is currently in progress. Please check your email for confirmation of success or notification of any issues.</Typography>
     const nextAction = (
       <span>
         See the users in the course&apos;s sections on the {settingsLink} for your course.

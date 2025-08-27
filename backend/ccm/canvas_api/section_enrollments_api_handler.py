@@ -1,20 +1,21 @@
 import logging
 from http import HTTPStatus
 import time
+from datetime import datetime
+from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
+from django_q.tasks import async_task
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
-from canvasapi.user import User
 
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
-from canvas_oauth.exceptions import InvalidOAuthReturnError
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
@@ -91,5 +92,103 @@ class CanvasSectionEnrollmentsAPIHandler(LoggingMixin, APIView):
             return Response(error_response, status=error_response.get('statusCode'))
     
         return Response(list(unique_login_ids), status=HTTPStatus.OK)
-        
 
+# Mixin for shared enrollment task logic
+class EnrollmentTaskMixin:
+    def create_enrollment_task(self, request, course_id, enrollment_params, section_id=None, multi_section=False):
+        """
+        Helper to create async enrollment task and handle errors.
+        Returns a Response object.
+        """
+        timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
+        if multi_section:
+            task_name = f'c{course_id}-multisections-{len(enrollment_params)}-{timestamp}'
+        else:
+            task_name = f'c{course_id}-s{section_id}-{len(enrollment_params)}-{timestamp}'
+        task_payload = {
+            'enrollment_params': enrollment_params,
+            'course_id': course_id,
+            'user_id': request.user.id,
+            'canvas_callback_url': request.build_absolute_uri(reverse('canvas-oauth-callback')),
+        }
+        try:
+            task_id = async_task('backend.ccm.background_tasks.enroll_um_users_task.enroll_um_users', task=task_payload, task_name=task_name)
+            return Response({"task_id": task_id}, status=HTTPStatus.OK)
+        except Exception as e:
+            self.canvas_error.django_q_task_error(e, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+
+class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
+
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SingleSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
+
+    def __init__(self, credential_manager=None):
+        self.credential_manager = credential_manager or CanvasCredentialManager()
+        self.canvas_error = CanvasErrorHandler()
+        super().__init__()
+
+    @extend_schema(
+        operation_id="single_section_enrollment",
+        summary="Enroll users in a single section",
+        description="Enroll one or more users in a specific Canvas section by section ID.",
+        request=SingleSectionEnrollRequestSerializer,
+        parameters=[
+            OpenApiParameter(
+                name="course_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Course ID for the section."
+            ),
+            OpenApiParameter(
+                name="section_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                required=True,
+                description="Section ID to enroll users into."
+            )
+        ],
+    )
+    def post(self, request: Request, course_id, section_id) -> Response:
+        serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+        
+        enrollment_params = serializer.validated_data.get('users', {})
+        # Add sectionId to each enrollment param for consistency with multi-section API
+        for param in enrollment_params:
+            param['sectionId'] = section_id
+        return self.create_enrollment_task(request, course_id, enrollment_params, section_id=section_id, multi_section=False)
+
+class MultiSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MultiSectionEnrollRequestSerializer  # Ensures Swagger UI recognizes it
+
+    def __init__(self, credential_manager=None):
+        self.credential_manager = credential_manager or CanvasCredentialManager()
+        self.canvas_error = CanvasErrorHandler()
+        super().__init__()
+
+    @extend_schema(
+        operation_id="multiple_sections_enrollment",
+        summary="Enroll users in multiple sections",
+        request=MultiSectionEnrollRequestSerializer,
+        description="Enroll users in multiple Canvas sections by providing a list of enrollments, each with a section ID.",
+    )
+    def post(self, request: Request, course_id: int) -> Response:
+        serializer: MultiSectionEnrollRequestSerializer = MultiSectionEnrollRequestSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, str(request.data))
+            error_response = self.canvas_error.to_dict()
+            return Response(error_response, status=error_response.get('statusCode'))
+        
+        enrollment_params = serializer.validated_data.get('enrollments', {})
+        return self.create_enrollment_task(request, course_id, enrollment_params, multi_section=True)
