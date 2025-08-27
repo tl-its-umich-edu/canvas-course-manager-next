@@ -21,7 +21,7 @@ def send_email(
                   For sending bulk emails, it is recommended to pass a single connection explicitly to improve efficiency.
     """
     try:
-        # Prefix subject if DEBUGPY_ENABLE is True
+        # Prefix subject if EMAIL_DEBUG is True
         email_subject = subject
         if getattr(settings, 'EMAIL_DEBUG', False):
             email_subject = f"Test Email - {subject}"

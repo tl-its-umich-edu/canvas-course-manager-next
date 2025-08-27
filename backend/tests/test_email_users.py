@@ -20,14 +20,14 @@ class SendEmailTests(TestCase):
         self.assertEqual(mock_instance.content_subtype, "html")
         mock_instance.send.assert_called_once()
         
-    @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com', DEBUGPY_ENABLE=False)
+    @override_settings(EMAIL_FROM='from@example.com', EMAIL_TO_REPLY='reply@example.com', EMAIL_DEBUG=False)
     @patch('backend.ccm.canvas_api.email_users.EmailMessage')
     def test_send_email_no_attachment(self, mock_email_message):
         mock_instance = MagicMock()
         mock_email_message.return_value = mock_instance
         email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
         mock_email_message.assert_called_once_with(
-            subject='Test Subject',
+                subject='Test Subject',
             body='Test Body',
             from_email='from@example.com',
             to=['to@example.com'],
