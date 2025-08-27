@@ -1,5 +1,4 @@
 import logging
-import re
 from canvasapi.section import Section
 from canvasapi.enrollment import Enrollment
 from canvasapi import Canvas
