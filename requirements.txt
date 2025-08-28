@@ -27,9 +27,11 @@ redis==5.2.1 # For caching
 django-watchman==1.3 # For status monitoring
 canvasapi==3.3.0 # For Canvas API
 
-#django-q
 django-q2==1.8.0
-watchfiles==1.0.5 # For file watching
+# user for reloading django-q processes
+watchfiles==1.0.5
+# cluster monitoring https://django-q2.readthedocs.io/en/master/monitor.html
+blessed==1.21.0
 
 coverage==7.8.2
 

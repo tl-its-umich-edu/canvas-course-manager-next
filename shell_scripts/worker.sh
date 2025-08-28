@@ -13,7 +13,7 @@ echo "qworker: Backend is ready, starting qworker..."
 if [ "$RUN_QWORKER_DEV_MODE" = "true" ]; then
     echo 'qworker: Running in DEV mode'
     rm /tmp/backend_ready
-    watchfiles --filter python 'python manage.py qcluster' /code/backend/ccm/background_tasks
+    watchfiles --filter python 'python manage.py qcluster' /code/backend
 else
     echo 'qworker: Running in PROD mode'
     python manage.py qcluster

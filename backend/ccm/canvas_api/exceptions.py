@@ -1,13 +1,14 @@
 import logging
-from dataclasses import dataclass
 from http import HTTPStatus
 from typing import List, Union
 from canvasapi.exceptions import (
     BadRequest, Conflict, Forbidden, InvalidAccessToken, RateLimitExceeded,
     ResourceDoesNotExist, Unauthorized, UnprocessableEntity
 )
+
 from canvas_oauth.exceptions import InvalidOAuthReturnError
 from rest_framework.exceptions import APIException
+from backend.ccm.canvas_api.constants import INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class CanvasErrorHandler():
         InvalidOAuthReturnError: HTTPStatus.FORBIDDEN.value
     }
 
-    INSUFFICIENT_SCOPES_TEXT = 'insufficient scopes on access token'
+
 
     def __init__(self) -> None:
         self.errors = []
@@ -53,6 +54,16 @@ class CanvasErrorHandler():
                 "message": str(serializer_errors),
                 "failedInput": input
             })
+    def django_q_task_error(self, error: Exception, input: str):
+        """
+        Handle errors that occur during Django Q task execution.
+        """
+        logger.error(f"Error in Django Q task '{input}': {error}")
+        self.errors.append({
+            "canvasStatusCode": HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            "message": str(error),
+            "failedInput": input
+        })
     
     def handle_canvas_api_exceptions(self, exceptions: Union[HTTPAPIError, List[HTTPAPIError]]):
         logger.error(f"API error occurred: {exceptions}")
@@ -64,7 +75,7 @@ class CanvasErrorHandler():
             if isinstance(exc.original_exception, InvalidAccessToken):
                 raise CanvasAccessTokenException()
 
-            if isinstance(exc.original_exception, Unauthorized) and self.INSUFFICIENT_SCOPES_TEXT in str(exc.original_exception).lower():
+            if isinstance(exc.original_exception, Unauthorized) and INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(exc.original_exception).lower():
                 raise CanvasAccessTokenException()
         
         if all(isinstance(error, HTTPAPIError) for error in exceptions):

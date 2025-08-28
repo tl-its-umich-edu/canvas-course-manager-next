@@ -16,6 +16,8 @@ from django.core.management.utils import get_random_secret_key
 from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from datetime import timedelta
+import json
 
 config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
 
@@ -58,6 +60,11 @@ INSTALLED_APPS = [
     'django_q',
     'csp',
 ]
+
+MIGRATION_MODULES = {
+    'canvas_oauth': 'backend.canvas_oauth.migrations',
+    'rest_framework_tracking': 'backend.rest_framework_tracking.migrations',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -218,8 +225,8 @@ CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "frame-ancestors": parse_csp('CSP_FRAME_ANCESTORS'),
         "script-src": parse_csp('CSP_SCRIPT_SRC', [UNSAFE_INLINE, UNSAFE_EVAL]),
-        "connect-src": parse_csp('CSP_SCRIPT_SRC'),
-        "img-src": parse_csp('CSP_SCRIPT_SRC'),
+        "connect-src": parse_csp('CSP_CONNECT_SRC'),
+        "img-src": parse_csp('CSP_IMG_SRC'),
         "font-src": parse_csp('CSP_FONT_SRC'),
         "style-src": parse_csp('CSP_STYLE_SRC', ["https:", UNSAFE_INLINE]),
     }
@@ -258,6 +265,12 @@ WATCHMAN_CHECKS = ('watchman.checks.caches', 'watchman.checks.databases')
 CANVAS_OAUTH_CLIENT_ID = os.getenv('CANVAS_OAUTH_CLIENT_ID', '12342')
 CANVAS_OAUTH_CLIENT_SECRET = os.getenv('CANVAS_OAUTH_CLIENT_SECRET', 'ccm')
 CANVAS_OAUTH_CANVAS_DOMAIN = os.getenv('CANVAS_OAUTH_CANVAS_DOMAIN', 'canvas.test.instructure.com')
+# Canvas OAuth token expiration buffer: refresh token 15 minutes before expiry by default
+try:
+    CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER = timedelta(minutes=int(os.getenv('CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER', 15)))
+except Exception:
+    CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER = timedelta(minutes=15)
+
 # Scopes environment variable provides a way to recover if Canvas changes scope identifiers.
 if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
     CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
@@ -285,8 +298,15 @@ DRF_TRACKING_ADMIN_LOG_READONLY = True
 Q_CLUSTER = {
     'name': 'CCM_Cluster',
     'workers': int(os.getenv('Q_CLUSTER_WORKERS', 4)),
-    'timeout': int(os.getenv('Q_CLUSTER_TIMEOUT', 1800)), # 30 minutes
-    'retry': int(os.getenv('Q_CLUSTER_RETRY', 3600)), # 1hr
+    'timeout': int(os.getenv('Q_CLUSTER_TIMEOUT', 15 * 60)),  # 15 minutes in seconds
+    'retry': int(os.getenv('Q_CLUSTER_RETRY', 30 * 60)),      # 30 minutes in seconds
     'bulk': int(os.getenv('Q_CLUSTER_BULK', 5)),
+    'max_attempts': int(os.getenv('Q_CLUSTER_MAX_ATTEMPTS', 1)),
     'orm': 'default'
 }
+
+# Custom Canvas Roles
+try:
+    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"assistant": 34, "librarian": 21}'))
+except Exception:
+    CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}

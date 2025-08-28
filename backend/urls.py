@@ -25,7 +25,7 @@ import watchman.views
 from backend import views
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('', views.home_view, name='home'),
     path(".well-known/jwks.json", jwks, name="jwks"),
     path("init/<uuid:registration_uuid>", OIDCLoginInitView.as_view(), name="init"),

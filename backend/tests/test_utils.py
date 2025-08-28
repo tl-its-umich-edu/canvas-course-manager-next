@@ -1,7 +1,31 @@
 import os
 import importlib
 from django.test import SimpleTestCase
+import backend.settings as settings
+from datetime import timedelta
 from backend.ccm.utils import parse_csp
+class TestCanvasOAuthTokenExpirationBuffer(SimpleTestCase):
+    def setUp(self):
+        self.settings_path = 'backend.settings'
+        self.env_key = 'CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_token_expiration_buffer_default(self):
+        importlib.reload(settings)
+        self.assertEqual(settings.CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER, timedelta(minutes=15))
+
+    def test_token_expiration_buffer_env_override(self):
+        os.environ[self.env_key] = '42'
+        importlib.reload(settings)
+        self.assertEqual(settings.CANVAS_OAUTH_TOKEN_EXPIRATION_BUFFER, timedelta(minutes=42))
 
 class TestParseCSP(SimpleTestCase):
 
@@ -42,6 +66,7 @@ class TestQClusterSettings(SimpleTestCase):
             'Q_CLUSTER_TIMEOUT',
             'Q_CLUSTER_RETRY',
             'Q_CLUSTER_BULK',
+            'Q_CLUSTER_MAX_ATTEMPTS',
         ]
         # Save and clear any Q_CLUSTER env vars
         self.old_env = {k: os.environ.get(k) for k in self.env_keys}
@@ -63,15 +88,17 @@ class TestQClusterSettings(SimpleTestCase):
         importlib.reload(settings)
         q = settings.Q_CLUSTER
         self.assertEqual(q['workers'], 4)
-        self.assertEqual(q['timeout'], 1800)
-        self.assertEqual(q['retry'], 3600)
+        self.assertEqual(q['timeout'], 900)
+        self.assertEqual(q['retry'], 1800)
         self.assertEqual(q['bulk'], 5)
+        self.assertEqual(q['max_attempts'], 1)
 
     def test_q_cluster_env_override(self):
         os.environ['Q_CLUSTER_WORKERS'] = '7'
         os.environ['Q_CLUSTER_TIMEOUT'] = '99'
         os.environ['Q_CLUSTER_RETRY'] = '1234'
         os.environ['Q_CLUSTER_BULK'] = '42'
+        os.environ['Q_CLUSTER_MAX_ATTEMPTS'] = '7'
         import backend.settings as settings
         importlib.reload(settings)
         q = settings.Q_CLUSTER
@@ -79,3 +106,35 @@ class TestQClusterSettings(SimpleTestCase):
         self.assertEqual(q['timeout'], 99)
         self.assertEqual(q['retry'], 1234)
         self.assertEqual(q['bulk'], 42)
+        self.assertEqual(q['max_attempts'], 7)
+
+class TestCustomCanvasRoles(SimpleTestCase):
+    def setUp(self):
+        self.settings_path = 'backend.settings'
+        self.env_key = 'CUSTOM_CANVAS_ROLES'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_custom_canvas_roles_default(self):
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
+
+    def test_custom_canvas_roles_env_override(self):
+        os.environ[self.env_key] = '{"assistant": 99, "librarian": 88}'
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 99, 'librarian': 88})
+
+    def test_custom_canvas_roles_env_invalid(self):
+        os.environ[self.env_key] = 'not a json string'
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})

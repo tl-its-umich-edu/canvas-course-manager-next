@@ -95,8 +95,9 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
+      console.log('course_id:', section.course_id);
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
-      await api.addSectionEnrollments(section.id, apiEnrollments)
+      await api.addSingleSectionEnrollments(section.course_id,section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
@@ -298,7 +299,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
   const getSuccessContent = (): JSX.Element => {
     const settingsLink = <Link href={props.settingsURL} target='_parent'>Canvas Settings page</Link>
-    const message = <Typography>New users have been added to the section!</Typography>
+    const message = <Typography>Adding new users is currently in progress. Please check your email for confirmation of success or notification of any issues.</Typography>
     const nextAction = (
       <span>
         See the users in the course&apos;s sections on the {settingsLink} for your course.
