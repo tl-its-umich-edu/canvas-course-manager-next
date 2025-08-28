@@ -1,4 +1,4 @@
-import logging
+import logging, asyncio
 from http import HTTPStatus
 from canvasapi import Canvas
 from rest_framework.views import APIView
@@ -9,6 +9,9 @@ from rest_framework.request import Request
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.course import Course
+from asgiref.sync import async_to_sync
+from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
+
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
@@ -31,6 +34,7 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
+    @timeit
     def get(self, request: Request) -> Response:
         term_id = request.query_params.get('term_id')
         if not term_id:
@@ -38,8 +42,13 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
         canvas_api = self.credential_manager.get_canvasapi_instance(request)
         try:
             filtered_courses, course_instance_map = self._get_filtered_teacher_courses(canvas_api, term_id)
-            response_data = self._attach_sections_to_courses(filtered_courses, course_instance_map)
-            return Response(response_data, status=HTTPStatus.OK)
+            success,response_data = self._attach_sections_to_courses(filtered_courses, course_instance_map)
+            
+            if not success: # Errors occurred during section fetching
+                self.canvas_error.handle_canvas_api_exceptions(response_data)
+                return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
+            else:
+                return Response(response_data, status=HTTPStatus.OK)
         except (HTTPAPIError) as e:
             self.canvas_error.handle_canvas_api_exceptions(e)
             logger.error(f"Error retrieving instructor sections for user id {request.user.id}")
@@ -60,18 +69,38 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
             failed_input = f"term_id {term_id}"
             raise HTTPAPIError(failed_input, e)
 
-    @timeit
-    def _attach_sections_to_courses(self, courses_data:list[dict] , course_instance_map:dict[int, Course]) -> list[dict]:
-        """Attach sections to each course in courses_data."""
-        for course in courses_data:
-            course_id = course.get('id')
+    @async_to_sync
+    async def _attach_sections_to_courses(self, courses_data:list[dict] , course_instance_map:dict[int, Course]) -> tuple[bool, list[dict] | list[HTTPAPIError]]:
+        """ Attach sections to each course in courses_data, guarded by a semaphore for concurrency control."""
+        max_concurrent = MAX_CONCURRENCY 
+        semaphore = asyncio.Semaphore(max_concurrent)
+        errors = []
+        tasks = [self._attach_section_semaphore_task(
+            semaphore,
+            errors,
+            course, 
+            course_instance_map.get(course.get('id'))
+        ) for course in courses_data]
+        await asyncio.gather(*tasks, return_exceptions=True)
+        
+        success = len(errors) == 0 # boolean to indicate if errors occurred
+        return success, courses_data if success else errors
+    
+    async def _attach_section_semaphore_task(self, semaphore: asyncio.Semaphore, errors:list, course: dict, course_instance: Course):
+        """ For a given course, fetch and attach sections using a semaphore to limit concurrency. """
+        async with semaphore:
             try:
-                course_instance = course_instance_map.get(course_id)
-                sections = course_instance.get_sections(include=['total_students'], per_page=100)
-                section_serializer = CanvasObjectROSerializer(sections, allowed_fields=self.sections_allowed_fields, many=True)
-                course['sections'] = section_serializer.data
-                logger.info(f"Attached {len(course['sections'])} sections to course_id {course_id}")
-            except (CanvasException, Exception) as e:
-                failed_input = f"course id {course_id}"
-                raise HTTPAPIError(failed_input, e)
-        return courses_data
+                return await asyncio.to_thread(self._attach_section_sync, course, course_instance)
+            except Exception as e:
+                errors.append(e if isinstance(e, HTTPAPIError) else HTTPAPIError(f"course id {course.get('id')}", e))
+    
+    def _attach_section_sync(self, course: dict, course_instance: Course):
+        """ Synchronous helper to fetch and attach sections to a course. """
+        try:
+            sections = course_instance.get_sections(include=['total_students'], per_page=100)
+            section_serializer = CanvasObjectROSerializer(sections, allowed_fields=self.sections_allowed_fields, many=True)
+            course['sections'] = section_serializer.data
+            logger.info(f"Attached {len(course['sections'])} sections to course_id {course.get('id')}")
+        except (CanvasException, Exception) as e:
+            failed_input = f"course id {course.get('id')}"
+            raise HTTPAPIError(failed_input, e)
