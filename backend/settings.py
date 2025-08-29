@@ -18,6 +18,7 @@ from backend.ccm.utils import parse_csp
 from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 from datetime import timedelta
 import json
+import logging
 
 config_to_bool = lambda value: str(value).lower() in ('true', '1', 'yes', 'on')
 
@@ -322,3 +323,7 @@ EMAIL_USE_TLS = True
 EMAIL_FROM = os.getenv('EMAIL_FROM', 'canvas-ccm-system@umich.edu')
 EMAIL_TO_REPLY = os.getenv('EMAIL_TO_REPLY', '4help@umich.edu')
 EMAIL_DEBUG = os.getenv('EMAIL_DEBUG', False)
+
+CANVAS_ADMIN_API_TOKEN = os.environ.get('CANVAS_ADMIN_API_TOKEN')
+if CANVAS_ADMIN_API_TOKEN is None or CANVAS_ADMIN_API_TOKEN == '':
+    logging.error('CANVAS_ADMIN_API_TOKEN is not set in environment variables!')

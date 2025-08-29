@@ -117,3 +117,7 @@ class CanvasObjectROSerializer(serializers.BaseSerializer):
                     data[key] = value
         
         return data
+    
+# Serializer to validate login_id as an email address
+class LoginIdSerializer(serializers.Serializer):
+    login_id = serializers.EmailField()
