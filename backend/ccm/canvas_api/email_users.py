@@ -15,7 +15,9 @@ def send_email(
 ) -> None:
     """
     Send an email to the user. If attachment is provided, add it to the email.
+    - to_email: Recipient email address
     - subject: Email subject
+    - body: Email body as HTML
     - attachment: tuple (filename, content, mime_type) or None
     - connection: Django email backend connection for SMTP reuse. If not provided, the default connection is used.
                   For sending bulk emails, it is recommended to pass a single connection explicitly to improve efficiency.
