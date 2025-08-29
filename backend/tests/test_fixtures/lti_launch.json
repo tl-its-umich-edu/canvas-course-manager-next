@@ -56,8 +56,7 @@
   "https://purl.imsglobal.org/spec/lti/claim/custom": {
     "roles": "TeacherEnrollment,Account Admin",
     "login_id": "jdoe",
-    "course_id": "40001",
-    "is_root_account_admin": true
+    "course_id": "40001"
   },
   "https://purl.imsglobal.org/spec/lti/claim/lti11_legacy_user_id": "c6c45cd386e9ea86",
   "https://purl.imsglobal.org/spec/lti/claim/lti1p1": {
