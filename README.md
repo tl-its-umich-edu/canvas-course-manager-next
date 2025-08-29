@@ -164,7 +164,7 @@ LTI registration with Canvas Dev: If you're using a Canvas dev instance (http://
 
 
 ### Email Configuration
-CCM will be sending emails for 2 features Add UM User and Add Non-UM User. We will be using [ITS Authenticated SMPT](https://documentation.its.umich.edu/authenticated-smtp?check_logged_in=1) service for sending email in Prod.
+CCM will be sending emails for 2 features Add UM User and Add Non-UM User. We will be using [ITS Authenticated SMTP](https://documentation.its.umich.edu/authenticated-smtp?check_logged_in=1) service for sending email in Prod.
 With ITS Authenticated SMTP, you can send email from locally as well. Please checkout more details about configuration from `.env.sample`
     
   
