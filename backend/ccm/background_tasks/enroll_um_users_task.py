@@ -162,7 +162,7 @@ def email_enrollment_summary(req_user_email: str, course_id: int, failed_enrollm
         except (ValueError, Exception) as e:
             logger.error(f"Failed to create CSV attachment for course {course_id}: {e}")
 
-    logger.info(email_subject)
+    logger.info(f"Sending enrollment summary email to {req_user_email}: {email_subject}")
     send_email(
         to_email=req_user_email,
         subject=email_subject,
