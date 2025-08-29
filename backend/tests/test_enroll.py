@@ -438,7 +438,7 @@ class TestEmailEnrollmentSummary(TestCase):
             req_user_email=self.req_user_email,
             course_id=self.course_id,
             failed_enrollments=self.failed_enrollments,
-            enrollment_count=self.enrollment_count
+            total_enrollment_count=self.enrollment_count
         )
         self.assertTrue(mock_send_email.called)
         args, kwargs = mock_send_email.call_args
@@ -473,7 +473,7 @@ class TestEmailEnrollmentSummary(TestCase):
             req_user_email=req_user_email,
             course_id=course_id,
             failed_enrollments=failed_enrollments,
-            enrollment_count=enrollment_count
+            total_enrollment_count=enrollment_count
         )
 
         self.assertTrue(mock_send_email.called)

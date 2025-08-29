@@ -4,10 +4,10 @@ import asyncio
 import csv
 import io
 from dataclasses import dataclass
+from typing import List
 from django.test import RequestFactory
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from typing import List
 from canvasapi import Canvas
 from canvasapi.exceptions import Unauthorized
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
@@ -118,19 +118,18 @@ def handle_enrollment_results(enrollment_params, results, request, uniqname, req
         req_user_email=req_user_email,
         course_id=course_id,
         failed_enrollments=failed_enrollments,
-        enrollment_count=len(enrollment_params)
+        total_enrollment_count=len(enrollment_params)
     )
 
-def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enrollment_count):
+def email_enrollment_summary(req_user_email: str, course_id: int, failed_enrollments: List[str], total_enrollment_count: int) -> None:
     """
     Compose and send enrollment result email, with CSV attachment if there are failures.
     """
-    total = enrollment_count
     failed = len(failed_enrollments)
-    succeeded = total - failed
+    succeeded = total_enrollment_count - failed
     course_canvas_link = f'https://{settings.CANVAS_OAUTH_CANVAS_DOMAIN}/courses/{course_id}'
 
-    email_subject = f"For course {course_id}, {succeeded}/{total} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
+    email_subject = f"For course {course_id}, {succeeded}/{total_enrollment_count} enrollments finished successfully" + (f" ({failed} failed)" if failed > 0 else "")
 
     # Use HTML for the body, with course_canvas_link as a hyperlink
     success_body = (
@@ -139,7 +138,7 @@ def email_enrollment_summary(req_user_email, course_id, failed_enrollments, enro
     failure_body = (
         f"For Course <a href='{course_canvas_link}'>{course_id}</a> enrolling users encountered failures. See attachment for error list."
     )
-    body = success_body if succeeded == total else failure_body
+    body = success_body if succeeded == total_enrollment_count else failure_body
 
     attachment = None
     if failed_enrollments:
