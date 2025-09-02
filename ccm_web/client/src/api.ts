@@ -122,7 +122,7 @@ export const addEnrollmentsToSections = async (courseId: number, enrollments: Ad
 
 export const getTeacherSections = async (termId: number): Promise<CourseWithSections[]> => {
   const request = getGet()
-  const resp = await fetch(`/api/instructor/sections/?term_id=${termId}`, request)
+  const resp = await fetch(`/api/instructor/sections?term_id=${termId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
@@ -130,7 +130,7 @@ export const getTeacherSections = async (termId: number): Promise<CourseWithSect
 export const searchSections = async (termId: number, searchType: 'uniqname' | 'coursename', searchText: string): Promise<CourseWithSections[]> => {
   const request = getGet()
   const queryParam = searchType === 'uniqname' ? `instructor_name=${searchText}` : `course_name=${searchText}`
-  const resp = await fetch(`/api/admin/sections/?term_id=${termId}&${queryParam}`, request)
+  const resp = await fetch(`/api/admin/sections?term_id=${termId}&${queryParam}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
