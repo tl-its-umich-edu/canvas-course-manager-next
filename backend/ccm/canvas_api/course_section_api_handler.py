@@ -50,11 +50,11 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
             course = Course(canvas_api._Canvas__requester, {'id': course_id})
             # Get list of sections, including total_students info
             sections = course.get_sections(include=['total_students'], per_page=per_page)
-
+            
             serializer = CanvasObjectROSerializer(sections, allowed_fields=self.course_section_allowed_fields, many=True)
             logger.info(f"Section data retrieved with filtered fields: {self.course_section_allowed_fields}")
             logger.debug(f"Section data in response: {serializer.data}")
-            
+
             return Response(serializer.data, status=HTTPStatus.OK)
         except (CanvasException, Exception) as e:
             self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(course_id), e))
