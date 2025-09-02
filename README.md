@@ -161,6 +161,12 @@ LTI registration with Canvas Dev: If you're using a Canvas dev instance (http://
     3. `Q_CLUSTER_RETRY` - Retry interval in seconds for failed tasks (default: 1800, i.e., 30 minutes)
     4. `Q_CLUSTER_BULK` - Sets the number of messages each cluster tries to get from the broker per call.
     5. `Q_CLUSTER_MAX_ATTEMPTS` - Maximum number of retry attempts for a task after failure (default: 1)
+
+
+### Email Configuration
+CCM will be sending emails for 2 features Add UM User and Add Non-UM User. We will be using [ITS Authenticated SMTP](https://documentation.its.umich.edu/authenticated-smtp?check_logged_in=1) service for sending email in Prod.
+With ITS Authenticated SMTP, you can send email from locally as well. Please checkout more details about configuration from `.env.sample`
+    
   
 
 #### Unit Testing

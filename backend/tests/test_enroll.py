@@ -10,6 +10,7 @@ from backend.ccm.canvas_api.enroll_users import process_login_id, enroll_user
 from canvasapi.section import Section
 from canvasapi import Canvas
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+from backend.ccm.background_tasks import enroll_um_users_task
 
 class TestEnrollUmUsersBackgroundTask(TestCase):
 
@@ -45,11 +46,9 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_not_called()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            # Check logger.info called with expected subject substring
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertTrue(any(expected_email_subject in s for s in subjects))
     @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
     @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
     def test_enroll_um_users_happy_path(self, mock_course_manager, mock_gather_enrollments):
@@ -77,11 +76,8 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_called_once()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertTrue(any(expected_email_subject in s for s in subjects))
 
     @patch('backend.ccm.background_tasks.enroll_um_users_task.gather_enrollments')
     @patch('backend.ccm.background_tasks.enroll_um_users_task.course_manager')
@@ -111,11 +107,8 @@ class TestEnrollUmUsersBackgroundTask(TestCase):
             mock_course_manager.get_canvasapi_instance.assert_called_once()
             mock_gather_enrollments.assert_called_once()
             self.assertTrue(CanvasOAuth2Token.objects.filter(user=self.user).exists())
-            found = False
-            for call in mock_logger_info.call_args_list:
-                if expected_email_subject in str(call):
-                    found = True
-            self.assertTrue(found, f"Expected email_subject '{expected_email_subject}' in logger.info calls")
+            subjects = [args[0] for args, _ in mock_logger_info.call_args_list]
+            self.assertTrue(any(expected_email_subject in s for s in subjects))
 class MultiSectionEnrollmentViewTests(APITestCase):
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.async_task')
     @patch('backend.ccm.canvas_api.section_enrollments_api_handler.reverse')
@@ -428,3 +421,64 @@ class TestEnrollUser(SimpleTestCase):
         # Ensure the custom role id was used
         called_kwargs = dict(mock_requester.request.call_args.kwargs['_kwargs'])
         self.assertEqual(called_kwargs['enrollment[role_id]'], 21)
+
+
+class TestEmailEnrollmentSummary(TestCase):
+    def setUp(self):
+        self.req_user_email = 'testuser@example.com'
+        self.course_id = 123
+        self.failed_enrollments = [
+            {'sectionId': 1, 'loginId': 'user1', 'role': 'student', 'error': 'Some error'},
+            {'sectionId': 2, 'loginId': 'user2', 'role': 'teacher', 'error': 'Another error'}
+        ]
+        self.enrollment_count = 5
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.send_email')
+    def test_email_subject_and_body(self, mock_send_email):
+        enroll_um_users_task.email_enrollment_summary(
+            req_user_email=self.req_user_email,
+            course_id=self.course_id,
+            failed_enrollments=self.failed_enrollments,
+            total_enrollment_count=self.enrollment_count
+        )
+        self.assertTrue(mock_send_email.called)
+        args, kwargs = mock_send_email.call_args
+        subject = kwargs['subject']
+        body = kwargs['body']
+        expected_subject = f"For course {self.course_id}, 3/5 enrollments finished successfully (2 failed)"
+        expected_body = (
+            f"For Course <a href='https://{{domain}}/courses/{self.course_id}'>{self.course_id}</a> enrolling users encountered failures. See attachment for error list."
+        )
+        # Get domain from the actual body
+        import re
+        match = re.search(r"<a href='https://([^/]+)/courses/", body)
+        domain = match.group(1) if match else ""
+        expected_body = expected_body.replace("{domain}", domain)
+        self.assertEqual(subject, expected_subject)
+        self.assertEqual(body, expected_body)
+
+    def get_sample_failed_enrollments(self):
+        return [
+            {'sectionId': 1, 'loginId': 'user1', 'role': 'student', 'error': 'Some error'},
+            {'sectionId': 2, 'loginId': 'user2', 'role': 'teacher', 'error': 'Another error'}
+        ]
+
+    @patch('backend.ccm.background_tasks.enroll_um_users_task.send_email')
+    def test_email_enrollment_summary_calls_send_email(self, mock_send_email):
+        req_user_email = 'testuser@example.com'
+        course_id = 123
+        failed_enrollments = self.get_sample_failed_enrollments()
+        enrollment_count = 5
+
+        enroll_um_users_task.email_enrollment_summary(
+            req_user_email=req_user_email,
+            course_id=course_id,
+            failed_enrollments=failed_enrollments,
+            total_enrollment_count=enrollment_count
+        )
+
+        self.assertTrue(mock_send_email.called)
+        args, kwargs = mock_send_email.call_args
+        self.assertEqual(kwargs['to_email'], req_user_email)
+        self.assertIn(str(course_id), kwargs['subject'])
+        self.assertIn('failures', kwargs['body'])
+        self.assertIsNotNone(kwargs['attachment'])
