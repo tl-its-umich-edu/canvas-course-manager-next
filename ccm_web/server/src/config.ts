@@ -158,7 +158,7 @@ export function validateConfig (): Config {
         'MAX_AGE_IN_SEC', prepNumber(env.MAX_AGE_IN_SEC), isNumber, [isNotNan, isInteger], (24 * 60 * 60)
       ),
       googleAnalyticsId: validate<string>('GOOGLE_ANALYTICS_ID', env.GOOGLE_ANALYTICS_ID, isString, [isNotEmpty]),
-      oneTrustScriptDomain: validate<string>('ONE_TRUST_DOMAIN', env.ONE_TRUST_DOMAIN, isString, [isNotEmpty]),
+      umConsentManagerScriptUrl: validate<string>('UM_CONSENT_MANAGER_SCRIPT_URL', env.UM_CONSENT_MANAGER_SCRIPT_URL, isString, [isNotEmpty]),
       allowedScriptDomains: JSON.parse(env.ALLOWED_SCRIPT_DOMAINS ?? '')
     }
     lti = {

@@ -5,11 +5,13 @@ from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
 class TestCanvasScope(SimpleTestCase):
     def test_canvas_scopes(self):
         expected_scopes = [
+            'url:GET|/api/v1/courses',
             'url:GET|/api/v1/courses/:id',
             'url:PUT|/api/v1/courses/:id',
             'url:GET|/api/v1/courses/:course_id/sections',
             'url:POST|/api/v1/courses/:course_id/sections',
             'url:GET|/api/v1/sections/:section_id/enrollments',
+            'url:POST|/api/v1/sections/:section_id/enrollments',
             'url:GET|/api/v1/accounts',
             'url:GET|/api/v1/accounts/:account_id/courses',
         ]

@@ -150,23 +150,35 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
 
   const listItemText = (section: CanvasCourseSectionWithCourseName): JSX.Element => {
     return (
-      <ListItemText primary={section.name}
-        secondary={
+      <ListItemText 
+        primary={
           <React.Fragment>
+            <Typography
+              component="span"
+              variant="body1"
+              style={{ fontWeight: 'bold' }}
+              color="textPrimary"
+            >
+              {section.name}
+            </Typography>
             <Typography
               component="span"
               variant="body2"
               className={classes.secondaryTypography}
-              color="textPrimary"
+              color="textSecondary"
             >
               <span className={classes.overflowEllipsis}>{section.course_name}</span>
             </Typography>
+          </React.Fragment>
+        }
+        secondary={
+          <React.Fragment>
             {unmergeButton(section)}
             <span style={{ float: 'right' }}>
               {`${section.total_students ?? '?'} students`}
             </span>
           </React.Fragment>
-      }>
+        }>
       </ListItemText>
     )
   }

@@ -38,7 +38,7 @@ you can use the following steps to build and run the application using Docker.
     ```
 
 3. Access the client by launching the tool from a Canvas course in your browser of choice.
-4. Then the app in development should be accessible on http://localhost:4000/
+4. Then the app in development should be accessible on http://localhost:4001/
 
 Use `^C` to stop the container and `docker-compose down` to remove the last used image from staging.
 
@@ -80,8 +80,8 @@ Explicit steps for setting up CCM in a development environment.
 
 ##### Start local ngrok server
 
-1. Start an ngrok/loophole instance for the application, which will run on port 4000.
-   `ngrok http 4000` or `loophole http 4000 --hostname=<your-hostname>
+1. Start an ngrok/loophole instance for the application, which will run on port 4001.
+   `ngrok http 4001` or `loophole http 4001 --hostname=<your-hostname>
 2. Make note of the hostname of the ngrok instance for use later.  The hostname may be found in the console output or it can be obtained from the ngrok API.  For example, if `jq` is installed, use the command:
    `curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
    ***Note:*** Get only the hostname, not the `http`/`https` scheme prefix.
@@ -102,7 +102,8 @@ Explicit steps for setting up CCM in a development environment.
 10. Go To the `Settings` option from the Admin page --> Apps --> VIew App Configuration --> +App --> Choose Configuration type `By Client_id` --> Paste the client_id from Step 8
 11. Copy the Deployment_id by searching for the LTI tool you just added to the Canvas, Click setting button next it and right `click copy 'Deployment Id'`
 12. Run this command `docker exec -it ccm_web python manage.py rotate_keys`. This will create the Private and Public key for LTI
-13. Managing LTI registration to Tool: The LTI registration is completely handled from the Django Admin Console, so we need `UUID` from LTI Tool and `Client_id` and `Deployment_id` from the Canvas. So the Commandline option will help you in various use cases to set up LTI registration.  Please note *Issuer* and *Auth domain names* are different. For example, configuration in Canvas Test takes these values: `issuer=canvas.test.instructure.com` then `Auth URL=sso.test.canvaslms.com`. More [info](https://canvas.instructure.com/doc/api/file.lti_launch_overview.html).
+13. Managing LTI registration to Tool: The LTI registration is completely handled from the Django Admin Console, so we need `UUID` from LTI Tool and `Client_id` and `Deployment_id` from the Canvas. So the Commandline option will help you in various use cases to set up LTI registration.  Please note *Issuer* and *Auth domain names* are different. For example, configuration in Canvas Test takes these values: `issuer=canvas.test.instructure.com` then `Auth URL=sso.test.canvaslms.com`. 
+LTI registration with Canvas Dev: If you're using a Canvas dev instance (http://umich-dev.instructure.com/), then set `issuer=canvas.instructure.com` and `Auth URL=sso.canvaslms.com` when running the LTI management command 
     1. Creating new LTI registration. This will generate  UUID now go to your Tool Canvas LTI Registration and copy this UUID in OpenID Connect Initiation Url after /init/ inplace of /1233/
     ```sh 
     docker exec -it ccm_web python manage.py manage_lti_key --action=create --client_id=<client_id> --deployment_id=<deployment_id> --name=<name-given-in-tool>
@@ -145,6 +146,28 @@ Explicit steps for setting up CCM in a development environment.
 18. Click the "Show Key" button underneath the ID located in step 16, and copy the secret that appears in the dialog. 
 19. Go to `.env` file, Add the API client Id to CANVAS_OAUTH_CLIENT_ID and Secret from step 18 to CANVAS_OAUTH_CLIENT_SECRET and CANVAS_OAUTH_CANVAS_DOMAIN with canvas instance without https://
 20. Click the "ON" part of the switch in the "State" column of your API key, so that it has a green background.
+
+### Django Queue
+1. The Add U-M user feature is run as a background task, and we are supporting up to 5000 Enrollments
+2. We are using [Django ORM](https://django-q2.readthedocs.io/en/master/brokers.html#django-orm) is set a default message Broker.
+3. Django admin can be used for tracking Successful, Failed, Queued, Scheduled Tasks
+    1. Apart from Django admin, CLI can be used for [tracking](https://django-q2.readthedocs.io/en/master/monitor.html) as well:
+        ```
+        python manage.py qinfo
+        ```
+4. The following environment variables can be set to configure Django Q background task processing
+    1. `Q_CLUSTER_WORKERS` - Number of worker processes (default: 4)
+    2. `Q_CLUSTER_TIMEOUT` - Task execution timeout in seconds (default: 900, i.e., 15 minutes)
+    3. `Q_CLUSTER_RETRY` - Retry interval in seconds for failed tasks (default: 1800, i.e., 30 minutes)
+    4. `Q_CLUSTER_BULK` - Sets the number of messages each cluster tries to get from the broker per call.
+    5. `Q_CLUSTER_MAX_ATTEMPTS` - Maximum number of retry attempts for a task after failure (default: 1)
+
+
+### Email Configuration
+CCM will be sending emails for 2 features Add UM User and Add Non-UM User. We will be using [ITS Authenticated SMTP](https://documentation.its.umich.edu/authenticated-smtp?check_logged_in=1) service for sending email in Prod.
+With ITS Authenticated SMTP, you can send email from locally as well. Please checkout more details about configuration from `.env.sample`
+    
+  
 
 #### Unit Testing
 The goal is to implement tests for the project's major components, focusing on critical functionality rather than achieving 100% code coverage. When testing a specific feature or file, create a test_*.py file in the /tests/ directory. Instead of making real-time database calls, use the unittest.mock module, including patch and MagicMock, to simulate calls with mock data. See above debugging section for how to debug test cases

@@ -1,10 +1,13 @@
+FROM node:20-bookworm-slim AS node-build
+WORKDIR /build/
 
-# FROM directive instructing base image to build upon
-# This could be used as a base instead: 
-# https://hub.docker.com/r/nikolaik/python-nodejs
-FROM python:3.13-slim
+COPY ccm_web .
+RUN npm install
 
-# NOTE: requirements.txt not likely to change between dev builds
+RUN npm run build:ccm_web
+
+FROM python:3.13-slim-bookworm
+
 COPY requirements.txt .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -32,24 +35,34 @@ WORKDIR /code/ccm_web
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt install -y nodejs
 
-COPY ccm_web/package*.json /code/ccm_web
-RUN npm install
-
 WORKDIR /code
 
 COPY backend ./backend
 COPY templates ./templates
-COPY manage.py start.sh ./
+COPY manage.py  ./
 
-RUN python manage.py collectstatic --verbosity 0
+COPY --from=node-build /build/bundles ./ccm_web/bundles 
+COPY --from=node-build /build/webpack-stats.json ./ccm_web/
+COPY --from=node-build /build/node_modules ./ccm_web/node_modules
+
+ARG RUN_FRONTEND
+ENV RUN_FRONTEND=${RUN_FRONTEND:-false}
+
+# Run collectstatic *only* if RUN_FRONTEND is not true
+RUN if [ "$RUN_FRONTEND" != "true" ]; then \
+      echo "Running collectstatic during build..."; \
+      python manage.py collectstatic --noinput; \
+    else \
+      echo "Skipping collectstatic (RUN_FRONTEND=$RUN_FRONTEND)"; \
+    fi
 
 # Sets the local timezone of the docker image
 ARG TZ
-ENV TZ ${TZ:-America/Detroit}
+ENV TZ=${TZ:-America/Detroit}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# EXPOSE port 4000 to allow communication to/from server
-EXPOSE 4000
+# EXPOSE port 4001 to allow communication to/from server
+EXPOSE 4001
 
 # NOTE: project files likely to change between dev builds
 COPY . .

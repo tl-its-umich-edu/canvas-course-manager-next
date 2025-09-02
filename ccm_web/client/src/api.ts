@@ -50,21 +50,21 @@ const getPut = (body: string): RequestInit => {
 
 export const getCourse = async (courseId: number): Promise<CanvasCourseBase> => {
   const request = getGet()
-  const resp = await fetch(`/api/course/${courseId}/`, request)
+  const resp = await fetch(`/api/course/${courseId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
 
 export const setCourseName = async (courseId: number, newName: string): Promise<CanvasCourseBase> => {
   const request = getPut(JSON.stringify({ newName: newName }))
-  const resp = await fetch(`/api/course/${courseId}/`, request)
+  const resp = await fetch(`/api/course/${courseId}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
 
 export const getCourseSections = async (courseId: number): Promise<CanvasCourseSection[]> => {
   const request = getGet()
-  const resp = await fetch('/api/course/' + courseId.toString() + '/sections/', request)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
 }
@@ -72,7 +72,7 @@ export const getCourseSections = async (courseId: number): Promise<CanvasCourseS
 export const addCourseSections = async (courseId: number, sectionNames: string[]): Promise<CanvasCourseSection[]> => {
   const body = JSON.stringify({ sections: sectionNames })
   const request = getPost(body)
-  const resp = await fetch('/api/course/' + courseId.toString() + '/sections/', request)
+  const resp = await fetch('/api/course/' + courseId.toString() + '/sections', request)
   await handleErrors(resp)
   return await resp.json()
 }
@@ -89,7 +89,7 @@ interface AddEnrollmentWithSectionId extends AddSectionEnrollment {
 export const getStudentsEnrolledInSections = async (sectionIds: number[]): Promise<string[]> => {
   const request = getGet()
   const queryParam = sectionIds.join(',')
-  const resp = await fetch(`/api/sections/students/?section_ids=${queryParam}`, request)
+  const resp = await fetch(`/api/sections/students?section_ids=${queryParam}`, request)
   await handleErrors(resp)
   return await resp.json()
 }
@@ -103,10 +103,19 @@ export const addSectionEnrollments = async (
   return await resp.json()
 }
 
-export const addEnrollmentsToSections = async (enrollments: AddEnrollmentWithSectionId[]): Promise<CanvasEnrollment[]> => {
+export const addSingleSectionEnrollments = async (
+  courseId: number, sectionId: number, enrollments: AddSectionEnrollment[]): Promise<CanvasEnrollment[]> => {
+  const body = JSON.stringify({ users: enrollments })
+  const request = getPost(body)
+  const resp = await fetch(`/api/course/${courseId}/sections/${sectionId}/enroll`, request)
+  await handleErrors(resp)
+  return await resp.json()
+}
+
+export const addEnrollmentsToSections = async (courseId: number, enrollments: AddEnrollmentWithSectionId[]): Promise<CanvasEnrollment[]> => {
   const body = JSON.stringify({ enrollments })
   const request = getPost(body)
-  const resp = await fetch('/api/sections/enroll', request)
+  const resp = await fetch(`/api/course/${courseId}/sections/enroll`, request)
   await handleErrors(resp)
   return await resp.json()
 }

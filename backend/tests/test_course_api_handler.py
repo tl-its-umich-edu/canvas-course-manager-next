@@ -57,15 +57,25 @@ class CanvasCourseAPIHandlerTests(APITestCase):
         self.assertEqual(expected_dict, response.data)
 
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
-    def test_put_course_success(self, mock_get_canvasapi_instance):
+    @patch('backend.ccm.canvas_api.course_api_handler.Course')
+    def test_put_course_success(self, mock_course_class, mock_get_canvasapi_instance):
         mock_canvas = mock_get_canvasapi_instance.return_value
-        mock_course = Course(mock_canvas._Canvas__requester, {'id': self.course_id, 'name': 'Old Course Name', 'enrollment_term_id': 1, 'course_code': 'Old Course Name'})
-        mock_canvas.get_course.return_value = mock_course
-        mock_course.update = lambda course: mock_course.__dict__.update(course) or mock_course.name
+        mock_course = MagicMock(spec=Course)
+        mock_course.id = self.course_id
+        mock_course.enrollment_term_id = 1
+        mock_course.course_code = 'Old Course Name'
+        
+        mock_course_class.return_value = mock_course
+        
+        mock_course.update.return_value = 'New Course Name'
 
         data = {'newName': 'New Course Name'}
         response = self.client.put(self.url, data, format='json')
 
+        mock_course_class.assert_called_once_with(mock_canvas._Canvas__requester, {'id': self.course_id})
+        
+        mock_course.update.assert_called_once_with(course={'name': 'New Course Name', 'course_code': 'New Course Name'})
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], self.course_id)
         self.assertEqual(response.data['name'], 'New Course Name')
@@ -102,9 +112,14 @@ class CanvasCourseAPIHandlerTests(APITestCase):
         self.assertIn('This field may not be blank', response.data['errors'][0]['message'])
 
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
-    def test_put_course_canvas_exception(self, mock_get_canvasapi_instance):
+    @patch('backend.ccm.canvas_api.course_api_handler.Course')
+    def test_put_course_canvas_exception(self, mock_course_class, mock_get_canvasapi_instance):
         mock_canvas = mock_get_canvasapi_instance.return_value
-        mock_canvas.get_course.side_effect = ResourceDoesNotExist('Course update failed')
+        mock_course = MagicMock(spec=Course)
+        
+        mock_course_class.return_value = mock_course
+        
+        mock_course.update.side_effect = ResourceDoesNotExist('Course update failed')
 
         data = {'newName': 'New Course Name'}
         response = self.client.put(self.url, data, format='json')

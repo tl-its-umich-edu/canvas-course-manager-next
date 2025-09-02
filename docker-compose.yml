@@ -4,14 +4,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        RUN_FRONTEND: true
+        RUN_QWORKER_DEV_MODE: true
     environment:
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
       - DEBUG=${DEBUG:-True}
       # This is add to supress the waring with debugpy. https://github.com/microsoft/debugpy/issues/1251
       - PYDEVD_DISABLE_FILE_VALIDATION=1
+      - RUN_FRONTEND=true
+      - RUN_QWORKER_DEV_MODE=true
     env_file: ${HOME}/secrets/ccm/.env
+    
     ports:
-      - 4000:4000
+      - 4001:4001
       - 5678:5678
       - 5679:5679
     volumes:

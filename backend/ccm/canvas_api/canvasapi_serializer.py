@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .constants import ALLOWED_ROLES, MAX_ALLOWED_ENROLLMENTS
 
 class CourseSerializer(serializers.Serializer):
     # Define the fields you want to update. Adjust fields according to the Canvas API.
@@ -13,6 +14,52 @@ class CourseSectionSerializer(serializers.Serializer):
         if len(value) > 60:
             raise serializers.ValidationError("The list cannot be more than 60 items.")
         return value
+
+class SectionUsersSerializer(serializers.Serializer):
+    loginId = serializers.CharField(required=True)
+    role = serializers.CharField(required=True)
+
+class RoleValidationMixin:
+    # Accept all roles from ClientEnrollmentType (case-insensitive)
+    ALLOWED_ROLES = set(ALLOWED_ROLES)
+
+    def validate_roles(self, items, item_type='user'):
+        errors = []
+        for item in items:
+            role = item.get('role')
+            login_id = item.get('loginId')
+            if not role or role.lower() not in self.ALLOWED_ROLES:
+                errors.append({
+                    'loginId': login_id,
+                    'role': role,
+                    'error': f"Role '{role}' is not allowed. Allowed roles: {', '.join(sorted(self.ALLOWED_ROLES))}."
+                })
+        if errors:
+            raise serializers.ValidationError(errors)
+
+class SingleSectionEnrollRequestSerializer(serializers.Serializer, RoleValidationMixin):
+    users = SectionUsersSerializer(many=True)
+
+    def validate(self, data):
+        users = data.get('users', [])
+        if len(users) > MAX_ALLOWED_ENROLLMENTS:
+            raise serializers.ValidationError({
+                'users': f'Cannot enroll more than {MAX_ALLOWED_ENROLLMENTS} users in a single request.'
+            })
+        self.validate_roles(users, item_type='user')
+        return data
+
+class MultiSectionEnrollSerializer(serializers.Serializer):
+    sectionId = serializers.IntegerField(required=True)
+    loginId = serializers.CharField(required=True)
+    role = serializers.CharField(required=True)
+
+class MultiSectionEnrollRequestSerializer(serializers.Serializer, RoleValidationMixin):
+    enrollments = MultiSectionEnrollSerializer(many=True)
+
+    def validate(self, data):
+        self.validate_roles(data.get('enrollments', []), item_type='enrollment')
+        return data
 
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """

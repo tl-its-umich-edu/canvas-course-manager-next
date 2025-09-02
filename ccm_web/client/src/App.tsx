@@ -8,7 +8,6 @@ import AuthorizePrompt from './components/AuthorizePrompt.js'
 import ErrorAlert from './components/ErrorAlert.js'
 import Layout from './components/Layout.js'
 import usePromise from './hooks/usePromise.js'
-import { useGoogleAnalytics, UseGoogleAnalyticsParams } from '@tl-its-umich-edu/react-ga-onetrust-consent'
 import { CanvasCourseBase } from './models/canvas.js'
 import allFeatures from './models/FeatureUIData.js'
 import Home from './pages/Home.js'
@@ -25,13 +24,6 @@ function App (props: HomeProps): JSX.Element {
   const features = allFeatures.map(f => f.features).flat()
 
   const location = useLocation()
-
-  const googleAnalyticsConfig: UseGoogleAnalyticsParams = {
-    googleAnalyticsId: globals?.googleAnalyticsId ?? '',
-    oneTrustScriptDomain: globals?.oneTrustScriptDomain ?? '',
-    debug: false
-  }
-  useGoogleAnalytics(googleAnalyticsConfig);
 
   const [course, setCourse] = useState<undefined|CanvasCourseBase>(undefined)
   const [doLoadCourse, isCourseLoading, getCourseError] = usePromise<CanvasCourseBase|undefined, typeof getCourse>(

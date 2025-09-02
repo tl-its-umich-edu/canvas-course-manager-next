@@ -25,18 +25,20 @@ class TestCourseSectionAPIHandler(unittest.TestCase):
         
         # Mock course
         self.course = MagicMock()
-        self.canvas_api.get_course.return_value = self.course
         
         # Test data
         self.course_id = 12345
         self.section_names = ["Section A", "Section B", "Section C"]
         
+    @patch('backend.ccm.canvas_api.course_section_api_handler.Course')
     @patch('backend.ccm.canvas_api.course_section_api_handler.asyncio.to_thread')
     @patch('backend.ccm.canvas_api.course_section_api_handler.time.perf_counter')
-    def test_create_sections_happy_path(self, mock_perf_counter, mock_to_thread):
+    def test_create_sections_happy_path(self, mock_perf_counter, mock_to_thread, mock_course_class):
         """Test successful concurrent creation of multiple sections."""
         # Simplify the test by mocking the response directly
         mock_perf_counter.side_effect = [100.0, 100.5]
+
+        mock_course_class.return_value = self.course
 
         # Create request with section data
         request_data = {"sections": self.section_names}
