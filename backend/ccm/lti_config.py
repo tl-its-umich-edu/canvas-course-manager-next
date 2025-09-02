@@ -22,7 +22,7 @@ class LTILaunchError(Exception):
 
 class CCMLTILaunchView(LtiLaunchBaseView):
 
-    LTI_CUSTOM_PARAMS: List[str] = ['roles', 'is_root_account_admin', 'login_id', 'course_id']
+    LTI_CUSTOM_PARAMS: List[str] = ['roles', 'login_id', 'course_id']
     LTI_CUSTOM_PARAMS_URL: str = 'https://purl.imsglobal.org/spec/lti/claim/custom'
     
     def validate_custom_lti_launch_data(self, lti_launch: TLaunchData) -> None:
