@@ -34,7 +34,6 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
-    @timeit
     def get(self, request: Request) -> Response:
         term_id = request.query_params.get('term_id')
         if not term_id:
@@ -54,7 +53,6 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
             logger.error(f"Error retrieving instructor sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
 
-    @timeit
     def _get_filtered_teacher_courses(self, canvas_api: Canvas, term_id: str) -> tuple[list[dict], dict[int, Course]]:
         """Fetch and filter teacher courses by term_id and a map of the course instances. Returns (filtered_courses, course_instance_map)."""
         logger.info(f"Retrieving instructor courses for term_id: {term_id}")

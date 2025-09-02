@@ -1,8 +1,10 @@
 from functools import wraps
-import os
+import os, logging
 import time
 from typing import List, Optional
 from csp.constants import SELF
+
+logger = logging.getLogger(__name__)
 
 def parse_csp(csp_key: str, extra_csp_sources: Optional[List[str]] = None) -> List[str]:
     """
@@ -33,7 +35,7 @@ def timeit(func):
         result = func(*args, **kwargs)
         end_time = time.perf_counter()
         total_time = end_time - start_time
-        print(f"Function '{func.__name__}{args} {kwargs}' took {total_time:.4f} seconds to execute.")
+        logger.info(f"Function '{func.__name__}{args} {kwargs}' took {total_time:.4f} seconds to execute.")
         return result
     return timeit_wrapper
 
