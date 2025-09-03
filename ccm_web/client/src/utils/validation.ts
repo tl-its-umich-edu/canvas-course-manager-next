@@ -30,7 +30,7 @@ const createCanvasIdentifierSchema = (fieldName: string): NumberSchema => {
 
 const createEmailSchema = (command?: boolean): StringSchema => {
   return createCanvasNameSchema('email address', command)
-    .email('The value is not a valid email address.')
+    .matches(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, 'The value is not a valid email address.')
     .matches(/^(?!.*@[a-z.]*umich.edu).*$/i, 'The email address must not be from the University of Michigan.')
 }
 
