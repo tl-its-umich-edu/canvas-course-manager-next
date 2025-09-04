@@ -65,8 +65,11 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         canvas_api = self.credential_manager.get_canvasapi_instance(request)
         try:
             # 1. Get all accessible accounts
-            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api)
-
+            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api, request.user.id)
+            if not accessible_account_ids:
+                logger.info(f"No accessible accounts found for admin user id {request.user.id}")
+                return Response([], status=HTTPStatus.OK) # Return empty list if no accounts are accessible
+            
             #2. Get courses by account, by search parameters and term_id
             course_instance_map = {}
             courses_success, courses_response = self._get_courses(coursesQueryParams, course_instance_map, accessible_account_ids, account_instance_map)
@@ -86,9 +89,9 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.error(f"Error retrieving admin sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
-    def _get_accessible_accounts(self, canvas_api) -> tuple[list[dict], dict[int, Account]]:
+    def _get_accessible_accounts(self, canvas_api, user_id) -> tuple[list[dict], dict[int, Account]]:
         # Retrieve all user accounts, filter to root accounts and subaccounts of unlisted accounts
-        logger.info("Retrieving accessible accounts for admin user")
+        logger.info(f"Retrieving accessible accounts for user {user_id}")
         try:
             accounts = list(canvas_api.get_accounts())
             account_instance_map: dict[int, Account] = {account.id: account for account in accounts}
@@ -99,8 +102,9 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
                     or not(account.parent_account_id in account_instance_map)
             ]
             logger.info(f"Found {len(accessible_account_ids)} of {len(accounts)} accounts accessible to admin user")
+            return accessible_account_ids, account_instance_map
         except (CanvasException, Exception) as e:
-            failed_input = f"user id {canvas_api._Canvas__requester.user_id}"
+            failed_input = f"user id {user_id}"
             raise HTTPAPIError(failed_input, e)
         
     @async_to_sync
@@ -148,6 +152,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             failed_input = f"account id {account.id} with params {coursesQueryParams}"
             raise HTTPAPIError(failed_input, e)
     
+    @async_to_sync
     async def _attach_sections_to_courses(
             self, 
             courses_data:list[dict], 
@@ -169,7 +174,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         success = len(errors) == 0
         return success, courses_data if success else errors
         
-    async def _attach_section_sync(
+    def _attach_section_sync(
             self, 
             course: dict, 
             course_instance: Course):
@@ -193,7 +198,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         """ Run a synchronous function within a semaphore to limit concurrency, capturing errors. """
         async with semaphore:
             try:
-                await sync_func(*args, **kwargs)
+                return await asyncio.to_thread(sync_func,*args, **kwargs)
             except Exception as e:
                 errors.append(e if isinstance(e, HTTPAPIError) else HTTPAPIError(str(args), e))
                 
