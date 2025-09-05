@@ -1,6 +1,7 @@
 import logging
 from http import HTTPStatus
 import time
+import asyncio
 from datetime import datetime
 from django.urls import reverse
 from rest_framework.views import APIView
@@ -8,16 +9,21 @@ from rest_framework import authentication, permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django_q.tasks import async_task
+from asgiref.sync import async_to_sync
+from datetime import timedelta
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
 
+from backend.ccm.background_tasks.enroll_um_users_task import EnrollmentUser, gather_enrollments, sem_task
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
+from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
 
 from .exceptions import CanvasErrorHandler, HTTPAPIError
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+from backend.ccm.canvas_api.enroll_users import enroll_user
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
@@ -152,7 +158,7 @@ class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
             )
         ],
     )
-    def post(self, request: Request, course_id, section_id) -> Response:
+    def post(self, request: Request, section_id: int, course_id: int=None) -> Response:
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -164,7 +170,36 @@ class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
         # Add sectionId to each enrollment param for consistency with multi-section API
         for param in enrollment_params:
             param['sectionId'] = section_id
-        return self.create_enrollment_task(request, course_id, enrollment_params, section_id=section_id, multi_section=False)
+        
+        if not course_id:
+            logger.info(f"Starting enrollment for create external user enroll flow {len(enrollment_params)} users")
+            canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
+            loop_start_time = time.perf_counter()
+            results = self.gather_enrollments(enrollment_params, canvas_api)
+            loop_elapsed = time.perf_counter() - loop_start_time
+            logger.info(f"For Create User to enroll {len(enrollment_params)} users took {timedelta(seconds=loop_elapsed)}")
+            return Response({}, status=HTTPStatus.OK)
+        else:
+            logger.info(f"Enroll users in course {course_id}, section {section_id}")
+            return self.create_enrollment_task(request, course_id, enrollment_params, section_id=section_id, multi_section=False)
+    
+    @async_to_sync()
+    async def gather_enrollments(self, enrollment_users, canvas_api):
+        max_concurrent = int(MAX_CONCURRENCY + 2)
+        semaphore = asyncio.Semaphore(max_concurrent)
+        tasks = [self.sem_task(semaphore, canvas_api, user) for user in enrollment_users]
+        return await asyncio.gather(*tasks, return_exceptions=True)
+
+    async def sem_task(self, semaphore, canvas_api, enrollment_user: EnrollmentUser):
+        section_id = enrollment_user['sectionId']
+        login_id = enrollment_user['loginId'].lower()
+        role = enrollment_user['role'].lower()
+        async with semaphore:
+            return await self.enroll_user_async(canvas_api, section_id, login_id, role)
+
+    async def enroll_user_async(self, canvas_api, section_id, login_id, role):
+      # Wrap the sync function in a coroutine for compatibility
+      return await asyncio.to_thread(enroll_user, canvas_api, section_id, login_id, role)
 
 class MultiSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
     authentication_classes = [authentication.SessionAuthentication]
