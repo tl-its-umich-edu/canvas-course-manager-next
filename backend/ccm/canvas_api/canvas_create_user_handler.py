@@ -3,6 +3,7 @@ import asyncio
 import time
 from datetime import timedelta
 from http import HTTPStatus
+from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework import authentication, permissions
@@ -73,8 +74,9 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         logger.info(f"Creating User: {len(users)} Users took about {timedelta(seconds=(end_time - start_time))}")
 
         #mocking the email workflow
-        task_data = {'a': 5, 'b': 8}
-        email_task_id = async_task('backend.ccm.background_tasks.math.add', task=task_data)
+        timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
+        task_name = f'external-user-email-{len(users)}-{timestamp}'
+        email_task_id = async_task('backend.ccm.background_tasks.send_email_non_umich_user_task.sending_emails', task_params=new_user_email_invitation_list, task_name=task_name)
         logger.info(f"Async task for email sending initiated with task ID: {email_task_id}")
 
         return Response(external_user_data, status=HTTPStatus.OK)
