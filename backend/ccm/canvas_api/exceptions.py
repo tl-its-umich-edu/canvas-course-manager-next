@@ -1,4 +1,5 @@
 import logging
+import json
 from http import HTTPStatus
 from typing import List, Union
 from canvasapi.exceptions import (
@@ -41,10 +42,9 @@ class CanvasErrorHandler():
         InvalidOAuthReturnError: HTTPStatus.FORBIDDEN.value
     }
 
-
-
     def __init__(self) -> None:
         self.errors = []
+        self.create_user_error = {}
     
     def handle_serializer_errors(self, serializer_errors: dict, input: str):
       logger.error(f"Serializer error: {serializer_errors} occured during the API call.")
@@ -86,6 +86,35 @@ class CanvasErrorHandler():
                     "failedInput": error.failed_input
                 })
 
+    def handle_create_user_canvas_api_exception(self, exception: HTTPAPIError):
+        return {
+            "canvasStatusCode": self.EXCEPTION_STATUS_MAP.get(type(exception), HTTPStatus.INTERNAL_SERVER_ERROR.value),
+            "message": str(exception.original_exception),
+            "failedInput": exception.failed_input
+        }
+    
+    
+    def is_canvas_user_created(self, error: HTTPAPIError) -> bool:
+        """
+        This method checks whether the error message indicates the user is already created.
+        Sample json:
+        {"errors":{"user":{"pseudonyms":[{"attribute":"pseudonyms","message":"is invalid","type":"invalid"}]},
+        "pseudonym":{"unique_id":[{"attribute":"unique_id","message":"ID already in use for this account and authentication provider","type":"taken"}]},
+        "observee":{},"pairing_code":{},"recaptcha":null}}
+
+        """
+        if isinstance(error.original_exception, BadRequest):
+            try:
+                error_json_str = str(error.original_exception)
+                error_dict = json.loads(error_json_str)
+            except json.JSONDecodeError:
+                error_dict = {}
+            unique_id_errors = error_dict.get("errors", {}) \
+                                        .get("pseudonym", {}) \
+                                        .get("unique_id", [])
+            return any(err.get("type") == "taken" for err in unique_id_errors)
+        return False
+
     def to_dict(self) -> dict:
         return {
             "statusCode": (sc.pop() if len(sc := {e["canvasStatusCode"] for e in self.errors}) == 1 else HTTPStatus.INTERNAL_SERVER_ERROR.value),
@@ -110,3 +139,44 @@ class CanvasAccessTokenException(APIException):
             "statusCode": self.status_code,
             "redirect": self.redirect
         }
+
+class ExternalUserCreationAndInvitationErrorHandler():
+    """
+    Custom exception for errors occurring during the creation and invitation of external users.
+    """
+    def __init__(self) -> None:
+        super().__init__()
+    
+    def determine_status_code(self, external_user_success_failure_resp: list[dict]) -> int:
+        """
+        The method determines the appropriate status code based mixed the success or failure
+        of external user creation and invitation.
+        params:
+            external_user_success_failure_resp: A list of dictionaries containing the success
+            or failure information for each external user.
+        """
+        codes = []
+        for user_obj in external_user_success_failure_resp:
+            if isinstance(user_obj.get("userCreated"), dict) and "canvasStatusCode" in user_obj["userCreated"]:
+                codes.append(user_obj["userCreated"]["canvasStatusCode"])
+            if isinstance(user_obj.get("invited"), dict) and "statusCode" in user_obj["invited"]:
+                codes.append(user_obj["invited"]["statusCode"])
+        unique_status_codes = set(codes)
+        if not codes:
+            return HTTPStatus.INTERNAL_SERVER_ERROR.value
+        return HTTPStatus.BAD_GATEWAY.value if len(unique_status_codes) > 1 else list(unique_status_codes)[0]
+    
+    def is_creation_invitation_all_success(self, user_obj: dict) -> bool:
+        """
+        Here the method checks if both user creation and invitation were successful.
+        already existing user is treated as a success.
+        params:
+            user_obj: A dictionary containing the user creation and invitation information.
+        """
+        if isinstance(user_obj.get("userCreated"), dict):
+            if "canvasStatusCode" in user_obj["userCreated"]:
+                return True
+        if isinstance(user_obj.get("invited"), dict):
+            if "statusCode" in user_obj["invited"]:
+                return True
+        return False
