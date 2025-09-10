@@ -114,7 +114,6 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
           email_task_id = async_task('backend.ccm.background_tasks.send_email_non_umich_user_task.sending_emails', 
                                     task_params=new_user_email_invitation_list, task_name=task_name)
           logger.info(f"Async task for email sending initiated with task ID: {email_task_id}")
-          raise Exception("Email sending failed")
           return True
         except Exception as e:
             logger.error(f"Failed to initiate email sending task: {e}")
@@ -144,8 +143,6 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         email: str = user['email']
 
         try:
-          if email == 'uflo_myla_error2@mailinator.com':
-              raise Exception("User creation failed")
           created_user = canvas_api.get_account(CANVAS_ROOT_ACCOUNT_ID).create_user(
               user={
                   'name': fullName,

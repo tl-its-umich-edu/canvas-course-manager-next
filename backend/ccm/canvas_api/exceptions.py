@@ -65,18 +65,19 @@ class CanvasErrorHandler():
             "failedInput": input
         })
     
-    def handle_canvas_api_exceptions(self, exceptions: Union[HTTPAPIError, List[HTTPAPIError]]):
+    def handle_canvas_api_exceptions(self, exceptions: Union[HTTPAPIError, List[HTTPAPIError]], is_admin_token_user: bool = False):
         logger.error(f"API error occurred: {exceptions}")
         exceptions = exceptions if isinstance(exceptions, list) else [exceptions]
         
         
         # Handle access token-related issues
-        for exc in exceptions:
-            if isinstance(exc.original_exception, InvalidAccessToken):
-                raise CanvasAccessTokenException()
+        if not is_admin_token_user:
+            for exc in exceptions:
+                if isinstance(exc.original_exception, InvalidAccessToken):
+                    raise CanvasAccessTokenException()
 
-            if isinstance(exc.original_exception, Unauthorized) and INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(exc.original_exception).lower():
-                raise CanvasAccessTokenException()
+                if isinstance(exc.original_exception, Unauthorized) and INSUFFICIENT_SCOPES_ON_ACCESS_TOKEN in str(exc.original_exception).lower():
+                    raise CanvasAccessTokenException()
         
         if all(isinstance(error, HTTPAPIError) for error in exceptions):
             for error in exceptions:
