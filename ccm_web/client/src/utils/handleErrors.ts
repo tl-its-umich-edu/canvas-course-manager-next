@@ -92,7 +92,7 @@ class ExternalUserProcessError extends Error {
   constructor (data: ExternalUserResult[]) {
     super(
       'Received one or more errors while creating an external user in Canvas ' +
-      'and inviting them to select a login method using Cirrus.'
+      'and inviting them to select a login method using Friend Service.'
     )
     this.data = data
   }
