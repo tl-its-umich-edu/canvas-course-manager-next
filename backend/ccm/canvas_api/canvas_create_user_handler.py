@@ -122,16 +122,16 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
 
     @async_to_sync
     async def create_users(self, users: List[ExternalUserDict]):
-        tasks = [self.sem_task(user) for user in users]
+        tasks = [self.create_user_concurrent_action(user) for user in users]
         return await asyncio.gather(*tasks, return_exceptions=True)
 
-    async def sem_task(self, user: ExternalUserDict):
+    async def create_user_concurrent_action(self, user: ExternalUserDict):
         semaphore = asyncio.Semaphore(int(MAX_CONCURRENCY + 2))
         try:
             async with semaphore:
                 return await asyncio.to_thread(self.create_user_sync, user)
         except Exception as e:
-            logger.error(f"Error in sem_task {user['email']}: {e}")
+            logger.error(f"Error in create_user {user['email']}: {e}")
             return e
         
     def create_user_sync(self, user: ExternalUserDict):
