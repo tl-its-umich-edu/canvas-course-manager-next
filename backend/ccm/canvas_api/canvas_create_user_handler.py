@@ -49,7 +49,7 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
 
         users = serializer.validated_data.get('users', [])
         results = self.create_users(users)
-        logger.info(f"Results external user: {results}")
+        logger.debug(f"Results external user: {results}")
 
         external_user_response_outcome, new_user_email_invitation_list = self.process_user_creation_outcomes(users, results)
 
