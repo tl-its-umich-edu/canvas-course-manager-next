@@ -27,7 +27,7 @@ class ExternalUserDict(TypedDict):
     surname: str
 
 class CanvasCreateUserHandler(LoggingMixin, APIView):
-    logging_methods = ['GET']
+    logging_methods = ['POST']
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ExternalUsersRequestSerializer
