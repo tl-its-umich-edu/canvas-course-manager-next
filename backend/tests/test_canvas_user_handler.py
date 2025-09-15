@@ -74,7 +74,7 @@ class TestCanvasUserHandler(TestCase):
         # Simulate ResourceDoesNotExist exception when calling get_user
         mock_canvas_api.get_user.side_effect = ResourceDoesNotExist('Not Found')
 
-        login_id = 'pushyamiredy@gmail.com'
+        login_id = 'test@gmail.com'
         view = CanvasUserHandler()
         request = self.factory.get(f'/api/admin/user/{login_id}')
         force_authenticate(request, user=self.user)
