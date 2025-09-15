@@ -63,3 +63,29 @@ class TestCanvasUserHandler(TestCase):
         self.assertEqual(error['canvasStatusCode'], 500)
         self.assertEqual(error['message'], 'Test error')
         self.assertEqual(error['failedInput'], login_id)
+        
+    @patch('backend.ccm.canvas_api.canvas_credential_manager.CanvasCredentialManager.get_canvasapi_admin_instance')
+    @patch('backend.ccm.canvas_api.canvas_user_handler.CanvasObjectROSerializer')
+    def test_get_user_not_found(self, mock_serializer, mock_get_canvasapi_admin_instance):
+        # Setup mocks
+        from canvasapi.exceptions import ResourceDoesNotExist
+        mock_canvas_api = MagicMock()
+        mock_get_canvasapi_admin_instance.return_value = mock_canvas_api
+        # Simulate ResourceDoesNotExist exception when calling get_user
+        mock_canvas_api.get_user.side_effect = ResourceDoesNotExist('Not Found')
+
+        login_id = 'pushyamiredy@gmail.com'
+        view = CanvasUserHandler()
+        request = self.factory.get(f'/api/admin/user/{login_id}')
+        force_authenticate(request, user=self.user)
+
+        response = view.get(request, login_id)
+
+        # Assertions
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('errors', response.data)
+        self.assertEqual(response.data['statusCode'], 404)
+        error = response.data['errors'][0]
+        self.assertEqual(error['canvasStatusCode'], 404)
+        self.assertEqual(error['message'], 'Not Found')
+        self.assertEqual(error['failedInput'], login_id)
