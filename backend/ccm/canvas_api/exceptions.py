@@ -44,7 +44,6 @@ class CanvasErrorHandler():
 
     def __init__(self) -> None:
         self.errors = []
-        self.create_user_error = {}
     
     def handle_serializer_errors(self, serializer_errors: dict, input: str):
       logger.error(f"Serializer error: {serializer_errors} occured during the API call.")
