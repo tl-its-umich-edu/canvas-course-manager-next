@@ -116,23 +116,44 @@ class TestCustomCanvasRoles(SimpleTestCase):
         if self.env_key in os.environ:
             del os.environ[self.env_key]
 
+
+class TestCanvasAdminApiTokenLogging(SimpleTestCase):
+    def setUp(self):
+        self.admin_token_env_key = 'CANVAS_ADMIN_API_TOKEN'
+        self.roles_env_key = 'CUSTOM_CANVAS_ROLES'
+        self.old_admin_token_env = os.environ.get(self.admin_token_env_key)
+        self.old_roles_env = os.environ.get(self.roles_env_key)
+        if self.admin_token_env_key in os.environ:
+            del os.environ[self.admin_token_env_key]
+        if self.roles_env_key in os.environ:
+            del os.environ[self.roles_env_key]
+
     def tearDown(self):
-        if self.old_env is not None:
-            os.environ[self.env_key] = self.old_env
-        elif self.env_key in os.environ:
-            del os.environ[self.env_key]
+        if self.old_admin_token_env is not None:
+            os.environ[self.admin_token_env_key] = self.old_admin_token_env
+        elif self.admin_token_env_key in os.environ:
+            del os.environ[self.admin_token_env_key]
+        if self.old_roles_env is not None:
+            os.environ[self.roles_env_key] = self.old_roles_env
+        elif self.roles_env_key in os.environ:
+            del os.environ[self.roles_env_key]
+
+    def test_canvas_admin_api_token_missing_logs_error(self):
+        with self.assertLogs('root', level='ERROR') as cm:
+            importlib.reload(settings)
+        self.assertTrue(any('CANVAS_ADMIN_API_TOKEN is not set in environment variables!' in msg for msg in cm.output))
 
     def test_custom_canvas_roles_default(self):
         importlib.reload(settings)
         self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
 
     def test_custom_canvas_roles_env_override(self):
-        os.environ[self.env_key] = '{"assistant": 99, "librarian": 88}'
+        os.environ[self.roles_env_key] = '{"assistant": 99, "librarian": 88}'
         importlib.reload(settings)
         self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 99, 'librarian': 88})
 
     def test_custom_canvas_roles_env_invalid(self):
-        os.environ[self.env_key] = 'not a json string'
+        os.environ[self.roles_env_key] = 'not a json string'
         importlib.reload(settings)
         self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
 
