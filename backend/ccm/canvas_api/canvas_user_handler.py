@@ -32,10 +32,10 @@ class CanvasUserHandler(LoggingMixin, APIView):
             self.canvas_error.handle_serializer_errors(serializer.errors,str(login_id))
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
-        canvas_api: Canvas = self.credential_manager.get_canvasapi_admin_instance()
+        canvas_admin_api: Canvas = self.credential_manager.get_canvasapi_admin_instance()
         safe_login_id: str = login_id.replace('@', '+')
         try:
-            user_info = canvas_api.get_user(safe_login_id, 'sis_login_id')
+            user_info = canvas_admin_api.get_user(safe_login_id, 'sis_login_id')
             append_fields ={"login_id": login_id}
             serializer = CanvasObjectROSerializer(user_info, allowed_fields=self.user_allowed_fields, append_fields=append_fields)
             return Response(serializer.data, status=HTTPStatus.OK)
