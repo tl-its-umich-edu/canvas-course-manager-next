@@ -25,9 +25,23 @@ class TestCanvasCredentialManager(TestCase):
             expires=timezone.now() + timezone.timedelta(days=1)
         )
 
+
     def tearDown(self):
         self.user.delete()
         CanvasOAuth2Token.objects.all().delete()
+
+    @patch('backend.ccm.canvas_api.canvas_credential_manager.Canvas')
+    @patch('backend.ccm.canvas_api.canvas_credential_manager.settings')
+    def test_get_canvasapi_admin_instance_with_valid_token(self, mock_settings, mock_canvas):
+        mock_settings.CANVAS_ADMIN_API_TOKEN = 'admin_token_123'
+        mock_settings.CANVAS_OAUTH_CANVAS_DOMAIN = 'canvas.test.instructure.com'  # Set domain for test
+        expected_url = f"https://{mock_settings.CANVAS_OAUTH_CANVAS_DOMAIN}"
+        mock_canvas_instance = MagicMock()
+        mock_canvas.return_value = mock_canvas_instance
+        credential_manager = CanvasCredentialManager()  # Instantiate after mocking settings
+        result = credential_manager.get_canvasapi_admin_instance()
+        mock_canvas.assert_called_once_with(expected_url, 'admin_token_123')
+        self.assertEqual(result, mock_canvas_instance)
         
     @patch('backend.ccm.canvas_api.canvas_credential_manager.get_oauth_token')
     @patch('backend.ccm.canvas_api.canvas_credential_manager.Canvas')

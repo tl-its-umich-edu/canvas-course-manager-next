@@ -24,4 +24,9 @@ class CanvasCredentialManager:
       raise CanvasAccessTokenException()
     return Canvas(self.canvasURL, access_token)
   
+  # This token only used when getting and creating user in canvas
+  def get_canvasapi_admin_instance(self) -> Canvas:
+    admin_token = settings.CANVAS_ADMIN_API_TOKEN
+    return Canvas(self.canvasURL, admin_token)
+  
   

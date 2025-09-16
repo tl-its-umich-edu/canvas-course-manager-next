@@ -176,6 +176,23 @@ class EnrollRequestSerializerTests(SimpleTestCase):
         finally:
             canvasapi_serializer.MAX_ALLOWED_ENROLLMENTS = original_max
 
+    # --- LoginIdSerializer Tests ---
+    class LoginIdSerializerTests(SimpleTestCase):
+        def test_login_id_serializer_valid_email(self):
+            from backend.ccm.canvas_api.canvasapi_serializer import LoginIdSerializer
+            payload = {"login_id": "user@example.com"}
+            serializer = LoginIdSerializer(data=payload)
+            self.assertTrue(serializer.is_valid())
+            self.assertEqual(serializer.validated_data["login_id"], "user@example.com")
+
+        def test_login_id_serializer_invalid_email(self):
+            from backend.ccm.canvas_api.canvasapi_serializer import LoginIdSerializer
+            payload = {"login_id": "not-an-email"}
+            serializer = LoginIdSerializer(data=payload)
+            self.assertFalse(serializer.is_valid())
+            self.assertIn("login_id", serializer.errors)
+            self.assertIn("Enter a valid email address.", str(serializer.errors["login_id"]))
+
 
 
 

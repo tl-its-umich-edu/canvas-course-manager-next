@@ -1,4 +1,5 @@
 from backend.ccm.canvas_api.admin_sections_api_handler import CanvasAdminSectionsAPIHandler
+from backend.ccm.canvas_api.canvas_user_handler import CanvasUserHandler
 from backend.ccm.canvas_api.course_api_handler import CanvasCourseAPIHandler
 from django.urls import path
 
@@ -14,4 +15,5 @@ urlpatterns = [
   path('course/<int:course_id>/sections/enroll', MultiSectionEnrollmentView.as_view(), name='multipleSectionEnrollments'),
   path('instructor/sections', CanvasInstructorSectionsAPIHandler.as_view(), name='instructorSections'),
   path('admin/sections/', CanvasAdminSectionsAPIHandler.as_view(), name='adminSections'),
+  path('admin/user/<str:login_id>', CanvasUserHandler.as_view(), name='checkUser')
 ]
