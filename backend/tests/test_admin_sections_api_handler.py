@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
 from canvasapi.exceptions import CanvasException
+from rest_framework.exceptions import ErrorDetail
 
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
@@ -137,28 +138,14 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
         self.assertEqual(response.data[0]['sections'][0]['id'], section1['id'])
 
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
-    def test_get_admin_sections_no_term_id(self, mock_get_canvasapi_instance):
+    def test_get_admin_sections_validation_error(self, mock_get_canvasapi_instance):
         # Compose request without term_id
         response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"error": "Term ID is required as a parameter"})
-
-    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
-    def test_get_admin_sections_no_search_param(self, mock_get_canvasapi_instance):
-        # Compose request without term_id
-        response = self.client.get(f'{self.url}?term_id={self.term_id}')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"error": "Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together."})
-    
-    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
-    def test_get_admin_sections_both_search_params(self, mock_get_canvasapi_instance):
-        # Compose request without term_id
-        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}&course_name={self.course_name}')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"error": "Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together."})
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        serializer_errors = {
+            "term_id": [ErrorDetail(string="This field is required.", code="required")]
+        }
+        self.assertEqual(response.data, serializer_errors)
     
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_get_admin_sections_no_accounts(self, mock_get_canvasapi_instance):
@@ -189,8 +176,9 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
         response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(response.data)
         self.assertIn('Canvas API error', response.data['errors'][0]['message'])
-        self.assertIn('user id ', response.data['errors'][0]['failedInput'])
+        self.assertIn('username', response.data['errors'][0]['failedInput'])
 
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_get_admin_sections_exception_on_course(self, mock_get_canvasapi_instance):

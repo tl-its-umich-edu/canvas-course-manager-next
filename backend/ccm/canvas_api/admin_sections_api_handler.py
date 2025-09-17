@@ -7,6 +7,8 @@ from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework.response import Response
 from rest_framework.request import Request
 from asgiref.sync import async_to_sync
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.account import Account
@@ -14,7 +16,7 @@ from canvasapi.course import Course
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer, CanvasObjectROSerializer
 from backend.ccm.canvas_api.instructor_sections_api_handler import CanvasInstructorSectionsAPIHandler
 from backend.ccm.utils import timeit
 
@@ -29,25 +31,53 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
     courses_allowed_fields = {"id", "name", "enrollment_term_id"}
     sections_allowed_fields = {"id", "name", "course_id", "nonxlist_course_id", "total_students"}
+    serializer_class = AdminSectionsQuerySerializer  # Ensures Swagger UI recognizes it
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
 
-    @timeit
+    @extend_schema(
+        operation_id="get_admin_sections",
+        description="Get mergeable sections data from Canvas for admin users, filtered by term_id and either instructor_name or course_name.",
+        request=AdminSectionsQuerySerializer,
+        parameters=[
+            OpenApiParameter(
+                name="term_id",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=True,
+                description="Canvas term ID to filter courses."
+            ),
+            OpenApiParameter(
+                name="instructor_name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Instructor's login ID to filter courses. Provide either this or course_name."
+            ),
+            OpenApiParameter(
+                name="course_name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Course name to filter courses. Provide either this or instructor_name."
+            )
+        ],
+    )
     def get(self, request: Request) -> Response:
         """
         Get sections data from Canvas for admins.
         """
-        term_id = request.query_params.get('term_id', None)
-        instructor_name = request.query_params.get('instructor_name', None)
-        course_name = request.query_params.get('course_name', None)
-        if not term_id:
-            return Response({"error": "Term ID is required as a parameter"}, status=HTTPStatus.BAD_REQUEST)
-        if not ((instructor_name != None) ^ (course_name != None)): # XOR condition ensures one, but not both, is provided
-            return Response({"error": "Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together."},
-                            status=HTTPStatus.BAD_REQUEST)
+        serializer = AdminSectionsQuerySerializer(data=request.query_params)
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, f"{request.query_params}")
+            return Response(serializer.errors, status=self.canvas_error.to_dict().get('statusCode'))
+        validated_data = serializer.validated_data
+        term_id = validated_data.get('term_id')
+        instructor_name = validated_data.get('instructor_name')
+        course_name = validated_data.get('course_name')
         
         # Prepare query parameters for course search
         coursesQueryParams = {
@@ -65,9 +95,9 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         canvas_api = self.credential_manager.get_canvasapi_instance(request)
         try:
             # 1. Get all accessible accounts
-            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api, request.user.id)
+            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api, request.user.username)
             if not accessible_account_ids:
-                logger.info(f"No accessible accounts found for admin user id {request.user.id}")
+                logger.info(f"No accessible accounts found for admin user {request.user.username} with id {request.user.id}")
                 return Response([], status=HTTPStatus.OK) # Return empty list if no accounts are accessible
             
             #2. Get courses by account, by search parameters and term_id
@@ -89,9 +119,9 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.error(f"Error retrieving admin sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
-    def _get_accessible_accounts(self, canvas_api, user_id) -> tuple[list[dict], dict[int, Account]]:
+    def _get_accessible_accounts(self, canvas_api, username) -> tuple[list[dict], dict[int, Account]]:
         # Retrieve all user accounts, filter to root accounts and subaccounts of unlisted accounts
-        logger.info(f"Retrieving accessible accounts for user {user_id}")
+        logger.info(f"Retrieving accessible accounts for user {username}")
         try:
             accounts = list(canvas_api.get_accounts())
             account_instance_map: dict[int, Account] = {account.id: account for account in accounts}
@@ -104,7 +134,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.info(f"Found {len(accessible_account_ids)} of {len(accounts)} accounts accessible to admin user")
             return accessible_account_ids, account_instance_map
         except (CanvasException, Exception) as e:
-            failed_input = f"user id {user_id}"
+            failed_input = f"username {username}"
             raise HTTPAPIError(failed_input, e)
         
     @async_to_sync
