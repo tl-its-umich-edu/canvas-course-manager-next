@@ -13,6 +13,8 @@ ALLOWED_ROLES = (
 # Maximum number of enrollments allowed in a single section enrollment request
 MAX_ALLOWED_ENROLLMENTS = 5000
 
+MAX_SEARCH_COURSES = 400
+
 ROLE_TO_ENROLLMENT_TYPE = {
     role: f"{role.capitalize()}Enrollment"
     for role in ALLOWED_ROLES
