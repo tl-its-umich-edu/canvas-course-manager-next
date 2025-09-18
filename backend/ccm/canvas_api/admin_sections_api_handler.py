@@ -14,7 +14,7 @@ from canvasapi.exceptions import CanvasException
 from canvasapi.account import Account
 from canvasapi.course import Course
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
+from backend.ccm.canvas_api.constants import MAX_CONCURRENCY, MAX_SEARCH_COURSES
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer, CanvasObjectROSerializer
 from backend.ccm.canvas_api.instructor_sections_api_handler import CanvasInstructorSectionsAPIHandler
@@ -72,7 +72,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         """
         serializer = AdminSectionsQuerySerializer(data=request.query_params)
         if not serializer.is_valid():
-            self.canvas_error.handle_serializer_errors(serializer.errors, f"{request.query_params}")
+            self.canvas_error.handle_serializer_errors(self.canvas_error.to_dict(), f"{request.query_params}")
             return Response(serializer.errors, status=self.canvas_error.to_dict().get('statusCode'))
         validated_data = serializer.validated_data
         term_id = validated_data.get('term_id')
@@ -95,7 +95,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         canvas_api = self.credential_manager.get_canvasapi_instance(request)
         try:
             # 1. Get all accessible accounts
-            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api, request.user.username)
+            accessible_account_ids, account_instance_map = self._get_accessible_accounts(canvas_api, request.user.username, course_name, instructor_name)
             if not accessible_account_ids:
                 logger.info(f"No accessible accounts found for admin user {request.user.username} with id {request.user.id}")
                 return Response([], status=HTTPStatus.OK) # Return empty list if no accounts are accessible
@@ -119,7 +119,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.error(f"Error retrieving admin sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
-    def _get_accessible_accounts(self, canvas_api, username) -> tuple[list[dict], dict[int, Account]]:
+    def _get_accessible_accounts(self, canvas_api, username, course_name, instructor_name) -> tuple[list[dict], dict[int, Account]]:
         # Retrieve all user accounts, filter to root accounts and subaccounts of unlisted accounts
         logger.info(f"Retrieving accessible accounts for user {username}")
         try:
@@ -134,7 +134,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.info(f"Found {len(accessible_account_ids)} of {len(accounts)} accounts accessible to admin user")
             return accessible_account_ids, account_instance_map
         except (CanvasException, Exception) as e:
-            failed_input = f"username {username}"
+            failed_input = f"username {username}, course_name {course_name}, instructor_name {instructor_name}"
             raise HTTPAPIError(failed_input, e)
         
     @async_to_sync
@@ -174,6 +174,12 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
         """ Synchronous helper to fetch and append courses from a given account. """
         try:
             account_courses = list(account.get_courses(**coursesQueryParams))
+            # Number of courses cannot exceed maxiumum
+            if len(account_courses) > MAX_SEARCH_COURSES:
+                relevantParams = {'by_teachers': coursesQueryParams.get('by_teachers'), 'search_term': coursesQueryParams.get('search_term')}
+                logger.error(f"Query with the following search term(s) returned too many course results: {relevantParams}")
+                raise Exception(f"Course search exceeded maximum of {MAX_SEARCH_COURSES} courses in account. Please refine your search.")
+
             course_instance_map.update({course.id: course for course in account_courses})
             serializer = CanvasObjectROSerializer(account_courses, allowed_fields=self.courses_allowed_fields, many=True)
             filtered_courses_data.extend(serializer.data)

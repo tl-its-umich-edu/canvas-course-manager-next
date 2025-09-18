@@ -10,6 +10,7 @@ from rest_framework.exceptions import ErrorDetail
 
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
+from backend.ccm.canvas_api.constants import MAX_SEARCH_COURSES
 
 def make_mock_section(section_data={}):
     """
@@ -120,8 +121,6 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
         self.assertEqual(resp_by_course_id[4]['sections'][0]['id'], section_4['id'])
         self.assertEqual(resp_by_course_id[4]['sections'][1]['id'], section_5['id'])
 
-
-    
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_get_admin_sections_by_course_name_success(self, mock_get_canvasapi_instance):
         section1 = {'id': 111, 'name': 'Section 1', 'course_id': 1, 'nonxlist_course_id': None, 'total_students': 10}
@@ -212,3 +211,18 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
         }
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(response.data, expected_dict)
+
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
+    def test_get_admin_sections_too_many_courses(self, mock_get_canvasapi_instance):
+        mock_canvas = mock_get_canvasapi_instance.return_value
+        courses = []
+        for i in range(MAX_SEARCH_COURSES + 1):
+            courses.append(make_mock_course(i, f'Course {i}', self.term_id, sections=[]))
+        account1 = make_mock_account(10, None, courses=courses)
+        mock_canvas.get_accounts.return_value = [account1]
+
+        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
+        
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertIn('Course search exceeded maximum', response.data['errors'][0]['message'])
+        self.assertIn('account id', response.data['errors'][0]['failedInput'])
