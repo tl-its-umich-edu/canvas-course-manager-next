@@ -54,8 +54,8 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
     def get(self, request: Request) -> Response:
         serializer = InstructorSectionsQuerySerializer(data=request.query_params)
         if not serializer.is_valid():
-            self.canvas_error.handle_serializer_errors(self.canvas_error.to_dict(), f"{request.query_params}")
-            return Response(serializer.errors, status=self.canvas_error.to_dict().get('statusCode'))
+            self.canvas_error.handle_serializer_errors(serializer.errors, f"{request.query_params}")
+            return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         term_id = serializer.validated_data.get('term_id')
 
         canvas_api = self.credential_manager.get_canvasapi_instance(request)

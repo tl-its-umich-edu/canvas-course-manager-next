@@ -102,10 +102,8 @@ class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-        serializer_errors = {
-            "term_id": [ErrorDetail(string="This field is required.", code="required")]
-        }
-        self.assertEqual(response.data, serializer_errors)
+        self.assertIn("term_id", response.data['errors'][0]['message'])
+        self.assertIn("This field is required.", response.data['errors'][0]['message'])
     
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_get_instructor_sections_no_courses(self, mock_get_canvasapi_instance):
