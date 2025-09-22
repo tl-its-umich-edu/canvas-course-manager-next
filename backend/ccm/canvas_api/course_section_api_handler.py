@@ -214,7 +214,7 @@ class CanvasMergeSectionsToCourseView(LoggingMixin, APIView):
             logger.debug(f"Merging section: {section_id} into course_id: {course_id}")
             section = Section(canvas_api._Canvas__requester, {'id': section_id})
             merged_section = section.cross_list_section(course_id)
-            logger.debug(f"Merged section: {merged_section}")
+            logger.debug(f"Successfully merged section: {merged_section}")
             return merged_section
         except (CanvasException, Exception) as e:
             failed_input = f"section_id {section_id} to course_id {course_id}"
@@ -243,7 +243,7 @@ class CanvasUnmergeSectionsView(LoggingMixin, APIView):
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
         section_ids: list[int] = serializer.validated_data['sectionIds']
-        logger.info(f"Unmerging {len(section_ids)} sections")
+        logger.info(f"Unmerging {len(section_ids)} section(s)")
         canvas_api: Canvas = self.credential_manager.get_canvasapi_instance(request)
 
         try:
@@ -252,11 +252,13 @@ class CanvasUnmergeSectionsView(LoggingMixin, APIView):
             if not unmerge_success:
                 self.canvas_error.handle_canvas_api_exceptions(unmerge_response)
                 return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
-            logger.info(f"Successfully unmerged {len(section_ids)} sections")
-            
+            logger.info(f"Successfully unmerged {len(section_ids)} section(s)")
+
+            serializer = CanvasObjectROSerializer(unmerge_response, allowed_fields=CanvasCourseSectionAPIHandler.base_course_section_allwed_fields, many=True)
+            return Response(serializer.data, status=HTTPStatus.OK)
         except (HTTPAPIError) as e:
             self.canvas_error.handle_canvas_api_exceptions(e)
-            logger.error(f"Error unmerging sections: {e}")
+            logger.error(f"Error unmerging section(s): {e}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
         
     @async_to_sync
@@ -288,24 +290,24 @@ class CanvasUnmergeSectionsView(LoggingMixin, APIView):
             logger.debug(f"Unmerging section: {section_id}")
             section = Section(canvas_api._Canvas__requester, {'id': section_id})
             unmerged_section = section.decross_list_section()
-            logger.debug(f"Unmerged section: {unmerged_section}")
+            logger.debug(f"Successfully unmerged section: {unmerged_section}")
             return unmerged_section
         except (CanvasException, Exception) as e:
             failed_input = f"section_id {section_id}"
             raise HTTPAPIError(failed_input, e)
     
 async def api_task_with_semaphore(
-        semaphore: asyncio.Semaphore, 
-        errors:list, 
-        sync_func: callable, 
-        *args, 
-        **kwargs):
+    semaphore: asyncio.Semaphore, 
+    errors: list, 
+    sync_func: callable, 
+    *args, 
+    **kwargs):
     """ 
     Run a synchronous function within a semaphore to limit concurrency,
     capturing errors in a separate list.
     """
     async with semaphore:
         try:
-            return await asyncio.to_thread(sync_func,*args, **kwargs)
+            return await asyncio.to_thread(sync_func, *args, **kwargs)
         except Exception as e:
             errors.append(e if isinstance(e, HTTPAPIError) else HTTPAPIError(str(args), e))
