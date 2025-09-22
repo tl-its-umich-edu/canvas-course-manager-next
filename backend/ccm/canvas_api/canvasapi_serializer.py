@@ -60,6 +60,20 @@ class MultiSectionEnrollRequestSerializer(serializers.Serializer, RoleValidation
     def validate(self, data):
         self.validate_roles(data.get('enrollments', []), item_type='enrollment')
         return data
+    
+class AdminSectionsQuerySerializer(serializers.Serializer):
+    term_id = serializers.CharField(required=True)
+    instructor_name = serializers.CharField(required=False, allow_null=True)
+    course_name = serializers.CharField(required=False, allow_null=True)
+
+    def validate(self, data):
+        # XOR: Only one of instructor_name or course_name must be provided, not both or neither
+        if not (data.get('instructor_name') is not None) ^ (data.get('course_name') is not None):
+            raise serializers.ValidationError("Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together.")
+        return data
+    
+class InstructorSectionsQuerySerializer(serializers.Serializer):
+    term_id = serializers.CharField(required=True)
 
 class CrosslistSectionsSerializer(serializers.Serializer):
     # used for validating both merge and unmerge requests
@@ -76,7 +90,6 @@ class CrosslistSectionsSerializer(serializers.Serializer):
         if len(sectionIds) != len(set(sectionIds)):
             raise serializers.ValidationError("Duplicate section IDs are not allowed.")
         return data
-
 
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """

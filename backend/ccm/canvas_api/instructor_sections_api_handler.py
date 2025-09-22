@@ -6,6 +6,8 @@ from rest_framework import authentication, permissions
 from rest_framework_tracking.mixins import LoggingMixin
 from rest_framework.response import Response
 from rest_framework.request import Request
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.course import Course
@@ -13,7 +15,7 @@ from asgiref.sync import async_to_sync
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, InstructorSectionsQuerySerializer
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.utils import timeit
 
@@ -28,16 +30,34 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
     courses_allowed_fields = {"id", "name", "enrollment_term_id"}
     sections_allowed_fields = {"id", "name", "course_id", "nonxlist_course_id", "total_students"}
+    serializer_class = InstructorSectionsQuerySerializer
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
-
+    
+    @extend_schema(
+        operation_id="get_instructor_sections",
+        summary="Get sections for instructor's courses",
+        description="Retrieve mergeable sections for all courses taught by the instructor user, filtered by term ID.",
+        parameters=[
+            OpenApiParameter(
+                name="term_id",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                required=True,
+                description="Canvas term ID to filter courses."
+            ),
+        ]
+    )
     def get(self, request: Request) -> Response:
-        term_id = request.query_params.get('term_id')
-        if not term_id:
-            return Response({"error": "Term ID is required as a parameter"}, status=HTTPStatus.BAD_REQUEST)
+        serializer = InstructorSectionsQuerySerializer(data=request.query_params)
+        if not serializer.is_valid():
+            self.canvas_error.handle_serializer_errors(serializer.errors, f"{request.query_params}")
+            return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
+        term_id = serializer.validated_data.get('term_id')
+
         canvas_api = self.credential_manager.get_canvasapi_instance(request)
         try:
             filtered_courses, course_instance_map = self._get_filtered_teacher_courses(canvas_api, term_id)
@@ -57,8 +77,8 @@ class CanvasInstructorSectionsAPIHandler(LoggingMixin, APIView):
         """Fetch and filter teacher courses by term_id and a map of the course instances. Returns (filtered_courses, course_instance_map)."""
         logger.info(f"Retrieving instructor courses for term_id: {term_id}")
         try:
-            courses = list(canvas_api.get_courses(enrollment_type='teacher'))
-            course_instance_map: dict[int, Course] = {course.id: course for course in courses}
+            courses = canvas_api.get_courses(enrollment_type='teacher')
+            course_instance_map: dict[int, Course] = {course.id: course for course in list(courses)}
             serializer = CanvasObjectROSerializer(courses, allowed_fields=self.courses_allowed_fields, many=True)
             filtered_courses: list[dict] = [course for course in serializer.data if course.get('enrollment_term_id') == int(term_id)]
             logger.info(f"Filtered to {len(filtered_courses)} courses for term_id {term_id}")

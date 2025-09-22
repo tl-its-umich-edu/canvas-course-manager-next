@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from rest_framework import status
 from canvasapi.exceptions import CanvasException
-
+from rest_framework.exceptions import ErrorDetail
 
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
@@ -25,16 +25,13 @@ def make_mock_section(section_data={}):
         mock_section.get.side_effect = section_data.get
     return mock_section
 
-def make_mock_course(id, name, enrollment_term_id, sections=[], raise_exception=False):
+def make_mock_course(course_data={}, sections=[], raise_exception=False):
     """
     Returns a MagicMock representing a Canvas Course, with a get_sections method.
     sections: list of MagicMock sections or dicts (will be wrapped)
     raise_exception: Exception to raise when get_sections is called
     """
     mock_course = MagicMock()
-    mock_course.id = id
-    mock_course.name = name
-    mock_course.enrollment_term_id = enrollment_term_id
     if raise_exception:
         mock_course.get_sections.side_effect = raise_exception
     else:
@@ -46,6 +43,13 @@ def make_mock_course(id, name, enrollment_term_id, sections=[], raise_exception=
             else:
                 section_objs.append(s)
         mock_course.get_sections.return_value = section_objs
+    if course_data:
+        for k, v in course_data.items():
+            setattr(mock_course, k, v)
+        # For serializer compatibility, support dict-like access
+        mock_course.__getitem__.side_effect = course_data.__getitem__
+        mock_course.get.side_effect = course_data.get
+
     return mock_course
 
 class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
@@ -64,14 +68,21 @@ class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
         section_2 = {'id': 112, 'name': 'Section 2', 'course_id': 1, 'nonxlist_course_id': None, 'total_students': 8}
         section_3 = {'id': 121, 'name': 'Section 2', 'course_id': 2, 'nonxlist_course_id': None, 'total_students': 12}
 
+        course_1 = {'id': 1, 'name': 'Course 1', 'enrollment_term_id': self.term_id}
+        course_2 = {'id': 2, 'name': 'Course 2', 'enrollment_term_id': self.term_id}
+        course_3 = {'id': 3, 'name': 'Course 3', 'enrollment_term_id': self.term_id}
+        course_4 = {'id': 4, 'name': 'Course 4', 'enrollment_term_id': 2}  # different term
+        
         # Only courses with matching term_id should be included
-        course1 = make_mock_course(1, 'Course 1', self.term_id, sections=[section_1, section_2])
-        course2 = make_mock_course(2, 'Course 2', self.term_id, sections=[section_3])
-        course3 = make_mock_course(3, 'Course 3', self.term_id, sections=[])  # no sections
-        course4 = make_mock_course(4, 'Course 4', 2, sections=[])  # different term
+        mock_canvas.get_courses.return_value = [
+            make_mock_course(course_1, sections=[section_1, section_2]),
+            make_mock_course(course_2, sections=[section_3]),
+            make_mock_course(course_3, sections=[]),  # no sections
+            make_mock_course(course_4, sections=[])  # different term
+        ]
 
-        mock_canvas.get_courses.return_value = [course1, course2, course3, course4]
         response = self.client.get(f'{self.url}?term_id={self.term_id}')
+        print("test success" + str(response))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
@@ -90,8 +101,9 @@ class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
         # Compose request without term_id
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"error": "Term ID is required as a parameter"})
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertIn("term_id", response.data['errors'][0]['message'])
+        self.assertIn("This field is required.", response.data['errors'][0]['message'])
     
     @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
     def test_get_instructor_sections_no_courses(self, mock_get_canvasapi_instance):
@@ -128,7 +140,7 @@ class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
         mock_canvas = mock_get_canvasapi_instance.return_value
 
         # Mock a course with an exception when getting sections
-        course1 = make_mock_course(1, 'Course 1', self.term_id, raise_exception=CanvasException('Canvas API error'))
+        course1 = make_mock_course({'id':1, 'name':'Course 1', 'enrollment_term_id':self.term_id}, raise_exception=CanvasException('Canvas API error'))
         mock_canvas.get_courses.return_value = [course1]
 
         response = self.client.get(f'{self.url}?term_id={self.term_id}')
@@ -143,5 +155,6 @@ class CanvasInstructorSectionsAPIHandlerTests(APITestCase):
                 }
             ]
         }
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(response.data, expected_dict)

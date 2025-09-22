@@ -221,3 +221,42 @@ class CrosslistSectionsSerializerTests(SimpleTestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("sectionIds", serializer.errors)
         self.assertIn("This list may not be empty.", str(serializer.errors["sectionIds"]))
+class AdminSectionsAPISerializerTests(SimpleTestCase):
+    def test_admin_sections_query_serializer_valid(self):
+        from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer
+        payload = {"term_id": "100", "course_name": "Biology 101"}
+        serializer = AdminSectionsQuerySerializer(data=payload)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data["term_id"], "100")
+        self.assertEqual(serializer.validated_data["course_name"], "Biology 101")
+
+    def test_admin_sections_query_instructor_name(self):
+        from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer
+        payload = {"term_id": "100", "instructor_name": "Smith"}
+        serializer = AdminSectionsQuerySerializer(data=payload)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data["term_id"], "100")
+        self.assertEqual(serializer.validated_data["instructor_name"], "Smith")
+
+    def test_admin_sections_query_serializer_missing_term_id(self):
+        from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer
+        serializer = AdminSectionsQuerySerializer(data={})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("term_id", serializer.errors)
+        self.assertIn("This field is required.", str(serializer.errors["term_id"]))
+    
+    def test_admin_sections_query_serializer_both_search_params(self):
+        from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer
+        payload = {"term_id": "100", "course_name": "Biology 101", "instructor_name": "Smith"}
+        serializer = AdminSectionsQuerySerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
+        self.assertIn("Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together.", str(serializer.errors["non_field_errors"]))
+    
+    def test_admin_sections_query_serializer_neither_search_param(self):
+        from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer
+        payload = {"term_id": "100"}
+        serializer = AdminSectionsQuerySerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
+        self.assertIn("Provide either 'instructor_name' or 'course_name' as a parameter. Both cannot be provided together.", str(serializer.errors["non_field_errors"]))
