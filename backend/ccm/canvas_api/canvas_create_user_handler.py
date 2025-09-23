@@ -69,7 +69,7 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         """
         Adds the 'invited' field to users with userCreated=True based on invitation results.
         """
-        invitation_results: bool | Exception = self.isExternalUsersInvitationSuccess(new_user_email_invitation_list)
+        invitation_results: bool | Exception = self.is_external_users_invitation_success(new_user_email_invitation_list)
         for user_data in external_user_response_outcome:
             if user_data.get('userCreated') is True:
                 if isinstance(invitation_results, Exception):

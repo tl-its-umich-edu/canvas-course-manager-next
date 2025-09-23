@@ -101,7 +101,7 @@ class CreateUserHandlerTests(TestCase):
         self.client.login(username='testuser', password='testpass')
 
     @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.create_users')
-    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.isExternalUsersInvitationSuccess')
+    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.is_external_users_invitation_success')
     def test_multiple_new_users_success(self, mock_invite_success, mock_create_users):
         # Mock user creation results
         mock_create_users.return_value = [
@@ -119,7 +119,7 @@ class CreateUserHandlerTests(TestCase):
         self.assertEqual(response.data, expected)
 
     @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.create_users')
-    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.isExternalUsersInvitationSuccess')
+    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.is_external_users_invitation_success')
     def test_new_and_existing_user_success(self, mock_invite_success, mock_create_users):
         # Mock user creation results: one fails (existing user), one succeeds
         from backend.ccm.canvas_api.canvas_create_user_handler import HTTPAPIError
@@ -146,7 +146,7 @@ class CreateUserHandlerTests(TestCase):
         self.assertEqual(response.data, expected)
 
     @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.create_users')
-    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.isExternalUsersInvitationSuccess')
+    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.is_external_users_invitation_success')
     def test_new_user_creating_all_failure(self, mock_invite_success, mock_create_users):
         from backend.ccm.canvas_api.canvas_create_user_handler import HTTPAPIError
         # Simulate all user creation failing with a generic exception
@@ -169,7 +169,7 @@ class CreateUserHandlerTests(TestCase):
         self.assertEqual(response.data, expected)
     
     @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.create_users')
-    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.isExternalUsersInvitationSuccess')
+    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.is_external_users_invitation_success')
     def test_invitation_failure_for_all_users_created(self, mock_invite_success, mock_create_users):
         # Mock user creation results: all succeed
         mock_create_users.return_value = [
@@ -195,7 +195,7 @@ class CreateUserHandlerTests(TestCase):
         self.assertEqual(response.data, expected)
     
     @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.create_users')
-    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.isExternalUsersInvitationSuccess')
+    @patch('backend.ccm.canvas_api.canvas_create_user_handler.CanvasCreateUserHandler.is_external_users_invitation_success')
     def test_mixed_user_creation_and_invitation_outcomes(self, mock_invite_success, mock_create_users):
         from backend.ccm.canvas_api.canvas_create_user_handler import HTTPAPIError
         # Simulate user creation results: one fails with exception, one fails as already exists, one succeeds
