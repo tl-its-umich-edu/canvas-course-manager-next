@@ -103,7 +103,7 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
                 })
         return external_user_data, new_user_email_invitation_list
 
-    def isExternalUsersInvitationSuccess(self, new_user_email_invitation_list: List[str]) -> bool | Exception:
+    def is_external_users_invitation_success(self, new_user_email_invitation_list: List[str]) -> bool | Exception:
         """
         The users who got successfully created is sent out an email invitation. This is run as
         background task. This can handle bulk sending email based on the request received
