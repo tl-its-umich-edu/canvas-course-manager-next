@@ -9,6 +9,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from typing import TypedDict, List
 from canvasapi import Canvas
+from canvasapi.account import Account
 from asgiref.sync import async_to_sync
 from canvasapi.exceptions import CanvasException
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
@@ -143,7 +144,8 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         email: str = user['email']
 
         try:
-          created_user = canvas_api.get_account(CANVAS_ROOT_ACCOUNT_ID).create_user(
+          account = Account(canvas_api._Canvas__requester, {'id': CANVAS_ROOT_ACCOUNT_ID})
+          created_user = account.create_user(
               user={
                   'name': fullName,
                   'sortable_name': sortableName,
