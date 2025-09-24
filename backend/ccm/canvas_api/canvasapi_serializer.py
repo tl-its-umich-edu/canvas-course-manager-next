@@ -151,3 +151,12 @@ class CanvasObjectROSerializer(serializers.BaseSerializer):
 # Serializer to validate login_id as an email address
 class LoginIdSerializer(serializers.Serializer):
     login_id = serializers.EmailField()
+
+# Serializer for validating external users payload
+class ExternalUserSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    givenName = serializers.CharField(max_length=255, required=True)
+    surname = serializers.CharField(max_length=255, required=True)
+
+class ExternalUsersRequestSerializer(serializers.Serializer):
+    users = ExternalUserSerializer(many=True, required=True)

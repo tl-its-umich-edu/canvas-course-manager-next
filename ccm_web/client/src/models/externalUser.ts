@@ -1,7 +1,7 @@
 import { APIErrorData, CanvasAPIErrorPayload, isCanvasAPIErrorPayload } from './models.js'
 import { hasKeys } from './typeUtils.js'
 
-interface CirrusErrorData {
+interface InvitationErrorData {
   statusCode: number
   messages: string[]
 }
@@ -42,7 +42,7 @@ interface ExternalUserCreationFailure extends ExternalUserResultBase {
 
 interface ExternalUserInvitationFailure extends ExternalUserResultBase {
   userCreated: true
-  invited: CirrusErrorData
+  invited: InvitationErrorData
 }
 
 export type ExternalUserFailure = ExternalUserCreationFailure | ExternalUserInvitationFailure
