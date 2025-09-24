@@ -10,13 +10,12 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from django_q.tasks import async_task
 from asgiref.sync import async_to_sync
-from datetime import timedelta
 
 from canvasapi.exceptions import CanvasException
 from canvasapi import Canvas
 from canvasapi.section import Section
 
-from backend.ccm.background_tasks.enroll_um_users_task import EnrollmentUser, gather_enrollments, sem_task
+from backend.ccm.background_tasks.enroll_um_users_task import EnrollmentUser
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, MultiSectionEnrollRequestSerializer, SingleSectionEnrollRequestSerializer
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY
 
@@ -136,29 +135,7 @@ class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
         self.credential_manager = credential_manager or CanvasCredentialManager()
         self.canvas_error = CanvasErrorHandler()
         super().__init__()
-
-    @extend_schema(
-        operation_id="single_section_enrollment",
-        summary="Enroll users in a single section",
-        description="Enroll one or more users in a specific Canvas section by section ID.",
-        request=SingleSectionEnrollRequestSerializer,
-        parameters=[
-            OpenApiParameter(
-                name="course_id",
-                type=OpenApiTypes.INT,
-                location=OpenApiParameter.PATH,
-                required=True,
-                description="Course ID for the section."
-            ),
-            OpenApiParameter(
-                name="section_id",
-                type=OpenApiTypes.INT,
-                location=OpenApiParameter.PATH,
-                required=True,
-                description="Section ID to enroll users into."
-            )
-        ],
-    )
+    
     @timeit
     def post(self, request: Request, section_id: int, course_id: int=None) -> Response:
         serializer: SingleSectionEnrollRequestSerializer = SingleSectionEnrollRequestSerializer(data=request.data)
@@ -190,8 +167,7 @@ class SingleSectionEnrollmentView(EnrollmentTaskMixin, LoggingMixin, APIView):
     
     @async_to_sync()
     async def gather_enrollments(self, enrollment_users, canvas_api):
-        max_concurrent = int(MAX_CONCURRENCY + 2)
-        semaphore = asyncio.Semaphore(max_concurrent)
+        semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
         tasks = [self.sem_task(semaphore, canvas_api, user) for user in enrollment_users]
         return await asyncio.gather(*tasks, return_exceptions=True)
 

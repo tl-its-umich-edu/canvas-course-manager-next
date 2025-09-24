@@ -112,9 +112,9 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         timestamp = datetime.now().strftime('%Y/%m/%d-%H:%M:%S-%f')
         task_name = f'external-user-email-{len(new_user_email_invitation_list)}-{timestamp}'
         try:
-          email_task_id = async_task('backend.ccm.background_tasks.send_email_non_umich_user_task.sending_emails', 
-                                    task_params=new_user_email_invitation_list, task_name=task_name)
-          logger.info(f"Async task for email sending initiated with task ID: {email_task_id}")
+        #   email_task_id = async_task('backend.ccm.background_tasks.send_email_non_umich_user_task.sending_emails', 
+        #                             task_params=new_user_email_invitation_list, task_name=task_name)
+        #   logger.info(f"Async task for email sending initiated with task ID: {email_task_id}")
           return True
         except Exception as e:
             logger.error(f"Failed to initiate email sending task: {e}")
@@ -127,7 +127,7 @@ class CanvasCreateUserHandler(LoggingMixin, APIView):
         return await asyncio.gather(*tasks, return_exceptions=True)
 
     async def create_user_concurrent_action(self, user: ExternalUserDict):
-        semaphore = asyncio.Semaphore(int(MAX_CONCURRENCY + 2))
+        semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
         try:
             async with semaphore:
                 return await asyncio.to_thread(self.create_user_sync, user)

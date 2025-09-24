@@ -41,7 +41,7 @@ def email_body() -> str:
         str: HTML content for the email body.
   """
   body = f"""
-  <p>You have been invited to access a University of Michigan's Canvas Learning Management System via Okta, our identity and access manager.</p>
+  <p>You have been invited to access the University of Michigan's Canvas Learning Management System.</p>
   <p>You will login with a UM Friend account with this email address. If you want to use a different email address with a UM Friend Account, please contact the course instructor.</p>
   <p>To create a new UM Friend account, or check if you already have an account, click the link below (or copy and paste it into a new browser window) and follow the instructions.</p>
   <p>For help with this message, please contact 4help@umich.edu or your instructor.</p>
