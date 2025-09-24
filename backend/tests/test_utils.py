@@ -108,13 +108,33 @@ class TestQClusterSettings(SimpleTestCase):
         self.assertEqual(q['bulk'], 42)
         self.assertEqual(q['max_attempts'], 7)
 
-class TestCustomCanvasRoles(SimpleTestCase):
+
+# Test for GUEST_ACCOUNT_CREATION_LINK in settings.py
+class TestGuestAccountCreationLink(SimpleTestCase):
     def setUp(self):
-        self.settings_path = 'backend.settings'
-        self.env_key = 'CUSTOM_CANVAS_ROLES'
+        self.env_key = 'GUEST_ACCOUNT_CREATION_LINK'
         self.old_env = os.environ.get(self.env_key)
         if self.env_key in os.environ:
             del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_default_guest_account_creation_link(self):
+        import importlib
+        import backend.settings as settings
+        importlib.reload(settings)
+        self.assertEqual(settings.GUEST_ACCOUNT_CREATION_LINK, 'https://friend.weblogin.umich.edu/friend/')
+
+    def test_env_override_guest_account_creation_link(self):
+        import importlib
+        import backend.settings as settings
+        os.environ[self.env_key] = 'https://custom-link.umich.edu/'
+        importlib.reload(settings)
+        self.assertEqual(settings.GUEST_ACCOUNT_CREATION_LINK, 'https://custom-link.umich.edu/')
 
 
 class TestCanvasAdminApiTokenLogging(SimpleTestCase):

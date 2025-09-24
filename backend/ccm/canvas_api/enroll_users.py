@@ -3,6 +3,7 @@ from canvasapi.section import Section
 from canvasapi.enrollment import Enrollment
 from canvasapi import Canvas
 from canvasapi.exceptions import CanvasException
+from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer
 
 from django.conf import settings
 from .constants import ROLE_TO_ENROLLMENT_TYPE
@@ -50,6 +51,9 @@ def enroll_user(canvasapi: Canvas, section_id: int, login_id: str, role: str):
             f"sections/{section_id}/enrollments",
             _kwargs=list(enrollment_params.items())
         )
-        return Enrollment(section._requester, response.json())
+        allowed_fields = ['id', 'course_id', 'course_section_id', 'user_id', 'type']
+        enrollment_result = Enrollment(section._requester, response.json())
+        serializer = CanvasObjectROSerializer(enrollment_result, allowed_fields=allowed_fields)
+        return serializer.data
     except (CanvasException, Exception) as e:
         raise

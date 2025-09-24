@@ -4,6 +4,16 @@ from canvasapi.exceptions import (BadRequest, Unauthorized, InvalidAccessToken, 
 from backend.ccm.canvas_api.exceptions import CanvasAccessTokenException
 
 class TestCanvasHTTPError(SimpleTestCase):
+    
+    def test_is_canvas_user_created_json_decode_error(self):
+        # Provide a non-JSON string as the error message
+        error = HTTPAPIError(
+            failed_input="bad_input",
+            original_exception=BadRequest("not a json string")
+        )
+        handler = CanvasErrorHandler()
+        # Should not raise, should return False
+        self.assertFalse(handler.is_canvas_user_created(error))
 
     def test_canvas_error_case(self):
         err_message = '{"errors":{"name":[{"attribute":"name","message":"is too long (maximum is 255 characters)","type":"too_long"}],"course_code":[{"attribute":"course_code","message":"is too long (maximum is 255 characters)","type":"too_long"}]}'
