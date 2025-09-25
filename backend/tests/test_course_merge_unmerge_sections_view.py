@@ -251,4 +251,5 @@ class CanvasCourseUnmergeSectionsViewTests(APITestCase):
         print(response.data)
         self.assertEqual(len(response.data['errors']), 1)
         self.assertEqual(response.data['errors'][0]['message'], 'Canvas API error during decross-listing')
-        self.assertIn('503', response.data['errors'][0]['failedInput'])
+        # side_effect could be in any order with async calls
+        self.assertIn('section_id ',response.data['errors'][0]['failedInput'])
