@@ -149,6 +149,7 @@ class CanvasMergeSectionsToCourseView(LoggingMixin, APIView):
     logging_methods = ['POST']
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CrosslistSectionsSerializer # Ensures Swagger UI recognizes it
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
@@ -227,6 +228,7 @@ class CanvasUnmergeSectionsView(LoggingMixin, APIView):
     logging_methods = ['DELETE']
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CrosslistSectionsSerializer # Ensures Swagger UI recognizes it
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
