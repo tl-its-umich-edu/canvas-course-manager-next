@@ -327,3 +327,5 @@ EMAIL_DEBUG = os.getenv('EMAIL_DEBUG', False)
 CANVAS_ADMIN_API_TOKEN = os.environ.get('CANVAS_ADMIN_API_TOKEN')
 if CANVAS_ADMIN_API_TOKEN is None or CANVAS_ADMIN_API_TOKEN == '':
     logging.error('CANVAS_ADMIN_API_TOKEN is not set in environment variables!')
+
+GUEST_ACCOUNT_CREATION_LINK = os.getenv('GUEST_ACCOUNT_CREATION_LINK', 'https://friend.weblogin.umich.edu/friend/')

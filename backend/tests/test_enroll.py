@@ -350,18 +350,25 @@ class TestEnrollUser(SimpleTestCase):
 
         # Mock response from Canvas API
         mock_response = MagicMock()
-        mock_response.json.return_value = {'id': 1, 'user_id': '304', 'enrollment_state': 'active' ,'role': 'student'}
+        mock_response.json.return_value = {
+            'id': 1,
+            'course_id': 10,
+            'course_section_id': 123,
+            'user_id': '304',
+            'type': 'StudentEnrollment'
+        }
         mock_requester.request.return_value = mock_response
 
         # Patch Enrollment to just return the dict for test
         with patch('backend.ccm.canvas_api.enroll_users.Enrollment', side_effect=lambda requester, data: data):
-            result = enroll_user(mock_canvas, section_id, login_id, role)
+            with patch('backend.ccm.canvas_api.enroll_users.CanvasObjectROSerializer', side_effect=lambda obj, allowed_fields=None: MagicMock(data=obj)):
+                result = enroll_user(mock_canvas, section_id, login_id, role)
+                print(result)
 
         # Assert
         mock_section.assert_called_once_with(mock_canvas._Canvas__requester, {'id': section_id})
         mock_requester.request.assert_called_once()
-        self.assertEqual(result['enrollment_state'], 'active')
-        self.assertEqual(result['role'], 'student')
+        self.assertEqual(result['type'], 'StudentEnrollment')
         self.assertIn('user_id', result)
 
     @patch('backend.ccm.canvas_api.enroll_users.Section')
@@ -403,7 +410,13 @@ class TestEnrollUser(SimpleTestCase):
 
         # Mock response from Canvas API
         mock_response = MagicMock()
-        mock_response.json.return_value = {'id': 2, 'user_id': '305', 'enrollment_state': 'active', 'role': 'Librarian'}
+        mock_response.json.return_value = {
+            'id': 2,
+            'course_id': 20,
+            'course_section_id': 456,
+            'user_id': '305',
+            'type': 'DesignerEnrollment'
+        }
         mock_requester.request.return_value = mock_response
 
         # Mock settings.CUSTOM_CANVAS_ROLES
@@ -411,12 +424,16 @@ class TestEnrollUser(SimpleTestCase):
 
         # Patch Enrollment to just return the dict for test
         with patch('backend.ccm.canvas_api.enroll_users.Enrollment', side_effect=lambda requester, data: data):
-            result = enroll_user(mock_canvas, section_id, login_id, role)
+            with patch('backend.ccm.canvas_api.enroll_users.CanvasObjectROSerializer', side_effect=lambda obj, allowed_fields=None: MagicMock(data=obj)):
+                result = enroll_user(mock_canvas, section_id, login_id, role)
+                print(result)
 
         # Assert
         mock_section.assert_called_once_with(mock_canvas._Canvas__requester, {'id': section_id})
         mock_requester.request.assert_called_once()
-        self.assertEqual(result['role'], 'Librarian')
+        self.assertTrue(result, "Result should not be empty")
+        self.assertIn('type', result, "Result should contain 'type' key")
+        self.assertEqual(result['type'], 'DesignerEnrollment')
         self.assertIn('user_id', result)
         # Ensure the custom role id was used
         called_kwargs = dict(mock_requester.request.call_args.kwargs['_kwargs'])

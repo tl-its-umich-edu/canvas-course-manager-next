@@ -4,7 +4,8 @@ from django.test import SimpleTestCase
 
 from backend.ccm.canvas_api.canvasapi_serializer import (
     CanvasObjectROSerializer, CourseSerializer,
-    SingleSectionEnrollRequestSerializer, MultiSectionEnrollRequestSerializer
+    SingleSectionEnrollRequestSerializer, MultiSectionEnrollRequestSerializer,
+    CrosslistSectionsSerializer
 )
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
 
@@ -193,6 +194,33 @@ class EnrollRequestSerializerTests(SimpleTestCase):
             self.assertIn("login_id", serializer.errors)
             self.assertIn("Enter a valid email address.", str(serializer.errors["login_id"]))
 
+class CrosslistSectionsSerializerTests(SimpleTestCase):
+    def test_crosslist_sections_valid(self):
+        payload = {"sectionIds": [1, 2, 3]}
+        serializer = CrosslistSectionsSerializer(data=payload)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data["sectionIds"], [1, 2, 3])
+
+    def test_crosslist_sections_too_many(self):
+        payload = {"sectionIds": list(range(1, 252))}
+        serializer = CrosslistSectionsSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
+        self.assertIn("No more than 250 section IDs can be merged at once.", str(serializer.errors["non_field_errors"]))
+
+    def test_crosslist_sections_duplicates(self):
+        payload = {"sectionIds": [1, 2, 2, 3]}
+        serializer = CrosslistSectionsSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("non_field_errors", serializer.errors)
+        self.assertIn("Duplicate section IDs are not allowed.", str(serializer.errors["non_field_errors"]))
+
+    def test_crosslist_sections_empty(self):
+        payload = {"sectionIds": []}
+        serializer = CrosslistSectionsSerializer(data=payload)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("sectionIds", serializer.errors)
+        self.assertIn("This list may not be empty.", str(serializer.errors["sectionIds"]))
 class AdminSectionsAPISerializerTests(SimpleTestCase):
     def test_admin_sections_query_serializer_valid(self):
         from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer

@@ -40,7 +40,7 @@ class CanvasUserHandler(LoggingMixin, APIView):
             serializer = CanvasObjectROSerializer(user_info, allowed_fields=self.user_allowed_fields, append_fields=append_fields)
             return Response(serializer.data, status=HTTPStatus.OK)
         except (CanvasException, Exception) as e:
-            self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(login_id), e))
+            self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(login_id), e), True)
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
       
 
