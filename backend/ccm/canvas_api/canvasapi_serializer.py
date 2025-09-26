@@ -74,7 +74,23 @@ class AdminSectionsQuerySerializer(serializers.Serializer):
     
 class InstructorSectionsQuerySerializer(serializers.Serializer):
     term_id = serializers.CharField(required=True)
-        
+
+class CrosslistSectionsSerializer(serializers.Serializer):
+    # used for validating both merge and unmerge requests
+
+    sectionIds = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        allow_empty=False,
+    )
+
+    def validate(self, data):
+        sectionIds = data.get('sectionIds', [])
+        if len(sectionIds) > 250:
+            raise serializers.ValidationError("No more than 250 section IDs can be merged at once.")
+        if len(sectionIds) != len(set(sectionIds)):
+            raise serializers.ValidationError("Duplicate section IDs are not allowed.")
+        return data
+
 class CanvasObjectROSerializer(serializers.BaseSerializer):
     """
     Serializer for generic Canvas objects from the Canvas API

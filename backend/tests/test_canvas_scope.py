@@ -10,6 +10,8 @@ class TestCanvasScope(SimpleTestCase):
             'url:PUT|/api/v1/courses/:id',
             'url:GET|/api/v1/courses/:course_id/sections',
             'url:POST|/api/v1/courses/:course_id/sections',
+            'url:POST|/api/v1/sections/:id/crosslist/:new_course_id',
+            'url:DELETE|/api/v1/sections/:id/crosslist',
             'url:GET|/api/v1/sections/:section_id/enrollments',
             'url:POST|/api/v1/sections/:section_id/enrollments',
             'url:GET|/api/v1/accounts',
