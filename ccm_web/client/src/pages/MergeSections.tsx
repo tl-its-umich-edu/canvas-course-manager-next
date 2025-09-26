@@ -296,10 +296,12 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>
         <Typography paragraph>
-          <strong>Caution!</strong> If you merge a section from a course that contains content, 
+           ⚠️ It is recommended to merge sections <i>before</i> the start of term. ⚠️
+        </Typography>
+        <Typography paragraph>
+          If you merge a section from a course that contains content, 
            submissions and grades, that content will <i>stay with the original course </i>
            once the section is merged, becoming inaccessible to teachers and students. 
-           It is recommended to merge sections <i>before</i> the start of term.
         </Typography>
       </div>
       {renderComponent()}
