@@ -50,9 +50,6 @@ class CCMLTILaunchView(LtiLaunchBaseView):
         if missing_keys:
             raise LTILaunchError(f"LTI custom variables `{', '.join(missing_keys)}` are missing in the `{self.LTI_CUSTOM_PARAMS_URL}` ")
     
-
-    
-    
     def login_user_from_lti(self, launch_data: TLaunchData) -> User:
         login_id: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('login_id')
         email: str = launch_data.get('email')
