@@ -15,7 +15,7 @@ class TestCanvasScope(SimpleTestCase):
             'url:GET|/api/v1/sections/:section_id/enrollments',
             'url:POST|/api/v1/sections/:section_id/enrollments',
             'url:GET|/api/v1/accounts',
-            'url:GET|/api/v1/accounts/:account_id/course',
+            'url:GET|/api/v1/accounts/:account_id/courses',
         ]
         self.assertEqual(DEFAUlT_CANVAS_SCOPES, expected_scopes, "Canvas scopes do not match the expected values")
 
