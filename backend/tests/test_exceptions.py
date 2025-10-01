@@ -30,7 +30,7 @@ class TestCanvasHTTPError(SimpleTestCase):
             "statusCode": 400,  # Default status code since Exception isn't in EXCEPTION_STATUS_MAP
             "errors": [
                 {
-                    "canvasStatusCode": 500,
+                    "canvasStatusCode": 400,
                     "message": err_message,
                     "failedInput": "403334"
                 }
