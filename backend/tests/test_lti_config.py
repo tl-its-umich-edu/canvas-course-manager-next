@@ -2,7 +2,7 @@ from django.test import SimpleTestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from unittest.mock import patch, MagicMock
-from backend.ccm.lti_config import CCMLTILaunchView, LTILaunchError
+from backend.ccm.lti_config import CCMLTILaunchView, LTILaunchError, LTINotAllowedRolesError
 import json
 
 class LTILaunchTests(SimpleTestCase):
@@ -52,3 +52,102 @@ class LTILaunchTests(SimpleTestCase):
         self.assertIn('course', request.session)
         self.assertEqual(request.session['course']['id'], 40001)
         self.assertEqual(request.session['course']['roles'], ['TeacherEnrollment', 'Account Admin'])
+        
+    def test_validate_user_roles_valid_role(self):
+        """Test that validation passes when user has a valid role"""
+        view = CCMLTILaunchView()
+        # Create a mock launch data with a valid role
+        mock_launch_data = {
+            view.LTI_CUSTOM_PARAMS_URL: {
+                'roles': 'Assistant'
+            }
+        }
+        
+        # This should not raise an exception
+        try:
+            view.validate_user_roles(mock_launch_data)
+            validation_passed = True
+        except LTINotAllowedRolesError:
+            validation_passed = False
+            
+        self.assertTrue(validation_passed, "Validation should pass with a valid role")
+    
+    def test_validate_invalid_role(self):
+        """Test that validation passes when user has a invalid role"""
+        view = CCMLTILaunchView()
+        # Create a mock launch data with a valid role
+        mock_launch_data = {
+            view.LTI_CUSTOM_PARAMS_URL: {
+                'roles': 'Grader'
+            }
+        }
+        
+        # This should not raise an exception
+        try:
+            view.validate_user_roles(mock_launch_data)
+            validation_passed = True
+        except LTINotAllowedRolesError:
+            validation_passed = False
+            
+        self.assertFalse(validation_passed, "Validation should fail with a valid role")
+    
+    def test_validate_valid_and_invalid_roles(self):
+        """Test that validation passes when user has a mix  of valid and invalid role"""
+        view = CCMLTILaunchView()
+        # Create a mock launch data with a valid role
+        mock_launch_data = {
+            view.LTI_CUSTOM_PARAMS_URL: {
+                'roles': 'Grader,TaEnrollment'
+            }
+        }
+        
+        # This should not raise an exception
+        try:
+            view.validate_user_roles(mock_launch_data)
+            validation_passed = True
+        except LTINotAllowedRolesError:
+            validation_passed = False
+            
+        self.assertTrue(validation_passed, "Validation should pass with a valid role")
+    
+    def test_validate_student_invalid_roles(self):
+        """Test that validation passes when user has a invalid role"""
+        view = CCMLTILaunchView()
+        # Create a mock launch data with a valid role
+        mock_launch_data = {
+            view.LTI_CUSTOM_PARAMS_URL: {
+                'roles': 'StudentEnrollment'
+            }
+        }
+        
+        # This should not raise an exception
+        try:
+            view.validate_user_roles(mock_launch_data)
+            validation_passed = True
+        except LTINotAllowedRolesError:
+            validation_passed = False
+            
+        self.assertFalse(validation_passed, "Validation should fail with a valid role")
+    
+    def test_validate_valid_roles(self):
+        """Test that validation passes when user has a valid role"""
+        view = CCMLTILaunchView()
+        # Create a mock launch data with a valid role
+        mock_launch_data = {
+            view.LTI_CUSTOM_PARAMS_URL: {
+                'roles': 'TeacherEnrollment,Account Admin'
+            }
+        }
+        
+        # This should not raise an exception
+        try:
+            view.validate_user_roles(mock_launch_data)
+            validation_passed = True
+        except LTINotAllowedRolesError:
+            validation_passed = False
+            
+        self.assertTrue(validation_passed, "Validation should pass with a valid role")
+        
+        
+
+            
