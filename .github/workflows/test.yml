@@ -71,6 +71,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pip install coverage
+          set -o pipefail
           coverage run --source=backend manage.py test | tee django-coverage.txt
           coverage report
           coverage xml -o cov.xml
