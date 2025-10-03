@@ -405,7 +405,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         Non-UM Users have been added to the selected section!
       </Typography>
       <Typography>
-        New users have also been added to Canvas and sent an email invitation to choose a login method.
+        New users have also been added to Canvas and sent an email invitation with instructions to create an account to login.
       </Typography>
       </>
     )

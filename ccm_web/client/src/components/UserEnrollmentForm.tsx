@@ -402,7 +402,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
   const renderSuccess = (result: ExternalEnrollmentSummary): JSX.Element => {
     const messageText = (
       result.createdAndInvited
-        ? 'The new user was added to Canvas, sent an email invitation to choose a login method, and'
+        ? 'The new user was added to Canvas, sent an email invitation with instructions to create an account to login, and'
         : 'The existing user was'
 
     ) + ' enrolled in the selected section!'
