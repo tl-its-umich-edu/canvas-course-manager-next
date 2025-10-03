@@ -102,8 +102,8 @@ class CCMLTILaunchView(LtiLaunchBaseView):
         
         # Check if user has at least one allowed role
         if not any(role in self.ALLOWED_LTI_ROLES for role in roles_list):
-            error_msg = f'To use Canvas Course Manager, you must launch the tool from a Canvas course in which you have a course management role.<br />'
-            error_msg += f'If you believe this message is in error, please contact 4help@umich.edu or visit https://its.umich.edu/help'
+            error_msg = 'To use Canvas Course Manager, you must launch the tool from a Canvas course in which you have a course management role.<br />'
+            error_msg += 'If you believe this message is in error, please contact 4help@umich.edu or visit https://its.umich.edu/help'
             raise LTINotAllowedRolesError(error_msg)
 
     def handle_resource_launch(self, request: HttpRequest, lti_launch: LtiLaunch) -> HttpResponseRedirect:
