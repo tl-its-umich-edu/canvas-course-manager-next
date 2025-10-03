@@ -19,11 +19,24 @@ class LTILaunchError(Exception):
     Exception class for errors that occur while processing data from the LTI launch
     """
 
+class LTINotAllowedRolesError(Exception):
+    """
+    Exception class for users with roles that are not allowed to access the tool
+    """
 
 class CCMLTILaunchView(LtiLaunchBaseView):
 
     LTI_CUSTOM_PARAMS: List[str] = ['roles', 'login_id', 'course_id']
     LTI_CUSTOM_PARAMS_URL: str = 'https://purl.imsglobal.org/spec/lti/claim/custom'
+    ALLOWED_LTI_ROLES = {
+    "Account Admin",
+    "Sub-Account Admin",
+    "Support Consultant",
+    "TeacherEnrollment",
+    "DesignerEnrollment",
+    "TaEnrollment",
+    "Assistant",
+    }
     
     def validate_custom_lti_launch_data(self, lti_launch: TLaunchData) -> None:
         if self.LTI_CUSTOM_PARAMS_URL not in lti_launch:
@@ -79,10 +92,25 @@ class CCMLTILaunchView(LtiLaunchBaseView):
         else:
             raise LTILaunchError(f'Course ID from LTI launch cannot be null.')
     
+    def validate_user_roles(self, launch_data: TLaunchData) -> None:
+        """
+        Validate if the user has at least one of the allowed LTI roles.
+        Raises an exception if the user has no allowed roles.
+        """
+        roles: str = launch_data[self.LTI_CUSTOM_PARAMS_URL].get('roles', '')
+        roles_list: List[str] = roles.split(',') if roles else []
+        
+        # Check if user has at least one allowed role
+        if not any(role in self.ALLOWED_LTI_ROLES for role in roles_list):
+            error_msg = 'To use Canvas Course Manager, you must launch the tool from a Canvas course in which you have a course management role.<br />'
+            error_msg += 'If you believe this message is in error, please contact 4help@umich.edu or visit https://its.umich.edu/help'
+            raise LTINotAllowedRolesError(error_msg)
+
     def handle_resource_launch(self, request: HttpRequest, lti_launch: LtiLaunch) -> HttpResponseRedirect:
         try:
             launch_data: TLaunchData = lti_launch.get_launch_data()
             self.validate_custom_lti_launch_data(launch_data)
+            self.validate_user_roles(launch_data)
             user_obj = self.login_user_from_lti(launch_data)
             self.login_user_store_session(request, launch_data, user_obj)
         except (LtiException, LTILaunchError, Exception) as e:
