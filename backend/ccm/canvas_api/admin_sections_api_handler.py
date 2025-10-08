@@ -15,7 +15,7 @@ from canvasapi.exceptions import CanvasException
 from canvasapi.account import Account
 from canvasapi.course import Course
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.constants import MAX_CONCURRENCY, MAX_SEARCH_COURSES
+from backend.ccm.canvas_api.constants import MAX_CONCURRENCY, MAX_SEARCH_COURSES, CANVAS_ROOT_ACCOUNT_ID
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer, CanvasObjectROSerializer
 
@@ -141,7 +141,11 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
                     account.parent_account_id is None 
                     or not(account.parent_account_id in account_instance_map)
             ]
-            logger.info(f"Found {len(accessible_account_ids)} of {len(accounts)} accounts accessible to admin user")
+            logger.info(f"Accessible account IDs: {accessible_account_ids}")
+            # If the canonical root account id 1 is accessible, prefer it and ignore others
+            if CANVAS_ROOT_ACCOUNT_ID in accessible_account_ids:
+                logger.info(f"Root account id {CANVAS_ROOT_ACCOUNT_ID} is accessible; restricting search to account {CANVAS_ROOT_ACCOUNT_ID} only")
+                return [CANVAS_ROOT_ACCOUNT_ID], account_instance_map
             return accessible_account_ids, account_instance_map
         except (CanvasException, Exception) as e:
             failed_input = f"username {username}, course_name {course_name}, instructor_name {instructor_name}"

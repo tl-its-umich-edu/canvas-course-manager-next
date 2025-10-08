@@ -281,3 +281,49 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
 
         # Ensure the underlying generator was consumed exactly the number of items it yielded
         self.assertEqual(counter['count'], num_courses)
+
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
+    def test_get_admin_sections_prefers_root_account(self, mock_get_canvasapi_instance):
+        """If CANVAS_ROOT_ACCOUNT_ID is present in accounts, only that account should be searched."""
+        mock_canvas = mock_get_canvasapi_instance.return_value
+
+        # course belonging to root account
+        root_course = make_mock_course(1001, 'Root Course', self.term_id, sections=[])
+        # course belonging to another account
+        other_course = make_mock_course(2002, 'Other Course', self.term_id, sections=[])
+
+        account_root = make_mock_account(1, None, courses=[root_course])
+        account_other = make_mock_account(2, None, courses=[other_course])
+
+        mock_canvas.get_accounts.return_value = [account_root, account_other]
+
+        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
+
+        # Should return only courses from the root account (id 1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Expect only the root course to be present
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], root_course.id)
+
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
+    def test_get_admin_sections_preserves_multiple_accounts(self, mock_get_canvasapi_instance):
+        """When multiple non-root accounts are accessible, courses from all accounts are returned."""
+        mock_canvas = mock_get_canvasapi_instance.return_value
+
+        # courses for two different non-root accounts
+        course_a = make_mock_course(1231, 'Course A', self.term_id, sections=[])
+        course_b = make_mock_course(2342, 'Course B', self.term_id, sections=[])
+
+        account_a = make_mock_account(123, None, courses=[course_a])
+        account_b = make_mock_account(234, None, courses=[course_b])
+
+        mock_canvas.get_accounts.return_value = [account_a, account_b]
+
+        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # both courses from both accounts should be present
+        returned_ids = {c['id'] for c in response.data}
+        self.assertIn(course_a.id, returned_ids)
+        self.assertIn(course_b.id, returned_ids)
+        self.assertEqual(len(response.data), 2)
