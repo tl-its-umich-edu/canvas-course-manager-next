@@ -9,6 +9,7 @@ from rest_framework.request import Request
 from asgiref.sync import async_to_sync
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from itertools import islice
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.account import Account
@@ -17,8 +18,6 @@ from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialMan
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY, MAX_SEARCH_COURSES
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer, CanvasObjectROSerializer
-from backend.ccm.canvas_api.instructor_sections_api_handler import CanvasInstructorSectionsAPIHandler
-from backend.ccm.utils import timeit
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +31,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
     courses_allowed_fields = {"id", "name", "enrollment_term_id"}
     sections_allowed_fields = {"id", "name", "course_id", "nonxlist_course_id", "total_students"}
     serializer_class = AdminSectionsQuerySerializer  # Ensures Swagger UI recognizes it
+    COURSE_LIMIT_ERROR_MESSAGE = 'Too many courses matched your search term; please refine your search.'
 
     def __init__(self, credential_manager=None):
         self.credential_manager = credential_manager or CanvasCredentialManager()
@@ -106,6 +106,11 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             if not courses_success:
                 self.canvas_error.handle_canvas_api_exceptions(courses_response)
                 return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
+
+            if len(courses_response) >= MAX_SEARCH_COURSES:
+                relevantParams: str = self._error_message_too_many_courses(coursesQueryParams)
+                self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(relevantParams, Exception(self.COURSE_LIMIT_ERROR_MESSAGE)))
+                return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
             
             #3. Attach sections to course results
             sections_success, sections_response = self._attach_sections_to_courses(courses_response, course_instance_map)
@@ -118,6 +123,11 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             self.canvas_error.handle_canvas_api_exceptions(e)
             logger.error(f"Error retrieving admin sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
+
+    def _error_message_too_many_courses(self, coursesQueryParams) -> str:
+        relevantParams = {'by_teachers': coursesQueryParams.get('by_teachers'), 'search_term': coursesQueryParams.get('search_term')}
+        logger.error(f"Query with the following search term(s) returned too many course results: {relevantParams}")
+        return str(relevantParams)
         
     def _get_accessible_accounts(self, canvas_api, username, course_name, instructor_name) -> tuple[list[dict], dict[int, Account]]:
         # Retrieve all user accounts, filter to root accounts and subaccounts of unlisted accounts
@@ -173,12 +183,14 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             account: Account):
         """ Synchronous helper to fetch and append courses from a given account. """
         try:
-            account_courses = list(account.get_courses(**coursesQueryParams))
+            logger.info(f"Retrieving courses from account id {account.id}")
+            account_courses = list(islice(account.get_courses(**coursesQueryParams), MAX_SEARCH_COURSES))
+            logger.info(f"Retrieved courses {len(account_courses)} courses from account id {account.id}")
+
             # Number of courses cannot exceed maxiumum
-            if len(account_courses) > MAX_SEARCH_COURSES:
-                relevantParams = {'by_teachers': coursesQueryParams.get('by_teachers'), 'search_term': coursesQueryParams.get('search_term')}
-                logger.error(f"Query with the following search term(s) returned too many course results: {relevantParams}")
-                raise Exception(f"Course search exceeded maximum of {MAX_SEARCH_COURSES} courses in account. Please refine your search.")
+            if len(account_courses) >= MAX_SEARCH_COURSES:
+                self._error_message_too_many_courses(coursesQueryParams)
+                raise Exception(self.COURSE_LIMIT_ERROR_MESSAGE)
 
             course_instance_map.update({course.id: course for course in account_courses})
             serializer = CanvasObjectROSerializer(account_courses, allowed_fields=self.courses_allowed_fields, many=True)

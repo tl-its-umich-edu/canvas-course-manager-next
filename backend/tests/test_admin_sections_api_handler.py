@@ -222,5 +222,62 @@ class CanvasAdminSectionsAPIHandlerTests(APITestCase):
         response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
         
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-        self.assertIn('Course search exceeded maximum', response.data['errors'][0]['message'])
+        self.assertIn('Too many courses matched your search term; please refine your search.', response.data['errors'][0]['message'])
         self.assertIn('account id', response.data['errors'][0]['failedInput'])
+
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
+    def test_get_admin_sections_pagination_stops(self, mock_get_canvasapi_instance):
+        """Ensure that islice limits consumption of the underlying iterator to MAX_SEARCH_COURSES."""
+        mock_canvas = mock_get_canvasapi_instance.return_value
+
+        counter = {'count': 0}
+
+        def course_generator():
+            # yield twice as many as the limit
+            for i in range(MAX_SEARCH_COURSES * 2):
+                counter['count'] += 1
+                # yield a course object compatible with the handler
+                yield make_mock_course(i, f'Course {i}', self.term_id, sections=[])
+
+        account1 = make_mock_account(10, None)
+        # return a fresh generator when get_courses is called
+        account1.get_courses.return_value = course_generator()
+        mock_canvas.get_accounts.return_value = [account1]
+
+        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
+        
+
+        # Handler currently raises when it sees >= MAX_SEARCH_COURSES, so expect an error response
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # But the underlying generator should have been advanced only up to the islice limit
+        self.assertEqual(counter['count'], MAX_SEARCH_COURSES)
+
+    @patch.object(CanvasCredentialManager, 'get_canvasapi_instance')
+    def test_get_admin_sections_pagination_not_stopped(self, mock_get_canvasapi_instance):
+        """If get_courses yields fewer than MAX_SEARCH_COURSES, handler returns success and
+        generator is fully consumed (no premature stop)."""
+        mock_canvas = mock_get_canvasapi_instance.return_value
+
+        counter = {'count': 0}
+        num_courses = MAX_SEARCH_COURSES - 1
+
+        def course_generator():
+            for i in range(num_courses):
+                counter['count'] += 1
+                yield make_mock_course(i, f'Course {i}', self.term_id, sections=[])
+
+        account1 = make_mock_account(10, None)
+        account1.get_courses.return_value = course_generator()
+        mock_canvas.get_accounts.return_value = [account1]
+
+        response = self.client.get(f'{self.url}?term_id={self.term_id}&instructor_name={self.instructor_name}')
+
+        # Expect success when results are below the threshold
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # The response should include all courses returned by the generator
+        self.assertEqual(len(response.data), num_courses)
+
+        # Ensure the underlying generator was consumed exactly the number of items it yielded
+        self.assertEqual(counter['count'], num_courses)
