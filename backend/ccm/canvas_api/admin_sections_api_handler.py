@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, time
 from http import HTTPStatus
 import logging
 from rest_framework import authentication, permissions
@@ -10,6 +10,7 @@ from asgiref.sync import async_to_sync
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from itertools import islice
+from datetime import timedelta
 
 from canvasapi.exceptions import CanvasException
 from canvasapi.account import Account
@@ -18,6 +19,7 @@ from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialMan
 from backend.ccm.canvas_api.constants import MAX_CONCURRENCY, MAX_SEARCH_COURSES, CANVAS_ROOT_ACCOUNT_ID
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from backend.ccm.canvas_api.canvasapi_serializer import AdminSectionsQuerySerializer, CanvasObjectROSerializer
+from backend.ccm.utils import timeit
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +68,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             )
         ],
     )
+    @timeit
     def get(self, request: Request) -> Response:
         """
         Get sections data from Canvas for admins.
@@ -102,18 +105,24 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             
             #2. Get courses by account, by search parameters and term_id
             course_instance_map = {}
+            start_time_course: float = time.perf_counter()
             courses_success, courses_response = self._get_courses(coursesQueryParams, course_instance_map, accessible_account_ids, account_instance_map)
+            logger.info(f"getting courses from all accounts: {accessible_account_ids} took {timedelta(seconds=(time.perf_counter() - start_time_course))} seconds")
+            
             if not courses_success:
                 self.canvas_error.handle_canvas_api_exceptions(courses_response)
                 return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
 
             if len(courses_response) >= MAX_SEARCH_COURSES:
-                relevantParams: str = self._error_message_too_many_courses(coursesQueryParams)
-                self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(relevantParams, Exception(self.COURSE_LIMIT_ERROR_MESSAGE)))
+                failed_input: str = self._failed_input_get_account_courses(coursesQueryParams)
+                self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(failed_input, Exception(self.COURSE_LIMIT_ERROR_MESSAGE)))
                 return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
             
             #3. Attach sections to course results
+            start_time_sections: float = time.perf_counter()
             sections_success, sections_response = self._attach_sections_to_courses(courses_response, course_instance_map)
+            logger.info(f"getting sections to courses {len(courses_response)} took {timedelta(seconds=(time.perf_counter() - start_time_sections))} seconds")
+            
             if not sections_success:
                 self.canvas_error.handle_canvas_api_exceptions(sections_response)
                 return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
@@ -124,11 +133,10 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             logger.error(f"Error retrieving admin sections for user id {request.user.id}")
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))
 
-    def _error_message_too_many_courses(self, coursesQueryParams) -> str:
-        relevantParams = {'by_teachers': coursesQueryParams.get('by_teachers'), 'search_term': coursesQueryParams.get('search_term')}
-        logger.error(f"Query with the following search term(s) returned too many course results: {relevantParams}")
-        return str(relevantParams)
-        
+    def _failed_input_get_account_courses(self, coursesQueryParams) -> str:
+        return str(coursesQueryParams.get('by_teachers') or coursesQueryParams.get('search_term') or 'No input search term provided')
+
+    @timeit
     def _get_accessible_accounts(self, canvas_api, username, course_name, instructor_name) -> tuple[list[dict], dict[int, Account]]:
         # Retrieve all user accounts, filter to root accounts and subaccounts of unlisted accounts
         logger.info(f"Retrieving accessible accounts for user {username}")
@@ -141,7 +149,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
                     account.parent_account_id is None 
                     or not(account.parent_account_id in account_instance_map)
             ]
-            logger.info(f"Accessible account IDs: {accessible_account_ids}")
+            logger.info(f"Accessible user: {username} account IDs: {accessible_account_ids}")
             # If the canonical root account id 1 is accessible, prefer it and ignore others
             if CANVAS_ROOT_ACCOUNT_ID in accessible_account_ids:
                 logger.info(f"Root account id {CANVAS_ROOT_ACCOUNT_ID} is accessible; restricting search to account {CANVAS_ROOT_ACCOUNT_ID} only")
@@ -175,9 +183,26 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             account_instance_map[account_id]
         ) for account_id in accessible_account_ids]
         await asyncio.gather(*tasks, return_exceptions=True)
-        
+
+        # Deduplicate errors to avoid reporting the same failure multiple times
+        errors = self._check_dups_error(errors)
+
         success = len(errors) == 0 # boolean to indicate if errors occurred
         return success, filtered_courses_data if success else errors
+
+    def _check_dups_error(self, errors):
+        """ Deduplicate errors based on failed_input and original_exception message. """
+        if errors:
+            deduped = []
+            seen = set()
+            for err in errors:
+                if isinstance(err, HTTPAPIError):
+                    key = (err.failed_input, str(err.original_exception))
+                if key not in seen:
+                    seen.add(key)
+                    deduped.append(err)
+            errors = deduped
+        return errors
         
     def _get_courses_by_account_sync(
             self, 
@@ -187,22 +212,22 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             account: Account):
         """ Synchronous helper to fetch and append courses from a given account. """
         try:
-            logger.info(f"Retrieving courses from account id {account.id}")
+            # set the local id you requested
+            start_time: float = time.perf_counter()
+            logger.debug(f"Retrieving courses for account: {account.id} at {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
             account_courses = list(islice(account.get_courses(**coursesQueryParams), MAX_SEARCH_COURSES))
-            logger.info(f"Retrieved courses {len(account_courses)} courses from account id {account.id}")
+            logger.debug(f"Retrieved courses {len(account_courses)} courses from account id {account.id}")
 
             # Number of courses cannot exceed maxiumum
             if len(account_courses) >= MAX_SEARCH_COURSES:
-                self._error_message_too_many_courses(coursesQueryParams)
                 raise Exception(self.COURSE_LIMIT_ERROR_MESSAGE)
 
             course_instance_map.update({course.id: course for course in account_courses})
             serializer = CanvasObjectROSerializer(account_courses, allowed_fields=self.courses_allowed_fields, many=True)
             filtered_courses_data.extend(serializer.data)
-            logger.info(f"Found {len(serializer.data)} courses in account id {account.id} matching search criteria")
+            logger.info(f"getting courses from account: {account.id} took {timedelta(seconds=(time.perf_counter() - start_time))} seconds")
         except (CanvasException, Exception) as e:
-            failed_input = f"account id {account.id} with params {coursesQueryParams}"
-            raise HTTPAPIError(failed_input, e)
+            raise HTTPAPIError(self._failed_input_get_account_courses(coursesQueryParams), e)
     
     @async_to_sync
     async def _attach_sections_to_courses(
@@ -235,7 +260,7 @@ class CanvasAdminSectionsAPIHandler(LoggingMixin, APIView):
             sections = course_instance.get_sections(include=['total_students'], per_page=100)
             section_serializer = CanvasObjectROSerializer(sections, allowed_fields=self.sections_allowed_fields, many=True)
             course['sections'] = section_serializer.data
-            logger.info(f"Attached {len(course['sections'])} sections to course_id {course.get('id')}")
+            logger.debug(f"Attached {len(course['sections'])} sections to course_id {course.get('id')}")
         except (CanvasException, Exception) as e:
             failed_input = f"course id {course.get('id')}"
             raise HTTPAPIError(failed_input, e)
