@@ -239,7 +239,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     const description = (
       'This tool will enroll non-UM users in the selected section. ' +
       'If they do not have an account in Canvas,  an account will be created for them and  ' +
-      'they will be sent an email invitation with instructions how to login before they are enrolled in the section.' +
+      'they will be sent an email invitation with instructions how to login before they are enrolled in the section. ' +
       'The maximum number of user enrollments allowed is 200.'
     )
     const roleLink = 'https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=192'
