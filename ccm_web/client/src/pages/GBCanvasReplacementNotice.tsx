@@ -34,7 +34,7 @@ function GBCanvasReplacementNotice (props: CCMComponentProps): JSX.Element {
           <b>This feature has been replaced by Canvas Letter Grades Import</b>
         </Typography>
         <Typography paragraph>
-          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the <Link href="https://wolverineaccess.umich.edu/" target='_blank' rel="noopener">Faculty Center's Grade Roster.</Link>
+          <strong>Canvas Letter Grades Import</strong> is a tool located directly in the <Link href="https://csprod.dsc.umich.edu/services/faculty/" target='_blank' rel="noopener">Faculty Business.</Link>
         </Typography>
         <Typography paragraph>
           You must format final grades in Canvas as letter grades (via the grading scheme) to use Canvas Letter Grades Import.
