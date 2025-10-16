@@ -200,6 +200,17 @@ class TestTimeZoneSetting(SimpleTestCase):
         importlib.reload(settings)
         self.assertEqual(settings.TIME_ZONE, 'UTC')
 
+    def test_time_zone_uses_tz_when_time_zone_unset(self):
+        # Ensure TIME_ZONE falls back to TZ env var when TIME_ZONE is not set
+        # Clear TIME_ZONE and set TZ
+        if 'TIME_ZONE' in os.environ:
+            del os.environ['TIME_ZONE']
+        os.environ['TZ'] = 'Asia/Tokyo'
+        importlib.reload(settings)
+        self.assertEqual(settings.TIME_ZONE, 'Asia/Tokyo')
+        # Clean up
+        del os.environ['TZ']
+
 
     # Tests for EMAIL_FROM and EMAIL_SUPPORT settings
     class TestEmailSettings(SimpleTestCase):

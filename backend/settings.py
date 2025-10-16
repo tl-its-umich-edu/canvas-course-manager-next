@@ -155,8 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = os.getenv('TIME_ZONE', 'America/Detroit')
-
+TIME_ZONE = os.getenv('TIME_ZONE', os.getenv("TZ", "America/Detroit"))
 USE_I18N = True
 
 USE_TZ = True
