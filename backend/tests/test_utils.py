@@ -178,6 +178,29 @@ class TestCanvasAdminApiTokenLogging(SimpleTestCase):
         self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
 
 
+class TestTimeZoneSetting(SimpleTestCase):
+    def setUp(self):
+        self.env_key = 'TIME_ZONE'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_time_zone_default(self):
+        importlib.reload(settings)
+        self.assertEqual(settings.TIME_ZONE, 'America/Detroit')
+
+    def test_time_zone_env_override(self):
+        os.environ['TIME_ZONE'] = 'UTC'
+        importlib.reload(settings)
+        self.assertEqual(settings.TIME_ZONE, 'UTC')
+
+
     # Tests for EMAIL_FROM and EMAIL_SUPPORT settings
     class TestEmailSettings(SimpleTestCase):
         def test_email_host_user_password_defaults(self):
