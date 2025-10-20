@@ -212,6 +212,28 @@ class TestTimeZoneSetting(SimpleTestCase):
         del os.environ['TZ']
 
 
+class TestEnableBackendSetting(SimpleTestCase):
+    def setUp(self):
+        self.env_key = 'ENABLE_BACKEND'
+        self.old_env = os.environ.get(self.env_key)
+        if self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def tearDown(self):
+        if self.old_env is not None:
+            os.environ[self.env_key] = self.old_env
+        elif self.env_key in os.environ:
+            del os.environ[self.env_key]
+
+    def test_enable_backend_default_false(self):
+        importlib.reload(settings)
+        self.assertFalse(getattr(settings, 'ENABLE_BACKEND', False))
+
+    def test_enable_backend_env_true(self):
+        os.environ[self.env_key] = 'True'
+        importlib.reload(settings)
+        self.assertTrue(getattr(settings, 'ENABLE_BACKEND', False))
+
     # Tests for EMAIL_FROM and EMAIL_SUPPORT settings
     class TestEmailSettings(SimpleTestCase):
         def test_email_host_user_password_defaults(self):
