@@ -18,11 +18,22 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from lti_tool.views import jwks, OIDCLoginInitView
-from backend.ccm.canvas_api.course_api_handler import CanvasCourseAPIHandler
 from backend.ccm.lti_config import CCMLTILaunchView
+from django.http import HttpResponseForbidden
 import watchman.views
 
 from backend import views
+
+def disabled_admin_login(request, *args, **kwargs):
+    return HttpResponseForbidden("View is disabled.")
+
+# Disable the Django admin login page by assigning the simple view directly.
+if not getattr(settings, "ENABLE_BACKEND", False):
+    # In normal deployments, disable the admin login page so the app doesn't expose admin url.
+    # For local load testing where you need the backend enabled set ENABLE_BACKEND=True
+    admin.site.login = disabled_admin_login
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -256,6 +256,9 @@ DEBUGPY_REMOTE_ADDRESS = os.getenv('DEBUGPY_REMOTE_ADDRESS', '0.0.0.0')
 DEBUGPY_REMOTE_PORT = os.getenv('DEBUGPY_REMOTE_PORT', 5678)
 DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER', False))
 
+# Enable backend routes for local load testing. Defaults to False in production.
+ENABLE_BACKEND = config_to_bool(os.getenv('ENABLE_BACKEND', False))
+
 # Watchman settings (https://github.com/mwarkentin/django-watchman)
 WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
 WATCHMAN_TOKEN_NAME = os.getenv('DJANGO_WATCHMAN_TOKEN_NAME', 'ccm-watchman-token')
