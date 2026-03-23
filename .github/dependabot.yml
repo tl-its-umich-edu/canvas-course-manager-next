@@ -23,7 +23,7 @@ updates:
         patterns: ["*"]
   # Maintain dependencies for npm
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/ccm-web/"
     schedule:
       interval: "weekly"
     groups:
