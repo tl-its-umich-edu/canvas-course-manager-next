@@ -188,8 +188,11 @@ class CanvasMergeSectionsToCourseView(LoggingMixin, APIView):
     @async_to_sync
     async def _merge_sections(self, canvas_api: Canvas, course_id: int, section_ids: list[int]):
         """
-        Merge sections to a course via Canvas API crosslist endpoint. 
-        Guarded by a semaphore for concurrency control
+        Merge sections to a course via the Canvas crosslist endpoint.
+
+        Uses a semaphore for bounded concurrency. If any task fails, returned
+        errors are collected in task-completion order, which is non-deterministic.
+        Returns a tuple of (success, results_or_errors).
         """
         max_concurrent = MAX_CONCURRENCY 
         semaphore = asyncio.Semaphore(max_concurrent)
@@ -266,8 +269,11 @@ class CanvasUnmergeSectionsView(LoggingMixin, APIView):
     @async_to_sync
     async def _unmerge_sections(self, canvas_api: Canvas, section_ids: list[int]):
         """
-        Unmerge sections via Canvas API un-crosslist endpoint. 
-        Guarded by a semaphore for concurrency control
+        Unmerge sections via the Canvas un-crosslist endpoint.
+
+        Uses a semaphore for bounded concurrency. If any task fails, returned
+        errors are collected in task-completion order, which is non-deterministic.
+        Returns a tuple of (success, results_or_errors).
         """
         max_concurrent = MAX_CONCURRENCY 
         semaphore = asyncio.Semaphore(max_concurrent)

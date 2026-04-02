@@ -1,6 +1,6 @@
 import unittest
 from django.test import SimpleTestCase
-from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from backend.ccm.canvas_scopes import DEFAULT_CANVAS_SCOPES
 
 class TestCanvasScope(SimpleTestCase):
     def test_canvas_scopes(self):
@@ -17,7 +17,7 @@ class TestCanvasScope(SimpleTestCase):
             'url:GET|/api/v1/accounts',
             'url:GET|/api/v1/accounts/:account_id/courses',
         ]
-        self.assertEqual(DEFAUlT_CANVAS_SCOPES, expected_scopes, "Canvas scopes do not match the expected values")
+        self.assertEqual(DEFAULT_CANVAS_SCOPES, expected_scopes, "Canvas scopes do not match the expected values")
 
 if __name__ == "__main__":
     unittest.main()

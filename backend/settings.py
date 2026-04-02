@@ -15,7 +15,7 @@ import os
 from django.core.management.utils import get_random_secret_key
 from csp.constants import UNSAFE_INLINE, UNSAFE_EVAL
 from backend.ccm.utils import parse_csp
-from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from backend.ccm.canvas_scopes import DEFAULT_CANVAS_SCOPES
 from datetime import timedelta
 import json
 import logging
@@ -278,7 +278,7 @@ except Exception:
 if isinstance((env_canvas_scopes := os.getenv('CANVAS_OAUTH_SCOPES')), str):
     CANVAS_OAUTH_SCOPES = env_canvas_scopes.split(',')
 else:
-    CANVAS_OAUTH_SCOPES = DEFAUlT_CANVAS_SCOPES
+    CANVAS_OAUTH_SCOPES = DEFAULT_CANVAS_SCOPES
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'backend.ccm.canvas_api.drf_custom_exception_handler.custom_exception_handler',

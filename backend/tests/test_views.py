@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from canvas_oauth.models import CanvasOAuth2Token
 from django.utils import timezone
-from backend.ccm.canvas_scopes import DEFAUlT_CANVAS_SCOPES
+from backend.ccm.canvas_scopes import DEFAULT_CANVAS_SCOPES
 from unittest import mock
 
 
@@ -38,7 +38,7 @@ class TestViews(TestCase):
         url_redirect = response.url
         self.assertIn('/login/oauth2/auth', url_redirect)
         self.assertIn('response_type=code', url_redirect)
-        scopes_encoded = '+'.join([scope.replace('|', '%7C').replace('/', '%2F').replace(':', '%3A') for scope in DEFAUlT_CANVAS_SCOPES])
+        scopes_encoded = '+'.join([scope.replace('|', '%7C').replace('/', '%2F').replace(':', '%3A') for scope in DEFAULT_CANVAS_SCOPES])
         self.assertIn(f'scope={scopes_encoded}', url_redirect)
 
     @mock.patch('webpack_loader.loader.WebpackLoader.get_bundle', return_value={})
