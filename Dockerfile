@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS node-build
+FROM node:20-trixie-slim AS node-build
 WORKDIR /build/
 
 COPY ccm_web .
@@ -6,7 +6,7 @@ RUN npm install
 
 RUN npm run build:ccm_web
 
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim-trixie
 
 COPY requirements.txt .
 RUN apt-get update && \
@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /code/ccm_web
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt install -y nodejs
+    apt install -y nodejs npm
 
 WORKDIR /code
 

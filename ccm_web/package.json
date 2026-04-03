@@ -7,8 +7,8 @@
     "node": ">=16"
   },
   "scripts": {
-    "watch": "node --loader ts-node/esm node_modules/.bin/webpack --config webpack/webpack.dev.ts --watch",
-    "build:ccm_web": "node --loader ts-node/esm node_modules/.bin/webpack  --config webpack/webpack.prod.ts"
+    "watch": "node --loader ts-node/esm ./node_modules/webpack/bin/webpack.js --config webpack/webpack.dev.ts --watch",
+    "build:ccm_web": "node --loader ts-node/esm ./node_modules/webpack/bin/webpack.js --config webpack/webpack.prod.ts"
   },
   "author": "",
   "license": "ISC",
@@ -53,7 +53,7 @@
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.4.5",
-    "webpack": "5.95.0",
+    "webpack": "^5.101.3",
     "webpack-cli": "5.1.4",
     "webpack-merge": "6.0.1"
   }
