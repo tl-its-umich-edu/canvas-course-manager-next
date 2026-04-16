@@ -1,4 +1,4 @@
-DEFAUlT_CANVAS_SCOPES = [
+DEFAULT_CANVAS_SCOPES = [
     # Courses
     'url:GET|/api/v1/courses',
     'url:GET|/api/v1/courses/:id',

@@ -130,10 +130,10 @@ class CanvasCourseMergeSectionsViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn('errors', response.data)
         self.assertEqual(len(response.data['errors']), 2)
-        self.assertEqual(response.data['errors'][0]['message'], 'Canvas API error during cross-listing')
-        self.assertIn('402', response.data['errors'][0]['failedInput'])
-        self.assertEqual(response.data['errors'][1]['message'], 'Canvas API error during cross-listing')
-        self.assertIn('403', response.data['errors'][1]['failedInput'])
+        self.assertTrue(all(error['message'] == 'Canvas API error during cross-listing' for error in response.data['errors']))
+        failed_inputs = [error['failedInput'] for error in response.data['errors']]
+        self.assertTrue(any('402' in failed_input for failed_input in failed_inputs))
+        self.assertTrue(any('403' in failed_input for failed_input in failed_inputs))
 
 
 class CanvasCourseUnmergeSectionsViewTests(APITestCase):
