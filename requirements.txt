@@ -5,7 +5,7 @@ uvicorn-worker==0.4.0
 mysqlclient==2.2.8
 
 #Django
-Django==5.2.12
+Django==5.2.13
 django-mysql==4.19.0
 django-webpack-loader==3.2.3  
 django-lti==0.9.2
@@ -25,7 +25,7 @@ servestatic==3.1.0
 redis==5.3.1 # For caching
 
 django-watchman==1.5.0 # For status monitoring
-canvasapi==3.5.0 # For Canvas API
+canvasapi==3.6.0 # For Canvas API
 
 django-q2==1.9.0
 # user for reloading django-q processes
