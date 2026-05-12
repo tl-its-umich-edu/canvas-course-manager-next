@@ -5,7 +5,7 @@ uvicorn-worker==0.4.0
 mysqlclient==2.2.8
 
 #Django
-Django==5.2.13
+Django==5.2.14
 django-mysql==4.19.0
 django-webpack-loader==3.2.3  
 django-lti==0.10.0
@@ -33,7 +33,7 @@ watchfiles==1.1.1
 # cluster monitoring https://django-q2.readthedocs.io/en/master/monitor.html
 blessed==1.39.0
 
-coverage==7.13.5
+coverage==7.14.0
 
 # Not in pypi https://github.com/Harvard-University-iCommons/django-canvas-oauth
 https://github.com/Harvard-University-iCommons/django-canvas-oauth/archive/v1.1.1.tar.gz
