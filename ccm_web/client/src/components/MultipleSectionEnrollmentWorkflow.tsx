@@ -247,7 +247,11 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             {
               props.sections.map((s, i) => (
                 <TableRow tabIndex={0} key={i}>
-                  <TableCell>{s.name}</TableCell>
+                  <TableCell>
+                    <div style={{ maxWidth: 400, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                      {s.name}
+                    </div>
+                  </TableCell>
                   <TableCell>{s.id}</TableCell>
                 </TableRow>
               ))
