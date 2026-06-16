@@ -127,7 +127,7 @@ class TestGuestAccountCreationLink(SimpleTestCase):
         import importlib
         import backend.settings as settings
         importlib.reload(settings)
-        self.assertEqual(settings.GUEST_ACCOUNT_CREATION_LINK, 'https://friend.weblogin.umich.edu/friend/')
+        self.assertEqual(settings.GUEST_ACCOUNT_CREATION_LINK, 'https://accounts.it.umich.edu/friend/')
 
     def test_env_override_guest_account_creation_link(self):
         import importlib
