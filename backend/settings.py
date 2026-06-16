@@ -106,6 +106,22 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
+def get_mysql_options() -> dict:
+    options = {
+        'charset': 'utf8mb4',
+    }
+    db_ssl_ca = os.getenv('DB_SSL_CA')
+    db_ssl_mode = os.getenv('DB_SSL_MODE', 'VERIFY_CA')
+
+    # Configure MySQL SSL only when a CA cert path is provided.
+    if db_ssl_ca:
+        options['ssl'] = {'ca': db_ssl_ca}
+        options['ssl_mode'] = db_ssl_mode
+    print(options)
+
+    return options
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -114,7 +130,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD', 'admin'),
         'HOST': os.getenv('DB_HOST', 'ccm_db'),
         'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {'charset': 'utf8mb4'},
+        'OPTIONS': get_mysql_options(),
         'TEST': {
             'NAME': 'test_ccm',
             'CHARSET': 'utf8mb4',
