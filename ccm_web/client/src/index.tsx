@@ -26,7 +26,6 @@ const ccmGlobals = Object.freeze(JSON.parse(ccmGlobalEl.textContent))
 
 const root = createRoot(document.getElementById('root') as Element)
 root.render(
-  <React.StrictMode>
    <StyledEngineProvider injectFirst>
      <ThemeProvider theme={ccmTheme}>
       <SnackbarProvider maxSnack={3}>
@@ -35,7 +34,7 @@ root.render(
           alwaysShow={ccmGlobals.environment === 'development'}
           mode={ccmGlobals.environment === 'development' ? 'dev' : 'prod'}
         >
-          <Router>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Routes>
               <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
               <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
@@ -46,5 +45,4 @@ root.render(
       </SnackbarProvider>
      </ThemeProvider>
    </StyledEngineProvider>
-  </React.StrictMode>
 )
