@@ -325,7 +325,7 @@ EMAIL_USE_TLS = True
 
 EMAIL_FROM = os.getenv('EMAIL_FROM', 'canvas-ccm-system@umich.edu')
 EMAIL_TO_REPLY = os.getenv('EMAIL_TO_REPLY', '4help@umich.edu')
-EMAIL_DEBUG = os.getenv('EMAIL_DEBUG', False)
+EMAIL_DEBUG = config_to_bool(os.getenv('EMAIL_DEBUG', False))
 
 # Email headers to suppress automatic replies (out-of-office, vacation, etc.)
 DEFAULT_EMAIL_EXTRA_HEADERS = {
