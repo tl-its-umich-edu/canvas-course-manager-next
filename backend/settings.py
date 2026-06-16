@@ -118,7 +118,6 @@ def get_mysql_options() -> dict:
     if db_ssl_ca:
         options['ssl'] = {'ca': db_ssl_ca}
         options['ssl_mode'] = db_ssl_mode
-    print(options)
 
     return options
 
