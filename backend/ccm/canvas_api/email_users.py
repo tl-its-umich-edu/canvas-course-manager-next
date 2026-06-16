@@ -37,7 +37,7 @@ def send_email(
         )
         email.content_subtype = "html"
         # Add headers to suppress automatic replies (out-of-office, vacation, etc.)
-        email.extra_headers = getattr(settings, 'EMAIL_EXTRA_HEADERS', {})
+        email.extra_headers = getattr(settings, 'EMAIL_EXTRA_HEADERS', {}) or {}
         if attachment:
             filename, content, mime_type = attachment
             email.attach(filename, content, mime_type)

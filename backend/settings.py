@@ -334,7 +334,9 @@ DEFAULT_EMAIL_EXTRA_HEADERS = {
     "Precedence": "bulk",                    # Legacy header for mail systems
 }
 try:
-    EMAIL_EXTRA_HEADERS = json.loads(os.getenv('EMAIL_EXTRA_HEADERS', json.dumps(DEFAULT_EMAIL_EXTRA_HEADERS)))
+    parsed_headers = json.loads(os.getenv('EMAIL_EXTRA_HEADERS', json.dumps(DEFAULT_EMAIL_EXTRA_HEADERS)))
+    # Ensure the parsed value is a dict, not a list, string, or other JSON type
+    EMAIL_EXTRA_HEADERS = parsed_headers if isinstance(parsed_headers, dict) else DEFAULT_EMAIL_EXTRA_HEADERS
 except Exception:
     EMAIL_EXTRA_HEADERS = DEFAULT_EMAIL_EXTRA_HEADERS
 
