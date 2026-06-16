@@ -235,7 +235,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     const tableCaption = `Names and Canvas IDs for the course's ${props.sections.length} sections`
     const sectionIdsTable = (
       <TableContainer className={classes.sectionIdTable}>
-        <Table stickyHeader>
+        <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
           <TableCaption text={tableCaption} />
           <TableHead>
             <TableRow>
@@ -247,12 +247,12 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
             {
               props.sections.map((s, i) => (
                 <TableRow tabIndex={0} key={i}>
-                  <TableCell>
-                    <div style={{ maxWidth: 400, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-                      {s.name}
-                    </div>
+                  <TableCell sx={{ wordBreak: 'break-word', width: '75%' }}>
+                    {s.name}
                   </TableCell>
-                  <TableCell>{s.id}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap', width: '25%' }}>
+                    {s.id}
+                  </TableCell>
                 </TableRow>
               ))
             }
