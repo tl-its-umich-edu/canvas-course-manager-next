@@ -108,11 +108,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 def get_mysql_options() -> dict:
+    """
+    Build database OPTIONS dict with conditional SSL support.
+    
+    SSL Configuration:
+    - DB_SSL_MODE: Values include 'REQUIRED', 'VERIFY_IDENTITY', 'VERIFY_CA', 'DISABLED', 'PREFERRED'
+    - DB_SSL_CA: Path to CA certificate (optional, used for verification)
+    """
     options = {
         'charset': 'utf8mb4',
     }
     db_ssl_ca = os.getenv('DB_SSL_CA')
-    db_ssl_mode = os.getenv('DB_SSL_MODE', 'VERIFY_CA')
+    db_ssl_mode = os.getenv('DB_SSL_MODE', 'REQUIRED')
 
     # Configure MySQL SSL only when a CA cert path is provided.
     if db_ssl_ca:
