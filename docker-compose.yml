@@ -30,7 +30,7 @@ services:
       - redis
 
   database:
-    image: mysql:8-oracle
+    image: mysql:8.4-oracle
     command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--socket=/tmp/mysql.sock']
     environment:
       - MYSQL_ROOT_PASSWORD=ccm_root_pw

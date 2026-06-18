@@ -13,7 +13,7 @@ jobs:
     runs-on:  'ubuntu-latest' 
     services:
       mysql:
-        image: mysql:8-oracle
+        image: mysql:8.4-oracle
         env:
           MYSQL_ROOT_PASSWORD: ccm_root_pw
           MYSQL_DATABASE: ccm
