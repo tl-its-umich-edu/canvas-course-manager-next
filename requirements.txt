@@ -33,7 +33,7 @@ watchfiles==1.2.0
 # cluster monitoring https://django-q2.readthedocs.io/en/master/monitor.html
 blessed==1.44.0
 
-coverage==7.14.1
+coverage==7.14.3
 
 # Not in pypi https://github.com/Harvard-University-iCommons/django-canvas-oauth
 https://github.com/Harvard-University-iCommons/django-canvas-oauth/archive/v1.1.1.tar.gz
