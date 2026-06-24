@@ -23,6 +23,7 @@ services:
     volumes:
       - ./ccm_web/client/src:/code/ccm_web/client/src
       - ./backend:/code/backend
+      - ./templates:/code/templates
       - ${HOME}/secrets/ccm:/secrets
     container_name: ccm_web
     depends_on:
