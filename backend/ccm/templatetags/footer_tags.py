@@ -1,15 +1,15 @@
 from django import template
-from django.template import Context, Engine
+import re
 from django.utils.safestring import mark_safe
 
 register = template.Library()
+CURRENT_YEAR_TOKEN_RE = re.compile(r"{{\s*current_year\s*}}")
 
 
 @register.filter
 def render_footer_template(content, current_year):
     if not content:
-        return ''
+        return ""
 
-    template_string = Engine.get_default().from_string(str(content))
-    rendered_content = template_string.render(Context({'current_year': current_year}))
+    rendered_content = CURRENT_YEAR_TOKEN_RE.sub(str(current_year), str(content))
     return mark_safe(rendered_content)
