@@ -284,7 +284,7 @@ DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER'
 ENABLE_BACKEND = config_to_bool(os.getenv('ENABLE_BACKEND', False))
 
 # Django sites framework setting used by django.contrib.flatpages.
-SITE_ID = int(os.getenv('SITE_ID', '1'))
+SITE_ID = 1
 
 # Watchman settings (https://github.com/mwarkentin/django-watchman)
 WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
