@@ -48,9 +48,11 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sites',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
     'webpack_loader',
     'watchman',
     'canvas_oauth.apps.CanvasOAuthConfig',
@@ -280,6 +282,9 @@ DEBUGPY_WAIT_FOR_DEBUGGER = config_to_bool(os.getenv('DEBUGPY_WAIT_FOR_DEBUGGER'
 
 # Enable backend routes for local load testing. Defaults to False in production.
 ENABLE_BACKEND = config_to_bool(os.getenv('ENABLE_BACKEND', False))
+
+# Django sites framework setting used by django.contrib.flatpages.
+SITE_ID = 1
 
 # Watchman settings (https://github.com/mwarkentin/django-watchman)
 WATCHMAN_TOKENS = os.getenv('DJANGO_WATCHMAN_TOKENS', None)
