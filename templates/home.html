@@ -1,4 +1,7 @@
 {% load render_bundle from webpack_loader %}
+{% load flatpages %}
+{% load footer_tags %}
+{% now "Y" as current_year %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,7 +11,19 @@
     <title>Canvas Course Manager</title>
   </head>
   <body>
+    {% get_flatpages '/banner/' as banner_pages %}
+    {% if banner_pages %}
+      <div id="flatpage-banner">
+        {{ banner_pages.0.content|safe }}
+      </div>
+    {% endif %}
     <div id="root"></div>
+    {% get_flatpages '/footer/' as footer_pages %}
+    <footer id="flatpage-footer">
+      {% if footer_pages %}
+        {{ footer_pages.0.content|render_footer_template:current_year }}
+      {% endif %}
+    </footer>
     {% render_bundle 'main' 'js' %}
   </body>
 </html>
