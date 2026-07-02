@@ -336,10 +336,11 @@ Q_CLUSTER = {
 }
 
 # Custom Canvas Roles
+DEFAULT_CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}
 try:
-    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', '{"assistant": 34, "librarian": 21}'))
+    CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', json.dumps(DEFAULT_CUSTOM_CANVAS_ROLES)))
 except Exception:
-    CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}
+    CUSTOM_CANVAS_ROLES = DEFAULT_CUSTOM_CANVAS_ROLES
 
 # Email settings
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
@@ -351,7 +352,20 @@ EMAIL_USE_TLS = True
 
 EMAIL_FROM = os.getenv('EMAIL_FROM', 'canvas-ccm-system@umich.edu')
 EMAIL_TO_REPLY = os.getenv('EMAIL_TO_REPLY', '4help@umich.edu')
-EMAIL_DEBUG = os.getenv('EMAIL_DEBUG', False)
+EMAIL_DEBUG = config_to_bool(os.getenv('EMAIL_DEBUG', False))
+
+# Email headers to suppress automatic replies (out-of-office, vacation, etc.)
+DEFAULT_EMAIL_EXTRA_HEADERS = {
+    "Auto-Submitted": "auto-generated",      # RFC 3834: Standard header for automated emails
+    "X-Auto-Response-Suppress": "All",       # Outlook/Exchange: Suppress all auto-replies
+    "Precedence": "bulk",                    # Legacy header for mail systems
+}
+try:
+    parsed_headers = json.loads(os.getenv('EMAIL_EXTRA_HEADERS', json.dumps(DEFAULT_EMAIL_EXTRA_HEADERS)))
+    # Ensure the parsed value is a dict, not a list, string, or other JSON type
+    EMAIL_EXTRA_HEADERS = parsed_headers if isinstance(parsed_headers, dict) else DEFAULT_EMAIL_EXTRA_HEADERS
+except Exception:
+    EMAIL_EXTRA_HEADERS = DEFAULT_EMAIL_EXTRA_HEADERS
 
 CANVAS_ADMIN_API_TOKEN = os.environ.get('CANVAS_ADMIN_API_TOKEN')
 if CANVAS_ADMIN_API_TOKEN is None or CANVAS_ADMIN_API_TOKEN == '':

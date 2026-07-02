@@ -58,3 +58,40 @@ class SendEmailTests(TestCase):
         email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
         self.assertEqual(mock_instance.content_subtype, "html")
         mock_logger.error.assert_called_once()
+
+    @override_settings(
+        EMAIL_FROM='from@example.com', 
+        EMAIL_TO_REPLY='reply@example.com',
+        EMAIL_EXTRA_HEADERS={
+            "Auto-Submitted": "auto-generated",
+            "X-Auto-Response-Suppress": "All",
+            "Precedence": "bulk",
+        }
+    )
+    @patch('backend.ccm.canvas_api.email_users.EmailMessage')
+    def test_send_email_includes_auto_reply_suppression_headers(self, mock_email_message):
+        mock_instance = MagicMock()
+        mock_email_message.return_value = mock_instance
+        email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
+        # Verify that extra_headers are set with auto-reply suppression headers
+        expected_headers = {
+            "Auto-Submitted": "auto-generated",
+            "X-Auto-Response-Suppress": "All",
+            "Precedence": "bulk",
+        }
+        self.assertEqual(mock_instance.extra_headers, expected_headers)
+        mock_instance.send.assert_called_once()
+
+    @override_settings(
+        EMAIL_FROM='from@example.com', 
+        EMAIL_TO_REPLY='reply@example.com',
+        EMAIL_EXTRA_HEADERS=None
+    )
+    @patch('backend.ccm.canvas_api.email_users.EmailMessage')
+    def test_send_email_handles_none_extra_headers(self, mock_email_message):
+        mock_instance = MagicMock()
+        mock_email_message.return_value = mock_instance
+        email_users.send_email('to@example.com', 'Test Subject', 'Test Body')
+        # Verify that extra_headers falls back to empty dict when None
+        self.assertEqual(mock_instance.extra_headers, {})
+        mock_instance.send.assert_called_once()
