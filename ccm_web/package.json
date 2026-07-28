@@ -48,12 +48,12 @@
     "eslint-plugin-react": "7.37.5",
     "mini-css-extract-plugin": "2.10.2",
     "style-loader": "4.0.0",
-    "ts-jest": "29.4.11",
+    "ts-jest": "29.4.12",
     "ts-loader": "9.6.2",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.9.3",
-    "webpack": "5.108.3",
+    "webpack": "5.109.1",
     "webpack-cli": "5.1.4",
     "webpack-merge": "6.0.1"
   }
