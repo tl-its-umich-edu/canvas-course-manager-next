@@ -9,7 +9,7 @@ const classes = {
   fileName: `${PREFIX}-fileName`
 }
 
-const Root = styled('h5')((
+const Root = styled('p')((
   {
     theme
   }
