@@ -339,8 +339,8 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           body={requirements}
           fileName='add_non_um_users.csv'
           fileData={fileData}
-          selectedSection={selectedSection}
         />
+        {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
           <Button variant='outlined' aria-label='Back to select section' onClick={handleBackClick}>Back</Button>

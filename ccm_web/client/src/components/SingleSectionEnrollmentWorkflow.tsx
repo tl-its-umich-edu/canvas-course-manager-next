@@ -97,7 +97,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
-      await api.addSingleSectionEnrollments(section.course_id,section.id, apiEnrollments)
+      await api.addSingleSectionEnrollments(section.course_id, section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
@@ -244,13 +244,13 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
         </Typography>
       ),
       fileData,
-      fileName: 'add_um_users.csv',
-      selectedSection: selectedSection
+      fileName: 'add_um_users.csv'
     }
 
     return (
       <div>
         <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
+        {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <FileUpload onUploadComplete={handleFile} />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button

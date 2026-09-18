@@ -3,8 +3,6 @@ import { styled } from '@mui/material/styles'
 import { Link, Typography } from '@mui/material'
 
 import { prepDownloadDataString } from '../utils/fileUtils.js'
-import { CanvasCourseSectionWithCourseName } from '../models/canvas.js'
-import SelectedSectionInfo from './SelectedSectionInfo.js'
 
 const PREFIX = 'ExampleFileDownloadHeader'
 
@@ -24,11 +22,10 @@ interface ExampleFileDownloadHeaderProps {
   description?: string
   fileData: string
   fileName: string
-  selectedSection?: CanvasCourseSectionWithCourseName
 }
 
 function ExampleFileDownloadHeader(props: ExampleFileDownloadHeaderProps): JSX.Element {
-  const { body, description, fileData, fileName, selectedSection } = props
+  const { body, description, fileData, fileName } = props
 
   return (
     <Root className={classes.uploadHeader}>
@@ -40,9 +37,6 @@ function ExampleFileDownloadHeader(props: ExampleFileDownloadHeaderProps): JSX.E
       <Link href={prepDownloadDataString(fileData)} download={fileName}>
         Download an example
       </Link>
-      {selectedSection !== undefined && (
-        <SelectedSectionInfo section={selectedSection} />
-      )}
     </Root>
   )
 }
