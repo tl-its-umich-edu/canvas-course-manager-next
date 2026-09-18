@@ -24,7 +24,7 @@ interface ExampleFileDownloadHeaderProps {
   fileName: string
 }
 
-function ExampleFileDownloadHeader(props: ExampleFileDownloadHeaderProps): JSX.Element {
+function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.Element {
   const { body, description, fileData, fileName } = props
 
   return (

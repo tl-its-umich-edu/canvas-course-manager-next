@@ -8,11 +8,7 @@ const classes = {
   sectionInfoContainer: `${PREFIX}-sectionInfoContainer`
 }
 
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
+const Root = styled('div')(() => ({
   [`&.${classes.sectionInfoContainer}`]: {
     marginTop: 15,
     marginBottom: 15,
