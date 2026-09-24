@@ -13,7 +13,7 @@ django-csp==4.0
 
 
 #Django Rest Framework
-djangorestframework==3.17.1
+djangorestframework==3.17.2
 django-filter==24.3
 drf-spectacular==0.29.0
 markdown==3.10.2
