@@ -170,7 +170,11 @@ const Root = styled('div')((
   },
 
   [`& .${classes.button}`]: {
-    margin: theme.spacing(1, 0)
+    margin: theme.spacing(1, 0),
+    borderWidth: '2px',
+    '&:hover': {
+      borderWidth: '2px',
+    },
   }
 }))
 
