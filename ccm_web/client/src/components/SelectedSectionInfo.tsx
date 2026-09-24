@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 import { CanvasCourseSectionWithCourseName } from '../models/canvas.js'
 
@@ -22,7 +22,7 @@ interface SelectedSectionInfoProps {
   section: CanvasCourseSectionWithCourseName
 }
 
-export default function SelectedSectionInfo (props: SelectedSectionInfoProps): JSX.Element {
+export default function SelectedSectionInfo(props: SelectedSectionInfoProps): JSX.Element {
   const { section } = props
 
   return (
