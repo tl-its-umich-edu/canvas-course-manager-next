@@ -459,7 +459,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   return (
     <Root>
       <Grid>
-        <Typography variant='h6' component='h3'>Add Multiple Users Through CSV</Typography>
+        <Typography variant='h6' component='h2'>Add Multiple Users Through CSV</Typography>
         <WorkflowStepper allSteps={Object(CSVWorkflowStep)} activeStep={activeStep} />
         <div>{renderActiveStep(activeStep)}</div>
       </Grid>

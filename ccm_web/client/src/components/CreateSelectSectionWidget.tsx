@@ -90,7 +90,7 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
           </div>
         )
       }
-      <Typography variant='subtitle1' className={classes.spacing}>
+      <Typography variant='subtitle1' component='h3' className={classes.spacing}>
         Select an existing section to add users to
       </Typography>
       <div className={classes.sectionSelectionContainer}>
