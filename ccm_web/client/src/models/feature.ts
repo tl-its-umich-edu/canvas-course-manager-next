@@ -22,15 +22,6 @@ const mergeSectionProps: FeatureDataProps = {
   helpURLEnding: '/merge-sections.html'
 }
 
-const formatCanvasGradebookProps: FeatureDataProps = {
-  id: 'FormatCanvasGradebook',
-  title: 'Format Canvas Gradebook',
-  description: 'Format the exported Canvas Gradebook CSV file for uploading into Faculty Center\'s Grade Roster',
-  ordinality: 2,
-  roles: [RoleEnum.Teacher, RoleEnum.TA, ...adminRoles],
-  helpURLEnding: '/gradebook-canvas.html'
-}
-
 const formatThirdPartyGradebookProps: FeatureDataProps = {
   id: 'FormatThirdPartyGradebook',
   title: 'Format Third\u2011Party Gradebook',
@@ -69,6 +60,6 @@ const addNonUMUsersProps: FeatureDataProps = {
 
 export type { FeatureDataProps }
 export {
-  mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
+  mergeSectionProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles, createSectionRoles, adminRoles
 }
