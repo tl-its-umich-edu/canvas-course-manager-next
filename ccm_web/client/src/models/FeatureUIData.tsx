@@ -90,9 +90,9 @@ const addNonUMUsersCardProps: FeatureUIProps = {
 }
 
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [formatThirdPartyGradebookCardProps] },
-  { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
-  { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
+  { id: 'Users', title: 'Users', ordinality: 1, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
+  { id: 'Sections', title: 'Sections', ordinality: 2, features: [mergeSectionCardProps, createSectionsCardProps] },
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 3, features: [formatThirdPartyGradebookCardProps] },
 ]
 
 const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[]): boolean => {
