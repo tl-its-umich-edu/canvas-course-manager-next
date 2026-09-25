@@ -34,6 +34,15 @@ const StyledRouterLink = styled(RouterLink)((
 
   [`&.${classes.cardLink}`]: {
     textDecoration: 'none'
+  },
+
+  // Focus-visible ring instead of a darkened background (darkening reduces text contrast further)
+  '& .MuiCardActionArea-root.Mui-focusVisible': {
+    outline: `3px solid ${theme.palette.primary.main}`,
+    outlineOffset: '-3px'
+  },
+  '& .MuiCardActionArea-root.Mui-focusVisible .MuiCardActionArea-focusHighlight': {
+    opacity: '0 !important'
   }
 }))
 
@@ -52,7 +61,8 @@ function FeatureCard (props: FeatureUIProps): JSX.Element {
                   <Typography className={classes.title} color='textPrimary' gutterBottom>
                     {props.data.title}
                   </Typography>
-                  <Typography variant='body2' color='textSecondary'>
+                  {/* Darker gray than the default textSecondary to meet 4.5:1 contrast on the #FAFAFA tile background */}
+                  <Typography variant='body2' sx={{ color: '#595959' }}>
                     {props.data.description}
                   </Typography>
                 </div>
