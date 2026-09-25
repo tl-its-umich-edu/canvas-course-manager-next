@@ -31,6 +31,7 @@ import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValida
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators.js'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
 import { getRowNumber } from '../utils/fileUtils.js'
+import SelectedSectionInfo from './SelectedSectionInfo.js'
 
 const PREFIX = 'SingleSectionEnrollmentWorkflow'
 
@@ -96,7 +97,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   const [doAddEnrollments, isAddEnrollmentsLoading, addEnrollmentsError, clearAddEnrollmentsError] = usePromise(
     async (section: CanvasCourseSectionWithCourseName, enrollments: RowNumberedAddEnrollment[]) => {
       const apiEnrollments = enrollments.map(e => ({ loginId: e.loginId, role: e.role }))
-      await api.addSingleSectionEnrollments(section.course_id,section.id, apiEnrollments)
+      await api.addSingleSectionEnrollments(section.course_id, section.id, apiEnrollments)
     },
     () => { setActiveStep(CSVWorkflowStep.Confirmation) }
   )
@@ -249,6 +250,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     return (
       <div>
         <ExampleFileDownloadHeader {...fileDownloadHeaderProps} />
+        {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <FileUpload onUploadComplete={handleFile} />
         <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
           <Button
@@ -271,6 +273,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
+        <SelectedSectionInfo section={section} />
         <Grid container>
             <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
               <BulkEnrollUMUserConfirmationTable enrollments={enrollments} />
