@@ -13,8 +13,6 @@ const Root = styled('div')(() => ({
   [`&.${classes.sectionInfoContainer}`]: {
     marginTop: 15,
     marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
     textAlign: 'left'
   }
 }))

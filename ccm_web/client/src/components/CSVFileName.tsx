@@ -16,8 +16,6 @@ const Root = styled('p')((
 ) => ({
   [`&.${classes.fileNameContainer}`]: {
     marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
     textAlign: 'left'
   },
 
@@ -31,7 +29,7 @@ interface CSVFileNameProps {
   file: File
 }
 
-export default function CSVFileName (props: CSVFileNameProps): JSX.Element {
+export default function CSVFileName(props: CSVFileNameProps): JSX.Element {
   return (
     <Root className={classes.fileNameContainer}>
       <Typography component='span'>File: </Typography>
