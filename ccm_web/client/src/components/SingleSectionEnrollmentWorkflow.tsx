@@ -208,6 +208,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <RowLevelErrorsContent
         table={<ValidationErrorTable invalidations={errors} />}
         title='Review your CSV file'
@@ -224,6 +225,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <ErrorAlert messages={errors} tryAgain={handleEnrollmentsReset} />
       </>
     )

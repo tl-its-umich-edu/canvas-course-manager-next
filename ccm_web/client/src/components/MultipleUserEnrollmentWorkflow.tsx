@@ -170,13 +170,20 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
     )
-    return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
+    return (
+    <>
+      {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
+      <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
+      </>
+    )
   }
 
   const renderRowValidationErrors = (errors: EnrollmentInvalidation[]): JSX.Element => {
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <RowLevelErrorsContent
         table={<ValidationErrorTable invalidations={errors} />}
         title='Review your CSV file'
@@ -388,6 +395,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <RowLevelErrorsContent
         table={<APIErrorsTable errors={errors} includeContext />}
         title='Some errors occurred'
