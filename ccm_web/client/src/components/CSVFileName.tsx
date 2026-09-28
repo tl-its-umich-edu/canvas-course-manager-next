@@ -29,7 +29,7 @@ interface CSVFileNameProps {
   file: File
 }
 
-export default function CSVFileName(props: CSVFileNameProps): JSX.Element {
+export default function CSVFileName (props: CSVFileNameProps): JSX.Element {
   return (
     <Root className={classes.fileNameContainer}>
       <Typography component='span'>File: </Typography>

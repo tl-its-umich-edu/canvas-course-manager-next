@@ -329,7 +329,12 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
         return getUploadContent()
       case CSVWorkflowStep.Review:
         if (addEnrollmentsError !== undefined) {
-          return <BulkApiErrorContent error={addEnrollmentsError} file={file} tryAgain={handleUploadReset} />
+          return <BulkApiErrorContent 
+            selectedSection={selectedSection} 
+            error={addEnrollmentsError} 
+            file={file} 
+            tryAgain={handleUploadReset} 
+          />
         }
         if (selectedSection !== undefined && enrollments !== undefined) {
           return renderConfirm(selectedSection, enrollments)
