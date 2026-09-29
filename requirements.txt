@@ -16,7 +16,7 @@ django-csp==4.0
 djangorestframework==3.18.1
 django-filter==24.3
 drf-spectacular==0.30.0
-markdown==3.10.3
+markdown==3.11
 drf-api-tracking==1.8.4
 
 debugpy==1.8.22 # For debugging
