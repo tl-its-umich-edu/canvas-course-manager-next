@@ -6,15 +6,18 @@ import CSVFileName from './CSVFileName.js'
 import ErrorAlert from './ErrorAlert.js'
 import RowLevelErrorsContent from './RowLevelErrorsContent.js'
 import { CanvasError } from '../utils/handleErrors.js'
+import SelectedSectionInfo from './SelectedSectionInfo.js'
+import { CanvasCourseSectionWithCourseName } from '../models/canvas.js'
 
 interface BulkApiErrorContentProps {
   error: Error
   file?: File
+  selectedSection?: CanvasCourseSectionWithCourseName | undefined
   tryAgain: () => void
 }
 
 export default function BulkApiErrorContent (props: BulkApiErrorContentProps): JSX.Element {
-  const { error, file, tryAgain } = props
+  const { error, file, selectedSection, tryAgain } = props
   const apiErrorMessage = (
     <Typography key={0}>The last action failed with the following message: {error.message}</Typography>
   )
@@ -23,6 +26,7 @@ export default function BulkApiErrorContent (props: BulkApiErrorContentProps): J
       ? (
           <>
           {file !== undefined && <CSVFileName file={file} />}
+          {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
           <RowLevelErrorsContent
             table={<APIErrorsTable errors={error.describeErrors()} />}
             title='Some errors occurred'

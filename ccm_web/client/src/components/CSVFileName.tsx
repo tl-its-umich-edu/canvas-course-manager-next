@@ -16,8 +16,6 @@ const Root = styled('p')((
 ) => ({
   [`&.${classes.fileNameContainer}`]: {
     marginBottom: 15,
-    paddingLeft: 10,
-    paddingRight: 10,
     textAlign: 'left'
   },
 
