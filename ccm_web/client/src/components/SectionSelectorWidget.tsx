@@ -9,30 +9,30 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
-  FormGroup,
   Grid,
-  GridSize,
   InputLabel,
   List,
   ListItemButton,
   ListItemText,
   Menu,
   MenuItem,
+  Popover,
   Select,
   SelectChangeEvent,
   TextField,
   Typography,
-  useMediaQuery,
   useTheme
 } from '@mui/material'
 import { Clear as ClearIcon } from '@mui/icons-material'
-import { Sort as SortIcon } from '@mui/icons-material'
+import { FilterList as FilterListIcon, Sort as SortIcon } from '@mui/icons-material'
 import { useDebounce } from '@react-hook/debounce'
 
 import APIErrorMessage from './APIErrorMessage.js'
 import { unmergeSections } from '../api.js'
 import usePromise from '../hooks/usePromise.js'
-import { CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort } from '../models/canvas.js'
+import {
+  CanvasCourseSectionBase, CanvasCourseSectionWithCourseName, ICanvasCourseSectionFilter, ICanvasCourseSectionSort
+} from '../models/canvas.js'
 import { ISectionSearcher } from '../utils/SectionSearcher.js'
 
 const PREFIX = 'SectionSelectorWidget'
@@ -115,10 +115,6 @@ const Root = styled('div')((
 
   [`& .${classes.title}`]: {
     textAlign: 'left',
-    display: 'flex',
-    justifyContent: 'center',
-    alignContent: 'center',
-    flexDirection: 'column'
   },
 
   [`& .${classes.srOnly}`]: {
@@ -174,8 +170,11 @@ const Root = styled('div')((
   },
 
   [`& .${classes.button}`]: {
-    margin: theme.spacing(1),
-    marginLeft: '24px',
+    margin: theme.spacing(1, 0),
+    borderWidth: '2px',
+    '&:hover': {
+      borderWidth: '2px',
+    },
   }
 }))
 
@@ -191,10 +190,11 @@ interface ISectionSelectorWidgetProps {
   selectionUpdated: (sections: SelectableCanvasCourseSection[]) => void
   search: ISectionSearcher[]
   showCourseName?: boolean
-  action?: {text: string, cb: () => void, disabled: boolean}
+  action?: { text: string, cb: () => void, disabled: boolean }
   header?: {
     title: string
-    sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string}>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
+    sort?: { sorters: Array<{ func: ICanvasCourseSectionSort, text: string }>, sortChanged: (currentSort: ICanvasCourseSectionSort) => void }
+    filter?: { func: ICanvasCourseSectionFilter, label: string, filterChanged?: (currentFilter: string) => void }
   }
   canUnmerge: boolean
   sectionsRemoved?: (sections: CanvasCourseSectionBase[]) => void
@@ -202,7 +202,7 @@ interface ISectionSelectorWidgetProps {
   isMergeContext?: boolean // prop to control styling
 }
 
-function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element {
+function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element {
   const theme = useTheme()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -215,8 +215,12 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const [searchFieldTextDebounced, setSearchFieldTextDebounced] = useDebounce<string | undefined>(undefined, 750)
 
   const [internalSections, setInternalSections] = useState<SelectableCanvasCourseSection[]>(props.sections)
-  const [isSelectAllChecked, setIsSelectAllChecked] = useState<boolean>(false)
   const [anchorSortEl, setAnchorSortEl] = useState<null | HTMLElement>(null)
+
+  // The filter text applied to the list; filterDraft is what the filter form is currently showing
+  const [filterText, setFilterText] = useState<string>('')
+  const [filterDraft, setFilterDraft] = useState<string>('')
+  const [anchorFilterEl, setAnchorFilterEl] = useState<null | HTMLElement>(null)
 
   const [searcher, setSearcher] = useState<ISectionSearcher | undefined>(props.search.length > 0 ? (props.search)[0] : undefined)
   const [searchFieldLabel, setSearchFieldLabel] = useState<string | undefined>(props.search.length > 0 ? (props.search)[0].helperText : undefined)
@@ -243,23 +247,18 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (searcher?.resetTitle !== undefined) searcher.resetTitle()
   }, [searcher])
 
-  const selectableSections = (): SelectableCanvasCourseSection[] => {
-    const s = props.sections.filter(s => { return !(s.locked ?? false) })
-    return s
-  }
+  const filter = props.header?.filter
+  // Filtering is a view concern, so the full list stays in internalSections
+  const displayedSections = filter !== undefined ? filter.func.filter(internalSections, filterText) : internalSections
+  const selectableSections = displayedSections.filter(s => { return !(s.locked ?? false) })
 
   useEffect(() => {
     setInternalSections(props.sections)
-    setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
   }, [props.sections])
 
   useEffect(() => {
     void init()
   }, [])
-
-  useEffect(() => {
-    setIsSelectAllChecked(selectableSections().length > 0 && props.selectedSections.length === selectableSections().length)
-  }, [props.selectedSections])
 
   const handleListItemClick = (
     sectionId: number
@@ -358,17 +357,17 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     return (
       <FormControl variant="standard" className={classes.searchEndAdnornment}>
         <InputLabel id="demo-simple-select-label">Search By</InputLabel>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={searcher?.name}
-        onChange={handleChange}
-      >
-        {(props.search).map((searcher, index) => {
-          return <MenuItem key={index} value={searcher.name}>{searcher.name}</MenuItem>
-        })}
-      </Select>
-    </FormControl>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={searcher?.name}
+          onChange={handleChange}
+        >
+          {(props.search).map((searcher, index) => {
+            return <MenuItem key={index} value={searcher.name}>{searcher.name}</MenuItem>
+          })}
+        </Select>
+      </FormControl>
     )
   }
 
@@ -376,22 +375,26 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     if (!hasText && props.search.length > 1) {
       return (getSearchTypeAdornment())
     } else if (searchFieldText.length > 0) {
-      return (<ClearIcon onClick={clearSearch}/>)
+      return (<ClearIcon onClick={clearSearch} />)
     } else {
       return (<></>)
     }
   }
 
+  // Select All only covers what is currently displayed, so sections hidden by the filter keep their selection
+  const isSelectAllChecked = selectableSections.length > 0 && selectableSections.every(s => isSectionSelected(s.id))
+
   const handleSelectAllClicked = (): void => {
-    setIsSelectAllChecked(!isSelectAllChecked)
-    props.selectionUpdated(!isSelectAllChecked ? props.sections.filter(s => { return !(s.locked ?? false) }) : [])
+    const displayedIds = new Set(selectableSections.map(s => s.id))
+    const hiddenSelections = props.selectedSections.filter(s => !displayedIds.has(s.id))
+    props.selectionUpdated(isSelectAllChecked ? hiddenSelections : hiddenSelections.concat(selectableSections))
   }
 
   const unmergeButton = (section: SelectableCanvasCourseSection): JSX.Element | undefined => {
     if (section.nonxlist_course_id !== null && props.canUnmerge && (section.locked ?? false)) {
       return (
         <Button
-          sx={{ pointerEvents: 'auto', marginTop: '8px'}}
+          sx={{ pointerEvents: 'auto', marginTop: '8px' }}
           color='primary'
           variant='contained'
           disabled={isUnmerging}
@@ -408,7 +411,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
 
   const listItemText = (section: SelectableCanvasCourseSection): JSX.Element => {
     const isSelected = isSectionSelected(section.id)
-    
+
     // use new styling if in merge context, otherwise use original styling
     if (props.isMergeContext === true) {
       return (
@@ -428,7 +431,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
             </React.Fragment>
           }
           secondary={
-            <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+            <Box component="span" sx={props.showCourseName === true ? { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } : undefined}>
               <Box component="span">{unmergeButton(section)}</Box>
               <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
             </Box>
@@ -448,7 +451,7 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
                   <span className={classes.overflowEllipsis}>{section.course_name}</span>
                 </Typography>
               )}
-              <Box component="span" sx={props.showCourseName === true ? { display:'flex', justifyContent:'space-between', alignItems:'center'} : undefined}>
+              <Box component="span" sx={props.showCourseName === true ? { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } : undefined}>
                 <Box component="span">{unmergeButton(section)}</Box>
                 <Box component="span">{`${section.total_students ?? '?'} students`}</Box>
               </Box>
@@ -462,10 +465,8 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const actionButton = (): JSX.Element | undefined => {
     if (props.action !== undefined) {
       return (
-      <Grid item {...gridSpacing.action}>
         <Button
           className={classes.button}
-          style={{ float: 'right' }}
           variant='contained'
           color='primary'
           onClick={props.action.cb}
@@ -473,7 +474,6 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
         >
           {props.action?.text}
         </Button>
-      </Grid>
       )
     }
   }
@@ -485,11 +485,29 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
   const handleSort = (event: React.MouseEvent<HTMLElement>, sorter: ICanvasCourseSectionSort): void => {
     setAnchorSortEl(null)
     props.header?.sort?.sortChanged(sorter)
-    setInternalSections(sorter.sort(internalSections))
+    // Copy so the sorted result is a new array reference and the displayed list is recalculated
+    setInternalSections(sorter.sort([...internalSections]))
   }
 
   const handleSortMenuClose = (): void => {
     setAnchorSortEl(null)
+  }
+
+  const handleFilterMenuClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    setFilterDraft(filterText)
+    setAnchorFilterEl(event.currentTarget)
+  }
+
+  const handleFilterMenuClose = (): void => {
+    setAnchorFilterEl(null)
+  }
+
+  const applyFilter = (text: string): void => {
+    setFilterDraft(text)
+    setFilterText(text)
+    filter?.filterChanged?.(text)
+    setAnchorFilterEl(null)
+    props.selectionUpdated([]) // Don't keep selections hidden by filter
   }
 
   /*
@@ -498,39 +516,44 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
     No header items
   Merge
     Instructor View
-      Title, Select All, Sort
+      Title, Select All, Sort, Filter
     Sub Account Admin
       Search ( Course Name )
-      Title, Select All, Sort
+      Title, Select All, Sort, Filter
     Service Center
       Search ( Course Name, Uniqname )
-      Title, Select All, Sort
+      Title, Select All, Sort, Filter
 */
 
-  const hasSort = (): boolean => {
-    return props.header?.sort !== undefined
-  }
-
-  const gridSpacing: Record<'title' | 'select all' | 'sort' | 'action', Record<'sm' | 'xs' | 'md', GridSize>> = {
-    title: { xs: 12, sm: 8, md: hasSort() ? 4 : 6 },
-    'select all': { xs: 4, sm: 4, md: 3 },
-    sort: { xs: 4, sm: 6, md: 2 },
-    action: { xs: hasSort() ? 4 : 8, sm: hasSort() ? 6 : 12, md: 3 }
+  const selectAllCheckbox = (): JSX.Element => {
+    return (
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={isSelectAllChecked}
+            onChange={handleSelectAllClicked}
+            name='selectAllUnstagedCB'
+            color='primary'
+          />
+        }
+        disabled={selectableSections.length === 0}
+        label='Select All'
+      />
+    )
   }
 
   const sortButton = (): JSX.Element | undefined => {
     if (props.header?.sort !== undefined && props.header.sort?.sorters.length > 0) {
       return (
-        <Grid item {...gridSpacing.sort}>
+        <>
           <Button
             className={classes.button}
-            style={{ float: 'left' }}
             aria-controls='simple-menu'
             aria-haspopup='true'
             onClick={handleSortMenuClick}
             disabled={internalSections.length < 2}
           >
-            <SortIcon/>Sort
+            <SortIcon />Sort
           </Button>
           <Menu
             id='simple-menu'
@@ -543,107 +566,150 @@ function SectionSelectorWidget (props: ISectionSelectorWidgetProps): JSX.Element
               return (<MenuItem key={index} onClick={(e) => { handleSort(e, sort.func) }}>{sort.text}</MenuItem>)
             })}
           </Menu>
-        </Grid>
+        </>
       )
     }
   }
 
-  const checkboxStyle = (): Record<string, unknown> => {
-    const xs = useMediaQuery(theme.breakpoints.up('xs'))
-    return { float: xs ? 'left' : 'right' }
+  const filterButton = (): JSX.Element | undefined => {
+    if (filter === undefined) return undefined
+    // The button is outlined while a filter is applied, making it clear the list is not showing everything
+    return (
+      <>
+        <Button
+          className={classes.button}
+          aria-controls='filter-menu'
+          aria-haspopup='true'
+          variant={filterText.length > 0 ? 'outlined' : 'text'}
+          onClick={handleFilterMenuClick}
+          disabled={internalSections.length === 0}
+        >
+          <FilterListIcon />Filter
+        </Button>
+        <Popover
+          id='filter-menu'
+          anchorEl={anchorFilterEl}
+          open={Boolean(anchorFilterEl)}
+          onClose={handleFilterMenuClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        >
+          <Box
+            component='form'
+            sx={{ padding: 2, width: '280px' }}
+            onSubmit={(event: React.FormEvent) => { event.preventDefault(); applyFilter(filterDraft) }}
+          >
+            <TextField
+              autoFocus
+              fullWidth
+              id='textField_Filter'
+              size='small'
+              label={filter.label}
+              variant='outlined'
+              value={filterDraft}
+              onChange={(event) => setFilterDraft(event.target.value)}
+              inputProps={{ maxLength: 256 }}
+            />
+            <Grid container justifyContent='flex-end' sx={{ marginTop: 1 }}>
+              <Button onClick={() => applyFilter('')} disabled={filterText.length === 0 && filterDraft.length === 0}>
+                Clear
+              </Button>
+              <Button type='submit' variant='contained' color='primary'>Apply</Button>
+            </Grid>
+          </Box>
+        </Popover>
+      </>
+    )
   }
+
+  const hasToolbar = props.multiSelect || props.header?.sort !== undefined || filter !== undefined || props.action !== undefined
 
   // Passing in the height in the props seems like the wrong solution, but wanted to move on from solving that for now
   return (
     <Root>
-    <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
-      {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
-    </span>
-    <Grid container>
-      <Grid className={classes.header} container item xs={12}>
-        {
-          searcher?.isInteractive === true && (
-            <Grid item container className={classes.searchContainer} xs={12}>
-              <TextField
-                className={classes.searchTextField}
-                disabled={isSearching || isIniting}
-                onChange={searchChange}
-                value={searchFieldText}
-                id='textField_Search'
-                size='small'
-                label={searchFieldLabel}
-                variant='outlined'
-                inputProps={{ maxLength: 256 }}
-                InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}
-              />
-            </Grid>
-          )
-        }
-        <Grid item container style={{ paddingLeft: '16px' }}>
+      <span aria-live='polite' aria-atomic='true' className={classes.srOnly}>
+        {props.selectedSections.length} {'section' + (props.selectedSections.length === 1 ? '' : 's')} selected
+        {filterText.length > 0 && `, ${displayedSections.length} of ${internalSections.length} sections shown for filter "${filterText}"`}
+      </span>
+      <Grid container>
+        <Grid className={classes.header} container item xs={12}>
+          {
+            searcher?.isInteractive === true && (
+              <Grid item container className={classes.searchContainer} xs={12}>
+                <TextField
+                  className={classes.searchTextField}
+                  disabled={isSearching || isIniting}
+                  onChange={searchChange}
+                  value={searchFieldText}
+                  id='textField_Search'
+                  size='small'
+                  label={searchFieldLabel}
+                  variant='outlined'
+                  inputProps={{ maxLength: 256 }}
+                  InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}
+                />
+              </Grid>
+            )
+          }
+          {
+            // The widget is about the same width at every breakpoint on Merge Sections, so the toolbar wraps by content instead
+            hasToolbar && (
+              <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', px: 2 }}>
+                {props.multiSelect && selectAllCheckbox()}
+                {sortButton()}
+                {filterButton()}
+                {/* Auto margin keeps the action right aligned even when it wraps onto its own line */}
+                <Box sx={{ ml: 'auto' }}>{actionButton()}</Box>
+              </Grid>
+            )
+          }
           {
             props.header?.title !== undefined && (
-              <Grid item {...gridSpacing.title} className={classes.title}>
+              <Grid item xs={12} sx={{ px: 2 }} className={classes.title}>
                 <Typography variant='h6' component='h2'>
                   {props.header.title}
-                  {props.selectedSections.length > 0 && <span> ({props.selectedSections.length})</span>}
+                  {props.selectedSections.length > 0 && <span> ({props.selectedSections.length} selected)</span>}
                 </Typography>
               </Grid>
             )
           }
+        </Grid>
+        <Grid item xs={12} className={classes.sectionSelectionContainer}>
+          <List className={classes.listContainer} style={{ maxHeight: props.height }} >
+            {displayedSections.map((section) => {
+              const isSelected = isSectionSelected(section.id)
+              return (
+                <ListItemButton
+                  key={section.id}
+                  divider
+                  disableGutters
+                  onClick={() => handleListItemClick(section.id)}
+                  selected={isSelected}
+                  disabled={section.locked}
+                  classes={{
+                    root: `${classes.listItemRoot} ${classes.listButton}`,
+                    focusVisible: classes.listButtonFocusVisible
+                  }}
+                  className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}>
+                  {listItemText(section)}
+                </ListItemButton>
+              )
+            })}
+          </List>
           {
-            props.multiSelect && (
-              <Grid item {...gridSpacing['select all']}>
-                <FormGroup row style={checkboxStyle()}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={isSelectAllChecked}
-                        onChange={handleSelectAllClicked}
-                        name='selectAllUnstagedCB'
-                        color='primary'
-                      />
-                    }
-                    disabled={selectableSections().length === 0}
-                    label='Select All'
-                  />
-                </FormGroup>
-              </Grid>
+            displayedSections.length === 0 && filterText.length > 0 && (
+              <Typography sx={{ padding: 2 }} color='textSecondary'>
+                No sections match &quot;{filterText}&quot;.
+              </Typography>
             )
           }
-          {sortButton()}
-          {actionButton()}
+          <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
+            <Grid container>
+              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
+              <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
+            </Grid>
+          </Backdrop>
         </Grid>
       </Grid>
-      <Grid item xs={12} className={classes.sectionSelectionContainer}>
-        <List className={classes.listContainer} style={{ maxHeight: props.height }} >
-          {internalSections.map((section) => {
-            const isSelected = isSectionSelected(section.id)
-            return (
-              <ListItemButton
-              key={section.id}
-              divider
-              disableGutters
-              onClick={() => handleListItemClick(section.id)}
-              selected={isSelected}
-              disabled={section.locked}
-              classes={{
-                root: `${classes.listItemRoot} ${classes.listButton}`,
-                focusVisible: classes.listButtonFocusVisible
-              }}
-              className={(section.locked !== true && props.highlightUnlocked === true) ? classes.highlighted : undefined}>
-                {listItemText(section)}
-              </ListItemButton>
-            )
-          })}
-      </List> 
-      <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
-          <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
-          </Grid>
-        </Backdrop>   
-      </Grid>
-    </Grid>
     </Root>
   )
 }
