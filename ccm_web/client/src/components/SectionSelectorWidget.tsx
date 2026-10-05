@@ -326,7 +326,7 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
 
   const [search, isSearching, searchError] = usePromise(async () => {
     if (searcher !== undefined) {
-      props.selectionUpdated([])
+      applyFilter('') // selections will clear
       if (sectionSearcherText !== undefined) {
         await searcher.search(sectionSearcherText)
       } else {
@@ -573,13 +573,19 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
 
   const filterButton = (): JSX.Element | undefined => {
     if (filter === undefined) return undefined
+    const menuId = 'filter-menu'
+    const triggerId = 'filter-button'
+    const open = Boolean(anchorFilterEl);
+
     // The button is outlined while a filter is applied, making it clear the list is not showing everything
     return (
       <>
         <Button
+          id={triggerId}
           className={classes.button}
-          aria-controls='filter-menu'
-          aria-haspopup='true'
+          aria-controls={open ? menuId : undefined}
+          aria-haspopup='dialog'
+          aria-expanded={open}
           variant={filterText.length > 0 ? 'outlined' : 'text'}
           onClick={handleFilterMenuClick}
           disabled={internalSections.length === 0}
@@ -587,11 +593,18 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
           <FilterListIcon />Filter
         </Button>
         <Popover
-          id='filter-menu'
+          id={menuId}
           anchorEl={anchorFilterEl}
-          open={Boolean(anchorFilterEl)}
+          open={open}
           onClose={handleFilterMenuClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          slotProps={{
+            paper: {
+              id: 'accessible-popover-container',
+              'aria-labelledby': triggerId,
+              role: 'dialog', // Defaults to presentation unless specified for content
+            },
+          }}
         >
           <Box
             component='form'
