@@ -575,7 +575,7 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
     if (filter === undefined) return undefined
     const menuId = 'filter-menu'
     const triggerId = 'filter-button'
-    const open = Boolean(anchorFilterEl);
+    const open = Boolean(anchorFilterEl)
 
     // The button is outlined while a filter is applied, making it clear the list is not showing everything
     return (
