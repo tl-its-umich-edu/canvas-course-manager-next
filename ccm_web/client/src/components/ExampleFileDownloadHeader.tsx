@@ -31,7 +31,7 @@ function ExampleFileDownloadHeader (props: ExampleFileDownloadHeaderProps): JSX.
     <Root className={classes.uploadHeader}>
       <Typography variant='h6' component='h2'>Upload your CSV file</Typography>
       {description !== undefined && <Typography>{props.description}</Typography>}
-      <br/>
+      <br />
       <Typography><strong>Requirement(s):</strong></Typography>
       {body}
       <Link href={prepDownloadDataString(fileData)} download={fileName}>
