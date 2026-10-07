@@ -17,6 +17,7 @@ import {
   Typography
 } from '@mui/material'
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material'
+import { useSnackbar } from 'notistack'
 
 import Accordion from './Accordion.js'
 import APIErrorMessage from './APIErrorMessage.js'
@@ -106,6 +107,7 @@ interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
+  const { enqueueSnackbar } = useSnackbar()
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
   const courseId = props.course.id
@@ -150,9 +152,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         setTimeout(() => setCopiedSectionId(undefined), 2000)
       })
       .catch(() => {
-        // Clipboard access failed; show confirmation anyway as best effort
-        setCopiedSectionId(sectionId)
-        setTimeout(() => setCopiedSectionId(undefined), 2000)
+        enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
+          variant: 'error'
+        })
       })
   }
 
