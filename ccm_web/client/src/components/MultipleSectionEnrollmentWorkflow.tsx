@@ -5,6 +5,7 @@ import {
   Button,
   CircularProgress,
   Grid,
+  IconButton,
   Link,
   Table,
   TableBody,
@@ -12,8 +13,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography
 } from '@mui/material'
+import { ContentCopy as ContentCopyIcon } from '@mui/icons-material'
 
 import Accordion from './Accordion.js'
 import APIErrorMessage from './APIErrorMessage.js'
@@ -106,10 +109,11 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
   const courseId = props.course.id
-  
+
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
+  const [copiedSectionId, setCopiedSectionId] = useState<number | undefined>(undefined)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -137,6 +141,13 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     clearAddEnrollmentsError()
     setWorkflowState(CSVWorkflowState.Upload)
     await props.doGetSections()
+  }
+
+  const handleCopySectionId = (sectionId: number): void => {
+    navigator.clipboard.writeText(String(sectionId)).then(() => {
+      setCopiedSectionId(sectionId)
+      setTimeout(() => setCopiedSectionId(undefined), 2000)
+    })
   }
 
   const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
@@ -246,12 +257,22 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <TableBody>
             {
               props.sections.map((s, i) => (
-                <TableRow tabIndex={0} key={i}>
+                <TableRow key={i}>
                   <TableCell sx={{ wordBreak: 'break-word', width: '75%' }}>
                     {s.name}
                   </TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', width: '25%' }}>
-                    {s.id}
+                  <TableCell sx={{ whiteSpace: 'nowrap', width: '25%', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <span>{s.id}</span>
+                    <Tooltip title={copiedSectionId === s.id ? 'Copied!' : 'Copy Section ID'}>
+                      <IconButton
+                        size='small'
+                        onClick={() => handleCopySectionId(s.id)}
+                        aria-label={`Copy Section ID ${s.id}`}
+                        sx={{ padding: '4px' }}
+                      >
+                        <ContentCopyIcon fontSize='small' />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))
