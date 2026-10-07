@@ -148,6 +148,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
   const handleCopySectionId = (sectionId: number): void => {
     const copyRequest = ++copyRequestRef.current
+    setCopiedSectionId(undefined)
 
     if (!navigator.clipboard) {
       enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
