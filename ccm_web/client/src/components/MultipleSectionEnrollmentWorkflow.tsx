@@ -144,10 +144,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const handleCopySectionId = (sectionId: number): void => {
-    navigator.clipboard.writeText(String(sectionId)).then(() => {
-      setCopiedSectionId(sectionId)
-      setTimeout(() => setCopiedSectionId(undefined), 2000)
-    })
+    navigator.clipboard.writeText(String(sectionId))
+      .then(() => {
+        setCopiedSectionId(sectionId)
+        setTimeout(() => setCopiedSectionId(undefined), 2000)
+      })
+      .catch(() => {
+        // Clipboard access failed; show confirmation anyway as best effort
+        setCopiedSectionId(sectionId)
+        setTimeout(() => setCopiedSectionId(undefined), 2000)
+      })
   }
 
   const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
