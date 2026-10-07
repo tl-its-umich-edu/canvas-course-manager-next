@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import {
   Backdrop,
@@ -116,6 +116,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
   const [copiedSectionId, setCopiedSectionId] = useState<number | undefined>(undefined)
+  const copyRequestRef = useRef(0)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -146,6 +147,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   }
 
   const handleCopySectionId = (sectionId: number): void => {
+    const copyRequest = ++copyRequestRef.current
+
     if (!navigator.clipboard) {
       enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
         variant: 'error'
@@ -155,10 +158,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
 
     navigator.clipboard.writeText(String(sectionId))
       .then(() => {
+        if (copyRequest !== copyRequestRef.current) return
+
         setCopiedSectionId(sectionId)
-        setTimeout(() => setCopiedSectionId(undefined), 2000)
+        setTimeout(() => {
+          if (copyRequest === copyRequestRef.current) setCopiedSectionId(undefined)
+        }, 2000)
       })
       .catch(() => {
+        if (copyRequest !== copyRequestRef.current) return
+
         enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
           variant: 'error'
         })
