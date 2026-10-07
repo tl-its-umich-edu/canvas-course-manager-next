@@ -261,18 +261,20 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
                   <TableCell sx={{ wordBreak: 'break-word', width: '75%' }}>
                     {s.name}
                   </TableCell>
-                  <TableCell sx={{ whiteSpace: 'nowrap', width: '25%', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span>{s.id}</span>
-                    <Tooltip title={copiedSectionId === s.id ? 'Copied!' : 'Copy Section ID'}>
-                      <IconButton
-                        size='small'
-                        onClick={() => handleCopySectionId(s.id)}
-                        aria-label={`Copy Section ID ${s.id}`}
-                        sx={{ padding: '4px' }}
-                      >
-                        <ContentCopyIcon fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
+                  <TableCell sx={{ whiteSpace: 'nowrap', width: '25%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>{s.id}</span>
+                      <Tooltip title={copiedSectionId === s.id ? 'Copied!' : 'Copy Section ID'}>
+                        <IconButton
+                          size='small'
+                          onClick={() => handleCopySectionId(s.id)}
+                          aria-label={`Copy Section ID ${s.id}`}
+                          sx={{ padding: '4px' }}
+                        >
+                          <ContentCopyIcon fontSize='small' />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
