@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import {
   Backdrop,
   Button,
   CircularProgress,
   Grid,
+  IconButton,
   Link,
   Table,
   TableBody,
@@ -12,8 +13,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography
 } from '@mui/material'
+import { ContentCopy as ContentCopyIcon } from '@mui/icons-material'
+import { useSnackbar } from 'notistack'
 
 import Accordion from './Accordion.js'
 import APIErrorMessage from './APIErrorMessage.js'
@@ -103,13 +107,16 @@ interface MultipleSectionEnrollmentWorkflowProps extends AddUMUsersLeafProps {
 }
 
 export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectionEnrollmentWorkflowProps): JSX.Element {
+  const { enqueueSnackbar } = useSnackbar()
   const parser = new FileParserWrapper()
   const sectionIds = props.sections.map(s => s.id)
   const courseId = props.course.id
-  
+
   const [workflowState, setWorkflowState] = useState<CSVWorkflowState>(CSVWorkflowState.Upload)
   const [file, setFile] = useState<File | undefined>(undefined)
   const [validEnrollments, setValidEnrollments] = useState<RowNumberedAddEnrollmentWithSectionId[] | undefined>(undefined)
+  const [copiedSectionId, setCopiedSectionId] = useState<number | undefined>(undefined)
+  const copyRequestRef = useRef(0)
 
   const [schemaInvalidations, setSchemaInvalidations] = useState<SchemaInvalidation[] | undefined>(undefined)
   const [rowInvalidations, setRowInvalidations] = useState<EnrollmentInvalidation[] | undefined>(undefined)
@@ -122,6 +129,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     },
     () => setWorkflowState(CSVWorkflowState.Confirmation)
   )
+
+  const [copiedAnnouncementText, setCopiedAnnouncementText] = useState('')
 
   const getSectionsErrorAlert = (
     <ErrorAlert
@@ -137,6 +146,40 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     clearAddEnrollmentsError()
     setWorkflowState(CSVWorkflowState.Upload)
     await props.doGetSections()
+  }
+
+  const handleCopySectionId = (sectionId: number): void => {
+    const copyRequest = ++copyRequestRef.current
+    setCopiedSectionId(undefined)
+    setCopiedAnnouncementText('')
+
+    if (!navigator.clipboard) {
+      enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
+        variant: 'error'
+      })
+      return
+    }
+
+    navigator.clipboard.writeText(String(sectionId))
+      .then(() => {
+        if (copyRequest !== copyRequestRef.current) return
+
+        setCopiedSectionId(sectionId)
+        setCopiedAnnouncementText(`Section ID ${sectionId} copied to clipboard`)
+        setTimeout(() => {
+          if (copyRequest === copyRequestRef.current) {
+            setCopiedSectionId(undefined)
+            setCopiedAnnouncementText('')
+          }
+        }, 2000)
+      })
+      .catch(() => {
+        if (copyRequest !== copyRequestRef.current) return
+
+        enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
+          variant: 'error'
+        })
+      })
   }
 
   const handleValidation = (headers: string[] | undefined, rowData: CSVRecord[]): void => {
@@ -246,12 +289,24 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <TableBody>
             {
               props.sections.map((s, i) => (
-                <TableRow tabIndex={0} key={i}>
+                <TableRow key={i}>
                   <TableCell sx={{ wordBreak: 'break-word', width: '75%' }}>
                     {s.name}
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap', width: '25%' }}>
-                    {s.id}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>{s.id}</span>
+                      <Tooltip title={copiedSectionId === s.id ? 'Copied!' : 'Copy Section ID'}>
+                        <IconButton
+                          size='small'
+                          onClick={() => handleCopySectionId(s.id)}
+                          aria-label={`Copy Section ID ${s.id}`}
+                          sx={{ padding: '4px' }}
+                        >
+                          <ContentCopyIcon fontSize='small' />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -366,6 +421,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   return (
     <Root>
     <Typography variant='h6' component='h2'>Add Users to Multiple Sections</Typography>
+    <div aria-live='polite' aria-atomic='true' style={{ position: 'absolute', left: '-10000px' }}>
+      {copiedAnnouncementText}
+    </div>
     {renderWorkflowState(workflowState)}
     </Root>
   )
