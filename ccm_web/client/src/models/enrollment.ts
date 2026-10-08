@@ -1,5 +1,7 @@
-import { ClientEnrollmentType } from './canvas.js'
+import { ClientEnrollmentType, levelThreeAddableRoles } from './canvas.js'
 import { CSVRecord } from '../utils/FileParserWrapper.js'
+
+export const ALLOWED_ENROLLMENT_ROLES = levelThreeAddableRoles
 
 interface RowNumberedData {
   rowNumber: number
