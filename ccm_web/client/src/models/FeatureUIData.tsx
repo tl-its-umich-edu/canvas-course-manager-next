@@ -1,21 +1,18 @@
 import React, { ComponentType } from 'react'
 import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@mui/icons-material'
-import { LibraryBooksOutlined as LibraryBooksOutlinedIcon } from '@mui/icons-material'
 import { MergeType as MergeTypeIcon } from '@mui/icons-material'
 import { PersonAdd as PersonAddIcon } from '@mui/icons-material'
 import { PersonAddOutlined as PersonAddOutlinedIcon } from '@mui/icons-material'
 import { PostAddOutlined as PostAddOutlinedIcon } from '@mui/icons-material'
 
 import {
-  FeatureDataProps, mergeSectionProps, formatCanvasGradebookProps, formatThirdPartyGradebookProps,
+  FeatureDataProps, mergeSectionProps, formatThirdPartyGradebookProps,
   createSectionsProps, addUMUsersProps, addNonUMUsersProps
 } from './feature.js'
 import AddNonUMUsers from '../pages/AddNonUMUsers.js'
 import AddUMUsers from '../pages/AddUMUsers.js'
 import BulkSectionCreate from '../pages/BulkSectionCreate.js'
 import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
-import ConvertCanvasGradebook from '../pages/GradebookCanvas.js'
-import GBCanvasReplacementNotice from '../pages/GBCanvasReplacementNotice.js'
 import MergeSections from '../pages/MergeSections.js'
 import { Globals, RoleEnum } from './models.js'
 import { CanvasCourseBase, CanvasCourseSectionWithCourseName, ClientEnrollmentType } from './canvas.js'
@@ -64,13 +61,6 @@ const mergeSectionCardProps: FeatureUIProps = {
   route: '/merge-sections'
 }
 
-const formatCanvasGradebookCardProps: FeatureUIProps = {
-  data: formatCanvasGradebookProps,
-  icon: <LibraryBooksOutlinedIcon fontSize='large' />,
-  component: GBCanvasReplacementNotice,
-  route: '/gradebook-canvas'
-}
-
 const formatThirdPartyGradebookCardProps: FeatureUIProps = {
   data: formatThirdPartyGradebookProps,
   icon: <PostAddOutlinedIcon fontSize='large' />,
@@ -100,9 +90,9 @@ const addNonUMUsersCardProps: FeatureUIProps = {
 }
 
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 1, features: [formatCanvasGradebookCardProps, formatThirdPartyGradebookCardProps] },
-  { id: 'Users', title: 'Users', ordinality: 2, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
-  { id: 'Sections', title: 'Sections', ordinality: 3, features: [mergeSectionCardProps, createSectionsCardProps] }
+  { id: 'Users', title: 'Users', ordinality: 1, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
+  { id: 'Sections', title: 'Sections', ordinality: 2, features: [mergeSectionCardProps, createSectionsCardProps] },
+  { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 3, features: [formatThirdPartyGradebookCardProps] },
 ]
 
 const isAuthorizedForRoles = (userRoles: RoleEnum[], requiredRoles: RoleEnum[]): boolean => {
