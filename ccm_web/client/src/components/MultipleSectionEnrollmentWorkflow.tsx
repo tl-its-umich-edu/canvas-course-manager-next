@@ -130,6 +130,8 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     () => setWorkflowState(CSVWorkflowState.Confirmation)
   )
 
+  const [copiedAnnouncementText, setCopiedAnnouncementText] = useState('')
+
   const getSectionsErrorAlert = (
     <ErrorAlert
       messages={[<APIErrorMessage key={0} context='loading section data' error={props.getSectionsError} />]}
@@ -149,6 +151,7 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   const handleCopySectionId = (sectionId: number): void => {
     const copyRequest = ++copyRequestRef.current
     setCopiedSectionId(undefined)
+    setCopiedAnnouncementText('')
 
     if (!navigator.clipboard) {
       enqueueSnackbar('Failed to copy Section ID. Your browser may not allow clipboard access.', {
@@ -162,8 +165,12 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         if (copyRequest !== copyRequestRef.current) return
 
         setCopiedSectionId(sectionId)
+        setCopiedAnnouncementText(`Section ID ${sectionId} copied to clipboard`)
         setTimeout(() => {
-          if (copyRequest === copyRequestRef.current) setCopiedSectionId(undefined)
+          if (copyRequest === copyRequestRef.current) {
+            setCopiedSectionId(undefined)
+            setCopiedAnnouncementText('')
+          }
         }, 2000)
       })
       .catch(() => {
@@ -414,6 +421,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
   return (
     <Root>
     <Typography variant='h6' component='h2'>Add Users to Multiple Sections</Typography>
+    <div aria-live='polite' aria-atomic='true' style={{ position: 'absolute', left: '-10000px' }}>
+      {copiedAnnouncementText}
+    </div>
     {renderWorkflowState(workflowState)}
     </Root>
   )
