@@ -278,6 +278,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           </Typography>
         </li>
       </ul>
+      <Typography style={{ marginTop: 8 }}>
+        <strong>Allowed roles:</strong> {props.rolesUserCanEnroll.join(', ')}
+      </Typography>
       </>
     )
     const fileData = (
