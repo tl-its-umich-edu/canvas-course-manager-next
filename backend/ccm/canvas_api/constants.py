@@ -8,6 +8,7 @@ ALLOWED_ROLES = (
     "designer",
     "assistant",
     "librarian",
+    "grader",
 )
 
 # Maximum number of enrollments allowed in a single section enrollment request
@@ -18,7 +19,7 @@ MAX_SEARCH_COURSES = 400
 ROLE_TO_ENROLLMENT_TYPE = {
     role: f"{role.capitalize()}Enrollment"
     for role in ALLOWED_ROLES
-    if role not in ("assistant", "librarian")
+    if role not in ("assistant", "librarian", "grader")
 }
 
 MAX_CONCURRENCY = 10

@@ -214,11 +214,16 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
     const requirements = (
-      <Typography>
-        Your file should include a {USER_ID_TEXT} (uniqname), a {USER_ROLE_TEXT}, and a {SECTION_ID_TEXT} for each user.
-        A {SECTION_ID_TEXT} reference table (and a CSV version download) are available below. 
-        To enroll the same user in multiple sections, create a separate row for each section the user will be enrolled in. {MAX_ENROLLMENT_MESSAGE}
-      </Typography>
+      <>
+        <Typography>
+          Your file should include a {USER_ID_TEXT} (uniqname), a {USER_ROLE_TEXT}, and a {SECTION_ID_TEXT} for each user.
+          A {SECTION_ID_TEXT} reference table (and a CSV version download) are available below.
+          To enroll the same user in multiple sections, create a separate row for each section the user will be enrolled in. {MAX_ENROLLMENT_MESSAGE}
+        </Typography>
+        <Typography style={{ marginTop: 8 }}>
+          <strong>Allowed roles:</strong> {props.allowedEnrollmentRoles.join(', ')}
+        </Typography>
+      </>
     )
 
     const fileData =

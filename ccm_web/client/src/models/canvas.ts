@@ -63,7 +63,8 @@ export enum CanvasEnrollmentType {
   Observer = 'ObserverEnrollment',
   Designer = 'DesignerEnrollment',
   Librarian = 'Librarian',
-  Assistant = 'Assistant'
+  Assistant = 'Assistant',
+  Grader = 'Grader'
 }
 
 export enum ClientEnrollmentType {
@@ -73,7 +74,8 @@ export enum ClientEnrollmentType {
   Observer = 'observer',
   Designer = 'designer',
   Assistant = 'assistant',
-  Librarian = 'librarian'
+  Librarian = 'librarian',
+  Grader = 'grader'
 }
 const clientStringValues = Object.values(ClientEnrollmentType).map(m => String(m))
 
@@ -87,9 +89,9 @@ export interface CanvasEnrollment {
 
 const levelOneAddableRoles = [ClientEnrollmentType.Student]
 const levelTwoAddableRoles = [...levelOneAddableRoles, ClientEnrollmentType.Observer]
-const levelThreeAddableRoles = [
+export const levelThreeAddableRoles = [
   ...levelTwoAddableRoles, ClientEnrollmentType.TA, ClientEnrollmentType.Designer, ClientEnrollmentType.Teacher,
-  ClientEnrollmentType.Assistant, ClientEnrollmentType.Librarian
+  ClientEnrollmentType.Assistant, ClientEnrollmentType.Librarian, ClientEnrollmentType.Grader
 ]
 
 type RankedRoleData = Record<RoleEnum, number>

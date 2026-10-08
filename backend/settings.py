@@ -336,7 +336,7 @@ Q_CLUSTER = {
 }
 
 # Custom Canvas Roles
-DEFAULT_CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21}
+DEFAULT_CUSTOM_CANVAS_ROLES = {'assistant': 34, 'librarian': 21, 'grader': 83}
 try:
     CUSTOM_CANVAS_ROLES = json.loads(os.getenv('CUSTOM_CANVAS_ROLES', json.dumps(DEFAULT_CUSTOM_CANVAS_ROLES)))
 except Exception:

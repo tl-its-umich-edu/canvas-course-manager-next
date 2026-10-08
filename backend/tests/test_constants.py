@@ -20,6 +20,7 @@ class TestConstants(SimpleTestCase):
             "designer",
             "assistant",
             "librarian",
+            "grader",
         )
         self.assertEqual(tuple(constants.ALLOWED_ROLES), expected_roles)
 
@@ -49,3 +50,7 @@ class TestConstants(SimpleTestCase):
         # These should not be in the mapping
         self.assertNotIn("assistant", constants.ROLE_TO_ENROLLMENT_TYPE)
         self.assertNotIn("librarian", constants.ROLE_TO_ENROLLMENT_TYPE)
+
+    def test_grader_not_in_role_to_enrollment_type(self):
+        # Grader should not be in the mapping (it's a custom role)
+        self.assertNotIn("grader", constants.ROLE_TO_ENROLLMENT_TYPE)

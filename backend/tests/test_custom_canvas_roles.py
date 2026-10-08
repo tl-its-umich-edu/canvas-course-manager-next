@@ -21,7 +21,7 @@ class TestCustomCanvasRoles(SimpleTestCase):
         import backend.settings as settings
         importlib.reload(settings)
         # Should be the default dict
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21, 'grader': 83})
 
     def test_custom_canvas_roles_env_override(self):
         os.environ[self.env_key] = '{"assistant": 99, "librarian": 88}'
