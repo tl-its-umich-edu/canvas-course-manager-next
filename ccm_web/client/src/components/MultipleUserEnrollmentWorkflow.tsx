@@ -34,6 +34,7 @@ import {
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
 import { getRowNumber } from '../utils/fileUtils.js'
 import { CanvasError, ErrorDescription, ExternalUserProcessError } from '../utils/handleErrors.js'
+import SelectedSectionInfo from './SelectedSectionInfo.js'
 
 const PREFIX = 'MultipleUserEnrollmentWorkflow'
 
@@ -169,13 +170,20 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     const messages = invalidations.map(
       (invalidation, i) => <Typography key={i}>{invalidation.message}</Typography>
     )
-    return <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
+    return (
+    <>
+      {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
+      <ErrorAlert messages={messages} tryAgain={handleResetUpload} />
+      </>
+    )
   }
 
   const renderRowValidationErrors = (errors: EnrollmentInvalidation[]): JSX.Element => {
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <RowLevelErrorsContent
         table={<ValidationErrorTable invalidations={errors} />}
         title='Review your CSV file'
@@ -339,6 +347,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
           fileName='add_non_um_users.csv'
           fileData={fileData}
         />
+        {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <FileUpload onUploadComplete={handleFile} />
         <div className={classes.buttonGroup}>
           <Button variant='outlined' aria-label='Back to select section' onClick={handleBackClick}>Back</Button>
@@ -351,6 +360,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     return (
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
+        {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <Grid container>
             <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
               <BulkEnrollExternalUserConfirmationTable enrollments={enrollments} />
@@ -385,6 +395,7 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     return (
       <>
       {file !== undefined && <CSVFileName file={file} />}
+      {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
       <RowLevelErrorsContent
         table={<APIErrorsTable errors={errors} includeContext />}
         title='Some errors occurred'
