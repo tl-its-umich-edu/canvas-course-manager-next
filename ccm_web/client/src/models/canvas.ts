@@ -56,6 +56,21 @@ export class CanvasCourseSectionSort_UserCount implements ICanvasCourseSectionSo
   }
 }
 
+export interface ICanvasCourseSectionFilter {
+  description: string
+  // Generic so that extra properties on the caller's sections (e.g. selection state) are preserved
+  filter: <T extends CanvasCourseSectionWithCourseName>(sections: T[], text: string) => T[]
+}
+
+export class CanvasCourseSectionFilter_Name implements ICanvasCourseSectionFilter {
+  description = 'Filter by section name'
+  filter = <T extends CanvasCourseSectionWithCourseName>(sections: T[], text: string): T[] => {
+    const searchText = text.trim().toLocaleLowerCase()
+    if (searchText.length === 0) return sections
+    return sections.filter(s => s.name.toLocaleLowerCase().includes(searchText))
+  }
+}
+
 export enum CanvasEnrollmentType {
   Student = 'StudentEnrollment',
   Teacher = 'TeacherEnrollment',
