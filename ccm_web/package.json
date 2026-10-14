@@ -4,11 +4,11 @@
   "description": "",
   "type": "module",
   "engines": {
-    "node": ">=20.11"
+    "node": ">=22.18"
   },
   "scripts": {
-    "watch": "node --loader ts-node/esm node_modules/.bin/webpack --config webpack/webpack.dev.ts --watch",
-    "build:ccm_web": "node --loader ts-node/esm node_modules/.bin/webpack  --config webpack/webpack.prod.ts"
+    "watch": "webpack --disable-interpret --config webpack/webpack.dev.ts --watch",
+    "build:ccm_web": "webpack --disable-interpret --config webpack/webpack.prod.ts"
   },
   "author": "",
   "license": "ISC",
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/cookie-parser": "1.4.10",
     "@types/js-cookie": "3.0.6",
-    "@types/node": "20.19.43",
+    "@types/node": "26.6.5",
     "@types/papaparse": "5.5.2",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
@@ -51,8 +51,6 @@
     "style-loader": "4.0.0",
     "ts-jest": "29.4.14",
     "ts-loader": "9.6.2",
-    "ts-node": "10.9.2",
-    "tsconfig-paths": "4.2.0",
     "typescript": "5.9.3",
     "webpack": "5.111.1",
     "webpack-cli": "5.1.4",

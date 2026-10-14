@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS node-build
+FROM node:26-bookworm-slim AS node-build
 WORKDIR /build/
 
 COPY ccm_web .
@@ -32,7 +32,7 @@ apt install -y --no-install-recommends libmariadb-dev
 RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /code/ccm_web
 
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_26.x | bash - && \
     apt install -y nodejs
 
 WORKDIR /code
