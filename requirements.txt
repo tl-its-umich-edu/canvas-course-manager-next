@@ -5,7 +5,7 @@ uvicorn-worker==0.4.0
 mysqlclient==2.3.0
 
 #Django
-Django==5.2.17
+Django==5.2.18
 django-mysql==4.19.0
 django-webpack-loader==3.2.4  
 django-lti==0.10.1
@@ -13,7 +13,7 @@ django-csp==4.0
 
 
 #Django Rest Framework
-djangorestframework==3.18.1
+djangorestframework==3.18.3
 django-filter==24.3
 drf-spectacular==0.30.0
 markdown==3.11
