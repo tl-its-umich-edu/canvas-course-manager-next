@@ -127,12 +127,12 @@ class EnrollRequestSerializerTests(SimpleTestCase):
             {
                 'loginId': 'user1',
                 'role': 'invalidRole1',
-                'error': "Role 'invalidRole1' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
+                'error': "Role 'invalidRole1' is not allowed. Allowed roles: assistant, designer, grader, librarian, observer, student, ta, teacher."
             },
             {
                 'loginId': 'user3',
                 'role': 'invalidRole2',
-                'error': "Role 'invalidRole2' is not allowed. Allowed roles: assistant, designer, librarian, observer, student, ta, teacher."
+                'error': "Role 'invalidRole2' is not allowed. Allowed roles: assistant, designer, grader, librarian, observer, student, ta, teacher."
             }
         ]
         self.assertEqual(normalized, expected)
