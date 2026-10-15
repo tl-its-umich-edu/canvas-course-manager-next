@@ -11,8 +11,9 @@ import { CCMComponentProps, isAuthorizedForRoles } from '../models/FeatureUIData
 import APIErrorMessage from '../components/APIErrorMessage.js'
 import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget.js'
 import {
-  CanvasCourseSectionBase, CanvasCourseSectionSort_AZ, CanvasCourseSectionSort_UserCount,
-  CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName, ICanvasCourseSectionSort
+  CanvasCourseSectionBase, CanvasCourseSectionFilter_Name, CanvasCourseSectionSort_AZ,
+  CanvasCourseSectionSort_UserCount, CanvasCourseSectionSort_ZA, CanvasCourseSectionWithCourseName,
+  ICanvasCourseSectionSort
 } from '../models/canvas.js'
 import { mergeSections } from '../api.js'
 import usePromise from '../hooks/usePromise.js'
@@ -80,7 +81,7 @@ enum PageState {
   Merged = 2
 }
 
-function MergeSections (props: CCMComponentProps): JSX.Element {
+function MergeSections(props: CCMComponentProps): JSX.Element {
   const { enqueueSnackbar } = useSnackbar()
   const [pageState, setPageState] = useState<PageState>(PageState.SelectSections)
 
@@ -190,9 +191,18 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
               { func: new CanvasCourseSectionSort_AZ(), text: 'A-Z' },
               { func: new CanvasCourseSectionSort_ZA(), text: 'Z-A' }
             ]
+          },
+          filter: {
+            func: new CanvasCourseSectionFilter_Name(),
+            label: 'Section name'
           }
         }}
-        search={ isAdmin() ? [new CourseNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle), new UniqnameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)] : [new SectionNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)]}
+        search={isAdmin() ? [
+          new UniqnameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle),
+          new CourseNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)
+        ] : [
+          new SectionNameSearcher(props.course.enrollment_term_id, props.globals.course.id, setUnsyncedUnstagedSections, setSectionsTitle)
+        ]}
         multiSelect={true}
         showCourseName={true}
         sections={unstagedSections !== undefined ? unstagedSections : []}
@@ -215,7 +225,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           action={{ text: 'Undo', cb: unStageSections, disabled: selectedStagedSections.length === 0 }}
           height={400}
           header={{ title: 'Review before merge' }}
-          search={ [new CourseSectionSearcher(props.course.enrollment_term_id, props.globals.course.id, updateStagedSections, props.course.name)] }
+          search={[new CourseSectionSearcher(props.course.enrollment_term_id, props.globals.course.id, updateStagedSections, props.course.name)]}
           multiSelect={true}
           showCourseName={true}
           sections={stagedSections !== undefined ? stagedSections : []}
@@ -225,7 +235,7 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
           canUnmerge={isAdmin()}
           highlightUnlocked={true}
           isMergeContext={true}
-          ></SectionSelectorWidget>
+        ></SectionSelectorWidget>
       </div>
     )
   }
@@ -246,29 +256,29 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getSelectSections = (): JSX.Element => {
     return (
       <>
-      <Grid container spacing={1}>
-        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
-          <Paper variant='outlined' className={classes.selectorPaper}>
-            {getSelectSectionsUnstaged()}
-          </Paper>
+        <Grid container spacing={1}>
+          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+            <Paper variant='outlined' className={classes.selectorPaper}>
+              {getSelectSectionsUnstaged()}
+            </Paper>
+          </Grid>
+          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+            <Paper variant='outlined' className={classes.selectorPaper}>
+              {getSelectSectionsStaged()}
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
-          <Paper variant='outlined' className={classes.selectorPaper}>
-            {getSelectSectionsStaged()}
-          </Paper>
+        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+          <Button
+            className={classes.submitButton}
+            onClick={submit}
+            variant='contained'
+            color='primary'
+            disabled={!canMerge()}
+          >
+            {mergeButtonText(mergableSections())}
+          </Button>
         </Grid>
-      </Grid>
-      <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
-        <Button
-          className={classes.submitButton}
-          onClick={submit}
-          variant='contained'
-          color='primary'
-          disabled={!canMerge()}
-        >
-          {mergeButtonText(mergableSections())}
-        </Button>
-      </Grid>
       </>
     )
   }
@@ -276,16 +286,16 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
   const getMergeSuccess = (): JSX.Element => {
     return (
       <>
-      <CourseSectionList canUnmerge={isAdmin()} {...props} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button
-          variant='outlined'
-          aria-label={`Start ${props.title} again`}
-          onClick={() => setPageState(PageState.SelectSections)}
-        >
-          Start Again
-        </Button>
-      </Grid>
+        <CourseSectionList canUnmerge={isAdmin()} {...props} />
+        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+          <Button
+            variant='outlined'
+            aria-label={`Start ${props.title} again`}
+            onClick={() => setPageState(PageState.SelectSections)}
+          >
+            Start Again
+          </Button>
+        </Grid>
       </>
     )
   }
@@ -296,12 +306,12 @@ function MergeSections (props: CCMComponentProps): JSX.Element {
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>
         <Typography paragraph>
-           ⚠️ It is recommended to merge sections <i>before</i> the start of term. ⚠️
+          ⚠️ It is recommended to merge sections <i>before</i> the start of term. ⚠️
         </Typography>
         <Typography paragraph>
-          If you merge a section from a course that contains content, 
-           submissions and grades, that content will <i>stay with the original course </i>
-           once the section is merged, becoming inaccessible to teachers and students. 
+          If you merge a section from a course that contains content,
+          submissions and grades, that content will <i>stay with the original course </i>
+          once the section is merged, becoming inaccessible to teachers and students.
         </Typography>
       </div>
       {renderComponent()}
