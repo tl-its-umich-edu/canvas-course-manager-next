@@ -17,6 +17,7 @@
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "5.18.0",
     "@mui/material": "5.18.0",
+    "@react-aria/live-announcer": "3.5.1",
     "@react-hook/debounce": "4.0.0",
     "cookie-parser": "1.4.7",
     "js-cookie": "3.0.8",
