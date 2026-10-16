@@ -110,8 +110,3 @@ export enum CSVWorkflowStep {
   Review = 2, // Review Data
   Confirmation = 3 // Success Confirmation
 }
-
-export const getCSVWorkflowStepAnnouncement = (step: CSVWorkflowStep): string => {
-  const numSteps = Object.keys(CSVWorkflowStep).filter(key => isNaN(Number(key))).length
-  return `Step ${step + 1} of ${numSteps}: ${CSVWorkflowStep[step]}`
-}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Backdrop, Button, CircularProgress, Grid, Typography, Link } from '@mui/material'
-import { announce } from '@react-aria/live-announcer'
 
 import APIErrorMessage from './APIErrorMessage.js'
 import APIErrorsTable from './APIErrorsTable.js'
@@ -26,7 +25,7 @@ import { AddNewExternalUserEnrollment, RowNumberedAddNewExternalUserEnrollment }
 import { ExternalUserSuccess, isExternalUserSuccess } from '../models/externalUser.js'
 import { createSectionRoles } from '../models/feature.js'
 import { AddNonUMUsersLeafProps, isAuthorizedForRoles } from '../models/FeatureUIData.js'
-import { CSVWorkflowStep, getCSVWorkflowStepAnnouncement, InvalidationType, RoleEnum } from '../models/models.js'
+import { CSVWorkflowStep, InvalidationType, RoleEnum } from '../models/models.js'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import {
   DuplicateEmailRowsValidator, EmailRowsValidator, EnrollmentInvalidation, FirstNameRowsValidator,
@@ -438,7 +437,6 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
   }
 
   const renderActiveStep = (activeStep: CSVWorkflowStep): JSX.Element => {
-    announce(getCSVWorkflowStepAnnouncement(activeStep), 'polite')
     switch (activeStep) {
       case CSVWorkflowStep.Select:
         return renderSelect()

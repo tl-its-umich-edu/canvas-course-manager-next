@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Backdrop, CircularProgress, Grid, Link, Typography } from '@mui/material'
-import { announce } from '@react-aria/live-announcer'
 
 import * as api from '../api.js'
 import APIErrorMessage from '../components/APIErrorMessage.js'
@@ -19,7 +18,7 @@ import WorkflowStepper from '../components/WorkflowStepper.js'
 import usePromise from '../hooks/usePromise.js'
 import { CanvasCourseSection, injectCourseName } from '../models/canvas.js'
 import { CCMComponentProps } from '../models/FeatureUIData.js'
-import { APIErrorWithContext, CSVWorkflowStep, getCSVWorkflowStepAnnouncement, InvalidationType } from '../models/models.js'
+import { APIErrorWithContext, CSVWorkflowStep, InvalidationType } from '../models/models.js'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
 import ThirdPartyGradebookProcessor, {
@@ -430,7 +429,6 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
   }
 
   const renderStep = (step: CSVWorkflowStep): JSX.Element => {
-    announce(getCSVWorkflowStepAnnouncement(step), 'polite')
     switch (step) {
       case CSVWorkflowStep.Select:
         return renderSelect()
