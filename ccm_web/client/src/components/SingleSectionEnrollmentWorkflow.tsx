@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Backdrop, Button, CircularProgress, Grid, Link, Typography } from '@mui/material'
+import { announce } from '@react-aria/live-announcer'
 
 import APIErrorMessage from './APIErrorMessage.js'
 import BulkApiErrorContent from './BulkApiErrorContent.js'
@@ -26,7 +27,7 @@ import {
   REQUIRED_ENROLLMENT_HEADERS, RowNumberedAddEnrollment, USER_ID_TEXT, USER_ROLE_TEXT
 } from '../models/enrollment.js'
 import { AddUMUsersLeafProps } from '../models/FeatureUIData.js'
-import { CSVWorkflowStep, InvalidationType } from '../models/models.js'
+import { CSVWorkflowStep, getCSVWorkflowStepAnnouncement, InvalidationType } from '../models/models.js'
 import CSVSchemaValidator, { SchemaInvalidation } from '../utils/CSVSchemaValidator.js'
 import { EnrollmentInvalidation, LoginIDRowsValidator, RoleRowsValidator } from '../utils/enrollmentValidators.js'
 import FileParserWrapper, { CSVRecord } from '../utils/FileParserWrapper.js'
@@ -322,6 +323,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
   }
 
   const getStepContent = (step: CSVWorkflowStep): JSX.Element => {
+    announce(getCSVWorkflowStepAnnouncement(step), 'polite')
     switch (step) {
       case CSVWorkflowStep.Select:
         return getSelectContent()
