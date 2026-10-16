@@ -289,7 +289,12 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           <TableBody>
             {
               props.sections.map((s, i) => (
-                <TableRow key={i}>
+                <TableRow tabIndex={0} key={i}
+                sx={{ '&:focus-visible': { 
+                  outline: '2px solid',
+                  outlineColor: 'primary.main',
+                  outlineOffset: '-2px'
+                }}}>
                   <TableCell sx={{ wordBreak: 'break-word', width: '75%' }}>
                     {s.name}
                   </TableCell>
