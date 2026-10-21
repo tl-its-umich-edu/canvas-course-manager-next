@@ -26,7 +26,6 @@
   },
   "include": [
     "client/src",
-    "webpack",
-    ".eslintrc.js"
+    "webpack"
   ]
 }
