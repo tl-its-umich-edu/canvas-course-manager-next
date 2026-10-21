@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography, Link } from '@mui/material'
 import { AnalyticsConsentContext } from '../context/AnalyticsConsentContext.js'

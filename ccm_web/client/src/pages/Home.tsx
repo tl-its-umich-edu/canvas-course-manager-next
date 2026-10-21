@@ -1,5 +1,5 @@
 import { useSnackbar } from 'notistack'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { styled } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
