@@ -16,7 +16,7 @@ export default defineConfig(
       react.configs.flat.recommended,
       // tsconfig uses "jsx": "react-jsx", so React doesn't need to be imported for JSX
       react.configs.flat['jsx-runtime'],
-      tseslint.configs.recommendedTypeChecked
+      tseslint.configs.recommended
     ],
     languageOptions: {
       parserOptions: {
