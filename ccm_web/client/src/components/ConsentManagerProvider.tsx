@@ -4,52 +4,52 @@ import { Globals } from '../models/models.js'
 
 interface ConsentChangeEvent {
   cookie: {
-    categories: string[];
+    categories: string[]
   }
 }
 
 interface UmConsentCustomManager {
-  enabled: boolean;
-  alwaysShow: boolean;
-  rootDomain: string | false;
+  enabled: boolean
+  alwaysShow: boolean
+  rootDomain: string | false
   preferencePanel: {
-    beforeCategories: boolean;
-    afterCategories: boolean;
-  };
+    beforeCategories: boolean
+    afterCategories: boolean
+  }
 }
 
 interface UmConsentManagerConfig {
-  onConsentChange: (event: ConsentChangeEvent) => void;
-  mode: string;
-  customManager: UmConsentCustomManager;
+  onConsentChange: (event: ConsentChangeEvent) => void
+  mode: string
+  customManager: UmConsentCustomManager
   googleAnalyticsCustom: {
     streamConfig: {
-      cookie_flags: string;
-    };
+      cookie_flags: string
+    }
   }
-  privacyUrl: string | false;
-  externalLinkBlank: boolean;
-  googleAnalyticsID: string | false;
+  privacyUrl: string | false
+  externalLinkBlank: boolean
+  googleAnalyticsID: string | false
   cookies: {
-    necessary: Array<{ name: string; domain: string; regex: string }>;
-    analytics: Array<{ name: string; domain: string; regex: string }>;
-  };
+    necessary: Array<{ name: string, domain: string, regex: string }>
+    analytics: Array<{ name: string, domain: string, regex: string }>
+  }
 }
 
 declare global {
   interface Window {
-    umConsentManager: UmConsentManagerConfig;
+    umConsentManager: UmConsentManagerConfig
   }
 }
 
 interface ConsentManagerProviderProps {
-  children: React.ReactNode;
-  globals: Globals;
-  alwaysShow?: boolean;
-  rootDomain?: string;
-  mode?: 'prod' | 'dev';
-  privacyUrl?: string | false;
-  externalLinkBlank?: boolean; // open privacy link in a new tab
+  children: React.ReactNode
+  globals: Globals
+  alwaysShow?: boolean
+  rootDomain?: string
+  mode?: 'prod' | 'dev'
+  privacyUrl?: string | false
+  externalLinkBlank?: boolean // open privacy link in a new tab
 }
 
 export function ConsentManagerProvider({

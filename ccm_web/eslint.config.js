@@ -39,6 +39,11 @@ export default defineConfig(
       '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
       // Existing code style: no semicolons, single quotes, 2-space indent
       '@stylistic/semi': ['error', 'never'],
+      // Multi-line interface/type members have no delimiter; single-line ones use ,
+      '@stylistic/member-delimiter-style': ['error', {
+        multiline: { delimiter: 'none', requireLast: false },
+        singleline: { delimiter: 'comma', requireLast: false }
+      }],
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
       // JSX indentation is ignored, as in standard-with-typescript
       '@stylistic/indent': ['error', 2, {

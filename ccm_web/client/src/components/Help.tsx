@@ -17,8 +17,8 @@ const StyledTypography = styled(Typography)(() => ({
 }))
 
 interface HelpLinkAnalyticsParams {
-  help_url: string;
-  page_context?: string;
+  help_url: string
+  page_context?: string
 }
 
 interface HelpLinkProps {
