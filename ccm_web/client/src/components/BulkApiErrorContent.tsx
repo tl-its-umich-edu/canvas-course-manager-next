@@ -33,7 +33,7 @@ export default function BulkApiErrorContent (props: BulkApiErrorContentProps): J
             resetUpload={tryAgain}
           />
           </>
-        )
+      )
       : <ErrorAlert messages={[apiErrorMessage]} tryAgain={tryAgain} />
   )
 }

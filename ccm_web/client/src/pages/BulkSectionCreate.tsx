@@ -265,7 +265,7 @@ function BulkSectionCreate (props: CCMComponentProps): JSX.Element {
 
   const renderUploadHeader = (): JSX.Element => {
     const fileData =
-`SECTION_NAME
+      `SECTION_NAME
 Section 001`
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: <Typography>Your file should include one section name per line. The maximum number of records allowed in the file is 60.</Typography>,

@@ -321,7 +321,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
                         This email is already associated with a Canvas user ({userInfo.name}).
                         Finish the form to enroll them in the section.
                       </Typography>
-                    )
+                  )
               }
             </Paper>
           )
