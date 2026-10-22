@@ -79,8 +79,8 @@ export function ConsentManagerProvider({
 
   useEffect(() => {
     if (!umConsentManagerScriptUrl || !googleAnalyticsId) {
-      !googleAnalyticsId && console.warn('Google Analytics ID is not provided, analytics tracking not initialized.');
-      !umConsentManagerScriptUrl && console.warn('Consent manager script URL is not provided, analytics tracking not initialized.');
+      if (!googleAnalyticsId) console.warn('Google Analytics ID is not provided, analytics tracking not initialized.');
+      if (!umConsentManagerScriptUrl) console.warn('Consent manager script URL is not provided, analytics tracking not initialized.');
       return;
     }
 
