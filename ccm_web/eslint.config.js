@@ -4,6 +4,7 @@ References:
 - https://typescript-eslint.io/getting-started/typed-linting
 */
 
+import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config'
 import react from 'eslint-plugin-react'
 import tseslint from 'typescript-eslint'
@@ -29,10 +30,21 @@ export default defineConfig(
         version: 'detect'
       }
     },
+    plugins: {
+      '@stylistic': stylistic
+    },
     rules: {
       'no-void': ['error', { allowAsStatement: true }],
       '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
-      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }]
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
+      // Existing code style: no semicolons, single quotes, 2-space indent
+      '@stylistic/semi': ['error', 'never'],
+      '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
+      // JSX indentation is ignored, as in standard-with-typescript
+      '@stylistic/indent': ['error', 2, {
+        SwitchCase: 1,
+        ignoredNodes: ['JSXElement', 'JSXElement > *', 'JSXAttribute', 'JSXIdentifier', 'JSXNamespacedName', 'JSXMemberExpression', 'JSXSpreadAttribute', 'JSXExpressionContainer', 'JSXOpeningElement', 'JSXClosingElement', 'JSXFragment', 'JSXOpeningFragment', 'JSXClosingFragment', 'JSXText', 'JSXEmptyExpression', 'JSXSpreadChild']
+      }]
     }
   }
 )

@@ -27,8 +27,8 @@ interface HelpLinkProps {
 }
 
 function Help (props: HelpLinkProps): JSX.Element {
-  const analyticsConsentContext = useContext(AnalyticsConsentContext);
-  const { sendAnalyticsEvent } = useGoogleAnalytics<HelpLinkAnalyticsParams>(analyticsConsentContext);
+  const analyticsConsentContext = useContext(AnalyticsConsentContext)
+  const { sendAnalyticsEvent } = useGoogleAnalytics<HelpLinkAnalyticsParams>(analyticsConsentContext)
   
   const fullURL = props.baseHelpURL + (props.helpURLEnding ?? '')
   
@@ -36,8 +36,8 @@ function Help (props: HelpLinkProps): JSX.Element {
     sendAnalyticsEvent('Help Link Clicked', {
       help_url: fullURL,
       page_context: props.helpURLEnding || 'general'
-    });
-  };
+    })
+  }
   
   return (
     <StyledTypography className={classes.helpText}>

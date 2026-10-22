@@ -18,7 +18,7 @@ const helpContactProps = {
 const ccmGlobalId = 'ccm_globals'
 const ccmGlobalEl = document.getElementById(ccmGlobalId)
 if (!ccmGlobalEl || !ccmGlobalEl.textContent) {
-  throw new Error(`Error: Element with id '${ccmGlobalId}' not found or has no content.`);
+  throw new Error(`Error: Element with id '${ccmGlobalId}' not found or has no content.`)
 }
 const ccmGlobals = Object.freeze(JSON.parse(ccmGlobalEl.textContent))
 
