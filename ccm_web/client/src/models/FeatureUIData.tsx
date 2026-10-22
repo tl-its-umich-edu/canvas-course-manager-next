@@ -34,7 +34,7 @@ interface EnrollmentFeatureLeafProps {
   resetFeature: () => void
 }
 
-export interface AddUMUsersLeafProps extends EnrollmentFeatureLeafProps {}
+export type AddUMUsersLeafProps = EnrollmentFeatureLeafProps
 
 export interface AddNonUMUsersLeafProps extends EnrollmentFeatureLeafProps {
   readonly rolesUserCanEnroll: ClientEnrollmentType[]

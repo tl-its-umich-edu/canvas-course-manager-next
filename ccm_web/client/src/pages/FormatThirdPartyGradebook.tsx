@@ -89,7 +89,7 @@ const Root = styled('div')((
   }
 }))
 
-interface FormatThirdPartyGradebookProps extends CCMComponentProps {}
+type FormatThirdPartyGradebookProps = CCMComponentProps
 
 export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradebookProps): JSX.Element {
   const csvParser = new FileParserWrapper(

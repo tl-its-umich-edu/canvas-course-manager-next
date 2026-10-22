@@ -66,8 +66,7 @@ interface ExternalEnrollmentSummary {
   enrolled: boolean
 }
 
-interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {
-}
+type UserEnrollmentFormProps = AddNonUMUsersLeafProps
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)

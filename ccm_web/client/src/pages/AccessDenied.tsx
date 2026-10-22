@@ -4,7 +4,7 @@ import HelpContact, { HelpContactProps } from '../components/HelpContact.js'
 import InlineErrorAlert from '../components/InlineErrorAlert.js'
 import Layout from '../components/Layout.js'
 
-interface AccessDeniedProps extends HelpContactProps {}
+type AccessDeniedProps = HelpContactProps
 
 export default function AccessDenied (props: AccessDeniedProps): JSX.Element {
   return (

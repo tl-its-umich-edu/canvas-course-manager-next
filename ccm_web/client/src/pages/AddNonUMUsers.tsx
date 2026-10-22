@@ -47,7 +47,7 @@ enum PageState {
   AddCSVUsers
 }
 
-interface AddNonUMUsersProps extends CCMComponentProps {}
+type AddNonUMUsersProps = CCMComponentProps
 
 export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const { course, canvasURL } = props.globals
