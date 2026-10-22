@@ -10,11 +10,7 @@ const classes = {
   helpText: `${PREFIX}-helpText`
 }
 
-const StyledTypography = styled(Typography)((
-  {
-    theme
-  }
-) => ({
+const StyledTypography = styled(Typography)(() => ({
   [`&.${classes.helpText}`]: {
     float: 'right'
   }

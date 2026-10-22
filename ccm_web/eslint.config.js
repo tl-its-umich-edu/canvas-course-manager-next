@@ -31,7 +31,8 @@ export default defineConfig(
     },
     rules: {
       'no-void': ['error', { allowAsStatement: true }],
-      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }]
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: true }],
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }]
     }
   }
 )
