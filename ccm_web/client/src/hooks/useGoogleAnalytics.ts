@@ -14,7 +14,7 @@ export function useGoogleAnalytics<Params extends object>(
 
       if (analyticsConsentContext.analyticsConsentGiven) {
         try {
-          (ReactGA as any).default.event({
+          (ReactGA as unknown as { default: { event: (options: object) => void } }).default.event({
             action: name,
             category: 'ccm_activity',
             ...params,
