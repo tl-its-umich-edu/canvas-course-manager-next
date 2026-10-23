@@ -43,8 +43,8 @@ export interface Globals {
   user: User
   course: Course
   baseHelpURL: string
-  googleAnalyticsId: string;
-  umConsentManagerScriptUrl: string;
+  googleAnalyticsId: string
+  umConsentManagerScriptUrl: string
 }
 
 // API Errors

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography, Link } from '@mui/material'
 import { AnalyticsConsentContext } from '../context/AnalyticsConsentContext.js'
@@ -10,19 +10,15 @@ const classes = {
   helpText: `${PREFIX}-helpText`
 }
 
-const StyledTypography = styled(Typography)((
-  {
-    theme
-  }
-) => ({
+const StyledTypography = styled(Typography)(() => ({
   [`&.${classes.helpText}`]: {
     float: 'right'
   }
 }))
 
 interface HelpLinkAnalyticsParams {
-  help_url: string;
-  page_context?: string;
+  help_url: string
+  page_context?: string
 }
 
 interface HelpLinkProps {
@@ -31,8 +27,8 @@ interface HelpLinkProps {
 }
 
 function Help (props: HelpLinkProps): JSX.Element {
-  const analyticsConsentContext = useContext(AnalyticsConsentContext);
-  const { sendAnalyticsEvent } = useGoogleAnalytics<HelpLinkAnalyticsParams>(analyticsConsentContext);
+  const analyticsConsentContext = useContext(AnalyticsConsentContext)
+  const { sendAnalyticsEvent } = useGoogleAnalytics<HelpLinkAnalyticsParams>(analyticsConsentContext)
   
   const fullURL = props.baseHelpURL + (props.helpURLEnding ?? '')
   
@@ -40,8 +36,8 @@ function Help (props: HelpLinkProps): JSX.Element {
     sendAnalyticsEvent('Help Link Clicked', {
       help_url: fullURL,
       page_context: props.helpURLEnding || 'general'
-    });
-  };
+    })
+  }
   
   return (
     <StyledTypography className={classes.helpText}>

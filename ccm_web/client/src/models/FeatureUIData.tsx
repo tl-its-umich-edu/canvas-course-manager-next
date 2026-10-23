@@ -1,4 +1,4 @@
-import React, { ComponentType } from 'react'
+import { ComponentType } from 'react'
 import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@mui/icons-material'
 import { MergeType as MergeTypeIcon } from '@mui/icons-material'
 import { PersonAdd as PersonAddIcon } from '@mui/icons-material'
@@ -34,7 +34,7 @@ interface EnrollmentFeatureLeafProps {
   resetFeature: () => void
 }
 
-export interface AddUMUsersLeafProps extends EnrollmentFeatureLeafProps {}
+export type AddUMUsersLeafProps = EnrollmentFeatureLeafProps
 
 export interface AddNonUMUsersLeafProps extends EnrollmentFeatureLeafProps {
   readonly rolesUserCanEnroll: ClientEnrollmentType[]
