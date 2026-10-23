@@ -241,9 +241,14 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
 
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {
       body: (
-        <Typography>
-          Your file should include a {USER_ID_TEXT} (uniqname) and a {USER_ROLE_TEXT} for each user. {MAX_ENROLLMENT_MESSAGE}
-        </Typography>
+        <>
+          <Typography>
+            Your file should include a {USER_ID_TEXT} (uniqname) and a {USER_ROLE_TEXT} for each user. {MAX_ENROLLMENT_MESSAGE}
+          </Typography>
+          <Typography style={{ marginTop: 8 }}>
+            <strong>Allowed roles:</strong> {props.allowedEnrollmentRoles.join(', ')}
+          </Typography>
+        </>
       ),
       fileData,
       fileName: 'add_um_users.csv'
