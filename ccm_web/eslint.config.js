@@ -4,6 +4,7 @@ References:
 - https://typescript-eslint.io/getting-started/typed-linting
 */
 
+import js from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config'
 import react from 'eslint-plugin-react'
@@ -14,6 +15,8 @@ export default defineConfig(
   {
     files: ['client/src/**/*.{ts,tsx}', 'webpack/**/*.ts'],
     extends: [
+      // Core JS rules; must come before typescript-eslint so it can turn off the ones TypeScript covers
+      js.configs.recommended,
       react.configs.flat.recommended,
       // tsconfig uses "jsx": "react-jsx", so React doesn't need to be imported for JSX
       react.configs.flat['jsx-runtime'],
