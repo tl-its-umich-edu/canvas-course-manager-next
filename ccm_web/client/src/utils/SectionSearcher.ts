@@ -139,7 +139,7 @@ export class CourseSectionSearcher extends SectionSearcher {
   resetTitle = undefined
 
   // implemented as a noninteractive searcher, so it's not using any search text.  If search is enabled use the search text
-  searchImpl = async (searchText: string): Promise<CanvasCourseSectionWithCourseName[]> => {
+  searchImpl = async (): Promise<CanvasCourseSectionWithCourseName[]> => {
     return injectCourseName(await getCourseSections(this.courseId), this.courseName)
   }
 }

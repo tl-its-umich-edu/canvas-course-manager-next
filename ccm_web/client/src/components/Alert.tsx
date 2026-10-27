@@ -24,7 +24,7 @@ const StyledCorePaper = styled(Paper)((
     textAlign: 'left',
     marginBottom: 10
   }
-  }));
+}))
 
 interface AlertProps {
   children: React.ReactNode

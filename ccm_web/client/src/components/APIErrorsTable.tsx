@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import CustomTable, { TableColumn } from './CustomTable.js'
 import { ErrorDescription } from '../utils/handleErrors.js'

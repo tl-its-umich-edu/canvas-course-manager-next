@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Backdrop, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material'
 
@@ -66,8 +66,7 @@ interface ExternalEnrollmentSummary {
   enrolled: boolean
 }
 
-interface UserEnrollmentFormProps extends AddNonUMUsersLeafProps {
-}
+type UserEnrollmentFormProps = AddNonUMUsersLeafProps
 
 export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX.Element {
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
@@ -322,7 +321,7 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
                         This email is already associated with a Canvas user ({userInfo.name}).
                         Finish the form to enroll them in the section.
                       </Typography>
-                    )
+                  )
               }
             </Paper>
           )

@@ -4,7 +4,7 @@ https://github.com/tl-its-umich-edu/remote-office-hours-queue/blob/master/src/as
 */
 import { useState } from 'react'
 
-const usePromise = <T, F extends (...args: any) => Promise<T>>(
+const usePromise = <T, F extends (...args: never[]) => Promise<T>>(
   task: F,
   set?: (value: T) => void
 ): [(...args: Parameters<F>) => Promise<void>, boolean, Error | undefined, () => void] => {
@@ -14,7 +14,7 @@ const usePromise = <T, F extends (...args: any) => Promise<T>>(
   const doTask = async (...args: Parameters<F>): Promise<void> => {
     setIsLoading(true)
     try {
-      const data = await task(...args as any)
+      const data = await task(...args)
       if (set !== undefined) set(data)
       setError(undefined)
     } catch (error) {

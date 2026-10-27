@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
@@ -47,7 +47,7 @@ enum PageState {
   AddCSVUsers
 }
 
-interface AddNonUMUsersProps extends CCMComponentProps {}
+type AddNonUMUsersProps = CCMComponentProps
 
 export default function AddNonUMUsers (props: AddNonUMUsersProps): JSX.Element {
   const { course, canvasURL } = props.globals

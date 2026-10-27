@@ -1,4 +1,3 @@
-import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/material'

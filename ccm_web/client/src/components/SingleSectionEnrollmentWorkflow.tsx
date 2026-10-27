@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Backdrop, Button, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
@@ -236,7 +236,7 @@ export default function SingleSectionEnrollmentWorkflow (props: SingleSectionEnr
     if (rowInvalidations !== undefined) return renderRowValidationErrors(rowInvalidations)
 
     const fileData =
-    `${REQUIRED_ENROLLMENT_HEADERS.join(',')}\n` +
+      `${REQUIRED_ENROLLMENT_HEADERS.join(',')}\n` +
     'studentone,student\n'
 
     const fileDownloadHeaderProps: ExampleFileDownloadHeaderProps = {

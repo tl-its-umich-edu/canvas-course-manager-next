@@ -147,7 +147,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                   </Grid>
                 </Grid>
               </form>
-            )
+          )
           : (
               <>
               <Typography className={classes.buttonSep} variant='inherit' component="span">{props.text}</Typography>
@@ -155,7 +155,7 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                 <EditIcon className={classes.editIcon} style={{ fontSize: props.fontSize }} />
               </Button>
               </>
-            )
+          )
       }
     </Root>
   )

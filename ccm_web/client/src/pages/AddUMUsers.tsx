@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
@@ -44,7 +44,7 @@ enum InputMethod {
   CSVMultipleSections = 'multiple'
 }
 
-interface AddUMUsersProps extends CCMComponentProps {}
+type AddUMUsersProps = CCMComponentProps
 
 function AddUMUsers (props: AddUMUsersProps): JSX.Element {
   const { canvasURL, course } = props.globals

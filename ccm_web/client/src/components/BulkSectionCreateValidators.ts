@@ -2,7 +2,7 @@ import { InvalidationType } from '../models/models.js'
 import { DuplicateIdentifierInRowsValidator, RowInvalidation, StringRowsSchemaValidator } from '../utils/rowValidation.js'
 import { sectionNameSchema } from '../utils/validation.js'
 
-interface SectionsRowInvalidation extends RowInvalidation {}
+type SectionsRowInvalidation = RowInvalidation
 
 interface SectionRowsValidator {
   validate: (sectionName: string[]) => SectionsRowInvalidation[]

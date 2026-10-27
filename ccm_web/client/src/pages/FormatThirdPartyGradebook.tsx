@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Backdrop, CircularProgress, Grid, Link, Typography } from '@mui/material'
 
@@ -89,7 +89,7 @@ const Root = styled('div')((
   }
 }))
 
-interface FormatThirdPartyGradebookProps extends CCMComponentProps {}
+type FormatThirdPartyGradebookProps = CCMComponentProps
 
 export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradebookProps): JSX.Element {
   const csvParser = new FileParserWrapper(
