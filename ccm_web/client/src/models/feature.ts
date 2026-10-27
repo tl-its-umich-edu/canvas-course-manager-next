@@ -58,8 +58,18 @@ const addNonUMUsersProps: FeatureDataProps = {
   helpURLEnding: '/add-non-um-users.html'
 }
 
+const bulkUnenrollUsersProps: FeatureDataProps = {
+  id: 'bulkUnenrollUsers',
+  title: 'Bulk Unenroll Users',
+  description: 'Remove students from a section of your course',
+  ordinality: 7,
+  roles: [RoleEnum['Subaccount admin'], RoleEnum['Account Admin']],
+  helpURLEnding: '/bulk-unenroll-users.html'
+}
+
 export type { FeatureDataProps }
 export {
   mergeSectionProps, formatThirdPartyGradebookProps,
-  createSectionsProps, addUMUsersProps, addNonUMUsersProps, courseRenameRoles, createSectionRoles, adminRoles
+  createSectionsProps, addUMUsersProps, addNonUMUsersProps, bulkUnenrollUsersProps,
+  courseRenameRoles, createSectionRoles, adminRoles
 }
