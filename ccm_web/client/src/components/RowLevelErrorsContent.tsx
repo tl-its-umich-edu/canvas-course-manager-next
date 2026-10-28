@@ -3,6 +3,8 @@ import { Grid, Typography } from '@mui/material'
 
 import ErrorAlert from './ErrorAlert.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'RowLevelErrorsContent'
 
 const classes = {

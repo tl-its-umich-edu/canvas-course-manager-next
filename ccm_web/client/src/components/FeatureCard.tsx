@@ -4,6 +4,8 @@ import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/materi
 
 import { FeatureUIProps } from '../models/FeatureUIData.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'FeatureCard'
 
 const classes = {

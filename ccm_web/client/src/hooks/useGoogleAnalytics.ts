@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import * as ReactGA from 'react-ga4'
+import ReactGA from 'react-ga4'
 import { AnalyticsConsentContextType } from '../context/AnalyticsConsentContext.js'
 
 export function useGoogleAnalytics<Params extends object>(
@@ -14,12 +14,13 @@ export function useGoogleAnalytics<Params extends object>(
 
       if (analyticsConsentContext.analyticsConsentGiven) {
         try {
-          (ReactGA as unknown as { default: { event: (options: object) => void } }).default.event({
+          const eventOptions = {
             action: name,
             category: 'ccm_activity',
             ...params,
             course_id: analyticsConsentContext.courseIdForEvents
-          })
+          }
+          ReactGA.event(eventOptions)
         } catch (error) {
           console.error('Error sending Google Analytics event:', error)
         }

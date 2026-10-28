@@ -1,6 +1,8 @@
 import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'NotFound'
 
 const classes = {

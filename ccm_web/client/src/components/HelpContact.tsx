@@ -1,5 +1,7 @@
 import { Link, Typography } from '@mui/material'
 
+import type { JSX } from 'react'
+
 export interface HelpContactProps {
   email: string
   helpLink: string
