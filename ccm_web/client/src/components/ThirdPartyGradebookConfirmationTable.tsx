@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import CustomTable from './CustomTable.js'
 import { REQUIRED_LOGIN_ID_HEADER } from '../utils/ThirdPartyGradebookProcessor.js'

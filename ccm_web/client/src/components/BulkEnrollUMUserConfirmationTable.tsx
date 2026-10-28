@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import CustomTable from './CustomTable.js'
 import { RowNumberedAddEnrollment } from '../models/enrollment.js'

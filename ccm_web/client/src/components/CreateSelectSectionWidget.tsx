@@ -1,4 +1,3 @@
-import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Tooltip, Typography } from '@mui/material'
 import { HelpOutline } from '@mui/icons-material'
