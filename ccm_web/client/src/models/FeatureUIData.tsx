@@ -1,5 +1,6 @@
 import { ComponentType, type JSX } from 'react'
 import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@mui/icons-material'
+import { GroupRemove as GroupRemoveIcon } from '@mui/icons-material'
 import { MergeType as MergeTypeIcon } from '@mui/icons-material'
 import { PersonAdd as PersonAddIcon } from '@mui/icons-material'
 import { PersonAddOutlined as PersonAddOutlinedIcon } from '@mui/icons-material'
@@ -7,11 +8,12 @@ import { PostAddOutlined as PostAddOutlinedIcon } from '@mui/icons-material'
 
 import {
   FeatureDataProps, mergeSectionProps, formatThirdPartyGradebookProps,
-  createSectionsProps, addUMUsersProps, addNonUMUsersProps
+  createSectionsProps, addUMUsersProps, addNonUMUsersProps, bulkUnenrollUsersProps
 } from './feature.js'
 import AddNonUMUsers from '../pages/AddNonUMUsers.js'
 import AddUMUsers from '../pages/AddUMUsers.js'
 import BulkSectionCreate from '../pages/BulkSectionCreate.js'
+import BulkUnenrollUsers from '../pages/BulkUnenrollUsers.js'
 import FormatThirdPartyGradebook from '../pages/FormatThirdPartyGradebook.js'
 import MergeSections from '../pages/MergeSections.js'
 import { Globals, RoleEnum } from './models.js'
@@ -89,8 +91,15 @@ const addNonUMUsersCardProps: FeatureUIProps = {
   route: '/add-non-um-users'
 }
 
+const bulkUnenrollUsersCardProps: FeatureUIProps = {
+  data: bulkUnenrollUsersProps,
+  icon: <GroupRemoveIcon fontSize='large' />,
+  component: BulkUnenrollUsers,
+  route: '/bulk-unenroll-users'
+}
+
 const allFeatures: FeatureUIGroup[] = [
-  { id: 'Users', title: 'Users', ordinality: 1, features: [addUMUsersCardProps, addNonUMUsersCardProps] },
+  { id: 'Users', title: 'Users', ordinality: 1, features: [addUMUsersCardProps, addNonUMUsersCardProps, bulkUnenrollUsersCardProps] },
   { id: 'Sections', title: 'Sections', ordinality: 2, features: [mergeSectionCardProps, createSectionsCardProps] },
   { id: 'GradebookTools', title: 'Gradebook Tools', ordinality: 3, features: [formatThirdPartyGradebookCardProps] },
 ]
