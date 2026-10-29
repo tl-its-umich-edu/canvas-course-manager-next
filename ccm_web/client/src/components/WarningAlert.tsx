@@ -4,6 +4,8 @@ import { Error as ErrorIcon } from '@mui/icons-material'
 
 import Alert from './Alert.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'WarningAlert'
 
 const classes = {

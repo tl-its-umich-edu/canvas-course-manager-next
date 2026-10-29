@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { type JSX } from 'react'
 import { TextField } from '@mui/material'
 
 import { ValidationResult } from '../utils/validation.js'

@@ -1,5 +1,7 @@
 import { Link } from '@mui/material'
 
+import type { JSX } from 'react'
+
 interface CanvasSettingsLinkProps {
   url: string
   msg?: string

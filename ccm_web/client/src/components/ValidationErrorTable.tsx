@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, type JSX } from 'react'
 
 import {
   Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow

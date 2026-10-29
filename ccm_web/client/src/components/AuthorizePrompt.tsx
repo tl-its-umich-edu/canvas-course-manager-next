@@ -3,6 +3,8 @@ import { Button, Typography } from '@mui/material'
 
 import Help from './Help.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'AuthorizePrompt'
 
 const classes = {

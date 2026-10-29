@@ -3,6 +3,8 @@ import { Grid, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/mate
 
 import { ClientEnrollmentType } from '../models/canvas.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'RoleSelect'
 
 const classes = {

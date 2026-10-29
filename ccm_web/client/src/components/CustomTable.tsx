@@ -3,6 +3,8 @@ import StyledTableCell from './StyledTableCell.js'
 import TableCaption from './TableCaption.js'
 import { TablePaginationActions } from './TablePagination.js'
 
+import type { JSX } from 'react'
+
 interface TableEntity {
   rowNumber: number
 }

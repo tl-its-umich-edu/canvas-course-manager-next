@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type JSX } from 'react'
 import { styled } from '@mui/material/styles'
 import { Step, Stepper as MUIStepper, StepLabel } from '@mui/material'
 import { announce } from '@react-aria/live-announcer'

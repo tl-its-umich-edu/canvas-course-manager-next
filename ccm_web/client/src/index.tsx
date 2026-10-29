@@ -33,7 +33,7 @@ root.render(
           alwaysShow={ccmGlobals.environment === 'development'}
           mode={ccmGlobals.environment === 'development' ? 'dev' : 'prod'}
         >
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Router>
             <Routes>
               <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
               <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>
