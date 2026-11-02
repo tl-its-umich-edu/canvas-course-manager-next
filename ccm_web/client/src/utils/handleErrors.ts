@@ -129,7 +129,7 @@ const handleErrors = async (resp: Response): Promise<void> => {
   let errorBody: APIErrorData
   try {
     errorBody = JSON.parse(text)
-  } catch (error) {
+  } catch {
     throw new Error(`Non-JSON error encountered with status code ${resp.status}`)
   }
 

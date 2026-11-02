@@ -1,5 +1,3 @@
 {
-    "eslint.options":  {
-        "configFile": "./ccm_web/.eslintrc.js"
-    }
+    "eslint.workingDirectories": ["./ccm_web"]
 }

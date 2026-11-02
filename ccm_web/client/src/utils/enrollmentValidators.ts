@@ -6,7 +6,7 @@ import {
   emailSchema, firstNameSchema, lastNameSchema, loginIDSchema, sectionIdSchema, validateNumberString
 } from '../utils/validation.js'
 
-export interface EnrollmentInvalidation extends RowInvalidation {}
+export type EnrollmentInvalidation = RowInvalidation
 
 interface EnrollmentRowsValidator {
   validate: (values: string[]) => EnrollmentInvalidation[]

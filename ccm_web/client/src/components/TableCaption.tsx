@@ -1,5 +1,5 @@
-import React from 'react'
 import { styled } from '@mui/material/styles'
+import type { JSX } from 'react'
 const PREFIX = 'TableCaption'
 
 const classes = {

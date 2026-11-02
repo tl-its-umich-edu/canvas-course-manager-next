@@ -1,55 +1,55 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { AnalyticsConsentContext, AnalyticsConsentContextType } from '../context/AnalyticsConsentContext.js';
-import { Globals } from '../models/models.js';
+import React, { useCallback, useEffect, useState } from 'react'
+import { AnalyticsConsentContext, AnalyticsConsentContextType } from '../context/AnalyticsConsentContext.js'
+import { Globals } from '../models/models.js'
 
 interface ConsentChangeEvent {
   cookie: {
-    categories: string[];
+    categories: string[]
   }
 }
 
 interface UmConsentCustomManager {
-  enabled: boolean;
-  alwaysShow: boolean;
-  rootDomain: string | false;
+  enabled: boolean
+  alwaysShow: boolean
+  rootDomain: string | false
   preferencePanel: {
-    beforeCategories: boolean;
-    afterCategories: boolean;
-  };
+    beforeCategories: boolean
+    afterCategories: boolean
+  }
 }
 
 interface UmConsentManagerConfig {
-  onConsentChange: (event: ConsentChangeEvent) => void;
-  mode: string;
-  customManager: UmConsentCustomManager;
+  onConsentChange: (event: ConsentChangeEvent) => void
+  mode: string
+  customManager: UmConsentCustomManager
   googleAnalyticsCustom: {
     streamConfig: {
-      cookie_flags: string;
-    };
+      cookie_flags: string
+    }
   }
-  privacyUrl: string | false;
-  externalLinkBlank: boolean;
-  googleAnalyticsID: string | false;
+  privacyUrl: string | false
+  externalLinkBlank: boolean
+  googleAnalyticsID: string | false
   cookies: {
-    necessary: Array<{ name: string; domain: string; regex: string }>;
-    analytics: Array<{ name: string; domain: string; regex: string }>;
-  };
+    necessary: Array<{ name: string, domain: string, regex: string }>
+    analytics: Array<{ name: string, domain: string, regex: string }>
+  }
 }
 
 declare global {
   interface Window {
-    umConsentManager: UmConsentManagerConfig;
+    umConsentManager: UmConsentManagerConfig
   }
 }
 
 interface ConsentManagerProviderProps {
-  children: React.ReactNode;
-  globals: Globals;
-  alwaysShow?: boolean;
-  rootDomain?: string;
-  mode?: 'prod' | 'dev';
-  privacyUrl?: string | false;
-  externalLinkBlank?: boolean; // open privacy link in a new tab
+  children: React.ReactNode
+  globals: Globals
+  alwaysShow?: boolean
+  rootDomain?: string
+  mode?: 'prod' | 'dev'
+  privacyUrl?: string | false
+  externalLinkBlank?: boolean // open privacy link in a new tab
 }
 
 export function ConsentManagerProvider({
@@ -65,26 +65,26 @@ export function ConsentManagerProvider({
     umConsentManagerScriptUrl, 
     googleAnalyticsId,
     course
-  } = globals;
+  } = globals
 
-  const [analyticsConsentGiven, setAnalyticsConsentGiven] = useState<boolean | null>(null);
+  const [analyticsConsentGiven, setAnalyticsConsentGiven] = useState<boolean | null>(null)
 
   const handleConsentChange = useCallback(({cookie}: ConsentChangeEvent) => {
     if (cookie && cookie.categories.includes('analytics')) {
-      setAnalyticsConsentGiven(true);
+      setAnalyticsConsentGiven(true)
     } else {
-      setAnalyticsConsentGiven(false);
+      setAnalyticsConsentGiven(false)
     }
-  }, [googleAnalyticsId]);
+  }, [googleAnalyticsId])
 
   useEffect(() => {
     if (!umConsentManagerScriptUrl || !googleAnalyticsId) {
-      !googleAnalyticsId && console.warn('Google Analytics ID is not provided, analytics tracking not initialized.');
-      !umConsentManagerScriptUrl && console.warn('Consent manager script URL is not provided, analytics tracking not initialized.');
-      return;
+      if (!googleAnalyticsId) console.warn('Google Analytics ID is not provided, analytics tracking not initialized.')
+      if (!umConsentManagerScriptUrl) console.warn('Consent manager script URL is not provided, analytics tracking not initialized.')
+      return
     }
 
-    const enabledCustomManager = alwaysShow !== false || rootDomain !== '';
+    const enabledCustomManager = alwaysShow !== false || rootDomain !== ''
     const consentConfig: UmConsentManagerConfig = {
       onConsentChange: handleConsentChange,
       mode: mode,
@@ -107,36 +107,36 @@ export function ConsentManagerProvider({
         necessary: [],
         analytics: [],
       }
-    };
-    window.umConsentManager = consentConfig;
+    }
+    window.umConsentManager = consentConfig
 
-    const script = document.createElement('script');
-    script.src = umConsentManagerScriptUrl;
-    script.async = true;
-    script.id = 'um-consent-manager-script';
+    const script = document.createElement('script')
+    script.src = umConsentManagerScriptUrl
+    script.async = true
+    script.id = 'um-consent-manager-script'
 
     script.onerror = (error: Event | string) => {
-      console.error('Failed to load consent manager script:', error);
-    };
-    document.head.appendChild(script);
+      console.error('Failed to load consent manager script:', error)
+    }
+    document.head.appendChild(script)
 
     return () => {
-      const existingScript = document.getElementById('um-consent-manager-script');
+      const existingScript = document.getElementById('um-consent-manager-script')
       if (existingScript && existingScript.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
+        existingScript.parentNode.removeChild(existingScript)
       }
-    };
+    }
 
-  }, [handleConsentChange, googleAnalyticsId, umConsentManagerScriptUrl, alwaysShow, rootDomain, mode, privacyUrl, externalLinkBlank]);
+  }, [handleConsentChange, googleAnalyticsId, umConsentManagerScriptUrl, alwaysShow, rootDomain, mode, privacyUrl, externalLinkBlank])
 
   const contextValue: AnalyticsConsentContextType = {
     analyticsConsentGiven: analyticsConsentGiven,
     courseIdForEvents: course?.id || null
-  };
+  }
 
   return (
     <AnalyticsConsentContext.Provider value={contextValue}>
       {children}
     </AnalyticsConsentContext.Provider>
-  );
+  )
 }

@@ -1,0 +1,37 @@
+# Secrets
+**/*.env*
+
+# Node dev
+**/node_modules/
+# Built in the image; host copies would overwrite them via `COPY . .`
+ccm_web/bundles/
+ccm_web/webpack-stats.json
+ccm_web/dist/
+
+# Python dev
+venv*/
+**/__pycache__/
+.mypy_cache/
+mypy.ini
+
+# Database
+.data
+.mysql_data*
+
+# Docs
+**/*.md
+docs/
+
+# Local tooling
+.claude/
+.github/
+*.diff
+
+# Git
+.git
+.gitignore
+
+# IDE/OS stuff
+.idea/
+.history/
+**/.DS_Store

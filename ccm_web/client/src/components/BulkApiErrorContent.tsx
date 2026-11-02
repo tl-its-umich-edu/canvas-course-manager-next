@@ -1,4 +1,3 @@
-import React from 'react'
 import { Typography } from '@mui/material'
 
 import APIErrorsTable from './APIErrorsTable.js'
@@ -8,6 +7,8 @@ import RowLevelErrorsContent from './RowLevelErrorsContent.js'
 import { CanvasError } from '../utils/handleErrors.js'
 import SelectedSectionInfo from './SelectedSectionInfo.js'
 import { CanvasCourseSectionWithCourseName } from '../models/canvas.js'
+
+import type { JSX } from 'react'
 
 interface BulkApiErrorContentProps {
   error: Error
@@ -34,7 +35,7 @@ export default function BulkApiErrorContent (props: BulkApiErrorContentProps): J
             resetUpload={tryAgain}
           />
           </>
-        )
+      )
       : <ErrorAlert messages={[apiErrorMessage]} tryAgain={tryAgain} />
   )
 }

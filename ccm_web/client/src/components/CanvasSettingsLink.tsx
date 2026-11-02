@@ -1,5 +1,6 @@
-import React from 'react'
 import { Link } from '@mui/material'
+
+import type { JSX } from 'react'
 
 interface CanvasSettingsLinkProps {
   url: string

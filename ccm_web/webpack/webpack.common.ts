@@ -1,5 +1,5 @@
 import path from 'node:path'
-import * as webpack from 'webpack'
+import type * as webpack from 'webpack'
 import BundleTrackerPlugin from 'webpack-bundle-tracker'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 

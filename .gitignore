@@ -2,6 +2,8 @@
 
 # distributables
 ccm_web/dist
+ccm_web/bundles/
+ccm_web/webpack-stats.json
 
 # database volume
 .mysql_data*

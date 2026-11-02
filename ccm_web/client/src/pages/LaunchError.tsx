@@ -1,4 +1,3 @@
-import React from 'react'
 
 import { Link, Typography } from '@mui/material'
 
@@ -6,7 +5,9 @@ import HelpContact, { HelpContactProps } from '../components/HelpContact.js'
 import InlineErrorAlert from '../components/InlineErrorAlert.js'
 import Layout from '../components/Layout.js'
 
-interface LaunchErrorProps extends HelpContactProps {}
+import type { JSX } from 'react'
+
+type LaunchErrorProps = HelpContactProps
 
 export default function LaunchError (props: LaunchErrorProps): JSX.Element {
   const chromeLink = 'https://support.google.com/chrome/answer/95647?hl=en'

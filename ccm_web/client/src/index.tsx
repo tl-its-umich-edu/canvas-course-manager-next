@@ -1,5 +1,4 @@
 import { SnackbarProvider } from 'notistack'
-import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material'
@@ -19,7 +18,7 @@ const helpContactProps = {
 const ccmGlobalId = 'ccm_globals'
 const ccmGlobalEl = document.getElementById(ccmGlobalId)
 if (!ccmGlobalEl || !ccmGlobalEl.textContent) {
-  throw new Error(`Error: Element with id '${ccmGlobalId}' not found or has no content.`);
+  throw new Error(`Error: Element with id '${ccmGlobalId}' not found or has no content.`)
 }
 const ccmGlobals = Object.freeze(JSON.parse(ccmGlobalEl.textContent))
 
@@ -34,7 +33,7 @@ root.render(
           alwaysShow={ccmGlobals.environment === 'development'}
           mode={ccmGlobals.environment === 'development' ? 'dev' : 'prod'}
         >
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Router>
             <Routes>
               <Route path='/access-denied' element={<AccessDenied {...helpContactProps} />}/>
               <Route path='/launch-error' element={<LaunchError {...helpContactProps} />}/>

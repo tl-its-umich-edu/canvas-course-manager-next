@@ -1,9 +1,10 @@
-import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Button, Paper, Typography } from '@mui/material'
 import { CloudDone as CloudDoneIcon } from '@mui/icons-material'
 
 import { DownloadData } from '../models/models.js'
+
+import type { JSX } from 'react'
 
 const PREFIX = 'ConfirmDialog'
 

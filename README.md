@@ -182,6 +182,23 @@ The goal is to implement tests for the project's major components, focusing on c
 `docker exec -it ccm_web python manage.py test backend.tests.<name-of-file-without-dotpy>.<Name-of-test-class>.<unit-test-name-with-dopy>`
    1. for example, `docker exec -it ccm_web python manage.py test backend.tests.test_course_api_handler.CanvasCourseAPIHandlerTests.test_handle_canvas_api_exception_invalid_access_token`
 
+#### Linting the client
+The client uses ESLint 9 with the config in `ccm_web/eslint.config.js`. It checks TypeScript and React code in `client/src` and `webpack`, including type-aware rules, and enforces the existing style (no semicolons, single quotes, 2-space indent, and comma-separated single-line types). Run these from `ccm_web/`:
+
+1. Lint and list problems
+`npx eslint client/src webpack`
+2. Fix style problems automatically
+`npx eslint client/src webpack --fix`
+3. Type-check the project
+`npx tsc --noEmit -p .`
+
+In VS Code, the ESLint extension reads the same config through the `eslint.workingDirectories` setting in `.vscode/settings.json`. After changing the config, restart the ESLint server so VS Code picks up the new rules:
+
+1. Open the command palette (Cmd+Shift+P).
+2. Run **ESLint: Restart ESLint Server**.
+
+If the errors still look out of date, run **Developer: Reload Window** from the same palette.
+
 
 #### Deploying to GitHub Pages
 

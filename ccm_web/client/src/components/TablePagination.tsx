@@ -1,7 +1,7 @@
 import { IconButton, useTheme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { KeyboardArrowRight, KeyboardArrowLeft, FirstPage, LastPage } from '@mui/icons-material'
-import React from 'react'
+import React, { type JSX } from 'react'
 
 const classes = {
   root: 'TablePagination-root'
