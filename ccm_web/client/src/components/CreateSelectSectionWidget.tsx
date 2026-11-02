@@ -6,6 +6,8 @@ import CreateSectionWidget from './CreateSectionWidget.js'
 import SectionSelectorWidget from './SectionSelectorWidget.js'
 import { CanvasCourseBase, CanvasCourseSection, CanvasCourseSectionWithCourseName } from '../models/canvas.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'CreateSelectSectionWidget'
 
 const classes = {

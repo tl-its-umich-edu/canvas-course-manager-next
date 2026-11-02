@@ -5,6 +5,8 @@ import HelpContact, { HelpContactProps } from '../components/HelpContact.js'
 import InlineErrorAlert from '../components/InlineErrorAlert.js'
 import Layout from '../components/Layout.js'
 
+import type { JSX } from 'react'
+
 type LaunchErrorProps = HelpContactProps
 
 export default function LaunchError (props: LaunchErrorProps): JSX.Element {

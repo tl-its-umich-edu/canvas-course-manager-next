@@ -5,6 +5,8 @@ import {NavigateNext as NavigateNextIcon} from '@mui/icons-material'
 
 import { FeatureUIProps } from '../models/FeatureUIData.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'Breadcrumbs'
 
 const classes = {

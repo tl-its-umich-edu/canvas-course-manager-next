@@ -1,6 +1,6 @@
 import { useSnackbar } from 'notistack'
 import { styled } from '@mui/material/styles'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, type JSX } from 'react'
 import {
   Backdrop,
   Button,

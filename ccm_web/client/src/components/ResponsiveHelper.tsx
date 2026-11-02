@@ -1,5 +1,7 @@
 import { useMediaQuery, useTheme } from '@mui/material'
 
+import type { JSX } from 'react'
+
 function ResponsiveHelper (): JSX.Element {
   const theme = useTheme()
   const sm = useMediaQuery(theme.breakpoints.up('sm'))

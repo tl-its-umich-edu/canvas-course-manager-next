@@ -4,6 +4,8 @@ import { CloudDone as CloudDoneIcon } from '@mui/icons-material'
 
 import { DownloadData } from '../models/models.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'ConfirmDialog'
 
 const classes = {

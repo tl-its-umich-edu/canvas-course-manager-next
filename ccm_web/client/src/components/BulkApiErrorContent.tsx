@@ -8,6 +8,8 @@ import { CanvasError } from '../utils/handleErrors.js'
 import SelectedSectionInfo from './SelectedSectionInfo.js'
 import { CanvasCourseSectionWithCourseName } from '../models/canvas.js'
 
+import type { JSX } from 'react'
+
 interface BulkApiErrorContentProps {
   error: Error
   file?: File

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { type JSX } from 'react'
 import { styled } from '@mui/material/styles'
 import { Divider, Grid, Link, Paper, Typography } from '@mui/material'
 import { Build as BuildIcon } from '@mui/icons-material'

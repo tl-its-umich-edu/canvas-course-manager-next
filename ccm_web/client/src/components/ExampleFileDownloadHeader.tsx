@@ -3,6 +3,8 @@ import { Link, Typography } from '@mui/material'
 
 import { prepDownloadDataString } from '../utils/fileUtils.js'
 
+import type { JSX } from 'react'
+
 const PREFIX = 'ExampleFileDownloadHeader'
 
 const classes = {
