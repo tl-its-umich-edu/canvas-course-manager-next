@@ -56,7 +56,7 @@ const Root = styled('div')((
   }
 }))
 
-interface BulkUnenrollUsersProps extends CCMComponentProps { }
+type BulkUnenrollUsersProps = CCMComponentProps
 
 function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
   const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
