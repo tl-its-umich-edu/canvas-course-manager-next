@@ -165,7 +165,7 @@ class TestCanvasAdminApiTokenLogging(SimpleTestCase):
 
     def test_custom_canvas_roles_default(self):
         importlib.reload(settings)
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21, 'grader': 83})
 
     def test_custom_canvas_roles_env_override(self):
         os.environ[self.roles_env_key] = '{"assistant": 99, "librarian": 88}'
@@ -175,7 +175,7 @@ class TestCanvasAdminApiTokenLogging(SimpleTestCase):
     def test_custom_canvas_roles_env_invalid(self):
         os.environ[self.roles_env_key] = 'not a json string'
         importlib.reload(settings)
-        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21})
+        self.assertEqual(settings.CUSTOM_CANVAS_ROLES, {'assistant': 34, 'librarian': 21, 'grader': 83})
 
 
 class TestTimeZoneSetting(SimpleTestCase):

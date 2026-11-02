@@ -11,6 +11,7 @@ import usePromise from '../hooks/usePromise.js'
 import {
   CanvasCourseSection, CanvasCourseSectionWithCourseName, injectCourseName, sortSections
 } from '../models/canvas.js'
+import { ALLOWED_ENROLLMENT_ROLES } from '../models/enrollment.js'
 import { CCMComponentProps } from '../models/FeatureUIData.js'
 
 const PREFIX = 'AddUMUsers'
@@ -106,7 +107,8 @@ function AddUMUsers (props: AddUMUsersProps): JSX.Element {
     getSectionsError,
     featureTitle: props.title,
     settingsURL,
-    resetFeature
+    resetFeature,
+    allowedEnrollmentRoles: ALLOWED_ENROLLMENT_ROLES
   }
 
   return (
