@@ -15,8 +15,8 @@
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
-    "@mui/icons-material": "5.18.0",
-    "@mui/material": "5.18.0",
+    "@mui/icons-material": "9.5.0",
+    "@mui/material": "9.5.0",
     "@react-aria/live-announcer": "3.5.1",
     "@react-hook/debounce": "4.0.0",
     "cookie-parser": "1.4.7",
@@ -36,12 +36,11 @@
     "@stylistic/eslint-plugin": "5.10.0",
     "@types/cookie-parser": "1.4.10",
     "@types/js-cookie": "3.0.6",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "@types/papaparse": "5.5.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/webpack": "5.28.5",
-    "clean-webpack-plugin": "4.0.0",
     "css-loader": "7.1.5",
     "eslint": "9.39.5",
     "eslint-plugin-react": "7.37.5",
@@ -51,7 +50,7 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
     "webpack": "5.112.2",
-    "webpack-cli": "7.2.3",
+    "webpack-cli": "7.3.1",
     "webpack-merge": "6.0.1"
   }
 }

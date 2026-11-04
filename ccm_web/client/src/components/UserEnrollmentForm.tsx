@@ -197,8 +197,15 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         showIncompleteAlerts && (userInfo === undefined) &&
           <InlineErrorAlert>You must search for the user to complete the form.</InlineErrorAlert>
       }
-      <Grid container spacing={2} alignItems='center'>
-        <Grid item md={10} sm={8} xs={8}>
+      <Grid container spacing={2} sx={{
+        alignItems: 'center'
+      }}>
+        <Grid
+          size={{
+            md: 10,
+            sm: 8,
+            xs: 8
+          }}>
           <ValidatedFormField
             fieldName='Email address'
             placeholder='user@example.com'
@@ -212,7 +219,12 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
             disabled={isLoading}
           />
         </Grid>
-        <Grid item md={2} sm={4} xs={4}>
+        <Grid
+          size={{
+            md: 2,
+            sm: 4,
+            xs: 4
+          }}>
           <Button
             color='primary'
             variant='contained'
@@ -226,10 +238,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       </Grid>
       <Backdrop className={classes.backdrop} open={isSearchForUserLoading}>
         <Grid container>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <CircularProgress color='inherit' />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             Searching for the user in Canvas
           </Grid>
         </Grid>
@@ -249,7 +261,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
       to set up a login method and add them to Canvas. (Required)
     </Typography>
     <Grid container spacing={2}>
-      <Grid item md={6} xs={6}>
+      <Grid
+        size={{
+          md: 6,
+          xs: 6
+        }}>
         <ValidatedFormField
           fieldName='First name'
           placeholder='Jane'
@@ -264,7 +280,11 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           autoFocus={true}
         />
       </Grid>
-      <Grid item md={6} xs={6}>
+      <Grid
+        size={{
+          md: 6,
+          xs: 6
+        }}>
         <ValidatedFormField
           fieldName='Last name'
           placeholder='Doe'
@@ -363,12 +383,14 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
           />
           <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
             <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>Loading section data from Canvas</Grid>
+              <Grid size={12}><CircularProgress color='inherit' /></Grid>
+              <Grid size={12}>Loading section data from Canvas</Grid>
             </Grid>
           </Backdrop>
         </div>
-        <Grid container className={classes.buttonGroup} justifyContent='space-between'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'space-between'
+        }}>
           <Button
             variant='outlined'
             aria-label='Back to input method select'
@@ -388,10 +410,10 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
         </Grid>
         <Backdrop className={classes.backdrop} open={isEnrollmentLoading}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <CircularProgress color='inherit' />
             </Grid>
-            <Grid item xs={12}>Sending user and enrollment data to Canvas</Grid>
+            <Grid size={12}>Sending user and enrollment data to Canvas</Grid>
           </Grid>
         </Backdrop>
       </div>
@@ -411,12 +433,14 @@ export default function UserEnrollmentForm (props: UserEnrollmentFormProps): JSX
 
     return (
       <>
-      <SuccessCard message={<Typography>{messageText}</Typography>} nextAction={nextAction} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
-          Start Again
-        </Button>
-      </Grid>
+        <SuccessCard message={<Typography>{messageText}</Typography>} nextAction={nextAction} />
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
+          <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+            Start Again
+          </Button>
+        </Grid>
       </>
     )
   }

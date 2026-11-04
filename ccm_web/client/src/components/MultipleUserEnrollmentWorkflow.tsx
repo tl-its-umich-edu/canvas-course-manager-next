@@ -205,39 +205,43 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
       ? { canCreate: true, course: props.course, onSectionCreated }
       : { canCreate: false }
 
-    return <>
-    <div className={classes.container}>
-      <CreateSelectSectionWidget
-        sections={props.sections}
-        selectedSection={selectedSection}
-        setSelectedSection={setSelectedSection}
-        {...createProps} />
-      <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
-        <Grid container>
-          <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-          <Grid item xs={12}>Loading section data from Canvas</Grid>
+    return (
+      <>
+        <div className={classes.container}>
+          <CreateSelectSectionWidget
+            sections={props.sections}
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+            {...createProps} />
+          <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
+            <Grid container>
+              <Grid size={12}><CircularProgress color='inherit' /></Grid>
+              <Grid size={12}>Loading section data from Canvas</Grid>
+            </Grid>
+          </Backdrop>
+        </div>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'space-between'
+        }}>
+          <Button
+            variant='outlined'
+            onClick={props.resetFeature}
+            aria-label='Back to input method select'
+          >
+            Back
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            aria-label='Select section'
+            disabled={selectedSection === undefined || props.isGetSectionsLoading}
+            onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
+          >
+            Select
+          </Button>
         </Grid>
-      </Backdrop>
-    </div>
-    <Grid container className={classes.buttonGroup} justifyContent='space-between'>
-      <Button
-        variant='outlined'
-        onClick={props.resetFeature}
-        aria-label='Back to input method select'
-      >
-        Back
-      </Button>
-      <Button
-        variant='contained'
-        color='primary'
-        aria-label='Select section'
-        disabled={selectedSection === undefined || props.isGetSectionsLoading}
-        onClick={() => setActiveStep(CSVWorkflowStep.Upload)}
-      >
-        Select
-      </Button>
-    </Grid>
-    </>
+      </>
+    )
   }
 
   const renderUpload = (): JSX.Element => {
@@ -365,10 +369,21 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         {file !== undefined && <CSVFileName file={file} />}
         {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <Grid container>
-            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
+            <Grid
+              sx={{ order: { xs: 2, sm: 1 } }}
+              className={classes.table}
+              size={{
+                xs: 12,
+                sm: 9
+              }}>
               <BulkEnrollExternalUserConfirmationTable enrollments={enrollments} />
             </Grid>
-            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
+            <Grid
+              sx={{ order: { xs: 1, sm: 2 } }}
+              size={{
+                xs: 12,
+                sm: 3
+              }}>
               <ConfirmDialog
                 submit={async () => {
                   await doAddExternalEnrollments(sectionId, enrollments.map(({ rowNumber, ...others }) => others))
@@ -383,9 +398,9 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddExternalEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Sending enrollment data...</Grid>
-            <Grid item xs={12}>
+            <Grid size={12}><CircularProgress color='inherit' /></Grid>
+            <Grid size={12}>Sending enrollment data...</Grid>
+            <Grid size={12}>
               Please stay on the page. This process may take several seconds for larger files.
             </Grid>
           </Grid>
@@ -429,12 +444,14 @@ export default function MultipleUserEnrollmentWorkflow (props: MultipleUserEnrol
     )
     return (
       <>
-      <SuccessCard {...{ message, nextAction }} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
-          Start Again
-        </Button>
-      </Grid>
+        <SuccessCard {...{ message, nextAction }} />
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
+          <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+            Start Again
+          </Button>
+        </Grid>
       </>
     )
   }

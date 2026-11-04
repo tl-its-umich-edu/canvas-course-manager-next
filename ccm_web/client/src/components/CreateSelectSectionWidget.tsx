@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles'
 import { Tooltip, Typography } from '@mui/material'
-import { HelpOutline } from '@mui/icons-material'
+import { HelpOutlineOutlined } from '@mui/icons-material'
 
 import CreateSectionWidget from './CreateSectionWidget.js'
 import SectionSelectorWidget from './SectionSelectorWidget.js'
@@ -82,7 +82,7 @@ export default function CreateSelectSectionWidget (props: CreateSelectSectionWid
             <div className={`${classes.newSectionHint} ${classes.spacing}`}>
               <Typography>Create a new section to add users to</Typography>
               <Tooltip className={classes.tooltip} placement='top' title='Enter a distinct name for this section'>
-                <HelpOutline fontSize='small' />
+                <HelpOutlineOutlined fontSize='small' />
               </Tooltip>
             </div>
             <div className={classes.createSectionWidget}>

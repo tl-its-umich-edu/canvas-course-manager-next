@@ -108,12 +108,14 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
           />
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
             <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>Loading section data from Canvas</Grid>
+              <Grid size={12}><CircularProgress color='inherit' /></Grid>
+              <Grid size={12}>Loading section data from Canvas</Grid>
             </Grid>
           </Backdrop>
         </div>
-        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-end'
+        }}>
           <Button
             variant='contained'
             color='primary'
@@ -133,7 +135,9 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
       <>
         {selectedSection !== undefined && <SelectedSectionInfo section={selectedSection} />}
         <Typography>This step is not yet available.</Typography>
-        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
           <Button
             variant='outlined'
             aria-label='Back to Select Section'

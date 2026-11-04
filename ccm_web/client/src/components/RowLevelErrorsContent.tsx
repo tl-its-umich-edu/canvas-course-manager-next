@@ -32,16 +32,27 @@ function RowLevelErrorsContent (props: RowLevelErrorsContentProps): JSX.Element 
   const defaultMessage = <Typography>Create a new file with corrected versions of these rows.</Typography>
 
   return (
-    <StyledGrid container justifyContent='flex-start'>
-        <Grid item xs={12} sm={8} sx={{ order: { xs: 2, sm: 1 } }} className={classes.padding}>{props.table}</Grid>
-        <Grid item xs={12} sm={4} sx={{ order: { xs: 1, sm: 2 } }}>
-          <ErrorAlert
-            title={props.title}
-            messages={[props.message !== undefined ? props.message : defaultMessage]}
-            tryAgain={props.resetUpload}
-            embedded={true}
-          />
-        </Grid>
+    <StyledGrid container sx={{ justifyContent: 'flex-start' }}>
+      <Grid
+        sx={{ order: { xs: 2, sm: 1 } }}
+        className={classes.padding}
+        size={{
+          xs: 12,
+          sm: 8
+        }}>{props.table}</Grid>
+      <Grid
+        sx={{ order: { xs: 1, sm: 2 } }}
+        size={{
+          xs: 12,
+          sm: 4
+        }}>
+        <ErrorAlert
+          title={props.title}
+          messages={[props.message !== undefined ? props.message : defaultMessage]}
+          tryAgain={props.resetUpload}
+          embedded={true}
+        />
+      </Grid>
     </StyledGrid>
   )
 }

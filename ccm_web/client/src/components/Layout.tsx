@@ -75,7 +75,12 @@ export default function Layout (props: LayoutProps): JSX.Element {
 
   return (
     <StyledGrid container className={classes.root}>
-      <Grid item sm={12} md={10} lg={9}>
+      <Grid
+        size={{
+          sm: 12,
+          md: 10,
+          lg: 9
+        }}>
         {devBlock}
         <div className={`${classes.spacing} ${classes.breadcrumbsContainer}`}>
           <Breadcrumbs {...props} />

@@ -122,16 +122,18 @@ function CourseSectionList (props: CourseSectionListProps): JSX.Element {
   }
 
   const loading = (): JSX.Element => {
-    return (<Backdrop className={classes.backdrop} open={isLoading || isUnmerging}>
-      <Grid container>
-        <Grid item xs={12}>
-          <CircularProgress color="inherit" />
+    return (
+      <Backdrop className={classes.backdrop} open={isLoading || isUnmerging}>
+        <Grid container>
+          <Grid size={12}>
+            <CircularProgress color="inherit" />
+          </Grid>
+          <Grid size={12}>
+            {loadingText()}
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          {loadingText()}
-        </Grid>
-      </Grid>
-    </Backdrop>)
+      </Backdrop>
+    )
   }
 
   const unmergeSection = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, section: CanvasCourseSection): React.MouseEventHandler<HTMLButtonElement> | undefined => {

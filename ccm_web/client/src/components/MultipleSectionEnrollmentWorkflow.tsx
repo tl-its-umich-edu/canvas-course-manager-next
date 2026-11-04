@@ -336,15 +336,20 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
           />
         </div>
         <Grid container className={`${classes.spacing} ${classes.container}`}>
-          <Grid item md={6} sm={9} xs={12}>
+          <Grid
+            size={{
+              md: 6,
+              sm: 9,
+              xs: 12
+            }}>
             <Link href={sectionDataToDownload} download='course_section_ids.csv'>
               Download a CSV with the Canvas Course Section IDs data
             </Link>
             <Accordion title='Course Section Canvas IDs' id='section-ids'>
               <Backdrop className={classes.backdrop} open={props.isGetSectionsLoading}>
                 <Grid container>
-                  <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-                  <Grid item xs={12}>Loading section data from Canvas</Grid>
+                  <Grid size={12}><CircularProgress color='inherit' /></Grid>
+                  <Grid size={12}>Loading section data from Canvas</Grid>
                 </Grid>
               </Backdrop>
               {sectionIdsTable}
@@ -367,10 +372,21 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
       <div className={classes.container}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-            <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.confirmationTable}>
+            <Grid
+              sx={{ order: { xs: 2, sm: 1 } }}
+              className={classes.confirmationTable}
+              size={{
+                xs: 12,
+                sm: 9
+              }}>
               <BulkEnrollUMUserToSectionsConfirmationTable enrollments={enrollments} />
             </Grid>
-            <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
+            <Grid
+              sx={{ order: { xs: 1, sm: 2 } }}
+              size={{
+                xs: 12,
+                sm: 3
+              }}>
               <ConfirmDialog
                 submit={async () => await doAddEnrollments(enrollmentData)}
                 cancel={resetUpload}
@@ -380,9 +396,9 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddEnrollmentsLoading}>
           <Grid container>
-            <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-            <Grid item xs={12}>Sending enrollment data...</Grid>
-            <Grid item xs={12}>
+            <Grid size={12}><CircularProgress color='inherit' /></Grid>
+            <Grid size={12}>Sending enrollment data...</Grid>
+            <Grid size={12}>
               Please stay on the page. This process may take several seconds for larger files.
             </Grid>
           </Grid>
@@ -401,12 +417,14 @@ export default function MultipleSectionEnrollmentWorkflow (props: MultipleSectio
     )
     return (
       <>
-      <SuccessCard {...{ message, nextAction }} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
-          Start Again
-        </Button>
-      </Grid>
+        <SuccessCard {...{ message, nextAction }} />
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
+          <Button variant='outlined' aria-label={`Start ${props.featureTitle} again`} onClick={props.resetFeature}>
+            Start Again
+          </Button>
+        </Grid>
       </>
     )
   }

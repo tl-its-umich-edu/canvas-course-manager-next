@@ -41,9 +41,11 @@ but is part of the core later in 5. We can use that once we update.
 export default function InlineErrorAlert (props: InlineAlertProps): JSX.Element {
   return (
     <StyledPaper className={classes.alert} elevation={0} role='alert'>
-      <Grid container spacing={2} alignItems='center' direction='row' wrap='nowrap'>
-        <Grid item><ErrorIcon className={classes.icon} /></Grid>
-        <Grid item>{props.children}</Grid>
+      <Grid container spacing={2} direction='row' wrap='nowrap' sx={{
+        alignItems: 'center'
+      }}>
+        <Grid><ErrorIcon className={classes.icon} /></Grid>
+        <Grid>{props.children}</Grid>
       </Grid>
     </StyledPaper>
   )

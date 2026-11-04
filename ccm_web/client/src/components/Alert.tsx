@@ -7,9 +7,12 @@ const StyledGrid = styled(Grid)(() => ({
 
 }))
 
-const StyledCorePaper = styled(Paper)((
+const StyledCorePaper = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'severity'
+})<{ severity?: 'warning' }>((
   {
-    theme
+    theme,
+    severity
   }
 ) => ({
   textAlign: 'center',
@@ -23,7 +26,12 @@ const StyledCorePaper = styled(Paper)((
   '& li': {
     textAlign: 'left',
     marginBottom: 10
-  }
+  },
+  ...(severity === 'warning' && {
+    '& > .MuiSvgIcon-root': {
+      color: theme.palette.warning.main
+    }
+  })
 }))
 
 interface AlertProps {
@@ -31,13 +39,14 @@ interface AlertProps {
   title: string
   icon: JSX.Element
   embedded?: boolean
+  severity?: 'warning'
 }
 
 export default function Alert (props: AlertProps): JSX.Element {
-  const { title, icon, embedded, children } = props
+  const { title, icon, embedded, severity, children } = props
 
   const core = (
-    <StyledCorePaper role='alert'>
+    <StyledCorePaper role='alert' severity={severity}>
       <Typography gutterBottom>{title}</Typography>
       {icon}
       {children}
@@ -46,7 +55,7 @@ export default function Alert (props: AlertProps): JSX.Element {
 
   if (embedded === true) return core
   return (
-    <StyledGrid item xs={12} sm={9} md={6}>
+    <StyledGrid size={{ xs: 12, sm: 9, md: 6 }}>
       {core}
     </StyledGrid>
   )

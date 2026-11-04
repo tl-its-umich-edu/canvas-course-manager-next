@@ -104,14 +104,18 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
           ? (
               <form noValidate autoComplete='off'>
                 <Grid container>
-                  <Grid item md={9} sm={7} xs={7}>
+                  <Grid
+                    size={{
+                      md: 9,
+                      sm: 7,
+                      xs: 7
+                    }}>
                     <TextField
                       className={classes.buttonSep}
                       variant='standard'
                       aria-readonly={false}
                       onClick={toggleEdit}
                       fullWidth={true}
-                      inputProps={{ style: { fontSize: props.fontSize } }}
                       ref={textInput}
                       id='standard-basic'
                       autoFocus={true}
@@ -125,9 +129,17 @@ function InlineTextEdit (props: InlineTextEditProps): JSX.Element {
                       disabled={!isEditing && props.isSaving}
                       error={error}
                       helperText={helpMessage}
+                      slotProps={{
+                        htmlInput: { style: { fontSize: props.fontSize } }
+                      }}
                     />
                   </Grid>
-                  <Grid item md={3} sm={5} xs={5}>
+                  <Grid
+                    size={{
+                      md: 3,
+                      sm: 5,
+                      xs: 5
+                    }}>
                     <Button
                       className={classes.button}
                       disabled={props.text === tempTextValue || props.isSaving}
