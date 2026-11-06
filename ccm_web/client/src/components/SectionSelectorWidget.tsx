@@ -620,9 +620,16 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
               variant='outlined'
               value={filterDraft}
               onChange={(event) => setFilterDraft(event.target.value)}
-              inputProps={{ maxLength: 256 }}
+              slotProps={{
+                htmlInput: { maxLength: 256 }
+              }}
             />
-            <Grid container justifyContent='flex-end' sx={{ marginTop: 1 }}>
+            <Grid
+              container
+              sx={{
+                justifyContent: 'flex-end',
+                marginTop: 1
+              }}>
               <Button onClick={() => applyFilter('')} disabled={filterText.length === 0 && filterDraft.length === 0}>
                 Clear
               </Button>
@@ -644,10 +651,10 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
         {filterText.length > 0 && `, ${displayedSections.length} of ${internalSections.length} sections shown for filter "${filterText}"`}
       </span>
       <Grid container>
-        <Grid className={classes.header} container item xs={12}>
+        <Grid className={classes.header} container size={12}>
           {
             searcher?.isInteractive === true && (
-              <Grid item container className={classes.searchContainer} xs={12}>
+              <Grid container className={classes.searchContainer} size={12}>
                 <TextField
                   className={classes.searchTextField}
                   disabled={isSearching || isIniting}
@@ -657,16 +664,19 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
                   size='small'
                   label={searchFieldLabel}
                   variant='outlined'
-                  inputProps={{ maxLength: 256 }}
-                  InputProps={{ endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) }}
-                />
+                  slotProps={{
+                    input: { endAdornment: getSearchTextFieldEndAdornment(searchFieldText.length > 0) },
+                    htmlInput: { maxLength: 256 }
+                  }} />
               </Grid>
             )
           }
           {
             // The widget is about the same width at every breakpoint on Merge Sections, so the toolbar wraps by content instead
             hasToolbar && (
-              <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', px: 2 }}>
+              <Grid
+                sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', px: 2 }}
+                size={12}>
                 {props.multiSelect && selectAllCheckbox()}
                 {sortButton()}
                 {filterButton()}
@@ -677,7 +687,7 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
           }
           {
             props.header?.title !== undefined && (
-              <Grid item xs={12} sx={{ px: 2 }} className={classes.title}>
+              <Grid sx={{ px: 2 }} className={classes.title} size={12}>
                 <Typography variant='h6' component='h2'>
                   {props.header.title}
                   {props.selectedSections.length > 0 && <span> ({props.selectedSections.length} selected)</span>}
@@ -686,7 +696,7 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
             )
           }
         </Grid>
-        <Grid item xs={12} className={classes.sectionSelectionContainer}>
+        <Grid className={classes.sectionSelectionContainer} size={12}>
           <List className={classes.listContainer} style={{ maxHeight: props.height }} >
             {displayedSections.map((section) => {
               const isSelected = isSectionSelected(section.id)
@@ -717,8 +727,8 @@ function SectionSelectorWidget(props: ISectionSelectorWidgetProps): JSX.Element 
           }
           <Backdrop className={classes.backdrop} open={isSearching || isIniting || isUnmerging}>
             <Grid container>
-              <Grid item xs={12}><CircularProgress color='inherit' /></Grid>
-              <Grid item xs={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
+              <Grid size={12}><CircularProgress color='inherit' /></Grid>
+              <Grid size={12}>{isSearching || isIniting ? 'Searching...' : 'Unmerging...'}</Grid>
             </Grid>
           </Backdrop>
         </Grid>

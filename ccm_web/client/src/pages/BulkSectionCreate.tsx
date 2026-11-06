@@ -287,16 +287,16 @@ Section 001`
     return (
       <Root className={classes.uploadContainer}>
         <Grid container>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <FileUpload onUploadComplete={(file) => setFile(file)} />
           </Grid>
         </Grid>
         <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <CircularProgress color="inherit" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
             {renderLoadingText()}
             </Grid>
           </Grid>
@@ -357,24 +357,36 @@ Section 001`
       <div className={classes.confirmContainer}>
         {file !== undefined && <CSVFileName file={file} />}
         <Grid container>
-          <Grid item xs={12} sm={9} sx={{ order: { xs: 2, sm: 1 } }} className={classes.table}>
+          <Grid
+            sx={{ order: { xs: 2, sm: 1 } }}
+            className={classes.table}
+            size={{
+              xs: 12,
+              sm: 9
+            }}>
             <BulkSectionCreateUploadConfirmationTable sectionNames={sectionNames} />
           </Grid>
-          <Grid item xs={12} sm={3} sx={{ order: { xs: 1, sm: 2 } }}>
+          <Grid
+            sx={{ order: { xs: 1, sm: 2 } }}
+            size={{
+              xs: 12,
+              sm: 3
+            }}>
             <ConfirmDialog submit={submit} cancel={resetPageState} disabled={isSubmitting()} />
           </Grid>
         </Grid>
         <Backdrop className={classes.backdrop} open={isAddSectionsLoading}>
         <Grid container>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <CircularProgress color="inherit" />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
           {renderLoadingText()}
           </Grid>
         </Grid>
       </Backdrop>
-      </div>)
+      </div>
+    )
   }
 
   const sectionNamesToSection = (sectionNames: string[]): Section[] => {
@@ -392,12 +404,14 @@ Section 001`
     )
     return (
       <>
-      <SuccessCard {...{ message, nextAction }} />
-      <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
-        <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
-          Start Again
-        </Button>
-      </Grid>
+        <SuccessCard {...{ message, nextAction }} />
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
+          <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={resetPageState}>
+            Start Again
+          </Button>
+        </Grid>
       </>
     )
   }

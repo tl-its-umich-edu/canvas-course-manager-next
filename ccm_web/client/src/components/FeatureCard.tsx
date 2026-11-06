@@ -54,7 +54,7 @@ function FeatureCard (props: FeatureUIProps): JSX.Element {
         <CardActionArea>
           <CardContent className={`${classes.cardContent}`}>
             <Grid container>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <div className={classes.centered}>
                   {props.icon}
                 </div>

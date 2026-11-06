@@ -259,10 +259,10 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
           />
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading || isGetStudentsLoading}>
             <Grid container>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <CircularProgress color='inherit' />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 Loading
                 {isGetSectionsLoading && ' section '}
                 {isGetStudentsLoading && ' student '}
@@ -271,7 +271,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
             </Grid>
           </Backdrop>
         </div>
-        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-end'
+        }}>
           <Button
             color='primary'
             variant='contained'
@@ -343,7 +345,7 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         />
         <div className={classes.uploadContainer}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FileUpload
                 onUploadComplete={(file) => {
                   setFile(file)
@@ -352,7 +354,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               />
           </Grid>
           </Grid>
-          <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+          <Grid container className={classes.buttonGroup} sx={{
+            justifyContent: 'flex-start'
+          }}>
             <Button
               variant='outlined'
               aria-label='Back to Select Section'
@@ -385,7 +389,14 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
       <div className={classes.reviewContainer}>
         <CSVFileName file={file} />
         <Grid container>
-            <Grid item xs={12} sm={12} md={9} sx={{ order: { xs: 2, sm: 2, md: 1, lg: 1 } }} className={classes.table}>
+            <Grid
+              sx={{ order: { xs: 2, sm: 2, md: 1, lg: 1 } }}
+              className={classes.table}
+              size={{
+                xs: 12,
+                sm: 12,
+                md: 9
+              }}>
               <Typography gutterBottom className={classes.reviewNotes}>
                 Notes: The first row shown below is the &quot;{POINTS_POS_TEXT}&quot; row.
                 In addition to the &quot;{REQUIRED_LOGIN_ID_HEADER}&quot; and assignment columns,
@@ -394,7 +405,13 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
               </Typography>
               <ThirdPartyGradebookConfirmationTable records={recordsToReview} assignmentHeader={assignmentHeader} />
             </Grid>
-            <Grid item xs={12} sm={12} md={3} sx={{ order: { xs: 1, sm: 1, md: 2, lg: 2 } }}>
+            <Grid
+              sx={{ order: { xs: 1, sm: 1, md: 2, lg: 2 } }}
+              size={{
+                xs: 12,
+                sm: 12,
+                md: 3
+              }}>
               <ConfirmDialog
                 message='Your file is valid! If this looks correct, click "Submit" to proceed with downloading.'
                 submit={() => setActiveStep(CSVWorkflowStep.Confirmation)}
@@ -419,7 +436,9 @@ export default function FormatThirdPartyGradebook (props: FormatThirdPartyGradeb
         <SuccessCard
           message={<Typography>The formatted gradebook file has been downloaded to your computer!</Typography>}
         />
-        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
           <Button variant='outlined' aria-label={`Start ${props.title} again`} onClick={handleFullReset}>
             Start Again
           </Button>

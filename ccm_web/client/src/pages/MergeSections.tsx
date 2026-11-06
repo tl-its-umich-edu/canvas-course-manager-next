@@ -137,10 +137,10 @@ function MergeSections(props: CCMComponentProps): JSX.Element {
     return (
       <div style={{ paddingTop: '20px', minHeight: '400px', textAlign: 'center' }}>
         <Grid container>
-          <Grid item xs={12}>
+          <Grid size={12}>
             Merging sections...
           </Grid>
-          <Grid item xs={12} style={{ paddingTop: '20px' }}>
+          <Grid style={{ paddingTop: '20px' }} size={12}>
             <LinearProgress />
           </Grid>
         </Grid>
@@ -257,18 +257,32 @@ function MergeSections(props: CCMComponentProps): JSX.Element {
     return (
       <>
         <Grid container spacing={1}>
-          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+          <Grid
+            className={classes.sectionSelectionContainer}
+            size={{
+              xs: 12,
+              sm: 9,
+              md: 6
+            }}>
             <Paper variant='outlined' className={classes.selectorPaper}>
               {getSelectSectionsUnstaged()}
             </Paper>
           </Grid>
-          <Grid className={classes.sectionSelectionContainer} item xs={12} sm={9} md={6}>
+          <Grid
+            className={classes.sectionSelectionContainer}
+            size={{
+              xs: 12,
+              sm: 9,
+              md: 6
+            }}>
             <Paper variant='outlined' className={classes.selectorPaper}>
               {getSelectSectionsStaged()}
             </Paper>
           </Grid>
         </Grid>
-        <Grid container className={classes.buttonGroup} justifyContent='flex-end'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-end'
+        }}>
           <Button
             className={classes.submitButton}
             onClick={submit}
@@ -287,7 +301,9 @@ function MergeSections(props: CCMComponentProps): JSX.Element {
     return (
       <>
         <CourseSectionList canUnmerge={isAdmin()} {...props} />
-        <Grid container className={classes.buttonGroup} justifyContent='flex-start'>
+        <Grid container className={classes.buttonGroup} sx={{
+          justifyContent: 'flex-start'
+        }}>
           <Button
             variant='outlined'
             aria-label={`Start ${props.title} again`}
@@ -305,10 +321,14 @@ function MergeSections(props: CCMComponentProps): JSX.Element {
       <Help baseHelpURL={props.globals.baseHelpURL} helpURLEnding={props.helpURLEnding} />
       <Typography variant='h5' component='h1' className={classes.spacing}>{props.title}</Typography>
       <div>
-        <Typography paragraph>
+        <Typography sx={{
+          marginBottom: '16px'
+        }}>
           ⚠️ It is recommended to merge sections <i>before</i> the start of term. ⚠️
         </Typography>
-        <Typography paragraph>
+        <Typography sx={{
+          marginBottom: '16px'
+        }}>
           If you merge a section from a course that contains content,
           submissions and grades, that content will <i>stay with the original course </i>
           once the section is merged, becoming inaccessible to teachers and students.
