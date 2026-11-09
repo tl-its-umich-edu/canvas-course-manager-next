@@ -1,4 +1,4 @@
-import { SnackbarProvider } from 'notistack'
+import { closeSnackbar, SnackbarProvider } from 'notistack'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
@@ -9,6 +9,8 @@ import ccmTheme from './theme.js'
 import AccessDenied from './pages/AccessDenied.js'
 import LaunchError from './pages/LaunchError.js'
 import { ConsentManagerProvider } from './components/ConsentManagerProvider.js'
+import { IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 const helpContactProps = {
   email: '4help@umich.edu',
@@ -27,7 +29,20 @@ const root = createRoot(document.getElementById('root') as Element)
 root.render(
    <StyledEngineProvider injectFirst>
      <ThemeProvider theme={ccmTheme}>
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider 
+        autoHideDuration={10000}
+        maxSnack={3}
+        action={(snackbarId) => (
+          <IconButton
+            size="small"
+            color="inherit"
+            onClick={() => closeSnackbar(snackbarId)}
+            aria-label="close" 
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
+      >
         <ConsentManagerProvider 
           globals={ccmGlobals}
           alwaysShow={ccmGlobals.environment === 'development'}
