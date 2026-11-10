@@ -1,7 +1,7 @@
 from django.test import RequestFactory
 from django.urls import reverse
 from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialManager
-from backend.ccm.canvas_api.course_section_api_handler import CanvasCourseSectionAPIHandler
+from backend.ccm.canvas_api.course_section_api_handler import CanvasCourseSectionAPIHandler, is_credit_section
 from backend.ccm.canvas_api.exceptions import CanvasErrorHandler, HTTPAPIError
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -20,6 +20,12 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
         self.course_id = 1
         self.url = reverse('courseSection', kwargs={'course_id': self.course_id})
         self.request_factory = RequestFactory()
+
+    def test_is_credit_section(self):
+        self.assertTrue(is_credit_section('202610012345'))
+        for sis_section_id in (None, '', 'ABC123', '12345-A', ' 12345', '١٢٣', '²'):
+            with self.subTest(sis_section_id=sis_section_id):
+                self.assertFalse(is_credit_section(sis_section_id))
 
     # Mock Course Section API handler view for testing
     @patch('backend.ccm.canvas_api.course_section_api_handler.CanvasObjectROSerializer')
@@ -60,14 +66,16 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
             'name': 'Section 1',
             'course_id': self.course_id,
             'total_students': 10,
-            'nonxlist_course_id': None
+            'nonxlist_course_id': None,
+            'sis_section_id': '202610012345'
         }
         mock_section_2 = {
             'id': 2,
             'name': 'Section 2',
             'course_id': self.course_id,
             'total_students': 20,
-            'nonxlist_course_id': None
+            'nonxlist_course_id': None,
+            'sis_section_id': None
         }
         
         with patch('backend.ccm.canvas_api.course_section_api_handler.Course') as mock_course_class:
@@ -100,9 +108,13 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
                 self.assertEqual(response.data[0]['id'], 1)
                 self.assertEqual(response.data[0]['name'], "Section 1")
                 self.assertEqual(response.data[0]['total_students'], 10)
+                self.assertTrue(response.data[0]['is_credit_section'])
+                self.assertNotIn('sis_section_id', response.data[0])
                 self.assertEqual(response.data[1]['id'], 2)
                 self.assertEqual(response.data[1]['name'], "Section 2")
                 self.assertEqual(response.data[1]['total_students'], 20)
+                self.assertFalse(response.data[1]['is_credit_section'])
+                self.assertNotIn('sis_section_id', response.data[1])
 
     def test_get_course_sections_empty(self):
         request = self.request_factory.get(self.url)

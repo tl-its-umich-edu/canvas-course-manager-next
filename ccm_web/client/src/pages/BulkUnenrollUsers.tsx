@@ -66,7 +66,10 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
-      setSections(sortSections(injectCourseName(sections, props.course.name)))
+      setSections(sortSections(injectCourseName(
+        sections.filter(s => s.is_credit_section === false),
+        props.course.name
+      )))
     }
   )
 
@@ -96,6 +99,7 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
         <Typography variant='subtitle1' component='h3' className={classes.spacing}>
           Select the section to unenroll students from
         </Typography>
+        <Typography variant='subtitle1' className={classes.spacing}>Only listing Non-Academic sections</Typography>
         <div className={classes.container}>
           <SectionSelectorWidget
             height={300}
