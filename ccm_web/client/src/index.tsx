@@ -24,13 +24,15 @@ if (!ccmGlobalEl || !ccmGlobalEl.textContent) {
 }
 const ccmGlobals = Object.freeze(JSON.parse(ccmGlobalEl.textContent))
 
+const snackbarAutoHideDuration = 10000 // 10 seconds
+
 
 const root = createRoot(document.getElementById('root') as Element)
 root.render(
    <StyledEngineProvider injectFirst>
      <ThemeProvider theme={ccmTheme}>
       <SnackbarProvider 
-        autoHideDuration={10000}
+        autoHideDuration={snackbarAutoHideDuration}
         maxSnack={3}
         action={(snackbarId) => (
           <IconButton
