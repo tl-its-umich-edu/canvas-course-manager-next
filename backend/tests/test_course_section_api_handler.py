@@ -77,6 +77,14 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
             'nonxlist_course_id': None,
             'sis_section_id': None
         }
+        # No sis_section_id key: Canvas omits it without SIS read permission
+        mock_section_3 = {
+            'id': 3,
+            'name': 'Section 3',
+            'course_id': self.course_id,
+            'total_students': 30,
+            'nonxlist_course_id': None
+        }
         
         with patch('backend.ccm.canvas_api.course_section_api_handler.Course') as mock_course_class:
             with patch.object(CanvasCredentialManager, 'get_canvasapi_instance') as mock_get_instance:
@@ -88,7 +96,7 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
                 
                 # Create simplified section objects with just the required fields
                 sections = []
-                for data in [mock_section_1, mock_section_2]:
+                for data in [mock_section_1, mock_section_2, mock_section_3]:
                     section = type('Section', (), {})()
                     for key, value in data.items():
                         setattr(section, key, value)
@@ -104,7 +112,7 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
                 
                 # Assert the response
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(len(response.data), 2)
+                self.assertEqual(len(response.data), 3)
                 self.assertEqual(response.data[0]['id'], 1)
                 self.assertEqual(response.data[0]['name'], "Section 1")
                 self.assertEqual(response.data[0]['total_students'], 10)
@@ -115,6 +123,8 @@ class CanvasCourseSectionAPIHandlerTests(APITestCase):
                 self.assertEqual(response.data[1]['total_students'], 20)
                 self.assertFalse(response.data[1]['is_credit_section'])
                 self.assertNotIn('sis_section_id', response.data[1])
+                self.assertIsNone(response.data[2]['is_credit_section'])
+                self.assertNotIn('sis_section_id', response.data[2])
 
     def test_get_course_sections_empty(self):
         request = self.request_factory.get(self.url)

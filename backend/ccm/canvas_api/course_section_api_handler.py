@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def is_credit_section(sis_section_id: str | None) -> bool:
     """
-    Credit sections have all-digit SIS IDs; Canvas may omit the ID without SIS read permission.
+    Credit sections have all-digit SIS IDs. Callers treat an omitted ID (no SIS read permission) as unknown.
     """
     return bool(re.fullmatch(r'[0-9]+', sis_section_id or ''))
 
@@ -60,15 +60,13 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
             # Get list of sections, including total_students info
             sections = course.get_sections(include=['total_students'], per_page=per_page)
             
-            serializer = CanvasObjectROSerializer(
-                sections,
-                allowed_fields=self.course_section_allowed_fields | {"sis_section_id"},
-                many=True
-            )
+            allowed_fields = self.course_section_allowed_fields | {"sis_section_id"}
+            serializer = CanvasObjectROSerializer(sections, allowed_fields=allowed_fields, many=True)
             data = serializer.data
             for row in data:
-                row["is_credit_section"] = is_credit_section(row.pop("sis_section_id", None))
-            logger.info(f"Section data retrieved with filtered fields: {self.course_section_allowed_fields}")
+                # Absent key = no SIS read permission -> unknown (None); explicit null = no SIS ID
+                row["is_credit_section"] = is_credit_section(row.pop("sis_section_id")) if "sis_section_id" in row else None
+            logger.info(f"Section data retrieved with filtered fields: {allowed_fields}")
             logger.debug(f"Section data in response: {data}")
 
             return Response(data, status=HTTPStatus.OK)
