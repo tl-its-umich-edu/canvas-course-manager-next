@@ -1,4 +1,4 @@
-import logging, asyncio, time
+import logging, asyncio, re, time
 from http import HTTPStatus
 from backend.ccm.canvas_api.canvasapi_serializer import CanvasObjectROSerializer, CourseSectionSerializer, CrosslistSectionsSerializer
 from rest_framework.views import APIView
@@ -21,6 +21,12 @@ from backend.ccm.canvas_api.canvas_credential_manager import CanvasCredentialMan
 from rest_framework_tracking.mixins import LoggingMixin
 
 logger = logging.getLogger(__name__)
+
+def is_credit_section(sis_section_id: str | None) -> bool:
+    """
+    Credit sections have all-digit SIS IDs. Callers treat an omitted ID (no SIS read permission) as unknown.
+    """
+    return bool(re.fullmatch(r'[0-9]+', sis_section_id or ''))
 
 class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
     """
@@ -54,11 +60,16 @@ class CanvasCourseSectionAPIHandler(LoggingMixin, APIView):
             # Get list of sections, including total_students info
             sections = course.get_sections(include=['total_students'], per_page=per_page)
             
-            serializer = CanvasObjectROSerializer(sections, allowed_fields=self.course_section_allowed_fields, many=True)
-            logger.info(f"Section data retrieved with filtered fields: {self.course_section_allowed_fields}")
-            logger.debug(f"Section data in response: {serializer.data}")
+            allowed_fields = self.course_section_allowed_fields | {"sis_section_id"}
+            serializer = CanvasObjectROSerializer(sections, allowed_fields=allowed_fields, many=True)
+            data = serializer.data
+            for row in data:
+                # Absent key = no SIS read permission -> unknown (None); explicit null = no SIS ID
+                row["is_credit_section"] = is_credit_section(row.pop("sis_section_id")) if "sis_section_id" in row else None
+            logger.info(f"Section data retrieved with filtered fields: {allowed_fields}")
+            logger.debug(f"Section data in response: {data}")
 
-            return Response(serializer.data, status=HTTPStatus.OK)
+            return Response(data, status=HTTPStatus.OK)
         except (CanvasException, Exception) as e:
             self.canvas_error.handle_canvas_api_exceptions(HTTPAPIError(str(course_id), e))
             return Response(self.canvas_error.to_dict(), status=self.canvas_error.to_dict().get('statusCode'))

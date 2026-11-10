@@ -19,6 +19,7 @@ export interface CanvasCourseSectionBase {
 
 export interface CanvasCourseSection extends CanvasCourseSectionBase {
   total_students: number
+  is_credit_section?: boolean | null
 }
 
 export interface CanvasCourseSectionWithCourseName extends CanvasCourseSection {
