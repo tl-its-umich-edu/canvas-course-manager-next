@@ -23,7 +23,7 @@
     "js-cookie": "3.0.8",
     "keycode-js": "3.1.0",
     "notistack": "3.0.2",
-    "papaparse": "5.7.0",
+    "papaparse": "5.7.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-ga4": "3.0.1",
@@ -48,7 +48,7 @@
     "style-loader": "4.0.0",
     "ts-loader": "9.6.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.72.1",
+    "typescript-eslint": "8.72.2",
     "webpack": "5.112.2",
     "webpack-cli": "7.3.1",
     "webpack-merge": "6.0.1"
