@@ -6,7 +6,7 @@ import { getCourseSections } from '../api.js'
 import APIErrorMessage from '../components/APIErrorMessage.js'
 import ErrorAlert from '../components/ErrorAlert.js'
 import Help from '../components/Help.js'
-import SectionSelectorWidget from '../components/SectionSelectorWidget.js'
+import SectionSelectorWidget, { SelectableCanvasCourseSection } from '../components/SectionSelectorWidget.js'
 import SelectedSectionInfo from '../components/SelectedSectionInfo.js'
 import WorkflowStepper from '../components/WorkflowStepper.js'
 import usePromise from '../hooks/usePromise.js'
@@ -60,16 +60,18 @@ type BulkUnenrollUsersProps = CCMComponentProps
 
 function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
   const [activeStep, setActiveStep] = useState<CSVWorkflowStep>(CSVWorkflowStep.Select)
-  const [sections, setSections] = useState<CanvasCourseSectionWithCourseName[] | undefined>(undefined)
+  const [sections, setSections] = useState<SelectableCanvasCourseSection[] | undefined>(undefined)
   const [selectedSection, setSelectedSection] = useState<CanvasCourseSectionWithCourseName | undefined>(undefined)
+  const [excludedCount, setExcludedCount] = useState(0)
 
   const [doGetSections, isGetSectionsLoading, getSectionsError, clearGetSectionsError] = usePromise(
     async () => await getCourseSections(props.globals.course.id),
     (sections: CanvasCourseSection[]) => {
+      setExcludedCount(sections.filter(s => s.is_credit_section === true).length)
       setSections(sortSections(injectCourseName(
         sections.filter(s => s.is_credit_section === false),
         props.course.name
-      )))
+      ).map(section => ({ ...section, locked: section.total_students === 0 }))))
     }
   )
 
@@ -81,6 +83,7 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
     clearGetSectionsError()
     setSections(undefined)
     setSelectedSection(undefined)
+    setExcludedCount(0)
     await doGetSections()
   }
 
@@ -94,12 +97,24 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
       )
     }
 
+    if (!isGetSectionsLoading && sections !== undefined && sections.length === 0) {
+      return (
+        <Typography variant='subtitle1' className={classes.spacing}>
+          {excludedCount > 0
+            ? `${excludedCount} ${excludedCount === 1 ? 'section was' : 'sections were'} excluded. Bulk unenroll is NOT available for official MPathways sections.`
+            : 'No sections were found.'}
+        </Typography>
+      )
+    }
+
     return (
       <>
         <Typography variant='subtitle1' component='h3' className={classes.spacing}>
           Select the section to unenroll students from
         </Typography>
-        <Typography variant='subtitle1' className={classes.spacing}>Only listing Non-Academic sections</Typography>
+        <Typography variant='subtitle1' className={classes.spacing}>
+          Only listing sections that are not official MPathways sections.
+        </Typography>
         <div className={classes.container}>
           <SectionSelectorWidget
             height={300}
