@@ -97,16 +97,6 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
       )
     }
 
-    if (!isGetSectionsLoading && sections !== undefined && sections.length === 0) {
-      return (
-        <Typography variant='subtitle1' className={classes.spacing}>
-          {excludedCount > 0
-            ? `${excludedCount} ${excludedCount === 1 ? 'section was' : 'sections were'} excluded. Bulk unenroll is NOT available for official MPathways sections.`
-            : 'No sections were found.'}
-        </Typography>
-      )
-    }
-
     return (
       <>
         <Typography variant='subtitle1' component='h3' className={classes.spacing}>
@@ -116,15 +106,25 @@ function BulkUnenrollUsers(props: BulkUnenrollUsersProps): JSX.Element {
           Only listing sections that are not official MPathways sections.
         </Typography>
         <div className={classes.container}>
-          <SectionSelectorWidget
-            height={300}
-            search={[]}
-            multiSelect={false}
-            sections={sections ?? []}
-            selectedSections={selectedSection !== undefined ? [selectedSection] : []}
-            selectionUpdated={(sections) => setSelectedSection(sections[0])}
-            canUnmerge={false}
-          />
+          {!isGetSectionsLoading && sections !== undefined && sections.length === 0
+            ? (
+              <Typography variant='subtitle1' className={classes.spacing}>
+                {excludedCount > 0
+                  ? `${excludedCount} ${excludedCount === 1 ? 'section was' : 'sections were'} excluded. Bulk unenroll is NOT available for official MPathways sections.`
+                  : 'No eligible sections were found. Sections with undetermined credit status are not listed.'}
+              </Typography>
+            )
+            : (
+              <SectionSelectorWidget
+                height={300}
+                search={[]}
+                multiSelect={false}
+                sections={sections ?? []}
+                selectedSections={selectedSection !== undefined ? [selectedSection] : []}
+                selectionUpdated={(sections) => setSelectedSection(sections[0])}
+                canUnmerge={false}
+              />
+            )}
           <Backdrop className={classes.backdrop} open={isGetSectionsLoading}>
             <Grid container>
               <Grid size={12}><CircularProgress color='inherit' /></Grid>
